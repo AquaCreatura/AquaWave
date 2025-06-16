@@ -1,0 +1,25 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34728.123
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AquaWave", "AquaWave.vcxproj", "{854C8ADB-0E85-484B-9894-A838407CE353}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Release|x64 = Release|x64
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{854C8ADB-0E85-484B-9894-A838407CE353}.Debug|x64.ActiveCfg = Debug|x64
+		{854C8ADB-0E85-484B-9894-A838407CE353}.Debug|x64.Build.0 = Debug|x64
+		{854C8ADB-0E85-484B-9894-A838407CE353}.Release|x64.ActiveCfg = Release|x64
+		{854C8ADB-0E85-484B-9894-A838407CE353}.Release|x64.Build.0 = Release|x64
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {4EC68F9A-8471-4A3A-A462-D1978A9F7E8E}
+	EndGlobalSection
+EndGlobal

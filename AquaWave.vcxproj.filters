@@ -1,0 +1,279 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <!-- Filter Definitions -->
+  <ItemGroup>
+    <Filter Include="Application">
+      <UniqueIdentifier>{4fc737f1-c7a5-4376-a066-2a32d752a2ff}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Interfaces">
+      <UniqueIdentifier>{246bf404-9815-450a-81cc-3d0180094961}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Interfaces\base_impl">
+      <UniqueIdentifier>{19bffdfb-f2d4-4c80-8468-e01314f71841}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="File Source">
+      <UniqueIdentifier>{32bfafc6-224f-4180-a5fb-cef643b14f9a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="time graph ark">
+      <UniqueIdentifier>{55690e67-7c80-4a9c-9397-b2b8aa031cfd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DSP Tools">
+      <UniqueIdentifier>{8b03fb09-fc61-48b3-8cc8-92757a7aa6e7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DSP Tools\basic">
+      <UniqueIdentifier>{e8d2b5c1-8f5e-4b2a-9c7d-5f6a8b9c0d1e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DSP Tools\Resampler">
+      <UniqueIdentifier>{5e099aff-20d4-4665-921c-4a1e9766005b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DSP Tools\Resampler\ResamplersImpl">
+      <UniqueIdentifier>{f7b8c9d2-3e4f-4a5b-8c9d-1e2f3a4b5c6d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DSP Tools\Resampler\ResamplersImpl\MR Resampler">
+      <UniqueIdentifier>{a1b2c3d4-5e6f-7a8b-9c0d-1e2f3a4b5c6d}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DSP Tools\Resampler\ResamplersImpl\Precise Resampler">
+      <UniqueIdentifier>{b2c3d4e5-6f7a-8b9c-0d1e-2f3a4b5c6d7e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DSP Tools\Resampler\ResamplersImpl\Precise Resampler\Interpolator">
+      <UniqueIdentifier>{c3d4e5f6-7a8b-9c0d-1e2f-3a4b5c6d7e8f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DSP Tools\Resampler\tools">
+      <UniqueIdentifier>{11111111-1111-1111-1111-111111111111}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Tools">
+      <UniqueIdentifier>{f6a7b8c9-0d1e-2f3a-4b5c-6d7e8f9a0b1c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI">
+      <UniqueIdentifier>{3462638b-1003-4b82-9a88-c0dea3bcef09}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI\basic tools">
+      <UniqueIdentifier>{e5f6a7b8-9c0d-1e2f-3a4b-5c6d7e8f9a0b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI\Charts">
+      <UniqueIdentifier>{da289fca-4831-47b0-83e9-7bca5fcd9519}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI\Charts\DPX">
+      <UniqueIdentifier>{ae13bdcc-f543-405e-8862-40ca30dc48f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI\Charts\DPX\DPX core">
+      <UniqueIdentifier>{d4e5f6a7-8b9c-0d1e-2f3a-4b5c6d7e8f9a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI\Charts\Simple chart">
+      <UniqueIdentifier>{edd5ddbf-9c88-4174-879d-effa008d2742}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI\Drawers">
+      <UniqueIdentifier>{33333333-3333-3333-3333-333333333333}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Spectrum DPX">
+      <UniqueIdentifier>{2e1b4a36-2f99-46ad-bb5b-940a82fb93a1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DSP Tools\FFT">
+      <UniqueIdentifier>{217182ea-5917-4bac-8f16-9bb629978711}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <!-- ClCompile (CPP Files) -->
+  <ItemGroup>
+    <ClCompile Include="AquaWave.cpp">
+      <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\DSP Tools\basic\freq_shifter.cpp">
+      <Filter>DSP Tools\basic</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\DSP Tools\Resampler\ResamplersImpl\MR Resampler\MultiRateResampler.cpp">
+      <Filter>DSP Tools\Resampler\ResamplersImpl\MR Resampler</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\DSP Tools\Resampler\ResamplersImpl\Precise Resampler\Interpolator\FarrowInterpolator.cpp">
+      <Filter>DSP Tools\Resampler\ResamplersImpl\Precise Resampler\Interpolator</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\DSP Tools\Resampler\ResamplersImpl\Precise Resampler\PreciseResampler.cpp">
+      <Filter>DSP Tools\Resampler\ResamplersImpl\Precise Resampler</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\DSP Tools\Resampler\ResamplerMan.cpp">
+      <Filter>DSP Tools\Resampler</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\File Source\FileDataManager.cpp">
+      <Filter>File Source</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\File Source\FileReadCore.cpp">
+      <Filter>File Source</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\File Source\FileSource.cpp">
+      <Filter>File Source</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\GUI\basic tools\ChartSelection.cpp">
+      <Filter>GUI\basic tools</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\GUI\basic tools\gui_conversions.cpp">
+      <Filter>GUI\basic tools</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\GUI\basic tools\gui_filters.cpp">
+      <Filter>GUI\basic tools</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\GUI\Charts\DPX\DPX core\DpxCore.cpp">
+      <Filter>GUI\Charts\DPX\DPX core</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\GUI\Charts\DPX\DPX core\DpxRenderer.cpp">
+      <Filter>GUI\Charts\DPX\DPX core</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\GUI\Charts\DPX\DpxChart.cpp">
+      <Filter>GUI\Charts\DPX</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\GUI\Charts\Simple chart\ChartSingle.cpp">
+      <Filter>GUI\Charts\Simple chart</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\GUI\Charts\ChartInterface.cpp">
+      <Filter>GUI\Charts</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\GUI\Drawers\AxisPainter.cpp">
+      <Filter>GUI\Drawers</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\GUI\Drawers\ImageBackGround.cpp">
+      <Filter>GUI\Drawers</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\Interfaces\base_impl\ark_base.cpp">
+      <Filter>Interfaces\base_impl</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\time graph ark\TimeGraphArk.cpp">
+      <Filter>time graph ark</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\Spectrum DPX\SpectrumDPX.cpp">
+      <Filter>Spectrum DPX</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\DSP Tools\FFT\FFT_Worker.cpp">
+      <Filter>DSP Tools\FFT</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\GUI\Drawers\QimageZoomer.cpp">
+      <Filter>GUI\Drawers</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\GUI\Charts\DPX\DPX core\DpxScaler.cpp">
+      <Filter>GUI\Charts\DPX\DPX core</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\GUI\basic tools\PowerManager.cpp">
+      <Filter>GUI\basic tools</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <!-- ClInclude (H Files) -->
+  <ItemGroup>
+    <ClInclude Include="sources\DSP Tools\basic\freq_shifter.h">
+      <Filter>DSP Tools\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\DSP Tools\Resampler\ResamplersImpl\MR Resampler\MultiRateResampler.h">
+      <Filter>DSP Tools\Resampler\ResamplersImpl\MR Resampler</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\DSP Tools\Resampler\ResamplersImpl\Precise Resampler\Interpolator\FarrowInterpolator.h">
+      <Filter>DSP Tools\Resampler\ResamplersImpl\Precise Resampler\Interpolator</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\DSP Tools\Resampler\ResamplersImpl\Precise Resampler\PreciseResampler.h">
+      <Filter>DSP Tools\Resampler\ResamplersImpl\Precise Resampler</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\DSP Tools\Resampler\ResamplersImpl\ResamperInterface.h">
+      <Filter>DSP Tools\Resampler\ResamplersImpl</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\DSP Tools\Resampler\tools\resampler_tools.h">
+      <Filter>DSP Tools\Resampler\tools</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\DSP Tools\Resampler\ResamplerMan.h">
+      <Filter>DSP Tools\Resampler</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\File Source\file_souce_defs.h">
+      <Filter>File Source</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\File Source\FileDataManager.h">
+      <Filter>File Source</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\File Source\FileReadCore.h">
+      <Filter>File Source</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\GUI\basic tools\ChartSelection.h">
+      <Filter>GUI\basic tools</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\GUI\basic tools\gui_conversions.h">
+      <Filter>GUI\basic tools</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\GUI\basic tools\gui_filters.h">
+      <Filter>GUI\basic tools</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\GUI\Charts\DPX\DPX core\DPX_defs.h">
+      <Filter>GUI\Charts\DPX\DPX core</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\GUI\Charts\DPX\DPX core\DpxCore.h">
+      <Filter>GUI\Charts\DPX\DPX core</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\GUI\Charts\DPX\DPX core\DpxRenderer.h">
+      <Filter>GUI\Charts\DPX\DPX core</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\GUI\Charts\DPX\DpxChart.h">
+      <Filter>GUI\Charts\DPX</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\GUI\Charts\Simple chart\ChartSingle.h">
+      <Filter>GUI\Charts\Simple chart</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\GUI\Drawers\AxisPainter.h">
+      <Filter>GUI\Drawers</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\GUI\Drawers\ImageBackGround.h">
+      <Filter>GUI\Drawers</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\Interfaces\base_impl\ark_base.h">
+      <Filter>Interfaces\base_impl</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\Interfaces\ark_defs.h">
+      <Filter>Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\time graph ark\TimeGraphArk.h">
+      <Filter>time graph ark</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\Spectrum DPX\SpectrumDPX.h">
+      <Filter>Spectrum DPX</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\DSP Tools\FFT\FFT_Worker.h">
+      <Filter>DSP Tools\FFT</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\GUI\Drawers\QimageZoomer.h">
+      <Filter>GUI\Drawers</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\GUI\gui_defs.h">
+      <Filter>GUI</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\Tools\parse_tools.h">
+      <Filter>Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\aqua_defines.h" />
+    <ClInclude Include="sources\Tools\utility_aqua.h">
+      <Filter>Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\GUI\Charts\DPX\DPX core\DpxScaler.h">
+      <Filter>GUI\Charts\DPX\DPX core</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\GUI\basic tools\PowerManager.h">
+      <Filter>GUI\basic tools</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <!-- QtMoc (For Headers Requiring Moc) -->
+  <ItemGroup>
+    <QtMoc Include="AquaWave.h">
+      <Filter>Application</Filter>
+    </QtMoc>
+    <QtMoc Include="sources\Interfaces\ark_interface.h">
+      <Filter>Interfaces</Filter>
+    </QtMoc>
+    <QtMoc Include="sources\GUI\Charts\ChartInterface.h">
+      <Filter>GUI\Charts</Filter>
+    </QtMoc>
+    <QtMoc Include="sources\File Source\FileSource.h">
+      <Filter>File Source</Filter>
+    </QtMoc>
+  </ItemGroup>
+  <ItemGroup>
+    <QtRcc Include="AquaWave.qrc" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtUic Include="AquaWave.ui" />
+    <QtUic Include="sources\File Source\file_settings_dialog.ui" />
+    <QtUic Include="sources\time graph ark\TimeGraphWidget.ui" />
+  </ItemGroup>
+</Project>

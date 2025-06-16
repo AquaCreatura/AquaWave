@@ -1,0 +1,185 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{854C8ADB-0E85-484B-9894-A838407CE353}</ProjectGuid>
+    <Keyword>QtVS_v304</Keyword>
+    <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">10.0.17763.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">10.0.17763.0</WindowsTargetPlatformVersion>
+    <QtMsBuild Condition="'$(QtMsBuild)'=='' OR !Exists('$(QtMsBuild)\qt.targets')">$(MSBuildProjectDirectory)\QtMsBuild</QtMsBuild>
+    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v141</PlatformToolset>
+    <UseIntelTBB>true</UseIntelTBB>
+    <UseIntelIPP>Sequential</UseIntelIPP>
+    <UseIntelIPP1A>Static_Library</UseIntelIPP1A>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v141</PlatformToolset>
+    <UseIntelIPP>Sequential</UseIntelIPP>
+    <UseIntelTBB>true</UseIntelTBB>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Condition="Exists('$(QtMsBuild)\qt_defaults.props')">
+    <Import Project="$(QtMsBuild)\qt_defaults.props" />
+  </ImportGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="QtSettings">
+    <QtInstall>Qt5.x64</QtInstall>
+    <QtModules>core;gui;widgets</QtModules>
+    <QtBuildConfig>debug</QtBuildConfig>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="QtSettings">
+    <QtInstall>Qt5.x64</QtInstall>
+    <QtModules>core;gui;widgets</QtModules>
+    <QtBuildConfig>release</QtBuildConfig>
+  </PropertyGroup>
+  <Target Name="QtMsBuildNotFound" BeforeTargets="CustomBuild;ClCompile" Condition="!Exists('$(QtMsBuild)\qt.targets') or !Exists('$(QtMsBuild)\qt.props')">
+    <Message Importance="High" Text="QtMsBuild: could not locate qt.targets, qt.props; project may not build correctly." />
+  </Target>
+  <ImportGroup Label="ExtensionSettings" />
+  <ImportGroup Label="Shared" />
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(QtMsBuild)\Qt.props" />
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+    <Import Project="$(QtMsBuild)\Qt.props" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>sources;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpplatest</LanguageStandard>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <ClCompile>
+      <AdditionalIncludeDirectories>sources;%(AdditionalIncludeDirectories);$(Qt_INCLUDEPATH_)</AdditionalIncludeDirectories>
+    </ClCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
+    <ClCompile>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <Optimization>Disabled</Optimization>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="Configuration">
+    <ClCompile>
+      <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <Optimization>MaxSpeed</Optimization>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="AquaWave.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="sources\DSP Tools\basic\freq_shifter.cpp" />
+    <ClCompile Include="sources\DSP Tools\FFT\FFT_Worker.cpp" />
+    <ClCompile Include="sources\DSP Tools\Resampler\ResamplersImpl\MR Resampler\MultiRateResampler.cpp" />
+    <ClCompile Include="sources\DSP Tools\Resampler\ResamplersImpl\Precise Resampler\Interpolator\FarrowInterpolator.cpp" />
+    <ClCompile Include="sources\DSP Tools\Resampler\ResamplersImpl\Precise Resampler\PreciseResampler.cpp" />
+    <ClCompile Include="sources\DSP Tools\Resampler\ResamplerMan.cpp" />
+    <ClCompile Include="sources\File Source\FileDataManager.cpp" />
+    <ClCompile Include="sources\File Source\FileReadCore.cpp" />
+    <ClCompile Include="sources\File Source\FileSource.cpp" />
+    <ClCompile Include="sources\GUI\basic tools\ChartSelection.cpp" />
+    <ClCompile Include="sources\GUI\basic tools\gui_conversions.cpp" />
+    <ClCompile Include="sources\GUI\basic tools\gui_filters.cpp" />
+    <ClCompile Include="sources\GUI\basic tools\PowerManager.cpp" />
+    <ClCompile Include="sources\GUI\Charts\DPX\DPX core\DpxCore.cpp" />
+    <ClCompile Include="sources\GUI\Charts\DPX\DPX core\DpxRenderer.cpp" />
+    <ClCompile Include="sources\GUI\Charts\DPX\DPX core\DpxScaler.cpp" />
+    <ClCompile Include="sources\GUI\Charts\DPX\DpxChart.cpp" />
+    <ClCompile Include="sources\GUI\Charts\Simple chart\ChartSingle.cpp" />
+    <ClCompile Include="sources\GUI\Charts\ChartInterface.cpp" />
+    <ClCompile Include="sources\GUI\Drawers\AxisPainter.cpp" />
+    <ClCompile Include="sources\GUI\Drawers\ImageBackGround.cpp" />
+    <ClCompile Include="sources\GUI\Drawers\QimageZoomer.cpp" />
+    <ClCompile Include="sources\Interfaces\base_impl\ark_base.cpp" />
+    <ClCompile Include="sources\Spectrum DPX\SpectrumDPX.cpp" />
+    <ClCompile Include="sources\time graph ark\TimeGraphArk.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="sources\aqua_defines.h" />
+    <ClInclude Include="sources\DSP Tools\basic\freq_shifter.h" />
+    <ClInclude Include="sources\DSP Tools\FFT\FFT_Worker.h" />
+    <ClInclude Include="sources\DSP Tools\Resampler\ResamplersImpl\MR Resampler\MultiRateResampler.h" />
+    <ClInclude Include="sources\DSP Tools\Resampler\ResamplersImpl\Precise Resampler\Interpolator\FarrowInterpolator.h" />
+    <ClInclude Include="sources\DSP Tools\Resampler\ResamplersImpl\Precise Resampler\PreciseResampler.h" />
+    <ClInclude Include="sources\DSP Tools\Resampler\ResamplersImpl\ResamperInterface.h" />
+    <ClInclude Include="sources\DSP Tools\Resampler\tools\resampler_tools.h" />
+    <ClInclude Include="sources\DSP Tools\Resampler\ResamplerMan.h" />
+    <ClInclude Include="sources\File Source\file_souce_defs.h" />
+    <ClInclude Include="sources\File Source\FileDataManager.h" />
+    <ClInclude Include="sources\File Source\FileReadCore.h" />
+    <ClInclude Include="sources\GUI\basic tools\PowerManager.h" />
+    <ClInclude Include="sources\GUI\Charts\DPX\DPX core\DpxScaler.h" />
+    <ClInclude Include="sources\Tools\utility_aqua.h" />
+    <ClInclude Include="sources\Tools\parse_tools.h" />
+    <QtMoc Include="sources\File Source\FileSource.h" />
+    <ClInclude Include="sources\GUI\basic tools\ChartSelection.h" />
+    <ClInclude Include="sources\GUI\basic tools\gui_conversions.h" />
+    <ClInclude Include="sources\GUI\basic tools\gui_filters.h" />
+    <ClInclude Include="sources\GUI\gui_defs.h" />
+    <ClInclude Include="sources\GUI\Charts\DPX\DPX core\DPX_defs.h" />
+    <ClInclude Include="sources\GUI\Charts\DPX\DPX core\DpxCore.h" />
+    <ClInclude Include="sources\GUI\Charts\DPX\DPX core\DpxRenderer.h" />
+    <ClInclude Include="sources\GUI\Charts\DPX\DpxChart.h" />
+    <ClInclude Include="sources\GUI\Charts\Simple chart\ChartSingle.h" />
+    <ClInclude Include="sources\GUI\Drawers\AxisPainter.h" />
+    <ClInclude Include="sources\GUI\Drawers\ImageBackGround.h" />
+    <ClInclude Include="sources\GUI\Drawers\QimageZoomer.h" />
+    <ClInclude Include="sources\Interfaces\base_impl\ark_base.h" />
+    <ClInclude Include="sources\Interfaces\ark_defs.h" />
+    <ClInclude Include="sources\Spectrum DPX\SpectrumDPX.h" />
+    <ClInclude Include="sources\time graph ark\TimeGraphArk.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtMoc Include="AquaWave.h" />
+    <QtMoc Include="sources\Interfaces\ark_interface.h" />
+    <QtMoc Include="sources\GUI\Charts\ChartInterface.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtUic Include="AquaWave.ui" />
+    <QtUic Include="sources\File Source\file_settings_dialog.ui" />
+    <QtUic Include="sources\time graph ark\TimeGraphWidget.ui" />
+  </ItemGroup>
+  <ItemGroup>
+    <QtRcc Include="AquaWave.qrc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">
+    <Import Project="$(QtMsBuild)\qt.targets" />
+  </ImportGroup>
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+</Project>

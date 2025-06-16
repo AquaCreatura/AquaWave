@@ -1,0 +1,5 @@
+<RCC>
+    <qresource prefix="/AquaWave">
+        <file>wave.png</file>
+    </qresource>
+</RCC>

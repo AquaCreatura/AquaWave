@@ -1,0 +1,81 @@
+# --- Visual Studio specific ---
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.VC.db
+*.VC.VC.opendb
+
+# --- Build output ---
+[Bb]in/
+[Oo]bj/
+Build/
+Debug/
+Release/
+x64/
+x86/
+ARM/
+ARM64/
+
+# --- IntelliSense / Precompiled headers ---
+ipch/
+*.ipch
+*.pch
+*.pdb
+
+# --- CMake (if used) ---
+CMakeFiles/
+CMakeCache.txt
+cmake_install.cmake
+Makefile
+CMakeSettings.json
+
+# --- Compiled binaries ---
+*.exe
+*.dll
+*.lib
+*.exp
+*.log
+*.ilk
+
+# --- Temporary files ---
+*.tmp
+*.log
+*.tlog
+*.lastbuildstate
+
+# --- Crash dumps and profiling ---
+*.dmp
+*.perf
+
+# --- Auto-generated files ---
+*.opensdf
+*.sdf
+*.cache
+*.obj
+*.iobj
+*.idb
+
+# --- Other ---
+*.ncb
+*.sbr
+*.aps
+
+# --- Backup files ---
+*~
+*.bak
+*.old
+
+# --- Windows specific ---
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# --- Rider or ReSharper (JetBrains tools) ---
+.idea/
+*.DotSettings.user
+
+# --- Optional: ignore your own tools or local scripts ---
+# tools/
+# scripts/

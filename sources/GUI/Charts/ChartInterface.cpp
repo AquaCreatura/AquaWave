@@ -10,7 +10,7 @@ ChartInterface::ChartInterface(QWidget* parent) :
     SetHorizontalMinMaxBounds(50'000, 200'000);
     SetHorizontalSuffix("counts");
 
-    SetVerticalMinMaxBounds(0, 100, true);
+    SetVerticalMinMaxBounds(20, 40, true);
     SetVerticalSuffix("power");
     connect(&redraw_timer_, &QTimer::timeout, this, &ChartInterface::OnTimeoutRedraw);
     redraw_timer_.start(100);
@@ -37,6 +37,7 @@ void ChartInterface::SetHorizontalMinMaxBounds(const double min_val, const doubl
 
     cur_val_info = new_horizontal_bounds;
     scale_info_.val_info_.cur_bounds.horizontal = new_horizontal_bounds;
+    power_man_.SetNewViewBounds(new_horizontal_bounds);
 }
 
 void ChartInterface::SetHorizontalSuffix(const QString & suffix)
@@ -49,12 +50,13 @@ void ChartInterface::SetHorizontalSuffix(const QString & suffix)
 // ”становка границ по вертикали
 void ChartInterface::SetVerticalMinMaxBounds(const double min_val, const double end_val, const bool is_adaptive)
 {
+    power_man_.EnableAdaptiveMode(is_adaptive);
     Limits<double> new_vertical_bounds = {min_val, end_val};
-    auto& cur_val_info = scale_info_.val_info_.min_max_bounds_.vertical;
+    auto& cur_min_max = scale_info_.val_info_.min_max_bounds_.vertical;
     // ≈сли ничего не изменилось Ч выходим
-    if (cur_val_info == new_vertical_bounds) return;
+    if (cur_min_max == new_vertical_bounds) return;
 
-    cur_val_info = new_vertical_bounds;
+    cur_min_max = new_vertical_bounds;
     scale_info_.val_info_.cur_bounds.vertical = new_vertical_bounds;
 }
 
@@ -228,6 +230,30 @@ void ChartInterface::paintEvent(QPaintEvent * paint_event)
 
 void ChartInterface::UpdatePowerBounds()
 {
+    // ѕолучаем текущие "автоматические" границы мощности от отрисовщика DPX
+    auto new_bounds = power_man_.GetPowerBounds();
+    // ѕолучаем ссылку на текущие максимально допустимые (автоматические) границы шкалы
+    auto &vert_min_max = scale_info_.val_info_.min_max_bounds_.vertical;
+
+    // ≈сли автоматические границы изменились, обновл€ем шкалу
+    if(vert_min_max != new_bounds)
+    {
+        // ѕолучаем ссылку на текущие отображаемые границы шкалы (которые видит пользователь)
+        auto &vert_cur               = scale_info_.val_info_.cur_bounds.vertical;
+        // ¬ычисл€ем текущий коэффициент масштабировани€ (зума) по вертикали
+        const double zoom_vert_koeff = vert_cur.delta() /  vert_min_max.delta();
+        // –ассчитываем новую высоту (диапазон) дл€ отображаемой шкалы, сохран€€ зум
+        const double new_height      = (new_bounds.high - new_bounds.low) * zoom_vert_koeff;
+        // ¬ычисл€ем текущий центр отображаемой шкалы
+        double zoom_centre           = (vert_cur.high + vert_cur.low) / 2;
+        //  орректируем центр зума, чтобы отображаемый диапазон не вышел за новые автоматические границы
+        zoom_centre = qBound(new_bounds.low + new_height / 2, zoom_centre, new_bounds.high - new_height / 2);
+
+        // ќбновл€ем максимально допустимые (автоматические) границы
+        vert_min_max = new_bounds;
+        // ќбновл€ем текущие отображаемые границы с учетом нового центра и высоты
+        vert_cur     = {zoom_centre - new_height/2, zoom_centre + new_height/2};
+    }
 }
 
 void ChartInterface::UpdateWidgetSizeInfo()

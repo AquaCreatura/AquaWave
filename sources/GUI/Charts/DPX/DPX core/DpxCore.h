@@ -44,8 +44,10 @@ public:
      * @return H pair containing the minimum and maximum Y values.
      */
     Limits<double> GetPowerBounds() const;
+    //Used to update power bounds of our image
+    void           SetPowerBounds   (const Limits<double>& x_bounds);
 
-    void           SetPowerBounds   (const Limits<double>& x_bounds, bool is_adaptive);
+    //Is Used to get pixmap from our dpx
     QPixmap&       GetRelevantPixmap(const ChartScaleInfo& scale_info);
 private:
     /**

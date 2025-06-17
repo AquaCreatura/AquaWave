@@ -69,7 +69,6 @@ bool FFT_Worker::Init(int initial_data_size, const bool swap_output_on_forward) 
 
     fft_size_ = new_fft_size;
     fft_order_ = new_fft_order;
-    swap_output_on_forward_ = swap_output_on_forward;
 
     // Режим деления для обратного БПФ.
     // IPP_FFT_DIV_INV_BY_N означает, что ippsFFTInv_CToC_32fc будет делить результат на N.
@@ -127,7 +126,16 @@ bool FFT_Worker::Init(int initial_data_size, const bool swap_output_on_forward) 
         pFFTSpec_ = nullptr; // Сбрасываем указатель, если инициализация не удалась
         return false;
     }
+    
+    EnableSwapOnForward(swap_output_on_forward);
+    
+    
+    return true;
+}
 
+bool FFT_Worker::EnableSwapOnForward(const bool do_enable)
+{
+    swap_output_on_forward_ = do_enable;
     // Резервируем память для временного буфера обмена только если он требуется.
     if (swap_output_on_forward_) {
         temp_swap_buffer_.resize(fft_size_);
@@ -136,7 +144,6 @@ bool FFT_Worker::Init(int initial_data_size, const bool swap_output_on_forward) 
         temp_swap_buffer_.clear();
         temp_swap_buffer_.shrink_to_fit();
     }
-    
     return true;
 }
 

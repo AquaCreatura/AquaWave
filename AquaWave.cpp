@@ -39,7 +39,7 @@ AquaWave::AquaWave(QWidget *parent)
             req_dove->special_thought   = file_source::FileSrcDove::kInitReaderInfo |  file_source::FileSrcDove::kAskSingleDataAround;
             req_dove->target_ark        = spectrum_chart_;
             req_dove->time_point_start  = 0.5;
-            req_dove->data_size         = 1'024 * 16;
+            req_dove->data_size         = 1'024 * 32;
             if (!file_src_->SendDove(req_dove))
             {
                 QMessageBox::warning(
@@ -78,7 +78,7 @@ AquaWave::AquaWave(QWidget *parent)
         ui.harmonics_viewer_tab_widget->setCurrentIndex(0);
         if(auto casted_widget = std::dynamic_pointer_cast<ChartInterface>(spectrum_widget))
         {
-            casted_widget->SetBackgroundImage("D:\\AquaCreatura\\AquaWave\\third_party\\background\\foxy_dark_cut.png"); 
+            casted_widget->SetBackgroundImage(":/AquaWave/third_party/background/dark_city_2.jpg"); 
         }
     }
 

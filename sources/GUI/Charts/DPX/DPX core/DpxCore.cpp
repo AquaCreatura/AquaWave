@@ -56,31 +56,8 @@ bool DpxCore::PassNewData(const std::vector<float>& passed_data, const Limits<do
     const auto& x_b = dpx_data_.val_bounds.horizontal;        // Cache current x Limits
     Limits<double> new_x_bounds_to_apply = x_bounds; // New input Limits for scaling
 
-    // Calculate min/max elements for Y-bounds update
-    if (!passed_data.empty() && dpx_data_.is_y_adaptive) 
-    {
-        float min_elem = std::numeric_limits<float>::max(); // Initialize with max to find true min
-        float max_elem = std::numeric_limits<float>::lowest(); // Initialize with lowest to find true max
-
-        // Apply a gap for min_elem calculation as in original code
-        size_t gap_samples = static_cast<size_t>(passed_data.size() * 0.05);
-        if (passed_data.size() > 2 * gap_samples) { // Ensure there are enough samples after applying gap
-            ippsMin_32f(passed_data.data() + gap_samples, passed_data.size() - 2 * gap_samples, &min_elem);
-        } else {
-             // If not enough samples for gapped min, use full array or handle as error
-             ippsMin_32f(passed_data.data(), passed_data.size(), &min_elem);
-        }
-        ippsMax_32f(passed_data.data(), passed_data.size(), &max_elem);
-
-        dpx_scaler_.UpdateBounds_y({static_cast<double>(min_elem), static_cast<double>(max_elem)});
-    }
 
 
-    // Check if new_x_bounds_to_apply requires an X-axis bounds update
-    // If the new data range is outside the current display range, update it.
-    if (new_x_bounds_to_apply.low < x_b.low || new_x_bounds_to_apply.high > x_b.high) {
-        dpx_scaler_.UpdateBounds_x(new_x_bounds_to_apply); // Update internal Limits if input exceeds current
-    } 
 
 
     // Choose loop strategy based on data size vs. horizontal resolution
@@ -90,7 +67,7 @@ bool DpxCore::PassNewData(const std::vector<float>& passed_data, const Limits<do
         return false;
     }
     const double samples_per_pixel =  double(passed_data.size()) / dpx_data_.size.horizontal;
-    if (samples_per_pixel > 1) {
+    if (samples_per_pixel > 1 && false) {
         return RoughPassedLoop(passed_data, x_bounds); // Use original x_bounds from input
     } else {
         return SlopePassedLoop(passed_data, x_bounds); // Use original x_bounds from input
@@ -112,14 +89,17 @@ Limits<double> DpxCore::GetPowerBounds() const
     return dpx_data_.val_bounds.vertical;
 }
 
-void DpxCore::SetPowerBounds(const Limits<double>& x_bounds, bool is_adaptive)
+void DpxCore::SetPowerBounds(const Limits<double>& x_bounds)
 {
-    dpx_data_.is_y_adaptive = is_adaptive;
     dpx_scaler_.UpdateBounds_y(x_bounds);
 }
 
+
 QPixmap & DpxCore::GetRelevantPixmap(const ChartScaleInfo & scale_info)
 {
+    auto &min_max = scale_info.val_info_.min_max_bounds_;
+    SetPowerBounds(min_max.vertical);
+    SetMinMax_X   (min_max.horizontal);
     return dpx_renderer_.GetRelevantPixmap(scale_info);
 }
 

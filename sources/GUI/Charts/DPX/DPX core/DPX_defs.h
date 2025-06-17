@@ -24,7 +24,6 @@ struct dpx_data
     const DataType* operator[](size_t row) const { return &data[row * size.horizontal]; }
 
     WH_Bounds<double>       val_bounds; // Диапазон значений 
-    bool                    is_y_adaptive = true;
     WH_Info<size_t>         size;
     std::vector<DataType>   column_weight;   // Содержит суммарной вес каждой колонки. (size = width)
     std::vector<DataType>   data;            // (Плотность) Хранилище данных (size = высота * ширина) (values can not be negative)

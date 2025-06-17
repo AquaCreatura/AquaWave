@@ -24,6 +24,7 @@ bool SpectrumDPX::SendData(fluctus::DataInfo const & data_info)
     // Буфер для результата БПФ.
     std::vector<Ipp32fc> transformed_data(passed_data.size());
     // Выполняем прямое Быстрое Преобразование Фурье (БПФ).
+    fft_worker_.Init(passed_data.size(), true);
     if(!fft_worker_.ForwardFFT(passed_data, transformed_data))
         return false;
 

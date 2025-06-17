@@ -7,7 +7,9 @@
 #include "GUI/basic tools/ChartSelection.h"
 #include "GUI/Drawers/AxisPainter.h"
 #include "GUI/Drawers/ImageBackGround.h"
+#include "GUI/basic tools/PowerManager.h"
 #include <qlayout.h>
+using namespace aqua_gui;
 class ChartInterface : public QWidget
 {
     Q_OBJECT
@@ -85,4 +87,5 @@ protected:
     aqua_gui::ImageBG               bg_image_;
     QPoint                          mouse_pos_;
     QTimer                          redraw_timer_;
+    PowerLimitMan                   power_man_;
 };

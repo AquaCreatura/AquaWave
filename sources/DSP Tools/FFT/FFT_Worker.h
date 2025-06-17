@@ -34,6 +34,7 @@ public:
     // swap_output_on_forward: Если true, выполняется обмен половинами после прямого БПФ.
     bool Init(int initial_data_size, const bool swap_output_on_forward = true);
 
+    bool EnableSwapOnForward(const bool do_enable);
     // Сброс состояния FFT_Worker, очистка буферов и освобождение памяти.
     void Reset();
 

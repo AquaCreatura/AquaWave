@@ -97,6 +97,9 @@ bool DpxDataScaler::UpdateBounds_y(const Limits<double>& new_bounds)
     // Сохраняем ссылки для удобства
     auto& size = data_.size;
     auto& old_bounds = data_.val_bounds.vertical;
+    
+    if(old_bounds == new_bounds) return true;
+
     const size_t width = size.horizontal;
     const size_t old_height = size.vertical;
     const size_t new_height = size.vertical; // Высота остаётся прежней

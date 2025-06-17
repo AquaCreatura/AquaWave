@@ -37,12 +37,14 @@ bool dpx_core::DpxRenderer::UpdateDpxRgbData()
     {
         tbb::spin_mutex::scoped_lock scoped_locker(dpx_.redraw_mutex);
         //Здесь бы mutex по-хорошему
-        const int64_t *dpx_iter = dpx_.data.data();
+        const int grid_height = dpx_.size.vertical;
+        const int grid_width  = dpx_.size.horizontal;
         argb_t *rgb_iter = dpx_rgb_.data.data();
-        for(int row_counter = 0; row_counter < dpx_.size.vertical; row_counter++)
+        for(int column_iter = 0; column_iter < grid_height; column_iter++)
         {
-            const int64_t* column_weight_iter = &dpx_.column_weight[0];
-            for(int column_counter = 0; column_counter < dpx_.size.horizontal; column_counter++)
+            const int64_t* column_weight_iter = &dpx_.column_weight[0]; //Reset for every row
+            const int64_t* dpx_iter           = dpx_[grid_height - column_iter - 1]; //We have inversed image
+            for(int row_iter = 0; row_iter < dpx_.size.horizontal; row_iter++)
             {
                 const double weight = *(column_weight_iter++);
                 const double density = weight ? *(dpx_iter++) / weight : 0;

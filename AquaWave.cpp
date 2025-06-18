@@ -78,7 +78,7 @@ AquaWave::AquaWave(QWidget *parent)
         ui.harmonics_viewer_tab_widget->setCurrentIndex(0);
         if(auto casted_widget = std::dynamic_pointer_cast<ChartInterface>(spectrum_widget))
         {
-            casted_widget->SetBackgroundImage(":/AquaWave/third_party/background/dark_city_2.jpg"); 
+            casted_widget->SetBackgroundImage(":/AquaWave/third_party/background/dark_city_2_cut.jpg"); 
         }
     }
 

@@ -57,7 +57,7 @@ void PowerLimitMan::UpdateBounds(const std::vector<float>& data, const Limits<do
     }
 
     // Применение 5% отступа от краёв диапазона
-    size_t margin = static_cast<size_t>((end_idx - start_idx) * 0.05);
+    size_t margin = static_cast<size_t>((end_idx - start_idx) * 0.075);
     start_idx = std::min(start_idx + margin, end_idx - 1);
     end_idx = std::max(start_idx + 1, end_idx - margin);
 

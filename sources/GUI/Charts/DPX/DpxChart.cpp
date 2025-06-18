@@ -6,7 +6,7 @@ ChartDPX::ChartDPX(QWidget * parrent):
     SetHorizontalMinMaxBounds(50'000, 200'000);
     SetHorizontalSuffix("counts");
 
-    SetVerticalMinMaxBounds(20, 40, true);
+    SetVerticalMinMaxBounds(10, 80, true);
     SetVerticalSuffix("power");
 }
 
@@ -29,7 +29,13 @@ void ChartDPX::DrawData(QPainter & passed_painter)
 void ChartDPX::PushData(std::vector<float>& data, const Limits<double>& data_bounds)
 {
     power_man_.UpdateBounds(data, scale_info_.val_info_.min_max_bounds_.horizontal /*data_bounds*/);
-    dpx_painter_.PassNewData(data, scale_info_.val_info_.min_max_bounds_.horizontal);
+    dpx_painter_.AccumulateNewData(data, scale_info_.val_info_.min_max_bounds_.horizontal);
+}
+
+void ChartDPX::SetVerticalMinMaxBounds(const double min_val, const double end_val, const bool is_adaptive)
+{
+    dpx_painter_.SetPowerBounds({min_val, end_val});
+    ChartInterface::SetVerticalMinMaxBounds(min_val, end_val, is_adaptive);
 }
 
 

@@ -20,8 +20,8 @@ DpxCore::DpxCore() : dpx_scaler_(dpx_data_), dpx_renderer_(dpx_data_) {
 }
 
 bool DpxCore::Init() {
-    dpx_data_.val_bounds.horizontal = {0, 1000};              // Set x-axis Limits
-    dpx_data_.val_bounds.vertical   = {0.0, 1.0};             // Set y-axis Limits
+    if(dpx_data_.val_bounds.horizontal.delta() <= 0) dpx_data_.val_bounds.horizontal = {0, 1000};              // Set x-axis Limits
+    if(dpx_data_.val_bounds.vertical.delta()   <= 0) dpx_data_.val_bounds.vertical   = {0.0, 1.0};             // Set y-axis Limits
     dpx_data_.size.vertical         = 1'000 / 5;                // Set data matrix height
     dpx_data_.size.horizontal       = 1'000 ;              // Set data matrix width
 
@@ -39,7 +39,7 @@ bool DpxCore::Init() {
     return true;                                 // Initialization successful
 }
 
-bool DpxCore::PassNewData(const std::vector<float>& passed_data, const Limits<double>& x_bounds) {
+bool DpxCore::AccumulateNewData(const std::vector<float>& passed_data, const Limits<double>& x_bounds) {
     tbb::spin_mutex::scoped_lock scoped_locker(dpx_data_.redraw_mutex);
     if (passed_data.empty()) {
         std::cerr << "Warning: Passed data is empty in PassNewData." << std::endl;
@@ -53,13 +53,6 @@ bool DpxCore::PassNewData(const std::vector<float>& passed_data, const Limits<do
         }
     }
     dpx_data_.need_redraw = true;
-    const auto& x_b = dpx_data_.val_bounds.horizontal;        // Cache current x Limits
-    Limits<double> new_x_bounds_to_apply = x_bounds; // New input Limits for scaling
-
-
-
-
-
     // Choose loop strategy based on data size vs. horizontal resolution
     // Ensure horizontal is not zero to avoid division by zero in loop implementations
     if (dpx_data_.size.horizontal == 0) {
@@ -67,7 +60,7 @@ bool DpxCore::PassNewData(const std::vector<float>& passed_data, const Limits<do
         return false;
     }
     const double samples_per_pixel =  double(passed_data.size()) / dpx_data_.size.horizontal;
-    if (samples_per_pixel > 1 && false) {
+    if (samples_per_pixel > 1 ) {
         return RoughPassedLoop(passed_data, x_bounds); // Use original x_bounds from input
     } else {
         return SlopePassedLoop(passed_data, x_bounds); // Use original x_bounds from input
@@ -116,11 +109,6 @@ bool DpxCore::RoughPassedLoop(
     const std::vector<float>& passed_data,
     const Limits<double>& x_bounds)
 {
-    // Clear data and column weights to prevent accumulation before filling.
-    // This assumes 'PassNewData' implies replacing existing data, not accumulating.
-    dpx_data_.data.assign(static_cast<size_t>(dpx_data_.size.vertical) * dpx_data_.size.horizontal, 0);
-    dpx_data_.column_weight.assign(dpx_data_.size.horizontal, 0);
-
     // Unpack x-axis limits of the incoming data.
     const double input_x_min = x_bounds.low;
     const double input_x_max = x_bounds.high;
@@ -191,9 +179,6 @@ return true;
 bool DpxCore::SlopePassedLoop(const std::vector<float>& passed_data,
                               const Limits<double>& passed_bounds)
 {
-    // Очистка основного массива данных и весов колонок перед новой заливкой
-    dpx_data_.data.assign(static_cast<size_t>(dpx_data_.size.vertical) * dpx_data_.size.horizontal, 0);
-    dpx_data_.column_weight.assign(dpx_data_.size.horizontal, 0);
 
     // Проверка входных данных: необходимо как минимум 2 точки для линейной интерполяции
     const size_t input_point_count = passed_data.size();

@@ -32,6 +32,7 @@ bool dpx_core::DpxRenderer::UpdateDpxRgbData()
         need_redraw = true;
         dpx_rgb_.qimage = QImage((uint8_t*)dpx_rgb_.data.data(), dpx_.size.horizontal, dpx_.size.vertical, QImage::Format::Format_ARGB32);
         dpx_rgb_.size = dpx_.size;
+        zoomer_.SetNewBase(&dpx_rgb_.qimage);
     }
     if(need_redraw)
     {
@@ -53,7 +54,7 @@ bool dpx_core::DpxRenderer::UpdateDpxRgbData()
                 *(rgb_iter++) = color;
             }
         }
-        zoomer_.SetNewBase(&dpx_rgb_.qimage);
+        zoomer_.MarkForUpdate();
     }
     return true;
 }

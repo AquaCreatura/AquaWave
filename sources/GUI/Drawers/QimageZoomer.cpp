@@ -12,6 +12,7 @@ namespace aqua_gui
  */
 bool QimageZoomer::SetNewBase(QImage *base_qimage)
 {
+
     if (base_image_ == base_qimage && base_qimage != nullptr && !base_qimage->isNull()) {
         return true; // No change needed
     }
@@ -27,8 +28,13 @@ bool QimageZoomer::SetNewBase(QImage *base_qimage)
     rendered_target_display_value_bounds_ = {{0.0, 0.0}, {0.0, 0.0}}; // Reset rendered state
     rendered_target_output_size_ = {0, 0};
     rendered_high_quality_ = true;
-
+    MarkForUpdate();
     return (base_image_ != nullptr && !base_image_->isNull());
+}
+
+void QimageZoomer::MarkForUpdate()
+{
+    need_update_ = true;
 }
 
 /**
@@ -85,7 +91,7 @@ QPixmap& QimageZoomer::GetPrecisedPart(const WH_Info<Limits<double>>& full_image
 bool QimageZoomer::NeedRedraw() const
 {
     // Always redraw if no base image or invalid
-    if (!base_image_ || base_image_->isNull()) {
+    if (need_update_ || !base_image_ || base_image_->isNull()) {
         return true;
     }
 
@@ -165,7 +171,7 @@ bool QimageZoomer::UpdateQPixmap()
     rendered_target_display_value_bounds_ = last_target_display_value_bounds_;
     rendered_target_output_size_ = last_target_output_size_;
     rendered_high_quality_ = last_high_quality_;
-
+    need_update_            = false;
     return !cached_pixmap_.isNull();
 }
 

@@ -17,7 +17,7 @@ public:
      * @return true if valid image set, false otherwise.
      */
     bool SetNewBase(QImage *base_qimage);
-
+    void MarkForUpdate();
     /**
      * @brief Releases the current base QImage. Ownership transferred to caller.
      * @return Pointer to released QImage, or nullptr.
@@ -78,6 +78,7 @@ private:
     WH_Info<Limits<double>> rendered_target_display_value_bounds_ = {{0.0, 0.0}, {0.0, 0.0}};
     WH_Info<int> rendered_target_output_size_ = {0, 0};
     bool rendered_high_quality_ = true;
+    bool need_update_           = false;
 };
 
 } // namespace aqua_guií

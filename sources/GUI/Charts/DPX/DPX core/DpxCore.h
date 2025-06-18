@@ -29,7 +29,7 @@ public:
      * @param x_bounds Range of X-axis to associate with the data.
      * @return true if data was successfully ingested.
      */
-    bool PassNewData(const std::vector<float>& passed_data, const Limits<double>& x_bounds);
+    bool AccumulateNewData(const std::vector<float>& passed_data, const Limits<double>& x_bounds);
 
     /**
      * @brief Sets the minimum and maximum X Limits for the data.

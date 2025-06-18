@@ -74,7 +74,7 @@ AquaWave::AquaWave(QWidget *parent)
     //spectrum_chart_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
     if(spectrum_widget)
     {
-        this->ui.spectre_groupbox->layout()->replaceWidget(ui.single_chart_widget, spectrum_widget.get());
+        this->ui.spectre_tab->layout()->replaceWidget(ui.single_chart_widget, spectrum_widget.get());
         ui.harmonics_viewer_tab_widget->setCurrentIndex(0);
         if(auto casted_widget = std::dynamic_pointer_cast<ChartInterface>(spectrum_widget))
         {

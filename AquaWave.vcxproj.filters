@@ -71,6 +71,12 @@
     <Filter Include="DSP Tools\FFT">
       <UniqueIdentifier>{217182ea-5917-4bac-8f16-9bb629978711}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GUI\Charts\SPG">
+      <UniqueIdentifier>{4b929b38-cf07-4ab7-ac5f-5b77484236e2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI\Charts\SPG\NewFilter1">
+      <UniqueIdentifier>{d36f039a-e8a2-4222-a607-4e0330f39b7b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <!-- ClCompile (CPP Files) -->
   <ItemGroup>
@@ -154,6 +160,9 @@
     </ClCompile>
     <ClCompile Include="sources\GUI\basic tools\PowerManager.cpp">
       <Filter>GUI\basic tools</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\GUI\Charts\SPG\SpgCore.cpp">
+      <Filter>GUI\Charts\SPG</Filter>
     </ClCompile>
   </ItemGroup>
   <!-- ClInclude (H Files) -->
@@ -252,6 +261,13 @@
     <ClInclude Include="sources\GUI\basic tools\PowerManager.h">
       <Filter>GUI\basic tools</Filter>
     </ClInclude>
+    <ClInclude Include="sources\GUI\Charts\SPG\spg_defs.h">
+      <Filter>GUI\Charts\SPG</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\GUI\Charts\SPG\SpgCore.h">
+      <Filter>GUI\Charts\SPG</Filter>
+    </ClInclude>
+    <ClInclude Include="SOURCES\GUI\CHARTS\SPG\SPG_CORE.H" />
   </ItemGroup>
   <!-- QtMoc (For Headers Requiring Moc) -->
   <ItemGroup>

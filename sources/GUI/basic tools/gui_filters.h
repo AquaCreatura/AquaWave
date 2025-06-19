@@ -15,4 +15,10 @@ private:
     const double slope_koeff_ = 0;
 };
 
+// ¬озвращает нормализованную позицию (0..1) центра элемента с индексом iteration_counter
+const double GetAsimDrawPlace(const int iteration_counter);
+
+// ¬озвращает индекс позиции дл€ отрисовки в диапазоне [0, width-1] на основе iteration_counter
+const int GetAsimIntegerPlace(const int iteration_counter, const int width);
+
 }

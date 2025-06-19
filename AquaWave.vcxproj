@@ -121,6 +121,7 @@
     <ClCompile Include="sources\GUI\Charts\DPX\DpxChart.cpp" />
     <ClCompile Include="sources\GUI\Charts\Simple chart\ChartSingle.cpp" />
     <ClCompile Include="sources\GUI\Charts\ChartInterface.cpp" />
+    <ClCompile Include="sources\GUI\Charts\SPG\SpgCore.cpp" />
     <ClCompile Include="sources\GUI\Drawers\AxisPainter.cpp" />
     <ClCompile Include="sources\GUI\Drawers\ImageBackGround.cpp" />
     <ClCompile Include="sources\GUI\Drawers\QimageZoomer.cpp" />
@@ -143,6 +144,9 @@
     <ClInclude Include="sources\File Source\FileReadCore.h" />
     <ClInclude Include="sources\GUI\basic tools\PowerManager.h" />
     <ClInclude Include="sources\GUI\Charts\DPX\DPX core\DpxScaler.h" />
+    <ClInclude Include="sources\GUI\Charts\SPG\SpgCore.h" />
+    <ClInclude Include="SOURCES\GUI\CHARTS\SPG\SPG_CORE.H" />
+    <ClInclude Include="sources\GUI\Charts\SPG\spg_defs.h" />
     <ClInclude Include="sources\Tools\utility_aqua.h" />
     <ClInclude Include="sources\Tools\parse_tools.h" />
     <QtMoc Include="sources\File Source\FileSource.h" />

@@ -18,7 +18,7 @@ namespace fluctus
      * @tparam W Type of range values.
      */
     // —труктура дл€ хранени€ границ диапазона
-    template<typename W>
+    template<typename W = double>
     struct Limits {
         const bool operator==(const Limits<W>& right) const
         {

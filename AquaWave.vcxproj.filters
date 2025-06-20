@@ -65,17 +65,20 @@
     <Filter Include="GUI\Drawers">
       <UniqueIdentifier>{33333333-3333-3333-3333-333333333333}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Spectrum DPX">
-      <UniqueIdentifier>{2e1b4a36-2f99-46ad-bb5b-940a82fb93a1}</UniqueIdentifier>
-    </Filter>
     <Filter Include="DSP Tools\FFT">
       <UniqueIdentifier>{217182ea-5917-4bac-8f16-9bb629978711}</UniqueIdentifier>
     </Filter>
     <Filter Include="GUI\Charts\SPG">
       <UniqueIdentifier>{4b929b38-cf07-4ab7-ac5f-5b77484236e2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="GUI\Charts\SPG\NewFilter1">
+    <Filter Include="GUI\Charts\SPG\SPG core">
       <UniqueIdentifier>{d36f039a-e8a2-4222-a607-4e0330f39b7b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Spectrogram">
+      <UniqueIdentifier>{acc6b4cc-8e3b-45d0-891f-52c14eea91b1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DPX Spectrum">
+      <UniqueIdentifier>{2e1b4a36-2f99-46ad-bb5b-940a82fb93a1}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <!-- ClCompile (CPP Files) -->
@@ -146,9 +149,6 @@
     <ClCompile Include="sources\time graph ark\TimeGraphArk.cpp">
       <Filter>time graph ark</Filter>
     </ClCompile>
-    <ClCompile Include="sources\Spectrum DPX\SpectrumDPX.cpp">
-      <Filter>Spectrum DPX</Filter>
-    </ClCompile>
     <ClCompile Include="sources\DSP Tools\FFT\FFT_Worker.cpp">
       <Filter>DSP Tools\FFT</Filter>
     </ClCompile>
@@ -161,8 +161,23 @@
     <ClCompile Include="sources\GUI\basic tools\PowerManager.cpp">
       <Filter>GUI\basic tools</Filter>
     </ClCompile>
-    <ClCompile Include="sources\GUI\Charts\SPG\SpgCore.cpp">
+    <ClCompile Include="sources\GUI\Charts\SPG\SPG core\SpgCore.cpp">
+      <Filter>GUI\Charts\SPG\SPG core</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\GUI\Charts\SPG\SPG core\SpgRenderer.cpp">
+      <Filter>GUI\Charts\SPG\SPG core</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\GUI\Charts\SPG\SPG core\SpgScaler.cpp">
+      <Filter>GUI\Charts\SPG\SPG core</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\GUI\Charts\SPG\SpgChart.cpp">
       <Filter>GUI\Charts\SPG</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\Spectrogram\Spectrogram.cpp">
+      <Filter>Spectrogram</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\DPX Spectrum\SpectrumDPX.cpp">
+      <Filter>DPX Spectrum</Filter>
     </ClCompile>
   </ItemGroup>
   <!-- ClInclude (H Files) -->
@@ -236,9 +251,6 @@
     <ClInclude Include="sources\time graph ark\TimeGraphArk.h">
       <Filter>time graph ark</Filter>
     </ClInclude>
-    <ClInclude Include="sources\Spectrum DPX\SpectrumDPX.h">
-      <Filter>Spectrum DPX</Filter>
-    </ClInclude>
     <ClInclude Include="sources\DSP Tools\FFT\FFT_Worker.h">
       <Filter>DSP Tools\FFT</Filter>
     </ClInclude>
@@ -261,13 +273,28 @@
     <ClInclude Include="sources\GUI\basic tools\PowerManager.h">
       <Filter>GUI\basic tools</Filter>
     </ClInclude>
-    <ClInclude Include="sources\GUI\Charts\SPG\spg_defs.h">
-      <Filter>GUI\Charts\SPG</Filter>
-    </ClInclude>
-    <ClInclude Include="sources\GUI\Charts\SPG\SpgCore.h">
-      <Filter>GUI\Charts\SPG</Filter>
-    </ClInclude>
     <ClInclude Include="SOURCES\GUI\CHARTS\SPG\SPG_CORE.H" />
+    <ClInclude Include="sources\GUI\Charts\SPG\SPG core\spg_defs.h">
+      <Filter>GUI\Charts\SPG\SPG core</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\GUI\Charts\SPG\SPG core\SpgCore.h">
+      <Filter>GUI\Charts\SPG\SPG core</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\GUI\Charts\SPG\SPG core\SpgRenderer.h">
+      <Filter>GUI\Charts\SPG\SPG core</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\GUI\Charts\SPG\SPG core\SpgScaler.h">
+      <Filter>GUI\Charts\SPG\SPG core</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\GUI\Charts\SPG\SpgChart.h">
+      <Filter>GUI\Charts\SPG</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\Spectrogram\Spectrogram.h">
+      <Filter>Spectrogram</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\DPX Spectrum\SpectrumDPX.h">
+      <Filter>DPX Spectrum</Filter>
+    </ClInclude>
   </ItemGroup>
   <!-- QtMoc (For Headers Requiring Moc) -->
   <ItemGroup>

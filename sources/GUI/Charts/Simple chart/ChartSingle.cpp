@@ -9,6 +9,6 @@ void ChartSingle::DrawData(QPainter & painter)
 {
 }
 
-void ChartSingle::PushData(std::vector<float>& data, const Limits<double>& data_bounds)
+void ChartSingle::PushData(const draw_data& draw_data )
 {
 }

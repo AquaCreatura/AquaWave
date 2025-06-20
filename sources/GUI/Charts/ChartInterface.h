@@ -42,7 +42,7 @@ public:
     /*
         Pushing new portion of data
     */
-    virtual void                    PushData            (std::vector<float>& data, const Limits<double>& data_bounds) = 0 ;
+    virtual void                    PushData            (const draw_data& draw_data ) = 0 ;
     /*
         Draw values
     */

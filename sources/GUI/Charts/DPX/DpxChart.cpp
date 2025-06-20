@@ -26,10 +26,10 @@ void ChartDPX::DrawData(QPainter & passed_painter)
     passed_painter.drawPixmap(0, 0, cached_pixmap_);
 }
 
-void ChartDPX::PushData(std::vector<float>& data, const Limits<double>& data_bounds)
+void ChartDPX::PushData(const draw_data& draw_data )
 {
-    power_man_.UpdateBounds(data, scale_info_.val_info_.min_max_bounds_.horizontal /*data_bounds*/);
-    dpx_painter_.AccumulateNewData(data, scale_info_.val_info_.min_max_bounds_.horizontal);
+    power_man_.UpdateBounds(draw_data.data , scale_info_.val_info_.min_max_bounds_.horizontal /*data_bounds*/);
+    dpx_painter_.AccumulateNewData(draw_data.data , scale_info_.val_info_.min_max_bounds_.horizontal);
 }
 
 void ChartDPX::SetVerticalMinMaxBounds(const double min_val, const double end_val, const bool is_adaptive)

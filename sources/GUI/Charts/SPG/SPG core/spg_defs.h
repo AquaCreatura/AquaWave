@@ -12,7 +12,7 @@ namespace spg_core
 {
     typedef uint8_t DataType;
 
-    struct spg_data
+    struct spg_holder
     {
         //Итоговый массив плотностей имеет такие шкалы:
         //Слева направо = время, а сверху вниз - частота (границы = val_bounds) (Т.е. КАРТИНКА вверх ногами!)
@@ -27,9 +27,9 @@ namespace spg_core
         std::vector<DataType>   data;         //Наши данные
     };
 
-    struct spg_holder
+    struct spg_data
     {
-        spg_data base_data; //Наши данные 
+        spg_holder base_data; //Наши данные 
 
 
      

@@ -67,9 +67,8 @@ namespace fluctus
     {
     public:
         fluctus::freq_params freq_info_;
-
-    //private:
         std::vector<uint8_t> data_vec;
+
     };
 }
 

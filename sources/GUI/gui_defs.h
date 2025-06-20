@@ -75,4 +75,10 @@ struct dynamic_qimage
     WH_Info<size_t>         size;
 };
 
+struct draw_data
+{
+    std::vector<Ipp32f> data;           //ƒанные, которые планируем отрисовать 
+    Limits<double>      freq_bounds;    //√раницы в частотной области наших данных
+    double              time_pos;       //¬ременна€ метка наших данных
+};
 }

@@ -102,6 +102,7 @@
   <ItemGroup>
     <ClCompile Include="AquaWave.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="sources\DPX Spectrum\SpectrumDPX.cpp" />
     <ClCompile Include="sources\DSP Tools\basic\freq_shifter.cpp" />
     <ClCompile Include="sources\DSP Tools\FFT\FFT_Worker.cpp" />
     <ClCompile Include="sources\DSP Tools\Resampler\ResamplersImpl\MR Resampler\MultiRateResampler.cpp" />
@@ -121,16 +122,20 @@
     <ClCompile Include="sources\GUI\Charts\DPX\DpxChart.cpp" />
     <ClCompile Include="sources\GUI\Charts\Simple chart\ChartSingle.cpp" />
     <ClCompile Include="sources\GUI\Charts\ChartInterface.cpp" />
-    <ClCompile Include="sources\GUI\Charts\SPG\SpgCore.cpp" />
+    <ClCompile Include="sources\GUI\Charts\SPG\SPG core\SpgCore.cpp" />
+    <ClCompile Include="sources\GUI\Charts\SPG\SPG core\SpgRenderer.cpp" />
+    <ClCompile Include="sources\GUI\Charts\SPG\SPG core\SpgScaler.cpp" />
+    <ClCompile Include="sources\GUI\Charts\SPG\SpgChart.cpp" />
     <ClCompile Include="sources\GUI\Drawers\AxisPainter.cpp" />
     <ClCompile Include="sources\GUI\Drawers\ImageBackGround.cpp" />
     <ClCompile Include="sources\GUI\Drawers\QimageZoomer.cpp" />
     <ClCompile Include="sources\Interfaces\base_impl\ark_base.cpp" />
-    <ClCompile Include="sources\Spectrum DPX\SpectrumDPX.cpp" />
+    <ClCompile Include="sources\Spectrogram\Spectrogram.cpp" />
     <ClCompile Include="sources\time graph ark\TimeGraphArk.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="sources\aqua_defines.h" />
+    <ClInclude Include="sources\DPX Spectrum\SpectrumDPX.h" />
     <ClInclude Include="sources\DSP Tools\basic\freq_shifter.h" />
     <ClInclude Include="sources\DSP Tools\FFT\FFT_Worker.h" />
     <ClInclude Include="sources\DSP Tools\Resampler\ResamplersImpl\MR Resampler\MultiRateResampler.h" />
@@ -144,9 +149,13 @@
     <ClInclude Include="sources\File Source\FileReadCore.h" />
     <ClInclude Include="sources\GUI\basic tools\PowerManager.h" />
     <ClInclude Include="sources\GUI\Charts\DPX\DPX core\DpxScaler.h" />
-    <ClInclude Include="sources\GUI\Charts\SPG\SpgCore.h" />
+    <ClInclude Include="sources\GUI\Charts\SPG\SPG core\SpgCore.h" />
+    <ClInclude Include="sources\GUI\Charts\SPG\SPG core\SpgRenderer.h" />
+    <ClInclude Include="sources\GUI\Charts\SPG\SPG core\SpgScaler.h" />
+    <ClInclude Include="sources\GUI\Charts\SPG\SPG core\spg_defs.h" />
+    <ClInclude Include="sources\GUI\Charts\SPG\SpgChart.h" />
     <ClInclude Include="SOURCES\GUI\CHARTS\SPG\SPG_CORE.H" />
-    <ClInclude Include="sources\GUI\Charts\SPG\spg_defs.h" />
+    <ClInclude Include="sources\Spectrogram\Spectrogram.h" />
     <ClInclude Include="sources\Tools\utility_aqua.h" />
     <ClInclude Include="sources\Tools\parse_tools.h" />
     <QtMoc Include="sources\File Source\FileSource.h" />
@@ -164,7 +173,6 @@
     <ClInclude Include="sources\GUI\Drawers\QimageZoomer.h" />
     <ClInclude Include="sources\Interfaces\base_impl\ark_base.h" />
     <ClInclude Include="sources\Interfaces\ark_defs.h" />
-    <ClInclude Include="sources\Spectrum DPX\SpectrumDPX.h" />
     <ClInclude Include="sources\time graph ark\TimeGraphArk.h" />
   </ItemGroup>
   <ItemGroup>

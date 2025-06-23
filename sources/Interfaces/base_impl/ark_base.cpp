@@ -1,5 +1,5 @@
 #include "ark_base.h"
-
+using namespace fluctus;
 bool fluctus::ArkBase::SendDove(DoveSptr const & sent_dove)
 {
     if (!sent_dove)
@@ -128,4 +128,9 @@ fluctus::StrongFleet fluctus::ArkBase::GetFrontArks()
         }
     }
     return res_fleet;
+}
+
+ArkType fluctus::ArkBase::GetArkType() const
+{
+    return ArkType::kUnknown;
 }

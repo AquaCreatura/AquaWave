@@ -30,7 +30,7 @@ namespace spg_core
     struct spg_data
     {
         spg_holder base_data; //Наши данные 
-
+        int a;
 
      
 

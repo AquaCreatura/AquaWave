@@ -38,6 +38,13 @@ namespace fluctus
     typedef  std::list<ArkWptr>            WeakFleet;
  
     //Main unit to communicate between arks
+    enum ArkType
+    {
+        kUnknown = 0,
+        kSpectrumDpx ,
+        kFileSource  ,
+        kFileSpectrogram
+    };
 
 
     struct DoveParrent 
@@ -66,9 +73,9 @@ namespace fluctus
     struct DataInfo
     {
     public:
-        fluctus::freq_params freq_info_;
-        std::vector<uint8_t> data_vec;
-
+        fluctus::freq_params    freq_info_;
+        std::vector<uint8_t>    data_vec;
+        double                  time_point;
     };
 }
 

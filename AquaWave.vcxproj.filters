@@ -179,6 +179,9 @@
     <ClCompile Include="sources\DPX Spectrum\SpectrumDPX.cpp">
       <Filter>DPX Spectrum</Filter>
     </ClCompile>
+    <ClCompile Include="sources\Spectrogram\SpgRequester.cpp">
+      <Filter>Spectrogram</Filter>
+    </ClCompile>
   </ItemGroup>
   <!-- ClInclude (H Files) -->
   <ItemGroup>
@@ -309,6 +312,9 @@
     </QtMoc>
     <QtMoc Include="sources\File Source\FileSource.h">
       <Filter>File Source</Filter>
+    </QtMoc>
+    <QtMoc Include="sources\Spectrogram\SpgRequester.h">
+      <Filter>Spectrogram</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>

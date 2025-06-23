@@ -15,6 +15,7 @@ public:
         
                         ArkInterface    () = default;
     virtual             ~ArkInterface   () = default;
+    virtual ArkType     GetArkType      () const = 0;
     virtual bool        SendDove        (std::shared_ptr<DoveParrent> const & sent_dove) = 0; //Main function, which allow arks to communicate
     virtual StrongFleet GetBehindArks   () = 0;
     virtual StrongFleet GetFrontArks    () = 0;

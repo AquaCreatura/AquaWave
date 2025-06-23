@@ -17,6 +17,7 @@ namespace fluctus
         virtual bool           SendDove     (DoveSptr const & sent_dove) override;
         virtual StrongFleet    GetBehindArks()  override;
         virtual StrongFleet    GetFrontArks ()  override;
+        virtual ArkType        GetArkType   () const  override;
         virtual bool SendData(fluctus::DataInfo const& data_info) override { return false; };
     private:
         WeakFleet front_fleet_;

@@ -4,10 +4,11 @@ using namespace spg_core; // Используем пространство имён dpx_core
 
 // Конструктор: Инициализирует компонент для отрисовки спектра.
 // parrent: Указатель на родительский QWidget.
-Spectrogram::Spectrogram(QWidget * parrent)
+Spectrogram::Spectrogram(QWidget * parrent) : 
+    spg_drawer_(std::make_shared<ChartSPG>(parrent)),  // Создаём и сохраняем умный указатель на объект DpxChart для отрисовки.
+    requester_(spg_drawer_->GetSpectrogramInfo()) 
 {
-    // Создаём и сохраняем умный указатель на объект DpxChart для отрисовки.
-    dpx_drawer_ = std::make_shared<ChartSPG>(parrent);
+    connect(spg_drawer_.get(), &ChartSPG::NeedRequest, &requester_, &SpgRequester::RequestData);
 }
 
 // Отправляет данные для обработки спектра и отображения.
@@ -41,7 +42,11 @@ bool Spectrogram::SendData(fluctus::DataInfo const & data_info)
                                    freq_info.carrier + freq_info.samplerate / 2.};
     
     // Отправляем вычисленные магнитуды и частотные границы в отрисовщик.
-    dpx_drawer_->PushData(power_vec, freq_bounds);
+    draw_data draw_data;
+    draw_data.freq_bounds = freq_bounds;
+    draw_data.time_pos    = data_info.time_point;
+    draw_data.data        = power_vec;
+    spg_drawer_->PushData(draw_data);
     
     return true; // Успех.
 }
@@ -64,9 +69,14 @@ bool Spectrogram::SendDove(fluctus::DoveSptr const & sent_dove)
     else if (base_thought & fluctus::DoveParrent::DoveThought::kGetDialog)
     {
         // Прикрепляем отрисовщик спектра к виджету сообщения.
-        sent_dove->show_widget = dpx_drawer_;
+        sent_dove->show_widget = spg_drawer_;
         return true; // Запрос обработан.
     }
     // Передаём сообщение базовому классу для дальнейшей обработки.
+    if(base_thought & DoveParrent::DoveThought::kTieBehind)
+    {
+        
+
+    }
     return ArkBase::SendDove(sent_dove);
 }

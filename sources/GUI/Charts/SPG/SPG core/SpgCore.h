@@ -1,6 +1,7 @@
 #pragma once
 #include "spg_defs.h"
-
+#include "SpgRenderer.h"
+#include "SpgScaler.h"
 
 using  namespace fluctus;
 using  namespace aqua_gui;
@@ -19,10 +20,14 @@ public:
     void SetFreqBounds      (const Limits<double>& freq_bounds );
 
     bool AccumulateNewData  (const std::vector<float>& passed_data, const double pos_ratio = 0.5);
-    //Is Used to get pixmap from our dpx
-    QPixmap&       GetRelevantPixmap(const ChartScaleInfo& scale_info);
+    //Is Used to get pixmap from our spg
+    QPixmap&         GetRelevantPixmap(const ChartScaleInfo& scale_info);
+    spg_data const & GetSpectrogramInfo() const;
 private:
-    spg_data spg_;
+    spg_data    spg_;
+    SpgRenderer renderer_;
+    SpgScaler   scaler_;
+
 
 };
 

@@ -41,7 +41,11 @@ bool SpectrumDPX::SendData(fluctus::DataInfo const & data_info)
                                    freq_info.carrier + freq_info.samplerate / 2.};
     
     // Отправляем вычисленные магнитуды и частотные границы в отрисовщик.
-    dpx_drawer_->PushData(power_vec, freq_bounds);
+    draw_data draw_data;
+    draw_data.freq_bounds = freq_bounds;
+    draw_data.time_pos    = data_info.time_point;
+    draw_data.data        = power_vec;
+    dpx_drawer_->PushData(draw_data);
     
     return true; // Успех.
 }

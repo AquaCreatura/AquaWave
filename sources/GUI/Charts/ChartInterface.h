@@ -65,27 +65,46 @@ protected slots:
         Reaction on mouse release. 
     */
     virtual void mouseReleaseEvent  (QMouseEvent* mouse_event) override;
+    // Handle mouse wheel events for zooming or scrolling
+    virtual void wheelEvent(QWheelEvent* wheel_event) override;
+
     /*
-        Reaction on scroll event
+        Handle widget resize events
     */
-    virtual void wheelEvent         (QWheelEvent* wheel_event) override;
-    /*
-        Default update event
-    */
-    virtual void resizeEvent        (QResizeEvent *event)              override;      
-    virtual void paintEvent         (QPaintEvent* paint_event) override;     
+    virtual void resizeEvent(QResizeEvent *event) override;
+
+    // Handle widget repaint requests
+    virtual void paintEvent(QPaintEvent* paint_event) override;
+
 protected:
-    virtual void    UpdatePowerBounds   ();
-    void    UpdateWidgetSizeInfo();
-    virtual void OnTimeoutRedraw     ();
-protected:  
-    //info, which contains info about scaling
-    aqua_gui::ChartScaleInfo                  scale_info_;
-    //our managers which redraw images
-    aqua_gui::AxisManager           axis_man_;
+    // Update power bounds for chart scaling
+    virtual void UpdatePowerBounds();
+
+    // Update widget size information
+    void UpdateWidgetSizeInfo();
+
+    // Redraw widget on timer timeout
+    virtual void OnTimeoutRedraw();
+
+protected:
+    // Chart scaling information
+    aqua_gui::ChartScaleInfo scale_info_;
+    
+    // Manages axis rendering
+    aqua_gui::AxisManager axis_man_;
+    
+    // Manages chart selection
     std::shared_ptr<ChartSelection> chart_selection_;
-    aqua_gui::ImageBG               bg_image_;
-    QPoint                          mouse_pos_;
-    QTimer                          redraw_timer_;
-    PowerLimitMan                   power_man_;
+    
+    // Background image for chart
+    aqua_gui::ImageBG bg_image_;
+    
+    // Current mouse position
+    QPoint mouse_pos_;
+    
+    // Timer for periodic redraws
+    QTimer redraw_timer_;
+    
+    // Manages power limits for chart
+    PowerLimitMan power_man_;
 };

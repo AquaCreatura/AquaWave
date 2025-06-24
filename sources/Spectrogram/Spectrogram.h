@@ -16,6 +16,7 @@ public:
 
 protected:
     std::shared_ptr<ChartSPG> spg_drawer_;
+    WorkBounds                time_bounds_;
     FFT_Worker fft_worker_;
     SpgRequester requester_;
 };

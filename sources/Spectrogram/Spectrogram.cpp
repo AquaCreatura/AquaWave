@@ -6,7 +6,7 @@ using namespace spg_core; // Используем пространство имён dpx_core
 // parrent: Указатель на родительский QWidget.
 Spectrogram::Spectrogram(QWidget * parrent) : 
     spg_drawer_(std::make_shared<ChartSPG>(parrent)),  // Создаём и сохраняем умный указатель на объект DpxChart для отрисовки.
-    requester_(spg_drawer_->GetSpectrogramInfo()) 
+    requester_(spg_drawer_->GetSpectrogramInfo(), time_bounds_) 
 {
     connect(spg_drawer_.get(), &ChartSPG::NeedRequest, &requester_, &SpgRequester::RequestData);
 }
@@ -75,8 +75,8 @@ bool Spectrogram::SendDove(fluctus::DoveSptr const & sent_dove)
     // Передаём сообщение базовому классу для дальнейшей обработки.
     if(base_thought & DoveParrent::DoveThought::kTieBehind)
     {
-        
-
+        if(target_val->GetArkType() != ArkType::kFileSource) throw std::logic_error("Only signal sources are able to connect!");
+        requester_.Initialise(target_val, this->shared_from_this());
     }
     return ArkBase::SendDove(sent_dove);
 }

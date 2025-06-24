@@ -61,7 +61,7 @@ namespace fluctus
             kGetDialog      = 1 << 5 ,                          //Request dialog 
             kSpecialThought = 1 << 31
         };
-        thoughts_list                                   base_thought  = kNothing ; //Basic 
+        thoughts_list                                   base_thought  = kSpecialThought ; //Basic 
         thoughts_list                                   special_thought {0}; //Child
         ArkSptr                                         target_ark     ; //To operate with another ark
         std::shared_ptr<QWidget>                        show_widget; //Pointer to the dialog
@@ -76,6 +76,12 @@ namespace fluctus
         fluctus::freq_params    freq_info_;
         std::vector<uint8_t>    data_vec;
         double                  time_point;
+    };
+
+    struct WorkBounds
+    {
+        Limits<double>  source;
+        Limits<double>  scaled;                  
     };
 }
 

@@ -77,8 +77,10 @@ struct dynamic_qimage
 
 struct draw_data
 {
-    std::vector<Ipp32f> data;           //ƒанные, которые планируем отрисовать 
+    std::vector<float>  data;           //ƒанные, которые планируем отрисовать 
     Limits<double>      freq_bounds;    //√раницы в частотной области наших данных
     double              time_pos;       //¬ременна€ метка наших данных
 };
+
+
 }

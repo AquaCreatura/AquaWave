@@ -114,7 +114,8 @@
     <ClCompile Include="sources\File Source\FileSource.cpp" />
     <ClCompile Include="sources\GUI\basic tools\ChartSelection.cpp" />
     <ClCompile Include="sources\GUI\basic tools\gui_conversions.cpp" />
-    <ClCompile Include="sources\GUI\basic tools\gui_filters.cpp" />
+    <ClCompile Include="sources\GUI\basic tools\gui_helper.cpp" />
+    <ClCompile Include="sources\GUI\basic tools\gui_worker.cpp" />
     <ClCompile Include="sources\GUI\basic tools\PowerManager.cpp" />
     <ClCompile Include="sources\GUI\Charts\DPX\DPX core\DpxCore.cpp" />
     <ClCompile Include="sources\GUI\Charts\DPX\DPX core\DpxRenderer.cpp" />
@@ -148,6 +149,7 @@
     <ClInclude Include="sources\File Source\file_souce_defs.h" />
     <ClInclude Include="sources\File Source\FileDataManager.h" />
     <ClInclude Include="sources\File Source\FileReadCore.h" />
+    <ClInclude Include="sources\GUI\basic tools\gui_worker.h" />
     <ClInclude Include="sources\GUI\basic tools\PowerManager.h" />
     <ClInclude Include="sources\GUI\Charts\DPX\DPX core\DpxScaler.h" />
     <ClInclude Include="sources\GUI\Charts\SPG\SPG core\SpgCore.h" />
@@ -163,7 +165,7 @@
     <QtMoc Include="sources\File Source\FileSource.h" />
     <ClInclude Include="sources\GUI\basic tools\ChartSelection.h" />
     <ClInclude Include="sources\GUI\basic tools\gui_conversions.h" />
-    <ClInclude Include="sources\GUI\basic tools\gui_filters.h" />
+    <ClInclude Include="sources\GUI\basic tools\gui_helper.h" />
     <ClInclude Include="sources\GUI\gui_defs.h" />
     <ClInclude Include="sources\GUI\Charts\DPX\DPX core\DPX_defs.h" />
     <ClInclude Include="sources\GUI\Charts\DPX\DPX core\DpxCore.h" />
@@ -189,6 +191,9 @@
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="AquaWave.qrc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="cpp.hint" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

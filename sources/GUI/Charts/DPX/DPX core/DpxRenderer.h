@@ -3,7 +3,7 @@
 #include "qpixmap.h"
 #include <qimage.h>
 #include "GUI/Drawers/QimageZoomer.h"
-#include "GUI/basic tools/gui_filters.h"
+#include "GUI/basic tools/gui_helper.h"
 #include "GUI/basic tools/gui_conversions.h"
 using namespace aqua_gui;
 namespace dpx_core

@@ -16,17 +16,6 @@ AquaWave::AquaWave(QWidget *parent)
                 ((req_dove->show_widget))->show();// exec();
             }
         });
-
-        //fluctus::DoveSptr req_dove = std::make_shared<fluctus::DoveParrent>();
-        //req_dove->base_thought = fluctus::DoveParrent::kGetDialog;
-        //if (file_src_->SendDove(req_dove))
-        //{
-        //    auto &res = req_dove->show_widget.value();
-        //    if (res)
-        //        res->exec();
-        //    else
-        //        throw std::runtime_error("something happened!(");
-        //}
     }
     spectrum_chart_ = std::make_shared<dpx_core::SpectrumDPX>(ui.single_chart_widget);
     //Spectrum debug
@@ -56,31 +45,65 @@ AquaWave::AquaWave(QWidget *parent)
     
     std::shared_ptr<QWidget> spectrum_widget;
 
+    
     fluctus::DoveSptr req_dove = std::make_shared<fluctus::DoveParrent>();
     req_dove->base_thought = fluctus::DoveParrent::kGetDialog;
-    if (!spectrum_chart_->SendDove(req_dove))
     {
-        QMessageBox::warning(
-                                    nullptr,                        // родительское окно (может быть this)
-                                    "Cannot Get QDialog",            // заголовок окна
-                                    "DPX spectrum doesn't return QWidget..."  // сообщение
-                                );
-    };
-    spectrum_widget = req_dove->show_widget;
-
-
-
-    //spectrum_chart_->setLayout(new QVBoxLayout());
-    //spectrum_chart_->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
-    if(spectrum_widget)
-    {
-        this->ui.spectre_tab->layout()->replaceWidget(ui.single_chart_widget, spectrum_widget.get());
-        ui.harmonics_viewer_tab_widget->setCurrentIndex(0);
-        if(auto casted_widget = std::dynamic_pointer_cast<ChartInterface>(spectrum_widget))
+        if (!spectrum_chart_->SendDove(req_dove))
         {
-            casted_widget->SetBackgroundImage(":/AquaWave/third_party/background/dark_city_2_cut.jpg"); 
+            QMessageBox::warning(
+                                        nullptr,                        // родительское окно (может быть this)
+                                        "Cannot Get QDialog",            // заголовок окна
+                                        "DPX spectrum doesn't return QWidget..."  // сообщение
+                                    );
+        };
+        spectrum_widget = req_dove->show_widget;
+
+        if(spectrum_widget)
+        {
+            this->ui.spectre_tab->layout()->replaceWidget(ui.single_chart_widget, spectrum_widget.get());
+            ui.harmonics_viewer_tab_widget->setCurrentIndex(0);
+            if(auto casted_widget = std::dynamic_pointer_cast<ChartInterface>(spectrum_widget))
+            {
+                casted_widget->SetBackgroundImage(":/AquaWave/third_party/background/dark_city_2_cut.jpg"); 
+            }
         }
     }
+
+    {
+        spectrogram_ = std::make_shared<spg_core::Spectrogram>();
+        if (!spectrogram_->SendDove(req_dove))
+        {
+            QMessageBox::warning(
+                                        nullptr,                        // родительское окно (может быть this)
+                                        "Cannot Get QDialog",            // заголовок окна
+                                        "Spectrogram doesn't return QWidget..."  // сообщение
+                                    );
+        };
+        spectrum_widget = req_dove->show_widget;
+
+        if(spectrum_widget)
+        {
+            this->ui.spectre_tab->layout()->replaceWidget(ui.time_freq_frame, spectrum_widget.get());
+            ui.harmonics_viewer_tab_widget->setCurrentIndex(0);
+            if(auto casted_widget = std::dynamic_pointer_cast<ChartInterface>(spectrum_widget))
+            {
+                casted_widget->SetBackgroundImage(":/AquaWave/third_party/background/dark_city_2_cut.jpg"); 
+            }
+        }
+        req_dove->base_thought = fluctus::DoveParrent::kTieBehind;
+        req_dove->target_ark   = file_src_;
+        if(!spectrogram_->SendDove(req_dove))
+        {
+            QMessageBox::warning(
+                                            nullptr,                        // родительское окно (может быть this)
+                                            "Cannot Tie File signal source",            // заголовок окна
+                                            "Spectrogram doesn't return QWidget..."  // сообщение
+                                        );
+        }
+    }
+    
+    
 
 }
 

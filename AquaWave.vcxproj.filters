@@ -119,9 +119,6 @@
     <ClCompile Include="sources\GUI\basic tools\gui_conversions.cpp">
       <Filter>GUI\basic tools</Filter>
     </ClCompile>
-    <ClCompile Include="sources\GUI\basic tools\gui_filters.cpp">
-      <Filter>GUI\basic tools</Filter>
-    </ClCompile>
     <ClCompile Include="sources\GUI\Charts\DPX\DPX core\DpxCore.cpp">
       <Filter>GUI\Charts\DPX\DPX core</Filter>
     </ClCompile>
@@ -182,6 +179,12 @@
     <ClCompile Include="sources\Spectrogram\SpgRequester.cpp">
       <Filter>Spectrogram</Filter>
     </ClCompile>
+    <ClCompile Include="sources\GUI\basic tools\gui_helper.cpp">
+      <Filter>GUI\basic tools</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\GUI\basic tools\gui_worker.cpp">
+      <Filter>GUI\basic tools</Filter>
+    </ClCompile>
   </ItemGroup>
   <!-- ClInclude (H Files) -->
   <ItemGroup>
@@ -219,9 +222,6 @@
       <Filter>GUI\basic tools</Filter>
     </ClInclude>
     <ClInclude Include="sources\GUI\basic tools\gui_conversions.h">
-      <Filter>GUI\basic tools</Filter>
-    </ClInclude>
-    <ClInclude Include="sources\GUI\basic tools\gui_filters.h">
       <Filter>GUI\basic tools</Filter>
     </ClInclude>
     <ClInclude Include="sources\GUI\Charts\DPX\DPX core\DPX_defs.h">
@@ -298,6 +298,12 @@
     <ClInclude Include="sources\DPX Spectrum\SpectrumDPX.h">
       <Filter>DPX Spectrum</Filter>
     </ClInclude>
+    <ClInclude Include="sources\GUI\basic tools\gui_helper.h">
+      <Filter>GUI\basic tools</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\GUI\basic tools\gui_worker.h">
+      <Filter>GUI\basic tools</Filter>
+    </ClInclude>
   </ItemGroup>
   <!-- QtMoc (For Headers Requiring Moc) -->
   <ItemGroup>
@@ -324,5 +330,8 @@
     <QtUic Include="AquaWave.ui" />
     <QtUic Include="sources\File Source\file_settings_dialog.ui" />
     <QtUic Include="sources\time graph ark\TimeGraphWidget.ui" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="cpp.hint" />
   </ItemGroup>
 </Project>

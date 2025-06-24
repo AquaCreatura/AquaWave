@@ -14,6 +14,12 @@ class ChartInterface : public QWidget
 {
     Q_OBJECT
 public: 
+    enum ChartDomainType
+    {
+        kFreqDomain,    //default
+        kTimeFrequency  
+    
+    };
     //We pass 
     ChartInterface(QWidget* parrent);
     ~ChartInterface();
@@ -107,4 +113,6 @@ protected:
     
     // Manages power limits for chart
     PowerLimitMan power_man_;
+
+    ChartDomainType domain_type_;
 };

@@ -8,6 +8,7 @@ ChartSPG::ChartSPG(QWidget * parrent):
 
     SetVerticalMinMaxBounds(10, 80, true);
     SetVerticalSuffix("power");
+    domain_type_ = ChartDomainType::kTimeFrequency;
 }
 
 ChartSPG::~ChartSPG()
@@ -45,7 +46,7 @@ void ChartSPG::SetHorizontalMinMaxBounds(const double min_val, const double end_
 
 spg_data const & ChartSPG::GetSpectrogramInfo() const
 {
-    spg_core_.GetSpectrogramInfo();
+    return spg_core_.GetSpectrogramInfo();
 }
 
 

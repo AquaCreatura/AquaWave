@@ -289,9 +289,6 @@
     <ClInclude Include="sources\GUI\Charts\SPG\SPG core\SpgScaler.h">
       <Filter>GUI\Charts\SPG\SPG core</Filter>
     </ClInclude>
-    <ClInclude Include="sources\GUI\Charts\SPG\SpgChart.h">
-      <Filter>GUI\Charts\SPG</Filter>
-    </ClInclude>
     <ClInclude Include="sources\Spectrogram\Spectrogram.h">
       <Filter>Spectrogram</Filter>
     </ClInclude>
@@ -321,6 +318,9 @@
     </QtMoc>
     <QtMoc Include="sources\Spectrogram\SpgRequester.h">
       <Filter>Spectrogram</Filter>
+    </QtMoc>
+    <QtMoc Include="sources\GUI\Charts\SPG\SpgChart.h">
+      <Filter>GUI\Charts\SPG</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>

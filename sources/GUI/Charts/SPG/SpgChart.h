@@ -5,6 +5,7 @@ namespace spg_core
 {
 class ChartSPG : public ChartInterface
 {
+    Q_OBJECT 
 public:
     ChartSPG(QWidget* parrent);
     ~ChartSPG();

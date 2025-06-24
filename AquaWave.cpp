@@ -71,7 +71,7 @@ AquaWave::AquaWave(QWidget *parent)
     }
 
     {
-        spectrogram_ = std::make_shared<spg_core::Spectrogram>();
+        spectrogram_ = std::make_shared<spg_core::Spectrogram>(ui.time_freq_frame);
         if (!spectrogram_->SendDove(req_dove))
         {
             QMessageBox::warning(
@@ -80,13 +80,13 @@ AquaWave::AquaWave(QWidget *parent)
                                         "Spectrogram doesn't return QWidget..."  // сообщение
                                     );
         };
-        spectrum_widget = req_dove->show_widget;
+        auto spg_widget = req_dove->show_widget;
 
-        if(spectrum_widget)
+        if(spg_widget)
         {
-            this->ui.spectre_tab->layout()->replaceWidget(ui.time_freq_frame, spectrum_widget.get());
+            this->ui.TimeFreqFrame->layout()->replaceWidget(ui.time_freq_frame, spg_widget.get());
             ui.harmonics_viewer_tab_widget->setCurrentIndex(0);
-            if(auto casted_widget = std::dynamic_pointer_cast<ChartInterface>(spectrum_widget))
+            if(auto casted_widget = std::dynamic_pointer_cast<ChartInterface>(spg_widget))
             {
                 casted_widget->SetBackgroundImage(":/AquaWave/third_party/background/dark_city_2_cut.jpg"); 
             }

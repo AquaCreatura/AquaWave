@@ -10,8 +10,9 @@ class SpectrumDPX : public fluctus::ArkBase
 
 public:
     SpectrumDPX(QWidget *parrent);
-    virtual bool SendData(fluctus::DataInfo const& data_info) override;
-    virtual bool SendDove(fluctus::DoveSptr const & sent_dove) override;
+    virtual bool SendData   (fluctus::DataInfo const& data_info) override;
+    virtual bool SendDove   (fluctus::DoveSptr const & sent_dove) override;
+    ArkType      GetArkType () const override;
 protected:
 
 protected:

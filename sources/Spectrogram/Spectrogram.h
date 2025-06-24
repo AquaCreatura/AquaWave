@@ -13,7 +13,7 @@ public:
     Spectrogram(QWidget *parrent);
     virtual bool SendData(fluctus::DataInfo const& data_info) override;
     virtual bool SendDove(fluctus::DoveSptr const & sent_dove) override;
-
+    ArkType GetArkType() const override;
 protected:
     std::shared_ptr<ChartSPG> spg_drawer_;
     WorkBounds                time_bounds_;

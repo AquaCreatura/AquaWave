@@ -23,7 +23,7 @@ namespace file_source
 
         // Sends a Dove object (e.g., command or signal)
         virtual bool SendDove(fluctus::DoveSptr const & sent_dove) override;
-
+        fluctus::ArkType GetArkType() const override;
     private:
         //bool AddCyclicReader(); // Optional: reader for cyclic data
     protected:

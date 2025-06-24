@@ -156,7 +156,7 @@
     <ClInclude Include="sources\GUI\Charts\SPG\SPG core\SpgRenderer.h" />
     <ClInclude Include="sources\GUI\Charts\SPG\SPG core\SpgScaler.h" />
     <ClInclude Include="sources\GUI\Charts\SPG\SPG core\spg_defs.h" />
-    <ClInclude Include="sources\GUI\Charts\SPG\SpgChart.h" />
+    <QtMoc Include="sources\GUI\Charts\SPG\SpgChart.h" />
     <ClInclude Include="SOURCES\GUI\CHARTS\SPG\SPG_CORE.H" />
     <ClInclude Include="sources\Spectrogram\Spectrogram.h" />
     <QtMoc Include="sources\Spectrogram\SpgRequester.h" />

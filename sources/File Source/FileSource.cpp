@@ -88,6 +88,11 @@ bool file_source::FileSourceArk::SendDove(fluctus::DoveSptr const& sent_dove)
     return ArkBase::SendDove(sent_dove);
 }
 
+fluctus::ArkType file_source::FileSourceArk::GetArkType() const
+{
+    return fluctus::ArkType::kFileSource;
+}
+
 // Отправка данных (не реализована)
 bool file_source::FileSourceArk::SendData(fluctus::DataInfo const& data_info)
 {

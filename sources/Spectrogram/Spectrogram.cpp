@@ -80,3 +80,8 @@ bool Spectrogram::SendDove(fluctus::DoveSptr const & sent_dove)
     }
     return ArkBase::SendDove(sent_dove);
 }
+
+ArkType spg_core::Spectrogram::GetArkType() const
+{
+    return ArkType::kFileSpectrogram;
+}

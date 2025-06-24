@@ -9,6 +9,8 @@ spg_core::SpgRenderer::SpgRenderer(spg_data & init_val): sgp_(init_val)
 QPixmap & spg_core::SpgRenderer::GetRelevantPixmap(const ChartScaleInfo & scale_info)
 {
     // TODO: insert return statement here
+    static QPixmap static_pixmap;
+    return static_pixmap;
 }
 
 bool spg_core::SpgRenderer::UpdateSpgRgbData()

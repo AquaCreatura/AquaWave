@@ -74,3 +74,8 @@ bool dpx_core::SpectrumDPX::SendDove(fluctus::DoveSptr const & sent_dove)
     // Передаём сообщение базовому классу для дальнейшей обработки.
     return ArkBase::SendDove(sent_dove);
 }
+
+ArkType dpx_core::SpectrumDPX::GetArkType() const
+{
+    return ArkType::kSpectrumDpx;
+}

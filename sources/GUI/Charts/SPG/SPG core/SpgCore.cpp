@@ -2,7 +2,8 @@
 #pragma once
 using namespace spg_core;
 
-spg_core::SpgCore::SpgCore(): renderer_(spg_), scaler_(spg_)
+spg_core::SpgCore::SpgCore():   
+    renderer_(spg_), scaler_(spg_)
 {
 }
 
@@ -23,6 +24,7 @@ bool spg_core::SpgCore::AccumulateNewData(const std::vector<float>& passed_data,
 QPixmap & spg_core::SpgCore::GetRelevantPixmap(const ChartScaleInfo & scale_info)
 {
     // TODO: insert return statement here
+    return renderer_.GetRelevantPixmap(scale_info);
 }
 
 spg_core::spg_data const & spg_core::SpgCore::GetSpectrogramInfo() const

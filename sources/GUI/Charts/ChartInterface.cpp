@@ -60,7 +60,6 @@ void ChartInterface::SetVerticalMinMaxBounds(const double min_val, const double 
     cur_min_max = new_vertical_bounds;
     scale_info_.val_info_.cur_bounds.vertical = new_vertical_bounds;
     power_man_.SetPowerBounds({min_val, end_val});
-    power_man_.EnableAdaptiveMode(is_adaptive);
 }
 
 void ChartInterface::SetVerticalSuffix(const QString & suffix)
@@ -108,7 +107,8 @@ void ChartInterface::paintEvent(QPaintEvent * paint_event)
 {
     //if widget size was changed
     UpdateWidgetSizeInfo();
-    UpdatePowerBounds();
+    if(domain_type_ != ChartDomainType::kTimeFrequency) //Для ЛЧМ не используем
+        UpdatePowerBounds();
 
     
     QPainter new_frame_painter(this);

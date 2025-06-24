@@ -15,6 +15,7 @@ class SpgCore
 public:
     SpgCore();
     ~SpgCore();
+    bool Emplace            ();
     void Initialise         ( const freq_params& freq_params, const size_t samples_count = 1000);
     void SetTimeBounds      (const Limits<double>& power_bounds);
     void SetFreqBounds      (const Limits<double>& freq_bounds );
@@ -23,6 +24,8 @@ public:
     //Is Used to get pixmap from our spg
     QPixmap&         GetRelevantPixmap(const ChartScaleInfo& scale_info);
     spg_data const & GetSpectrogramInfo() const;
+protected:
+    void SetDataToColumn (const std::vector<float>& passed_data, size_t column_idx);
 private:
     spg_data    spg_;
     SpgRenderer renderer_;

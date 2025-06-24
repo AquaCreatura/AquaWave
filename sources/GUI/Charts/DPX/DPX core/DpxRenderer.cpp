@@ -45,7 +45,7 @@ bool dpx_core::DpxRenderer::UpdateDpxRgbData()
         {
             const int64_t* column_weight_iter = &dpx_.column_weight[0]; //Reset for every row
             const int64_t* dpx_iter           = dpx_[grid_height - column_iter - 1]; //We have inversed image
-            for(int row_iter = 0; row_iter < dpx_.size.horizontal; row_iter++)
+            for(int row_iter = 0; row_iter < grid_width; row_iter++)
             {
                 const double weight = *(column_weight_iter++);
                 const double density = weight ? *(dpx_iter++) / weight : 0;
@@ -60,16 +60,17 @@ bool dpx_core::DpxRenderer::UpdateDpxRgbData()
 }
 // Maps relative density to a color from the palette
 const argb_t* dpx_core::DpxRenderer::GetNormalizedColor(double relative_density) const {
+
+    constexpr double MAX_THRESHOLD = 0.3; // Normalization threshold
+    const double normalized_density = clamp_value_helper(relative_density / MAX_THRESHOLD, 0.0, 1.0);
     // Validate palette size
     if ((relative_density == 0)) 
     {
         static const uint8_t default_color[4] = {0, 0, 0, 200}; // Default to black (little-endian)
         return (uint32_t*)(default_color);
     }
-    argb_t* color_palette = LUT_HSV_Instance::get_table_ptr();
-    constexpr double MAX_THRESHOLD = 0.3; // Normalization threshold
-    const double normalized_density = clamp_value_helper(relative_density / MAX_THRESHOLD, 0.0, 1.0);
 
+    argb_t* color_palette = LUT_HSV_Instance::get_table_ptr();
     // Calculate palette index and clamp within valid range
     int color_index = static_cast<int>(normalized_density * (hsv_table_size_c - 1));
     color_index = clamp_value_helper(color_index, 0, hsv_table_size_c - 1);

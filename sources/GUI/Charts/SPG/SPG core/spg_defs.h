@@ -5,12 +5,13 @@
 #include <atomic>
 #include <tbb/spin_mutex.h>
 #include "GUI/gui_defs.h"
+#include <tbb/spin_mutex.h>
 using namespace fluctus;
 using namespace aqua_gui;
 
 namespace spg_core
 {
-    typedef uint8_t DataType;
+    typedef float DataType;
 
     struct spg_holder
     {
@@ -25,16 +26,14 @@ namespace spg_core
         WH_Info<size_t>         size;
         std::vector<bool>       relevant_vec; //Актуальность наших данных столбцов
         std::vector<DataType>   data;         //Наши данные
+        std::atomic<bool>       need_redraw;
     };
 
     struct spg_data
     {
+        mutable tbb::spin_mutex rw_mutex_;
         spg_holder base_data; //Наши данные 
-        int a;
-
-     
-
-
+        Limits<double> power_bounds;
     };
 
 

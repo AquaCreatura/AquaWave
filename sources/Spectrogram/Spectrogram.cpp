@@ -8,7 +8,7 @@ Spectrogram::Spectrogram(QWidget * parrent) :
     spg_drawer_(std::make_shared<ChartSPG>(parrent)),  // Создаём и сохраняем умный указатель на объект DpxChart для отрисовки.
     requester_(spg_drawer_->GetSpectrogramInfo(), time_bounds_) 
 {
-    connect(spg_drawer_.get(), &ChartSPG::NeedRequest, &requester_, &SpgRequester::RequestData);
+    connect(spg_drawer_.get(), &ChartSPG::NeedRequest, &requester_, &SpgRequester::RequestData, Qt::DirectConnection);
 }
 
 // Отправляет данные для обработки спектра и отображения.

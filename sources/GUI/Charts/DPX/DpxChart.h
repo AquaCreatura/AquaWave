@@ -5,7 +5,7 @@
 class ChartDPX : public ChartInterface
 {
 public:
-    ChartDPX(QWidget* parrent);
+    ChartDPX(QWidget* parrent = nullptr);
     ~ChartDPX();
     virtual void DrawData                   (QPainter& painter          ) override;
     virtual void PushData                   (const draw_data& draw_data ) override;

@@ -103,15 +103,17 @@
     <ClCompile Include="AquaWave.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="sources\DPX Spectrum\SpectrumDPX.cpp" />
+    <ClCompile Include="sources\DPX Spectrum\window\DpxWindow.cpp" />
     <ClCompile Include="sources\DSP Tools\basic\freq_shifter.cpp" />
     <ClCompile Include="sources\DSP Tools\FFT\FFT_Worker.cpp" />
     <ClCompile Include="sources\DSP Tools\Resampler\ResamplersImpl\MR Resampler\MultiRateResampler.cpp" />
     <ClCompile Include="sources\DSP Tools\Resampler\ResamplersImpl\Precise Resampler\Interpolator\FarrowInterpolator.cpp" />
     <ClCompile Include="sources\DSP Tools\Resampler\ResamplersImpl\Precise Resampler\PreciseResampler.cpp" />
     <ClCompile Include="sources\DSP Tools\Resampler\ResamplerMan.cpp" />
-    <ClCompile Include="sources\File Source\FileDataManager.cpp" />
-    <ClCompile Include="sources\File Source\FileReadCore.cpp" />
     <ClCompile Include="sources\File Source\FileSource.cpp" />
+    <ClCompile Include="sources\File Source\helpers\FileDataManager.cpp" />
+    <ClCompile Include="sources\File Source\helpers\FileReadCore.cpp" />
+    <ClCompile Include="sources\File Source\window\FileSourceDialog.cpp" />
     <ClCompile Include="sources\GUI\basic tools\ChartSelection.cpp" />
     <ClCompile Include="sources\GUI\basic tools\gui_conversions.cpp" />
     <ClCompile Include="sources\GUI\basic tools\gui_helper.cpp" />
@@ -131,13 +133,14 @@
     <ClCompile Include="sources\GUI\Drawers\ImageBackGround.cpp" />
     <ClCompile Include="sources\GUI\Drawers\QimageZoomer.cpp" />
     <ClCompile Include="sources\Interfaces\base_impl\ark_base.cpp" />
+    <ClCompile Include="sources\Spectrogram\helpers\SpgRequester.cpp" />
     <ClCompile Include="sources\Spectrogram\Spectrogram.cpp" />
-    <ClCompile Include="sources\Spectrogram\SpgRequester.cpp" />
-    <ClCompile Include="sources\time graph ark\TimeGraphArk.cpp" />
+    <ClCompile Include="sources\Spectrogram\window\SpgWindow.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="sources\aqua_defines.h" />
-    <ClInclude Include="sources\DPX Spectrum\SpectrumDPX.h" />
+    <QtMoc Include="sources\DPX Spectrum\SpectrumDPX.h" />
+    <QtMoc Include="sources\DPX Spectrum\window\DpxWindow.h" />
     <ClInclude Include="sources\DSP Tools\basic\freq_shifter.h" />
     <ClInclude Include="sources\DSP Tools\FFT\FFT_Worker.h" />
     <ClInclude Include="sources\DSP Tools\Resampler\ResamplersImpl\MR Resampler\MultiRateResampler.h" />
@@ -147,8 +150,9 @@
     <ClInclude Include="sources\DSP Tools\Resampler\tools\resampler_tools.h" />
     <ClInclude Include="sources\DSP Tools\Resampler\ResamplerMan.h" />
     <ClInclude Include="sources\File Source\file_souce_defs.h" />
-    <ClInclude Include="sources\File Source\FileDataManager.h" />
-    <ClInclude Include="sources\File Source\FileReadCore.h" />
+    <ClInclude Include="sources\File Source\helpers\FileDataManager.h" />
+    <ClInclude Include="sources\File Source\helpers\FileReadCore.h" />
+    <QtMoc Include="sources\File Source\window\FileSourceDialog.h" />
     <ClInclude Include="sources\GUI\basic tools\gui_worker.h" />
     <ClInclude Include="sources\GUI\basic tools\PowerManager.h" />
     <ClInclude Include="sources\GUI\Charts\DPX\DPX core\DpxScaler.h" />
@@ -157,12 +161,12 @@
     <ClInclude Include="sources\GUI\Charts\SPG\SPG core\SpgScaler.h" />
     <ClInclude Include="sources\GUI\Charts\SPG\SPG core\spg_defs.h" />
     <QtMoc Include="sources\GUI\Charts\SPG\SpgChart.h" />
-    <ClInclude Include="SOURCES\GUI\CHARTS\SPG\SPG_CORE.H" />
+    <QtMoc Include="sources\Spectrogram\helpers\SpgRequester.h" />
     <ClInclude Include="sources\Spectrogram\Spectrogram.h" />
-    <QtMoc Include="sources\Spectrogram\SpgRequester.h" />
+    <QtMoc Include="sources\Spectrogram\window\SpgWindow.h" />
     <ClInclude Include="sources\Tools\utility_aqua.h" />
     <ClInclude Include="sources\Tools\parse_tools.h" />
-    <QtMoc Include="sources\File Source\FileSource.h" />
+    <ClInclude Include="sources\File Source\FileSource.h" />
     <ClInclude Include="sources\GUI\basic tools\ChartSelection.h" />
     <ClInclude Include="sources\GUI\basic tools\gui_conversions.h" />
     <ClInclude Include="sources\GUI\basic tools\gui_helper.h" />
@@ -177,7 +181,6 @@
     <ClInclude Include="sources\GUI\Drawers\QimageZoomer.h" />
     <ClInclude Include="sources\Interfaces\base_impl\ark_base.h" />
     <ClInclude Include="sources\Interfaces\ark_defs.h" />
-    <ClInclude Include="sources\time graph ark\TimeGraphArk.h" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="AquaWave.h" />
@@ -186,14 +189,12 @@
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="AquaWave.ui" />
-    <QtUic Include="sources\File Source\file_settings_dialog.ui" />
-    <QtUic Include="sources\time graph ark\TimeGraphWidget.ui" />
+    <QtUic Include="sources\DPX Spectrum\window\DpxWindow.ui" />
+    <QtUic Include="sources\File Source\window\file_settings_dialog.ui" />
+    <QtUic Include="sources\Spectrogram\window\SpgWindow.ui" />
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="AquaWave.qrc" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="cpp.hint" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

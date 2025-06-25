@@ -1,13 +1,18 @@
 #include "SpectrumDPX.h" // Включаем заголовок класса SpectrumDPX
+#include "File Source/file_souce_defs.h"
 #include <ippvm.h>
+
+#include <qmessagebox.h>
 using namespace dpx_core; // Используем пространство имён dpx_core
 
 // Конструктор: Инициализирует компонент для отрисовки спектра.
 // parrent: Указатель на родительский QWidget.
-dpx_core::SpectrumDPX::SpectrumDPX(QWidget * parrent)
+dpx_core::SpectrumDPX::SpectrumDPX()
 {
-    // Создаём и сохраняем умный указатель на объект DpxChart для отрисовки.
-    dpx_drawer_ = std::make_shared<ChartDPX>(parrent);
+    dpx_drawer_ = new ChartDPX();     // Создаём указатель на объект DpxChart для отрисовки.
+    window_ = std::make_shared<DpxWindow>();
+    window_->SetChartWindow(dpx_drawer_);
+    connect(window_.get(), &DpxWindow::NeedDoSomething, this, &SpectrumDPX::OnDoSomething);
 }
 
 // Отправляет данные для обработки спектра и отображения.
@@ -68,7 +73,7 @@ bool dpx_core::SpectrumDPX::SendDove(fluctus::DoveSptr const & sent_dove)
     else if (base_thought & fluctus::DoveParrent::DoveThought::kGetDialog)
     {
         // Прикрепляем отрисовщик спектра к виджету сообщения.
-        sent_dove->show_widget = dpx_drawer_;
+        sent_dove->show_widget = window_;
         return true; // Запрос обработан.
     }
     // Передаём сообщение базовому классу для дальнейшей обработки.
@@ -78,4 +83,25 @@ bool dpx_core::SpectrumDPX::SendDove(fluctus::DoveSptr const & sent_dove)
 ArkType dpx_core::SpectrumDPX::GetArkType() const
 {
     return ArkType::kSpectrumDpx;
+}
+
+void SpectrumDPX::OnDoSomething()
+{
+    auto arks = GetBehindArks();
+    if(arks.empty()) return;
+    auto file_src_ = arks.front();
+    auto req_dove = std::make_shared<file_source::FileSrcDove>();
+    req_dove->base_thought      = fluctus::DoveParrent::DoveThought::kSpecialThought;
+    req_dove->special_thought   = file_source::FileSrcDove::kInitReaderInfo |  file_source::FileSrcDove::kAskSingleDataAround;
+    req_dove->target_ark        = shared_from_this();
+    req_dove->time_point_start  = 0.5;
+    req_dove->data_size         = 1'024 * 32;
+    if (!file_src_->SendDove(req_dove))
+    {
+        QMessageBox::warning(
+                            nullptr,                        // родительское окно (может быть this)
+                            "Cannot Send Data",            // заголовок окна
+                            "Do something with DPX or file source, or..."  // сообщение
+                        );
+    }
 }

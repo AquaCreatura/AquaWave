@@ -27,7 +27,7 @@ bool spg_core::SpgRenderer::UpdateSpectrogramData()
         wrapper_rgb.size = basic.size;
         zoomer_.SetNewBase(&wrapper_rgb.qimage);
     }
-    if(need_redraw || true)
+    if(need_redraw)
     {
         tbb::spin_mutex::scoped_lock guard_lock(spg_.rw_mutex_);
         //Здесь бы mutex по-хорошему
@@ -58,7 +58,7 @@ const argb_t * spg_core::SpgRenderer::GetNormalizedColor(double relative_density
     // Validate palette size
     if ((normalized_density == 0)) 
     {
-        static const uint8_t default_color[4] = {0, 0, 0, 200}; // Default to black (little-endian)
+        static const uint8_t default_color[4] = {0, 0, 0, 0}; // Default to black (little-endian)
         return (uint32_t*)(default_color);
     }
 

@@ -5,10 +5,16 @@ using namespace spg_core; // Используем пространство имён dpx_core
 // Конструктор: Инициализирует компонент для отрисовки спектра.
 // parrent: Указатель на родительский QWidget.
 Spectrogram::Spectrogram(QWidget * parrent) : 
-    spg_drawer_(std::make_shared<ChartSPG>(parrent)),  // Создаём и сохраняем умный указатель на объект DpxChart для отрисовки.
+    spg_drawer_(new spg_core::ChartSPG()),
     requester_(spg_drawer_->GetSpectrogramInfo(), time_bounds_) 
 {
-    connect(spg_drawer_.get(), &ChartSPG::NeedRequest, &requester_, &SpgRequester::RequestData/*, Qt::QueuedConnection*/);
+    window_ = std::make_shared<SpgWindow>();
+    window_->SetChartWindow(spg_drawer_);
+    connect(spg_drawer_, &ChartSPG::NeedRequest, &requester_, &SpgRequester::RequestData/*, Qt::QueuedConnection*/);
+}
+
+spg_core::Spectrogram::~Spectrogram()
+{
 }
 
 // Отправляет данные для обработки спектра и отображения.
@@ -69,7 +75,7 @@ bool Spectrogram::SendDove(fluctus::DoveSptr const & sent_dove)
     else if (base_thought & fluctus::DoveParrent::DoveThought::kGetDialog)
     {
         // Прикрепляем отрисовщик спектра к виджету сообщения.
-        sent_dove->show_widget = spg_drawer_;
+        sent_dove->show_widget = window_;
         return true; // Запрос обработан.
     }
     // Передаём сообщение базовому классу для дальнейшей обработки.

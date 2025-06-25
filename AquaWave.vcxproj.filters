@@ -5,17 +5,68 @@
     <Filter Include="Application">
       <UniqueIdentifier>{4fc737f1-c7a5-4376-a066-2a32d752a2ff}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Tools">
+      <UniqueIdentifier>{f6a7b8c9-0d1e-2f3a-4b5c-6d7e8f9a0b1c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI">
+      <UniqueIdentifier>{3462638b-1003-4b82-9a88-c0dea3bcef09}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI\basic tools">
+      <UniqueIdentifier>{e5f6a7b8-9c0d-1e2f-3a4b-5c6d7e8f9a0b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI\Charts">
+      <UniqueIdentifier>{da289fca-4831-47b0-83e9-7bca5fcd9519}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI\Charts\DPX">
+      <UniqueIdentifier>{ae13bdcc-f543-405e-8862-40ca30dc48f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI\Charts\DPX\DPX core">
+      <UniqueIdentifier>{d4e5f6a7-8b9c-0d1e-2f3a-4b5c6d7e8f9a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI\Charts\Simple chart">
+      <UniqueIdentifier>{edd5ddbf-9c88-4174-879d-effa008d2742}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI\Drawers">
+      <UniqueIdentifier>{33333333-3333-3333-3333-333333333333}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI\Charts\SPG">
+      <UniqueIdentifier>{4b929b38-cf07-4ab7-ac5f-5b77484236e2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI\Charts\SPG\SPG core">
+      <UniqueIdentifier>{d36f039a-e8a2-4222-a607-4e0330f39b7b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ARKS">
+      <UniqueIdentifier>{3455a1c7-18f8-4a95-b3ce-ddf375df08c4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ARKS\Spectrogram">
+      <UniqueIdentifier>{acc6b4cc-8e3b-45d0-891f-52c14eea91b1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ARKS\Spectrogram\window">
+      <UniqueIdentifier>{18d8d38c-dc64-412c-90f4-47be3e8a72db}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ARKS\Spectrogram\helpers">
+      <UniqueIdentifier>{162440d7-1864-4c7e-a5d6-49550eb6bc8c}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ARKS\File Source">
+      <UniqueIdentifier>{32bfafc6-224f-4180-a5fb-cef643b14f9a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ARKS\File Source\helpers">
+      <UniqueIdentifier>{c6b7ae93-0d28-4137-8e6e-0a15d302bf94}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ARKS\File Source\window">
+      <UniqueIdentifier>{ed7f86a2-8e84-4826-9d03-e8b1338322bd}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ARKS\DPX Spectrum">
+      <UniqueIdentifier>{2e1b4a36-2f99-46ad-bb5b-940a82fb93a1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ARKS\DPX Spectrum\window">
+      <UniqueIdentifier>{c8a1717b-678a-42ca-8876-5ec137fd2501}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Interfaces">
       <UniqueIdentifier>{246bf404-9815-450a-81cc-3d0180094961}</UniqueIdentifier>
     </Filter>
     <Filter Include="Interfaces\base_impl">
       <UniqueIdentifier>{19bffdfb-f2d4-4c80-8468-e01314f71841}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="File Source">
-      <UniqueIdentifier>{32bfafc6-224f-4180-a5fb-cef643b14f9a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="time graph ark">
-      <UniqueIdentifier>{55690e67-7c80-4a9c-9397-b2b8aa031cfd}</UniqueIdentifier>
     </Filter>
     <Filter Include="DSP Tools">
       <UniqueIdentifier>{8b03fb09-fc61-48b3-8cc8-92757a7aa6e7}</UniqueIdentifier>
@@ -41,44 +92,8 @@
     <Filter Include="DSP Tools\Resampler\tools">
       <UniqueIdentifier>{11111111-1111-1111-1111-111111111111}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Tools">
-      <UniqueIdentifier>{f6a7b8c9-0d1e-2f3a-4b5c-6d7e8f9a0b1c}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GUI">
-      <UniqueIdentifier>{3462638b-1003-4b82-9a88-c0dea3bcef09}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GUI\basic tools">
-      <UniqueIdentifier>{e5f6a7b8-9c0d-1e2f-3a4b-5c6d7e8f9a0b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GUI\Charts">
-      <UniqueIdentifier>{da289fca-4831-47b0-83e9-7bca5fcd9519}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GUI\Charts\DPX">
-      <UniqueIdentifier>{ae13bdcc-f543-405e-8862-40ca30dc48f2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GUI\Charts\DPX\DPX core">
-      <UniqueIdentifier>{d4e5f6a7-8b9c-0d1e-2f3a-4b5c6d7e8f9a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GUI\Charts\Simple chart">
-      <UniqueIdentifier>{edd5ddbf-9c88-4174-879d-effa008d2742}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GUI\Drawers">
-      <UniqueIdentifier>{33333333-3333-3333-3333-333333333333}</UniqueIdentifier>
-    </Filter>
     <Filter Include="DSP Tools\FFT">
       <UniqueIdentifier>{217182ea-5917-4bac-8f16-9bb629978711}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GUI\Charts\SPG">
-      <UniqueIdentifier>{4b929b38-cf07-4ab7-ac5f-5b77484236e2}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GUI\Charts\SPG\SPG core">
-      <UniqueIdentifier>{d36f039a-e8a2-4222-a607-4e0330f39b7b}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Spectrogram">
-      <UniqueIdentifier>{acc6b4cc-8e3b-45d0-891f-52c14eea91b1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="DPX Spectrum">
-      <UniqueIdentifier>{2e1b4a36-2f99-46ad-bb5b-940a82fb93a1}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <!-- ClCompile (CPP Files) -->
@@ -104,14 +119,8 @@
     <ClCompile Include="sources\DSP Tools\Resampler\ResamplerMan.cpp">
       <Filter>DSP Tools\Resampler</Filter>
     </ClCompile>
-    <ClCompile Include="sources\File Source\FileDataManager.cpp">
-      <Filter>File Source</Filter>
-    </ClCompile>
-    <ClCompile Include="sources\File Source\FileReadCore.cpp">
-      <Filter>File Source</Filter>
-    </ClCompile>
     <ClCompile Include="sources\File Source\FileSource.cpp">
-      <Filter>File Source</Filter>
+      <Filter>ARKS\File Source</Filter>
     </ClCompile>
     <ClCompile Include="sources\GUI\basic tools\ChartSelection.cpp">
       <Filter>GUI\basic tools</Filter>
@@ -143,9 +152,6 @@
     <ClCompile Include="sources\Interfaces\base_impl\ark_base.cpp">
       <Filter>Interfaces\base_impl</Filter>
     </ClCompile>
-    <ClCompile Include="sources\time graph ark\TimeGraphArk.cpp">
-      <Filter>time graph ark</Filter>
-    </ClCompile>
     <ClCompile Include="sources\DSP Tools\FFT\FFT_Worker.cpp">
       <Filter>DSP Tools\FFT</Filter>
     </ClCompile>
@@ -171,19 +177,34 @@
       <Filter>GUI\Charts\SPG</Filter>
     </ClCompile>
     <ClCompile Include="sources\Spectrogram\Spectrogram.cpp">
-      <Filter>Spectrogram</Filter>
+      <Filter>ARKS\Spectrogram</Filter>
     </ClCompile>
     <ClCompile Include="sources\DPX Spectrum\SpectrumDPX.cpp">
-      <Filter>DPX Spectrum</Filter>
-    </ClCompile>
-    <ClCompile Include="sources\Spectrogram\SpgRequester.cpp">
-      <Filter>Spectrogram</Filter>
+      <Filter>ARKS\DPX Spectrum</Filter>
     </ClCompile>
     <ClCompile Include="sources\GUI\basic tools\gui_helper.cpp">
       <Filter>GUI\basic tools</Filter>
     </ClCompile>
     <ClCompile Include="sources\GUI\basic tools\gui_worker.cpp">
       <Filter>GUI\basic tools</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\Spectrogram\window\SpgWindow.cpp">
+      <Filter>ARKS\Spectrogram\window</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\Spectrogram\helpers\SpgRequester.cpp">
+      <Filter>ARKS\Spectrogram\helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\File Source\helpers\FileDataManager.cpp">
+      <Filter>ARKS\File Source\helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\File Source\helpers\FileReadCore.cpp">
+      <Filter>ARKS\File Source\helpers</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\File Source\window\FileSourceDialog.cpp">
+      <Filter>ARKS\File Source\window</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\DPX Spectrum\window\DpxWindow.cpp">
+      <Filter>ARKS\DPX Spectrum\window</Filter>
     </ClCompile>
   </ItemGroup>
   <!-- ClInclude (H Files) -->
@@ -210,13 +231,7 @@
       <Filter>DSP Tools\Resampler</Filter>
     </ClInclude>
     <ClInclude Include="sources\File Source\file_souce_defs.h">
-      <Filter>File Source</Filter>
-    </ClInclude>
-    <ClInclude Include="sources\File Source\FileDataManager.h">
-      <Filter>File Source</Filter>
-    </ClInclude>
-    <ClInclude Include="sources\File Source\FileReadCore.h">
-      <Filter>File Source</Filter>
+      <Filter>ARKS\File Source</Filter>
     </ClInclude>
     <ClInclude Include="sources\GUI\basic tools\ChartSelection.h">
       <Filter>GUI\basic tools</Filter>
@@ -251,9 +266,6 @@
     <ClInclude Include="sources\Interfaces\ark_defs.h">
       <Filter>Interfaces</Filter>
     </ClInclude>
-    <ClInclude Include="sources\time graph ark\TimeGraphArk.h">
-      <Filter>time graph ark</Filter>
-    </ClInclude>
     <ClInclude Include="sources\DSP Tools\FFT\FFT_Worker.h">
       <Filter>DSP Tools\FFT</Filter>
     </ClInclude>
@@ -276,7 +288,6 @@
     <ClInclude Include="sources\GUI\basic tools\PowerManager.h">
       <Filter>GUI\basic tools</Filter>
     </ClInclude>
-    <ClInclude Include="SOURCES\GUI\CHARTS\SPG\SPG_CORE.H" />
     <ClInclude Include="sources\GUI\Charts\SPG\SPG core\spg_defs.h">
       <Filter>GUI\Charts\SPG\SPG core</Filter>
     </ClInclude>
@@ -290,16 +301,22 @@
       <Filter>GUI\Charts\SPG\SPG core</Filter>
     </ClInclude>
     <ClInclude Include="sources\Spectrogram\Spectrogram.h">
-      <Filter>Spectrogram</Filter>
-    </ClInclude>
-    <ClInclude Include="sources\DPX Spectrum\SpectrumDPX.h">
-      <Filter>DPX Spectrum</Filter>
+      <Filter>ARKS\Spectrogram</Filter>
     </ClInclude>
     <ClInclude Include="sources\GUI\basic tools\gui_helper.h">
       <Filter>GUI\basic tools</Filter>
     </ClInclude>
     <ClInclude Include="sources\GUI\basic tools\gui_worker.h">
       <Filter>GUI\basic tools</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\File Source\FileSource.h">
+      <Filter>ARKS\File Source</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\File Source\helpers\FileDataManager.h">
+      <Filter>ARKS\File Source\helpers</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\File Source\helpers\FileReadCore.h">
+      <Filter>ARKS\File Source\helpers</Filter>
     </ClInclude>
   </ItemGroup>
   <!-- QtMoc (For Headers Requiring Moc) -->
@@ -313,14 +330,23 @@
     <QtMoc Include="sources\GUI\Charts\ChartInterface.h">
       <Filter>GUI\Charts</Filter>
     </QtMoc>
-    <QtMoc Include="sources\File Source\FileSource.h">
-      <Filter>File Source</Filter>
-    </QtMoc>
-    <QtMoc Include="sources\Spectrogram\SpgRequester.h">
-      <Filter>Spectrogram</Filter>
-    </QtMoc>
     <QtMoc Include="sources\GUI\Charts\SPG\SpgChart.h">
       <Filter>GUI\Charts\SPG</Filter>
+    </QtMoc>
+    <QtMoc Include="sources\Spectrogram\window\SpgWindow.h">
+      <Filter>ARKS\Spectrogram\window</Filter>
+    </QtMoc>
+    <QtMoc Include="sources\Spectrogram\helpers\SpgRequester.h">
+      <Filter>ARKS\Spectrogram\helpers</Filter>
+    </QtMoc>
+    <QtMoc Include="sources\File Source\window\FileSourceDialog.h">
+      <Filter>ARKS\File Source\window</Filter>
+    </QtMoc>
+    <QtMoc Include="sources\DPX Spectrum\window\DpxWindow.h">
+      <Filter>ARKS\DPX Spectrum\window</Filter>
+    </QtMoc>
+    <QtMoc Include="sources\DPX Spectrum\SpectrumDPX.h">
+      <Filter>ARKS\DPX Spectrum</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
@@ -328,10 +354,14 @@
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="AquaWave.ui" />
-    <QtUic Include="sources\File Source\file_settings_dialog.ui" />
-    <QtUic Include="sources\time graph ark\TimeGraphWidget.ui" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="cpp.hint" />
+    <QtUic Include="sources\Spectrogram\window\SpgWindow.ui">
+      <Filter>ARKS\Spectrogram\window</Filter>
+    </QtUic>
+    <QtUic Include="sources\File Source\window\file_settings_dialog.ui">
+      <Filter>ARKS\File Source\window</Filter>
+    </QtUic>
+    <QtUic Include="sources\DPX Spectrum\window\DpxWindow.ui">
+      <Filter>ARKS\DPX Spectrum\window</Filter>
+    </QtUic>
   </ItemGroup>
 </Project>

@@ -3,108 +3,56 @@
 AquaWave::AquaWave(QWidget *parent)
     : QMainWindow(parent)
 {
-    ui.setupUi(this);
-    file_src_ = std::make_shared<file_source::FileSourceArk>();
-    //file source
+    ui.setupUi(this); // Инициализация пользовательского интерфейса для текущего виджета.
+    file_src_ = std::make_shared<file_source::FileSourceArk>(); // Создание источника файлов.
+
+    // Обработчик события для действия меню "Новый файл".
     {
         connect(ui.new_file_menu_action, &QAction::triggered, [this]()
         {
+            // Создание запроса на получение диалогового окна.
             fluctus::DoveSptr req_dove = std::make_shared<fluctus::DoveParrent>();
             req_dove->base_thought = fluctus::DoveParrent::DoveThought::kGetDialog;
+
+            // Отправка запроса источнику файлов.
             if (file_src_->SendDove(req_dove))
             {
+                // Отображение полученного виджета (диалогового окна).
                 ((req_dove->show_widget))->show();// exec();
             }
         });
     }
-    spectrum_chart_ = std::make_shared<dpx_core::SpectrumDPX>(ui.single_chart_widget);
-    //Spectrum debug
+
+    spectrum_chart_ = std::make_shared<dpx_core::SpectrumDPX>(); // Создание компонента для спектрального графика.
+    spectrogram_ = std::make_shared<spg_core::Spectrogram>(); // Создание компонента для спектрограммы.
+
+    // Запрос и добавление виджета спектрального графика на вкладку "Spectre".
+    fluctus::DoveSptr req_dove = std::make_shared<fluctus::DoveParrent>(); // Повторное использование или создание нового запроса.
+    req_dove->base_thought = fluctus::DoveParrent::kGetDialog; // Установка типа запроса: получить диалог/виджет.
     {
-        ui.do_something;
-        connect(ui.do_something, &QPushButton::clicked, [this]()
-        {
-            auto req_dove = std::make_shared<file_source::FileSrcDove>();
-            req_dove->base_thought      = fluctus::DoveParrent::DoveThought::kSpecialThought;
-            req_dove->special_thought   = file_source::FileSrcDove::kInitReaderInfo |  file_source::FileSrcDove::kAskSingleDataAround;
-            req_dove->target_ark        = spectrum_chart_;
-            req_dove->time_point_start  = 0.5;
-            req_dove->data_size         = 1'024 * 32;
-            if (!file_src_->SendDove(req_dove))
-            {
-                QMessageBox::warning(
-                                    nullptr,                        // родительское окно (может быть this)
-                                    "Cannot Send Data",            // заголовок окна
-                                    "Do something with DPX or file source, or..."  // сообщение
-                                );
-            }
-        });    
-    
+        spectrum_chart_->SendDove(req_dove); // Отправка запроса компоненту спектрального графика.
+        auto spectrum_widget = req_dove->show_widget; // Получение виджета графика из запроса.
+        // Добавление полученного виджета на вкладку "Spectre".
+        this->ui.spectre_tab->layout()->addWidget(spectrum_widget.get());
     }
 
-    spectrum_chart_;
-    
-    std::shared_ptr<QWidget> spectrum_widget;
-
-    
-    fluctus::DoveSptr req_dove = std::make_shared<fluctus::DoveParrent>();
-    req_dove->base_thought = fluctus::DoveParrent::kGetDialog;
+    // Запрос и добавление виджета спектрограммы на Frame "TimeFreqFrame".
     {
-        if (!spectrum_chart_->SendDove(req_dove))
-        {
-            QMessageBox::warning(
-                                        nullptr,                        // родительское окно (может быть this)
-                                        "Cannot Get QDialog",            // заголовок окна
-                                        "DPX spectrum doesn't return QWidget..."  // сообщение
-                                    );
-        };
-        spectrum_widget = req_dove->show_widget;
-
-        if(spectrum_widget)
-        {
-            this->ui.spectre_tab->layout()->replaceWidget(ui.single_chart_widget, spectrum_widget.get());
-            ui.harmonics_viewer_tab_widget->setCurrentIndex(0);
-            if(auto casted_widget = std::dynamic_pointer_cast<ChartInterface>(spectrum_widget))
-            {
-                casted_widget->SetBackgroundImage(":/AquaWave/third_party/background/dark_city_2_cut.jpg"); 
-            }
-        }
+        spectrogram_->SendDove(req_dove); // Отправка того же запроса компоненту спектрограммы.
+        auto spg_widget = req_dove->show_widget; // Получение виджета спектрограммы из запроса.
+        // Добавление полученного виджета на Frame "TimeFreqFrame".
+        this->ui.TimeFreqFrame->layout()->addWidget(spg_widget.get());
     }
 
+    // Установка связей между компонентами (например, "привязка" источника данных).
     {
-        spectrogram_ = std::make_shared<spg_core::Spectrogram>(ui.time_freq_frame);
-        if (!spectrogram_->SendDove(req_dove))
-        {
-            QMessageBox::warning(
-                                        nullptr,                        // родительское окно (может быть this)
-                                        "Cannot Get QDialog",            // заголовок окна
-                                        "Spectrogram doesn't return QWidget..."  // сообщение
-                                    );
-        };
-        auto spg_widget = req_dove->show_widget;
-
-        if(spg_widget)
-        {
-            this->ui.TimeFreqFrame->layout()->replaceWidget(ui.time_freq_frame, spg_widget.get());
-            ui.harmonics_viewer_tab_widget->setCurrentIndex(0);
-            if(auto casted_widget = std::dynamic_pointer_cast<ChartInterface>(spg_widget))
-            {
-                casted_widget->SetBackgroundImage(":/AquaWave/third_party/background/dark_city_2_cut.jpg"); 
-            }
-        }
-        req_dove->base_thought = fluctus::DoveParrent::kTieBehind;
-        req_dove->target_ark   = file_src_;
-        if(!spectrogram_->SendDove(req_dove))
-        {
-            QMessageBox::warning(
-                                            nullptr,                        // родительское окно (может быть this)
-                                            "Cannot Tie File signal source",            // заголовок окна
-                                            "Spectrogram doesn't return QWidget..."  // сообщение
-                                        );
-        }
+        req_dove->base_thought = fluctus::DoveParrent::kTieBehind; // Изменение типа запроса: привязать.
+        req_dove->target_ark = file_src_; // Указание цели для привязки (источник файлов).
+        spectrogram_->SendDove(req_dove); // Отправка запроса на привязку к спектрограмме.
+        spectrum_chart_->SendDove(req_dove); // Отправка запроса на привязку к спектральному графику.
     }
-    
-    
 
+    ui.harmonics_viewer_tab_widget->setCurrentIndex(0); // Установка активной вкладки по умолчанию.
 }
 
 AquaWave::~AquaWave()

@@ -62,8 +62,8 @@ bool spg_core::SpgCore::Emplace()
     if(basic.val_bounds.horizontal.delta() <= 0) basic.val_bounds.horizontal = {0, 1000};              // Set x-axis Limits
     if(basic.val_bounds.vertical.delta()   <= 0) basic.val_bounds.vertical   = {0.0, 1.0};             // Set y-axis Limits
     basic.size.vertical         = 512;                // Set data matrix height
-    basic.size.horizontal       = 2048;              // Set data matrix width
-    spg_.power_bounds           = {50, 110};
+    basic.size.horizontal       = 2048 * 4;              // Set data matrix width
+    spg_.power_bounds           = {10, 65};
     // Check for valid dimensions before resizing
     if (basic.size.vertical == 0 || basic.size.horizontal == 0) {
         std::cerr << "Error: Initial DPX data dimensions cannot be zero." << std::endl;

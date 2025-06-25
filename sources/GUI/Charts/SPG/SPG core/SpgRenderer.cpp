@@ -27,7 +27,7 @@ bool spg_core::SpgRenderer::UpdateSpectrogramData()
         wrapper_rgb.size = basic.size;
         zoomer_.SetNewBase(&wrapper_rgb.qimage);
     }
-    if(need_redraw)
+    if(need_redraw || true)
     {
         tbb::spin_mutex::scoped_lock guard_lock(spg_.rw_mutex_);
         //Здесь бы mutex по-хорошему
@@ -36,7 +36,7 @@ bool spg_core::SpgRenderer::UpdateSpectrogramData()
         argb_t *rgb_iter = wrapper_rgb.data.data();
         for(int y = 0; y < grid_height; y++)
         {
-            const float* spg_iter = basic[grid_height - y]; //We have inversed image
+            const float* spg_iter = basic[grid_height - y - 1]; //We have inversed image
             for(int x = 0; x < grid_width; x++)
             {
                 const double idx_power = *(spg_iter++);
@@ -56,7 +56,7 @@ const argb_t * spg_core::SpgRenderer::GetNormalizedColor(double relative_density
     constexpr double MAX_THRESHOLD = 1; // Normalization threshold
     const double normalized_density = qBound(0.0, relative_density / MAX_THRESHOLD, 1.0);
     // Validate palette size
-    if ((relative_density == 0)) 
+    if ((normalized_density == 0)) 
     {
         static const uint8_t default_color[4] = {0, 0, 0, 200}; // Default to black (little-endian)
         return (uint32_t*)(default_color);

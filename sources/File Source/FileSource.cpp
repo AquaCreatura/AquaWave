@@ -70,7 +70,7 @@ bool file_source::FileSourceArk::SendDove(fluctus::DoveSptr const& sent_dove)
         // Запрос данных вокруг точки
         if (file_src_thought & FileSrcDove::FileSrcDoveThought::kAskSingleDataAround)
         {
-            listener_man_.ReadAround(target_ark, file_src_dove->time_point_start);
+            listener_man_.ReadAround(target_ark, *file_src_dove->time_point_start);
         }
         
         // Запрос циклических данных (не реализовано)

@@ -17,7 +17,8 @@ void file_source::FileDataManager::InitReader(const fluctus::ArkWptr& reader,
                                             const int64_t block_size)
 {
     auto& listener = listeners_.try_emplace(reader, reader, params_).first->second; // Создает или получает существующий listener
-    listener.StopProcess();              // Останавливает текущий процесс (если работает)
+    
+    listener.WaitProcess();              // Останавливает текущий процесс (если работает)
     listener.SetBaseParams(carrier, samplerate, block_size);  // Настраивает базовые параметры
 }
 
@@ -33,7 +34,7 @@ void file_source::FileDataManager::DeleteReader(const fluctus::ArkWptr& reader)
 {
     auto it = listeners_.find(reader);
     if(it == listeners_.end()) return;   // Выход, если listener не найден
-    it->second.StopProcess();           // Остановка процесса перед удалением
+    it->second.WaitProcess();           // Остановка процесса перед удалением
     listeners_.erase(it);                // Удаление из map
 }
 
@@ -57,7 +58,7 @@ void file_source::FileDataListener::SetBaseParams(const int64_t carrier,
 }
 
 // Остановка текущего асинхронного процесса
-void file_source::FileDataListener::StopProcess()
+void file_source::FileDataListener::WaitProcess()
 {
     if(process_anchor_.valid()) 
         process_anchor_.get();  // Блокирует, пока поток не завершится
@@ -66,6 +67,7 @@ void file_source::FileDataListener::StopProcess()
 // Асинхронный запуск чтения вокруг позиции
 bool file_source::FileDataListener::StartReadAround(const double pos_ratio)
 {  
+    WaitProcess();
     // Запуск ReadAroundProcess в отдельном потоке
     process_anchor_ = std::async(std::launch::async, 
                                 &FileDataListener::ReadAroundProcess, 
@@ -113,7 +115,7 @@ void file_source::FileDataListener::ReadAroundProcess(double pos_ratio, const in
 
     ippsConvert_16s32f((Ipp16s*)data_info_.data_vec.data(), (Ipp32f*)data_vec.data(), out_data_size * 2);
     data_info_.data_vec.swap((std::vector<uint8_t>&)data_vec);
-
+    data_info_.time_point = pos_ratio;
 
     SendPreparedData();   // Успешное чтение - отправка данных
     state_ = kNoProcess;  // Сброс состояния

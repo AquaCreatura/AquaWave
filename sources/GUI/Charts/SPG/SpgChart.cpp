@@ -22,10 +22,8 @@ void ChartSPG::DrawData(QPainter & passed_painter)
     {
         cached_pixmap_ = spg_core_.GetRelevantPixmap(scale_info_);
     }
-    if(cached_pixmap_.isNull()) 
-        return;
-    passed_painter.drawPixmap(0, 0, cached_pixmap_);
-
+    if(!cached_pixmap_.isNull()) 
+        passed_painter.drawPixmap(0, 0, cached_pixmap_);
     emit NeedRequest(); //Ask for relevant data
 }
 

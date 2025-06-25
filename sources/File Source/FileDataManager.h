@@ -30,7 +30,7 @@ namespace file_source
         void SetBaseParams(int64_t carrier, int64_t samplerate, int64_t block_size = (1 << 10));
         
         // ќстановка процесса чтени€
-        void StopProcess();
+        void WaitProcess();
         
         // јсинхронный запуск чтени€ вокруг позиции (pos_ratio Ч относительна€ позици€ в файле)
         bool StartReadAround(double pos_ratio);

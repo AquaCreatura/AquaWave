@@ -19,7 +19,7 @@ void spg_core::SpgRequester::Initialise(const ArkWptr & file_source, const ArkWp
 
 bool spg_core::SpgRequester::SendRequestDove(const request_params & req_info)
 {
-    if(req_info.need_request) return true;
+    if(!req_info.need_request) return true;
     const auto file_src = ark_file_src_.lock();
     const auto base_ark = ark_spg_.lock();
     if(!file_src || !base_ark) return false;
@@ -28,7 +28,7 @@ bool spg_core::SpgRequester::SendRequestDove(const request_params & req_info)
     req_dove->base_thought      = fluctus::DoveParrent::DoveThought::kSpecialThought;
     req_dove->special_thought   = file_source::FileSrcDove::kInitReaderInfo |  file_source::FileSrcDove::kAskSingleDataAround;
     req_dove->target_ark        = base_ark;
-    req_dove->time_point_start  = req_info.time_point;
+    req_dove->time_point_start  = req_dove->time_point_end = req_info.time_point;
     req_dove->data_size         = req_info.data_size;
     if (!file_src->SendDove(req_dove))
     {
@@ -42,7 +42,7 @@ SpgRequester::request_params SpgRequester::GetRequestParams() {
     request_params req_info; // Initialize request parameters structure
     auto &data = spg_.base_data; // Reference to base data for convenience
     const auto &hor_bounds = data.val_bounds.horizontal; // Horizontal value bounds
-    const auto &src_bounds = time_bounds_.source; // Source time bounds
+    const auto &src_bounds = hor_bounds; // Source time bounds
 
     // Calculate normalized request bounds relative to source time bounds
     const Limits<double> req_bounds = {

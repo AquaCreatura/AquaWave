@@ -11,9 +11,9 @@ public:
     ~ChartSPG();
     virtual void DrawData                   (QPainter& painter          ) override;
     virtual void PushData                   (const draw_data& draw_data ) override;
-    virtual void SetVerticalMinMaxBounds    (const double min_val, const double end_val, const bool is_adaptive = true);
-    virtual void SetHorizontalMinMaxBounds  (const double min_val  , const double end_val);
-
+    virtual void ClearData                  ()                            override;
+    virtual void SetPowerBounds             (const Limits<double>& power_bounds, const bool is_adaptive = true) override;
+    virtual void SetHorizontalMinMaxBounds  (const Limits<double>& hor_bounds) override;
     spg_data const & GetSpectrogramInfo() const;
 signals:
     void NeedRequest();

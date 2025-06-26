@@ -15,6 +15,7 @@ namespace file_source
         int64_t     carrier_hz_{ 1'000'000 };
         int64_t     samplerate_hz_{ 100'000 };
         IppDataType data_type_ {ipp16sc} ;
+        int64_t     count_of_samples;
         bool        is_signal_type{ true };
     };
 
@@ -27,12 +28,14 @@ namespace file_source
             kAskSingleDataAround  = 1 << 1, //To get data around passed point
             kAskCyclicData        = 1 << 2, //To join the cyclic read-send process
             kAskSingleDataInRange = 1 << 3, //To get data, which is included inside passed points
+            kGetFileInfo       = 1 << 4, //To get description of the current file
         };
-        aqua_opt<int64_t> data_size;
-        aqua_opt<double>  time_point_start; //Base point of the data, we are trying to read
-        aqua_opt<double>  time_point_end;   //End point of the 
-        aqua_opt<int64_t> samplerate_hz;    //samplerate need
-        aqua_opt<int64_t> carrier_hz;       //carrier need
+        aqua_opt<int64_t>       data_size;
+        aqua_opt<double>        time_point_start;   //Base point of the data, we are trying to read
+        aqua_opt<double>        time_point_end;     //End point of the 
+        aqua_opt<int64_t>       samplerate_hz;      //samplerate need
+        aqua_opt<int64_t>       carrier_hz;         //carrier need
+        aqua_opt<file_params>   file_info;        //file description
     };
     inline size_t GetSampleSize(IppDataType type)
     {

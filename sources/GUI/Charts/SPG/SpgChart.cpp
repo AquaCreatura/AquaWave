@@ -3,10 +3,11 @@ using namespace spg_core;
 ChartSPG::ChartSPG(QWidget * parrent):
     ChartInterface(parrent)
 {
-    SetHorizontalMinMaxBounds(50'000, 200'000);
+    SetHorizontalMinMaxBounds({50'000, 200'000});
     SetHorizontalSuffix("counts");
 
-    SetVerticalMinMaxBounds(10, 80, true);
+    SetPowerBounds({10, 80}, true);
+    SetVerticalBounds({0,100});
     SetVerticalSuffix("power");
     domain_type_ = ChartDomainType::kTimeFrequency;
 }
@@ -35,15 +36,20 @@ void ChartSPG::PushData(const draw_data & draw_data)
     emit NeedRequest(); //Ask for relevant data
 }
 
-
-void ChartSPG::SetVerticalMinMaxBounds(const double min_val, const double end_val, const bool is_adaptive)
+void spg_core::ChartSPG::ClearData()
 {
-    ChartInterface::SetVerticalMinMaxBounds(min_val, end_val, is_adaptive);
+    spg_core_.Emplace();
 }
 
-void ChartSPG::SetHorizontalMinMaxBounds(const double min_val, const double end_val)
+
+void ChartSPG::SetPowerBounds(const Limits<double>& power_bounds, const bool is_adaptive)
 {
-    spg_core_.SetTimeBounds({min_val, end_val});
+    ChartInterface::SetPowerBounds(power_bounds, is_adaptive);
+}
+
+void ChartSPG::SetHorizontalMinMaxBounds(const Limits<double>& hor_bounds)
+{
+    spg_core_.SetTimeBounds(hor_bounds);
 }
 
 spg_data const & ChartSPG::GetSpectrogramInfo() const

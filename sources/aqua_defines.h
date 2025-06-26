@@ -13,6 +13,7 @@ namespace fluctus
         int64_t carrier{ 0 };
     };
 
+
     /** 
      * @brief Represents a numerical range with low and high values.
      * @tparam W Type of range values.

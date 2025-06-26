@@ -66,16 +66,19 @@ bool dpx_core::SpectrumDPX::SendDove(fluctus::DoveSptr const & sent_dove)
     auto target_val = sent_dove->target_ark;
     auto base_thought = sent_dove->base_thought;
     
-    // Если "мысль" - "ничего не делать", выходим.
-    if      (base_thought == fluctus::DoveParrent::DoveThought::kNothing)
-        return true;
     // Если "мысль" - запрос на диалог.
-    else if (base_thought & fluctus::DoveParrent::DoveThought::kGetDialog)
+    if (base_thought & fluctus::DoveParrent::DoveThought::kGetDialog)
     {
         // Прикрепляем отрисовщик спектра к виджету сообщения.
         sent_dove->show_widget = window_;
         return true; // Запрос обработан.
     }
+
+    if(base_thought == fluctus::DoveParrent::DoveThought::kReset)
+    {
+        return Reload();
+    }
+
     // Передаём сообщение базовому классу для дальнейшей обработки.
     return ArkBase::SendDove(sent_dove);
 }
@@ -83,6 +86,26 @@ bool dpx_core::SpectrumDPX::SendDove(fluctus::DoveSptr const & sent_dove)
 ArkType dpx_core::SpectrumDPX::GetArkType() const
 {
     return ArkType::kSpectrumDpx;
+}
+
+bool dpx_core::SpectrumDPX::Reload()
+{
+    auto arks = GetBehindArks();
+    if(!arks.empty()) 
+    {
+        auto file_src_ = arks.front();
+        auto req_dove = std::make_shared<file_source::FileSrcDove>();
+        req_dove->base_thought      = fluctus::DoveParrent::DoveThought::kSpecialThought;
+        req_dove->special_thought   = file_source::FileSrcDove::kGetFileInfo;
+        if (!file_src_->SendDove(req_dove) || !req_dove->file_info)
+        {
+            QMessageBox::warning( nullptr, "Cannot Get info", "Do something with DPX or file source, or..." );
+            return false;
+        }
+        OnDoSomething();
+    }
+    dpx_drawer_->ClearData();
+    return true;
 }
 
 void SpectrumDPX::OnDoSomething()
@@ -104,4 +127,5 @@ void SpectrumDPX::OnDoSomething()
                             "Do something with DPX or file source, or..."  // сообщение
                         );
     }
+
 }

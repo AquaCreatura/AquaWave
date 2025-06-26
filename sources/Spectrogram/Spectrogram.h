@@ -18,6 +18,8 @@ public:
     virtual bool SendDove(fluctus::DoveSptr const & sent_dove) override;
     ArkType GetArkType() const override;
 protected:
+    bool Reload();
+protected:
     QPointer<ChartSPG>          spg_drawer_;
     std::shared_ptr<SpgWindow>  window_;
     WorkBounds                  time_bounds_;

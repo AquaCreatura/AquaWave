@@ -1,5 +1,7 @@
 #include "Spectrogram.h"
 #include <ippvm.h>
+#include <File Source/file_souce_defs.h>
+#include "qmessagebox.h"
 using namespace spg_core; // Используем пространство имён dpx_core
 
 // Конструктор: Инициализирует компонент для отрисовки спектра.
@@ -68,9 +70,11 @@ bool Spectrogram::SendDove(fluctus::DoveSptr const & sent_dove)
     auto target_val = sent_dove->target_ark;
     auto base_thought = sent_dove->base_thought;
     
-    // Если "мысль" - "ничего не делать", выходим.
-    if      (base_thought == fluctus::DoveParrent::DoveThought::kNothing)
-        return true;
+    if (base_thought == fluctus::DoveParrent::DoveThought::kReset)
+    {
+        return Reload();
+    }
+        
     // Если "мысль" - запрос на диалог.
     else if (base_thought & fluctus::DoveParrent::DoveThought::kGetDialog)
     {
@@ -90,4 +94,23 @@ bool Spectrogram::SendDove(fluctus::DoveSptr const & sent_dove)
 ArkType spg_core::Spectrogram::GetArkType() const
 {
     return ArkType::kFileSpectrogram;
+}
+
+bool spg_core::Spectrogram::Reload()
+{
+    auto arks = GetBehindArks();
+    if(!arks.empty()) 
+    {
+        auto file_src_ = arks.front();
+        auto req_dove = std::make_shared<file_source::FileSrcDove>();
+        req_dove->base_thought      = fluctus::DoveParrent::DoveThought::kSpecialThought;
+        req_dove->special_thought   = file_source::FileSrcDove::kGetFileInfo;
+        if (!file_src_->SendDove(req_dove) || !req_dove->file_info)
+        {
+            QMessageBox::warning( nullptr, "Cannot Get info", "Do something with SPG or file source, or..." );
+            return false;
+        }
+    }
+    spg_drawer_->ClearData();
+    return true;
 }

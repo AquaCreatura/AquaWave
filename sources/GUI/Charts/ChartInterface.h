@@ -16,9 +16,10 @@ class ChartInterface : public QWidget
 public: 
     enum ChartDomainType
     {
-        kFreqDomain,    //default
-        kTimeFrequency  
-    
+        kFreqDomain,    // Default АЧХ
+        kTimeFrequency, // Частотно временная область
+        kTimeDomain,    // Амплитудно временная область
+        kCountsDomain,  // Ось X - это отсчёты
     };
     //We pass 
     ChartInterface(QWidget* parrent);
@@ -27,20 +28,25 @@ public:
         Set an image from the precised path on background
     */
     bool                            SetBackgroundImage  (const QString& image_path);
+    /*
+        Set start and end values for verical
+    
+    */
+    virtual void                    SetVerticalBounds(const Limits<double>& vertical_bounds);
 
     /*
         Set start and end values for horizontal axis 
-    */ 
-    virtual void                    SetHorizontalMinMaxBounds (const double min_val  , const double end_val);
+    */
+    virtual void                    SetHorizontalMinMaxBounds (const Limits<double>& hor_bounds);
     /*
         Set horizontal axis suffix
     */
     virtual void                    SetHorizontalSuffix (const QString& suffix);
     /*
-        Set start and end values for verica; axis and suffix of the oxis, if "is_adaptive" factor is switched =>
+        if "is_adaptive" factor is switched =>
         We adapt Limits for passed values
     */ 
-    virtual void                    SetVerticalMinMaxBounds   (const double min_val, const double end_val, const bool is_adaptive = true);
+    virtual void                    SetPowerBounds   (const Limits<double>& power_bounds, const bool is_adaptive = true);
     /*
         Set horizontal axis suffix
     */
@@ -57,6 +63,10 @@ public:
         Ask for selection 
     */
     std::shared_ptr<ChartSelection> GetSelection();
+    /*
+        Clear data from the spectrum
+    */
+    virtual void                    ClearData           () = 0;
 protected slots:
     /*
         Reaction on mouse clicking. 

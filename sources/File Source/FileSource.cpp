@@ -1,7 +1,7 @@
 #include "FileSource.h"
 
 using namespace file_source;
-
+using namespace fluctus;
 // ========================================== FileSourceArk =================================
 
 // Конструктор: создает диалог и инициализирует менеджер слушателей
@@ -9,12 +9,9 @@ file_source::FileSourceArk::FileSourceArk():
     listener_man_(file_info_)  // Инициализация менеджера с параметрами файла
 {
     dialog_ = std::make_shared<FileSourceDialog>();  // Создание диалогового окна
-    this->file_info_ = dialog_->GetFileInfo();
-    connect(dialog_.get(), &FileSourceDialog::UpdateSourceNeed, [this]()
-    {
-        this->file_info_ = dialog_->GetFileInfo();
-    });
-    
+    UpdateSource();
+    connect(dialog_.get(), &FileSourceDialog::UpdateSourceNeed, this, &FileSourceArk::UpdateSource);
+   
 }
 
 file_source::FileSourceArk::~FileSourceArk()
@@ -32,6 +29,9 @@ bool file_source::FileSourceArk::SendDove(fluctus::DoveSptr const& sent_dove)
     // Обработка базовых команд
     if (parrent_type & fluctus::DoveParrent::kTieFront)
     {
+        fluctus::DoveSptr message   = std::make_shared<fluctus::DoveParrent>();
+        message->base_thought       = DoveParrent::kReset;
+        target_ark->SendDove(message);
         return ArkBase::SendDove(sent_dove);
     }
     if (parrent_type & fluctus::DoveParrent::kUntieFront)
@@ -45,6 +45,7 @@ bool file_source::FileSourceArk::SendDove(fluctus::DoveSptr const& sent_dove)
         sent_dove->show_widget = dialog_;  // Возвращаем указатель на диалог
     }
     
+
     // Обработка специализированных команд для файлового источника
     if (parrent_type & fluctus::DoveParrent::kSpecialThought)
     {
@@ -79,6 +80,11 @@ bool file_source::FileSourceArk::SendDove(fluctus::DoveSptr const& sent_dove)
         {
             //Do smth
         }
+        if (file_src_thought & FileSrcDove::FileSrcDoveThought::kGetFileInfo)
+        {
+            file_src_dove->file_info = this->file_info_;
+            //Do smth
+        }
     }
     return ArkBase::SendDove(sent_dove);
 }
@@ -86,6 +92,18 @@ bool file_source::FileSourceArk::SendDove(fluctus::DoveSptr const& sent_dove)
 fluctus::ArkType file_source::FileSourceArk::GetArkType() const
 {
     return fluctus::ArkType::kFileSource;
+}
+
+void file_source::FileSourceArk::UpdateSource()
+{
+    this->file_info_ = dialog_->GetFileInfo(); //Update info, according ui
+    //Reset out arks
+    {
+        auto out_fleet   = GetFrontArks();
+        fluctus::DoveSptr message   = std::make_shared<fluctus::DoveParrent>();
+        message->base_thought       = DoveParrent::kReset;
+        for(auto &out_ark: out_fleet) out_ark->SendDove(message);
+    }
 }
 
 // Отправка данных (не реализована)

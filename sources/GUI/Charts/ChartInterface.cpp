@@ -8,10 +8,10 @@ ChartInterface::ChartInterface(QWidget* parent) :
     this->setMouseTracking(true);
     this->setMinimumSize(200, 100);
     // Set min max values for our chart
-    SetHorizontalMinMaxBounds(50'000, 200'000);
+    SetHorizontalMinMaxBounds({50'000, 200'000});
     SetHorizontalSuffix("counts");
 
-    SetVerticalMinMaxBounds(20, 40, true);
+    SetPowerBounds({20, 40}, true);
     SetVerticalSuffix("power");
     connect(&redraw_timer_, &QTimer::timeout, this, QOverload<>::of(&ChartInterface::update));
     redraw_timer_.start(30);
@@ -29,17 +29,26 @@ bool ChartInterface::SetBackgroundImage(const QString & image_path)
     return res_of_init;
 }
 
-// Установка границ по горизонтали
-void ChartInterface::SetHorizontalMinMaxBounds(const double min_val, const double end_val)
+void ChartInterface::SetVerticalBounds(const Limits<double>& vertical_bounds)
 {
-    Limits<double> new_horizontal_bounds = {min_val, end_val};
+    auto& cur_min_max = scale_info_.val_info_.min_max_bounds_.vertical;
+    // Если ничего не изменилось — выходим
+    if (cur_min_max == vertical_bounds) return;
+
+    cur_min_max = vertical_bounds;
+    scale_info_.val_info_.cur_bounds.vertical = vertical_bounds;
+}
+
+// Установка границ по горизонтали
+void ChartInterface::SetHorizontalMinMaxBounds(const Limits<double>& hor_bounds)
+{
     auto& cur_val_info = scale_info_.val_info_.min_max_bounds_.horizontal;
     // Если ничего не изменилось — выходим
-    if (cur_val_info == new_horizontal_bounds) return;
+    if (cur_val_info == hor_bounds) return;
 
-    cur_val_info = new_horizontal_bounds;
-    scale_info_.val_info_.cur_bounds.horizontal = new_horizontal_bounds;
-    power_man_.SetNewViewBounds(new_horizontal_bounds);
+    cur_val_info = hor_bounds;
+    scale_info_.val_info_.cur_bounds.horizontal = hor_bounds;
+    power_man_.SetNewViewBounds(hor_bounds);
 }
 
 void ChartInterface::SetHorizontalSuffix(const QString & suffix)
@@ -50,17 +59,16 @@ void ChartInterface::SetHorizontalSuffix(const QString & suffix)
 
 
 // Установка границ по вертикали
-void ChartInterface::SetVerticalMinMaxBounds(const double min_val, const double end_val, const bool is_adaptive)
+void ChartInterface::SetPowerBounds(const Limits<double>& power_bounds, const bool is_adaptive)
 {
     power_man_.EnableAdaptiveMode(is_adaptive);
-    Limits<double> new_vertical_bounds = {min_val, end_val};
-    auto& cur_min_max = scale_info_.val_info_.min_max_bounds_.vertical;
-    // Если ничего не изменилось — выходим
-    if (cur_min_max == new_vertical_bounds) return;
+    power_man_.SetPowerBounds(power_bounds);
+    if(domain_type_ != ChartDomainType::kTimeFrequency) //В случае, когда мощность - это вертикальная шкала
+    {
+        SetVerticalBounds(power_bounds);
+    }
 
-    cur_min_max = new_vertical_bounds;
-    scale_info_.val_info_.cur_bounds.vertical = new_vertical_bounds;
-    power_man_.SetPowerBounds({min_val, end_val});
+
 }
 
 void ChartInterface::SetVerticalSuffix(const QString & suffix)

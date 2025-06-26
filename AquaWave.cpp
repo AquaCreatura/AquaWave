@@ -50,6 +50,14 @@ AquaWave::AquaWave(QWidget *parent)
         req_dove->target_ark = file_src_; // Указание цели для привязки (источник файлов).
         spectrogram_->SendDove(req_dove); // Отправка запроса на привязку к спектрограмме.
         spectrum_chart_->SendDove(req_dove); // Отправка запроса на привязку к спектральному графику.
+
+        req_dove->base_thought = fluctus::DoveParrent::kTieFront;
+
+        req_dove->target_ark = spectrogram_;
+        file_src_->SendDove(req_dove); // Отправка запроса на привязку к спектрограмме.
+
+        req_dove->target_ark = spectrum_chart_;
+        file_src_->SendDove(req_dove); // Отправка запроса на привязку к спектральному графику.
     }
 
     ui.harmonics_viewer_tab_widget->setCurrentIndex(0); // Установка активной вкладки по умолчанию.

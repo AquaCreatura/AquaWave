@@ -21,7 +21,7 @@ public:
      * @brief Initializes the internal data structures and states.
      * @return true if initialization succeeded.
      */
-    bool Init();
+    bool Emplace();
 
     /**
      * @brief Feeds new data values into the core, adjusts Limits and processes using one of two algorithms.
@@ -37,7 +37,7 @@ public:
      * @param hard_reset If true, performs a hard reset of the data; otherwise, adjusts accordingly.
      * @return true if the operation was successful.
      */
-    bool SetMinMax_X(const Limits<double>& x_bounds, const bool hard_reset = false);
+    bool SetMinMax_X(const Limits<double>& x_bounds);
 
     /**
      * @brief Retrieves the current Y Limits (power Limits) of the data.

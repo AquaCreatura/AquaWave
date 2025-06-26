@@ -3,6 +3,8 @@
 #include <qfiledialog.h>
 #include <QTextStream>
 #include "Tools/parse_tools.h"
+#include <qdebug.h>
+#include <qtime>
 using namespace file_source;
 
 // ============================== FileSourceDialog ===================================
@@ -100,11 +102,12 @@ void file_source::FileSourceDialog::OnChooseFilePath()
         QString& cur_filter = (is_pcm_file || current_file_name.isEmpty()) ? pcm_filter : no_filter;
 
         current_file_name = QFileDialog::getOpenFileName(this, tr("Choose file"),
-                            QFileInfo(current_file_name).absolutePath(), set_of_filters, &cur_filter);
+                            QFileInfo(current_file_name).absolutePath(), set_of_filters, &cur_filter/*, QFileDialog::*/);
         if(current_file_name.isEmpty()) return;
+
+
     }
     SetFileName(current_file_name);
-    UpdateSourceNeed();
 }
 
 void file_source::FileSourceDialog::SetFileName(const QString& file_name)
@@ -164,5 +167,6 @@ void file_source::FileSourceDialog::OnOkButton()
                           tr("Can not find specified file!\n\"%1\"").arg(file_info_.file_name_));
         return;
     }
+    UpdateSourceNeed();
     this->close();
 }

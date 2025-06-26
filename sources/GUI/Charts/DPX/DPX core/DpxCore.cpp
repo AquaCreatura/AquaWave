@@ -15,11 +15,13 @@ namespace dpx_core
 
 //============================================================================== DpxCore ===========================================================
 
-DpxCore::DpxCore() : dpx_scaler_(dpx_data_), dpx_renderer_(dpx_data_) {
+DpxCore::DpxCore() : dpx_scaler_(dpx_data_), dpx_renderer_(dpx_data_) 
+{
+    Emplace();
     // Default constructor; no init required as Init() is called separately
 }
 
-bool DpxCore::Init() {
+bool DpxCore::Emplace() {
     if(dpx_data_.val_bounds.horizontal.delta() <= 0) dpx_data_.val_bounds.horizontal = {0, 1000};              // Set x-axis Limits
     if(dpx_data_.val_bounds.vertical.delta()   <= 0) dpx_data_.val_bounds.vertical   = {0.0, 1.0};             // Set y-axis Limits
     dpx_data_.size.vertical         = 1'000 / 5;                // Set data matrix height
@@ -45,13 +47,6 @@ bool DpxCore::AccumulateNewData(const std::vector<float>& passed_data, const Lim
         std::cerr << "Warning: Passed data is empty in PassNewData." << std::endl;
         return false;       // Return if input is empty
     }
-    if(dpx_data_.data.empty() || dpx_data_.size.horizontal == 0) {
-        // If data is not initialized or invalid, attempt to initialize
-        if (!Init()) {
-            std::cerr << "Error: Failed to initialize DPX data in PassNewData." << std::endl;
-            return false;
-        }
-    }
     dpx_data_.need_redraw = true;
     // Choose loop strategy based on data size vs. horizontal resolution
     // Ensure horizontal is not zero to avoid division by zero in loop implementations
@@ -67,7 +62,7 @@ bool DpxCore::AccumulateNewData(const std::vector<float>& passed_data, const Lim
     }
 }
 
-bool DpxCore::SetMinMax_X(const Limits<double>& new_x_bounds, const bool hard_reset)
+bool DpxCore::SetMinMax_X(const Limits<double>& new_x_bounds)
 {
     tbb::spin_mutex::scoped_lock scoped_locker(dpx_data_.redraw_mutex);
     // Only call UpdateBounds_x if the bounds actually change

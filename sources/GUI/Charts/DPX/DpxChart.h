@@ -9,7 +9,8 @@ public:
     ~ChartDPX();
     virtual void DrawData                   (QPainter& painter          ) override;
     virtual void PushData                   (const draw_data& draw_data ) override;
-    virtual void SetVerticalMinMaxBounds    (const double min_val, const double end_val, const bool is_adaptive = true);
+    virtual void ClearData                  ()                            override;
+    virtual void SetPowerBounds             (const Limits<double>& power_bounds, const bool is_adaptive = true) override;
 protected:
     bool ShouldRedraw();
 protected:

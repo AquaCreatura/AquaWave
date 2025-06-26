@@ -58,7 +58,7 @@ namespace fluctus
             kNothing        = 0,                                //Ignore thought
             kTieBehind      = 1 << 0 , kTieFront    = 1 << 1,   //To connect arks
             kUntieFront     = 1 << 2 , kUntieBehind = 1 << 3,   //To disconnect arks
-            kGetDialog      = 1 << 5 ,                          //Request dialog 
+            kGetDialog      = 1 << 5 , kReset       = 1 << 6,   //Request dialog and request for reset
             kSpecialThought = 1 << 31
         };
         thoughts_list                                   base_thought  = kSpecialThought ; //Basic 
@@ -83,6 +83,7 @@ namespace fluctus
         Limits<double>  source;
         Limits<double>  scaled;                  
     };
+
 }
 
 #endif // ARK_DEFINES

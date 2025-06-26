@@ -6,6 +6,6 @@ public:
     ChartSingle(QWidget* parrent);
     virtual void DrawData   (QPainter& painter          ) override;
     virtual void PushData   (const draw_data& draw_data ) override;
-    
+    virtual void ClearData  () override;
 };
 

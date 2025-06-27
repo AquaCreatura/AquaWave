@@ -364,4 +364,7 @@
       <Filter>ARKS\DPX Spectrum\window</Filter>
     </QtUic>
   </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="AquaWave.rc" />
+  </ItemGroup>
 </Project>

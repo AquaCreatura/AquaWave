@@ -21,6 +21,7 @@ namespace file_source
 
     struct FileSrcDove : public fluctus::DoveParrent
     {
+        FileSrcDove() { base_thought = fluctus::DoveParrent::kSpecialThought; };
         enum FileSrcDoveThought : int64_t
         {
             kUnknown = 0, 
@@ -28,7 +29,8 @@ namespace file_source
             kAskSingleDataAround  = 1 << 1, //To get data around passed point
             kAskCyclicData        = 1 << 2, //To join the cyclic read-send process
             kAskSingleDataInRange = 1 << 3, //To get data, which is included inside passed points
-            kGetFileInfo       = 1 << 4, //To get description of the current file
+            kGetFileInfo          = 1 << 4, //To get description of the current file
+            kSetFileName              = 1 << 5, //To set file from command line
         };
         aqua_opt<int64_t>       data_size;
         aqua_opt<double>        time_point_start;   //Base point of the data, we are trying to read

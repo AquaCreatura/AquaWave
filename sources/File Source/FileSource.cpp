@@ -80,6 +80,12 @@ bool file_source::FileSourceArk::SendDove(fluctus::DoveSptr const& sent_dove)
         {
             //Do smth
         }
+        if (file_src_thought & FileSrcDove::FileSrcDoveThought::kSetFileName)
+        {
+            const QString file_name = (*file_src_dove->file_info).file_name_;
+            dialog_->SetFileName(file_name);
+            //Do smth 
+        }//kSetFile
         if (file_src_thought & FileSrcDove::FileSrcDoveThought::kGetFileInfo)
         {
             file_src_dove->file_info = this->file_info_;

@@ -67,7 +67,7 @@ QTabBar::tab:selected {
        <property name="sizePolicy">
         <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
          <horstretch>0</horstretch>
-         <verstretch>3</verstretch>
+         <verstretch>2</verstretch>
         </sizepolicy>
        </property>
        <property name="currentIndex">

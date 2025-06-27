@@ -10,7 +10,7 @@ class AquaWave : public QMainWindow
     Q_OBJECT
 
 public:
-    AquaWave(QWidget *parent = nullptr);
+    AquaWave(QWidget *parent = nullptr, const QString& file_path = QString() );
     ~AquaWave();
 
 private:

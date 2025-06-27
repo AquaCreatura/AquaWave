@@ -15,7 +15,7 @@ namespace file_source
         ~FileSourceDialog();
         // Returns selected file parameters
         const file_params& GetFileInfo() const;
-
+        const bool         SetFileName(const QString& file_name);
     signals:
         // Signal to update the source when parameters change
         void UpdateSourceNeed();
@@ -24,7 +24,7 @@ namespace file_source
         // Slot to handle file path selection
         void OnChooseFilePath();
 
-        void SetFileName(const QString& file_name);
+        void ParseFileName(const QString& file_name);
 
         // Slot to update data type options in UI
         void UpdateDataTypes();

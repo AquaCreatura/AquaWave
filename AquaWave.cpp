@@ -1,6 +1,6 @@
 #include <qmessagebox.h>
 #include "AquaWave.h"
-AquaWave::AquaWave(QWidget *parent)
+AquaWave::AquaWave(QWidget *parent, const QString& file_path)
     : QMainWindow(parent)
 {
     ui.setupUi(this); // Инициализация пользовательского интерфейса для текущего виджета.
@@ -60,6 +60,14 @@ AquaWave::AquaWave(QWidget *parent)
         file_src_->SendDove(req_dove); // Отправка запроса на привязку к спектральному графику.
     }
 
+    if(!file_path.isEmpty()) //Если запускали через файл
+    {
+        auto file_dove = std::make_shared<file_source::FileSrcDove>();
+        file_dove->special_thought = file_source::FileSrcDove::kSetFileName;
+        file_dove->file_info = file_source::file_params();
+        (*file_dove->file_info).file_name_ = file_path;
+        file_src_->SendDove(file_dove);
+    }
     ui.harmonics_viewer_tab_widget->setCurrentIndex(0); // Установка активной вкладки по умолчанию.
 }
 

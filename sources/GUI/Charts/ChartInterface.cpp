@@ -14,7 +14,7 @@ ChartInterface::ChartInterface(QWidget* parent) :
     SetPowerBounds({20, 40}, true);
     SetVerticalSuffix("power");
     connect(&redraw_timer_, &QTimer::timeout, this, QOverload<>::of(&ChartInterface::update));
-    redraw_timer_.start(30);
+    redraw_timer_.start(200);
     SetBackgroundImage(":/AquaWave/third_party/background/dark_city_2_cut.jpg");
 
 }

@@ -3,8 +3,8 @@
 #include <qfiledialog.h>
 #include <QTextStream>
 #include "Tools/parse_tools.h"
-#include <qdebug.h>
-#include <qtime>
+#include <QtConcurrent/qtconcurrent_global.h>
+#include <qfuture.h>
 using namespace file_source;
 
 // ============================== FileSourceDialog ===================================
@@ -32,7 +32,7 @@ file_source::FileSourceDialog::FileSourceDialog()
                 QTextStream in(&file);
                 current_file_name = in.readLine(); // читаем первую строку
                 file.close();
-                SetFileName(current_file_name);
+                ParseFileName(current_file_name);
             }
         }
         connect(ui_.choose_path_tool_button, &QToolButton::clicked, this, &FileSourceDialog::OnChooseFilePath);
@@ -88,6 +88,13 @@ const file_params& file_source::FileSourceDialog::GetFileInfo() const
     return file_info_;
 }
 
+const bool file_source::FileSourceDialog::SetFileName(const QString & file_name)
+{
+    ParseFileName(file_name);
+    this->exec();
+    return true;
+}
+
 // Обработчик выбора файла
 void file_source::FileSourceDialog::OnChooseFilePath()
 {
@@ -101,16 +108,16 @@ void file_source::FileSourceDialog::OnChooseFilePath()
         const bool is_pcm_file = ((current_file_name.size() > 5) && current_file_name.endsWith(".pcm"));
         QString& cur_filter = (is_pcm_file || current_file_name.isEmpty()) ? pcm_filter : no_filter;
 
+
         current_file_name = QFileDialog::getOpenFileName(this, tr("Choose file"),
-                            QFileInfo(current_file_name).absolutePath(), set_of_filters, &cur_filter/*, QFileDialog::*/);
+                        QFileInfo(current_file_name).absolutePath(), set_of_filters, &cur_filter/*, QFileDialog::*/);
         if(current_file_name.isEmpty()) return;
-
-
+        ParseFileName(current_file_name);    
     }
-    SetFileName(current_file_name);
+    
 }
 
-void file_source::FileSourceDialog::SetFileName(const QString& file_name)
+void file_source::FileSourceDialog::ParseFileName(const QString& file_name)
 {
     // Обновление пути в интерфейсе
     {

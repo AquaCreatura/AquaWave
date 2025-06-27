@@ -77,7 +77,23 @@ QTabBar::tab:selected {
         <attribute name="title">
          <string>Spectre</string>
         </attribute>
-        <layout class="QGridLayout" name="gridLayout_2" columnstretch="0"/>
+        <layout class="QGridLayout" name="gridLayout_2" columnstretch="0">
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
+         <property name="topMargin">
+          <number>0</number>
+         </property>
+         <property name="rightMargin">
+          <number>0</number>
+         </property>
+         <property name="bottomMargin">
+          <number>0</number>
+         </property>
+         <property name="spacing">
+          <number>0</number>
+         </property>
+        </layout>
        </widget>
        <widget class="QWidget" name="constellation_tab">
         <attribute name="title">
@@ -94,7 +110,19 @@ QTabBar::tab:selected {
        </property>
        <layout class="QGridLayout" name="TimeFreqWidget">
         <property name="leftMargin">
-         <number>11</number>
+         <number>3</number>
+        </property>
+        <property name="topMargin">
+         <number>1</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
+        <property name="spacing">
+         <number>0</number>
         </property>
        </layout>
       </widget>

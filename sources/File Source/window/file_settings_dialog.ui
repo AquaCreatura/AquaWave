@@ -25,6 +25,43 @@
   <property name="windowTitle">
    <string>File settings</string>
   </property>
+  <property name="styleSheet">
+   <string notr="true">
+QMainWindow {
+    background-color: #f0f0f0;
+}
+QFrame {
+    background-color: #ffffff;
+    border: 1px solid #cccccc;
+}
+QPushButton {
+    background-color: #007acc;
+    color: white;
+    border: none;
+    padding: 5px;
+    border-radius: 3px;
+}
+QPushButton:hover {
+    background-color: #005f9e;
+}
+QPushButton:pressed {
+    background-color: #004a7c;
+}
+QTabWidget::pane {
+    border: 1px solid #cccccc;
+    background: #ffffff;
+}
+QTabBar::tab {
+    background: #e0e0e0;
+    border: 1px solid #cccccc;
+    padding: 5px;
+}
+QTabBar::tab:selected {
+    background: #ffffff;
+    border-bottom: none;
+}
+   </string>
+  </property>
   <layout class="QGridLayout" name="gridLayout">
    <item row="2" column="1" rowspan="3" colspan="2">
     <widget class="QGroupBox" name="data_type_groupbox">

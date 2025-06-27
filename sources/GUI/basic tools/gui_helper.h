@@ -28,6 +28,7 @@ private:
 // Returns normalized position [0, 1] of element's center for given iteration
 const double GetAsimDrawPlace(const int iteration_counter);
 
+
 // Returns vector mapping iteration indices to unique pixel positions [0, width-1]
 std::vector<int> GetAssimLocationsVec(const int width);
 

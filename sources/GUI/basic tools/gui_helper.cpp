@@ -1,34 +1,51 @@
-#include "gui_helper.h"
+п»ї#include "gui_helper.h"
 #include <math.h>
 
 
 const double aqua_gui::GetAsimDrawPlace(const int iteration_counter)
 {
-    const int power = log2(iteration_counter + 1);       // уровень (номер слоя) в дереве
-    const int count_of_elements = 1 << power;             // количество элементов на этом уровне
-    const double step_size = 1.0 / count_of_elements;     // размер шага (ячейки) на оси [0,1]
-    const int min_elem = (1 << power) - 1;                 // индекс первого элемента уровня
-    const double place = step_size * (iteration_counter - min_elem) + step_size / 2;  // центр ячейки текущего элемента
-    return place;
+        // 1) РћРїСЂРµРґРµР»СЏРµРј СѓСЂРѕРІРµРЅСЊ (СЃР»РѕР№ РІ Р±РёРЅР°СЂРЅРѕРј РґРµСЂРµРІРµ)
+    const int power = static_cast<int>(std::log2(iteration_counter + 1));
+    const int count = 1 << power;             // С‡РёСЃР»Рѕ СЌР»РµРјРµРЅС‚РѕРІ РЅР° СЌС‚РѕРј СѓСЂРѕРІРЅРµ
+    const int min_elem = count - 1;           // РёРЅРґРµРєСЃ РїРµСЂРІРѕРіРѕ СЌР»РµРјРµРЅС‚Р° СЌС‚РѕРіРѕ СѓСЂРѕРІРЅСЏ
+
+    // 2) РРЅРґРµРєСЃ РІРЅСѓС‚СЂРё СѓСЂРѕРІРЅСЏ РѕС‚ 0 РґРѕ count-1
+    const int j = iteration_counter - min_elem;
+
+    // 3) Р’С‹С‡РёСЃР»СЏРµРј "РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅС‹Р№" РёРЅРґРµРєСЃ СЃ С‡РµСЂРµРґРѕРІР°РЅРёРµРј РєСЂР°РµРІС‹С…:
+    //    j=0в†’0 (Р»РµРІС‹Р№), j=1в†’count-1 (РїСЂР°РІС‹Р№), j=2в†’1, j=3в†’count-2 Рё С‚.Рґ.
+    int seq;
+    if ((j & 1) == 0) {
+        // С‡С‘С‚РЅС‹Р№ j: 0,2,4вЂ¦ в†’ СЃР»РµРІР° РЅР°РїСЂР°РІРѕ 0,1,2вЂ¦
+        seq = j / 2;
+    } else {
+        // РЅРµС‡С‘С‚РЅС‹Р№ j: 1,3,5вЂ¦ в†’ СЃРїСЂР°РІР° РЅР°Р»РµРІРѕ count-1, count-2вЂ¦
+        seq = (count - 1) - (j / 2);
+    }
+
+    // 4) РџСЂРёРІРѕРґРёРј seq РІ С†РµРЅС‚СЂ СЏС‡РµР№РєРё [0,1]:
+    const double step = 1.0 / count;
+    return step * seq + step * 0.5;
 }
+
 
 std::vector<int> aqua_gui::GetAssimLocationsVec(const int width)
 {
-    // Вектор пар (позиция, итерация)
+    // Р’РµРєС‚РѕСЂ РїР°СЂ (РїРѕР·РёС†РёСЏ, РёС‚РµСЂР°С†РёСЏ)
     std::vector<std::pair<double, int>> place_iteration_pairs;
     for (int i = 0; i < width; ++i) {
-        double place = GetAsimDrawPlace(i);
+        double place = GetAsimDrawPlace_Ext(i);
         place_iteration_pairs.push_back({place, i});
     }
 
-    // Сортировка по позициям, при равенстве — по номеру итерации
+    // РЎРѕСЂС‚РёСЂРѕРІРєР° РїРѕ РїРѕР·РёС†РёСЏРј, РїСЂРё СЂР°РІРµРЅСЃС‚РІРµ вЂ” РїРѕ РЅРѕРјРµСЂСѓ РёС‚РµСЂР°С†РёРё
     std::sort(place_iteration_pairs.begin(), place_iteration_pairs.end());
 
-    // Создание результирующего вектора
+    // РЎРѕР·РґР°РЅРёРµ СЂРµР·СѓР»СЊС‚РёСЂСѓСЋС‰РµРіРѕ РІРµРєС‚РѕСЂР°
     std::vector<int> result(width);
     for (int k = 0; k < width; ++k) {
         int iteration = place_iteration_pairs[k].second;
-        result[iteration] = k; // Индекс — итерация, значение — местоположение
+        result[iteration] = k; // РРЅРґРµРєСЃ вЂ” РёС‚РµСЂР°С†РёСЏ, Р·РЅР°С‡РµРЅРёРµ вЂ” РјРµСЃС‚РѕРїРѕР»РѕР¶РµРЅРёРµ
     }
 
     return result;

@@ -20,6 +20,7 @@ protected:
 protected slots:
     virtual void OnDoSomething();
 protected:
+    SourceInfo                  src_info_;
     QPointer<ChartDPX>          dpx_drawer_;
     std::shared_ptr<DpxWindow>  window_;
     FFT_Worker                  fft_worker_;

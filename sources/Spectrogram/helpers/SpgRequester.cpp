@@ -3,6 +3,7 @@
 #include "SpgRequester.h"
 #include <qmessagebox.h>
 #include <ippvm.h>
+#include <thread>
 using namespace spg_core; // Используем пространство имён dpx_core
 
 spg_core::SpgRequester::SpgRequester(const spg_data & spg, const WorkBounds& time_bounds) : 
@@ -83,6 +84,7 @@ SpgRequester::request_params SpgRequester::GetRequestParams() {
 }
 void spg_core::SpgRequester::RequestData()
 {
+    std::this_thread::sleep_for(std::chrono::milliseconds(100));
     const auto request_info = GetRequestParams();
     SendRequestDove(request_info);
 }

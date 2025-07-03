@@ -78,12 +78,18 @@ namespace fluctus
         double                  time_point;
     };
 
+
     struct WorkBounds
     {
         Limits<double>  source;
         Limits<double>  scaled;                  
     };
 
+    struct SourceInfo
+    {
+        ArkWptr ark;
+        fluctus::freq_params info;
+    };
 }
 
 #endif // ARK_DEFINES

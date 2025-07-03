@@ -70,13 +70,9 @@ bool Spectrogram::SendDove(fluctus::DoveSptr const & sent_dove)
     auto target_val = sent_dove->target_ark;
     auto base_thought = sent_dove->base_thought;
     
-    if (base_thought == fluctus::DoveParrent::DoveThought::kReset)
-    {
-        return Reload();
-    }
         
     // Если "мысль" - запрос на диалог.
-    else if (base_thought & fluctus::DoveParrent::DoveThought::kGetDialog)
+    if (base_thought & fluctus::DoveParrent::DoveThought::kGetDialog)
     {
         // Прикрепляем отрисовщик спектра к виджету сообщения.
         sent_dove->show_widget = window_;
@@ -85,8 +81,13 @@ bool Spectrogram::SendDove(fluctus::DoveSptr const & sent_dove)
     // Передаём сообщение базовому классу для дальнейшей обработки.
     if(base_thought & DoveParrent::DoveThought::kTieBehind)
     {
+        Reload();
         if(target_val->GetArkType() != ArkType::kFileSource) throw std::logic_error("Only signal sources are able to connect!");
-        requester_.Initialise(target_val, this->shared_from_this());
+        src_info_.ark = target_val;
+    }
+    if (base_thought == fluctus::DoveParrent::DoveThought::kReset)
+    {
+        return Reload();
     }
     return ArkBase::SendDove(sent_dove);
 }
@@ -98,19 +99,26 @@ ArkType spg_core::Spectrogram::GetArkType() const
 
 bool spg_core::Spectrogram::Reload()
 {
-    auto arks = GetBehindArks();
-    if(!arks.empty()) 
+    auto file_src = src_info_.ark.lock();
+    if(!file_src) 
     {
-        auto file_src_ = arks.front();
-        auto req_dove = std::make_shared<file_source::FileSrcDove>();
-        req_dove->base_thought      = fluctus::DoveParrent::DoveThought::kSpecialThought;
-        req_dove->special_thought   = file_source::FileSrcDove::kGetFileInfo;
-        if (!file_src_->SendDove(req_dove) || !req_dove->file_info)
-        {
-            QMessageBox::warning( nullptr, "Cannot Get info", "Do something with SPG or file source, or..." );
-            return false;
-        }
+        spg_drawer_->ClearData();
+        return true;
     }
-    spg_drawer_->ClearData();
+    
+    requester_.Initialise(file_src, this->shared_from_this());
+
+    auto req_dove = std::make_shared<file_source::FileSrcDove>();
+    req_dove->base_thought      = fluctus::DoveParrent::DoveThought::kSpecialThought;
+    req_dove->special_thought   = file_source::FileSrcDove::kGetFileInfo;
+    if (!file_src->SendDove(req_dove) || !req_dove->file_info)
+    {
+        QMessageBox::warning( nullptr, "Cannot Get info", "Do something with SPG or file source, or..." );
+        return false;
+    }
+    src_info_.info.carrier      = (*req_dove->file_info).carrier_hz_;
+    src_info_.info.samplerate   = (*req_dove->file_info).samplerate_hz_;
+    
+    
     return true;
 }

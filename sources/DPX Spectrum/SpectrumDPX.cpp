@@ -73,7 +73,13 @@ bool dpx_core::SpectrumDPX::SendDove(fluctus::DoveSptr const & sent_dove)
         sent_dove->show_widget = window_;
         return true; // Запрос обработан.
     }
-
+    if(base_thought == fluctus::DoveParrent::DoveThought::kTieBehind)
+    {
+        if(target_val->GetArkType() != ArkType::kFileSource) throw std::logic_error("Only signal sources are able to connect!");
+        src_info_.ark = target_val;
+        Reload();
+    }
+    //
     if(base_thought == fluctus::DoveParrent::DoveThought::kReset)
     {
         return Reload();
@@ -90,21 +96,26 @@ ArkType dpx_core::SpectrumDPX::GetArkType() const
 
 bool dpx_core::SpectrumDPX::Reload()
 {
-    auto arks = GetBehindArks();
-    if(!arks.empty()) 
+    auto file_src = src_info_.ark.lock();
+    if(!file_src) 
     {
-        auto file_src_ = arks.front();
-        auto req_dove = std::make_shared<file_source::FileSrcDove>();
-        req_dove->base_thought      = fluctus::DoveParrent::DoveThought::kSpecialThought;
-        req_dove->special_thought   = file_source::FileSrcDove::kGetFileInfo;
-        if (!file_src_->SendDove(req_dove) || !req_dove->file_info)
-        {
-            QMessageBox::warning( nullptr, "Cannot Get info", "Do something with DPX or file source, or..." );
-            return false;
-        }
-        OnDoSomething();
+        dpx_drawer_->ClearData();
+        return true;
     }
-    dpx_drawer_->ClearData();
+    
+    auto req_dove = std::make_shared<file_source::FileSrcDove>();
+    req_dove->base_thought      = fluctus::DoveParrent::DoveThought::kSpecialThought;
+    req_dove->special_thought   = file_source::FileSrcDove::kGetFileInfo;
+    if (!file_src->SendDove(req_dove) || !req_dove->file_info)
+    {
+        QMessageBox::warning( nullptr, "Cannot Get info", "Do something with DPX or file source, or..." );
+        return false;
+    }
+    src_info_.info.carrier      = (*req_dove->file_info).carrier_hz_;
+    src_info_.info.samplerate   = (*req_dove->file_info).samplerate_hz_;
+
+    OnDoSomething();
+    
     return true;
 }
 

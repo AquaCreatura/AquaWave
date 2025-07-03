@@ -22,6 +22,7 @@ protected:
 protected:
     QPointer<ChartSPG>          spg_drawer_;
     std::shared_ptr<SpgWindow>  window_;
+    SourceInfo                  src_info_;
     WorkBounds                  time_bounds_;
     FFT_Worker                  fft_worker_;
     SpgRequester                requester_;

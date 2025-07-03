@@ -34,7 +34,7 @@ std::vector<int> aqua_gui::GetAssimLocationsVec(const int width)
     // Вектор пар (позиция, итерация)
     std::vector<std::pair<double, int>> place_iteration_pairs;
     for (int i = 0; i < width; ++i) {
-        double place = GetAsimDrawPlace_Ext(i);
+        double place = GetAsimDrawPlace(i);
         place_iteration_pairs.push_back({place, i});
     }
 

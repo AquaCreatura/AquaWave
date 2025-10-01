@@ -10,9 +10,15 @@ using namespace dpx_core; // Используем пространство имён dpx_core
 dpx_core::SpectrumDPX::SpectrumDPX()
 {
     dpx_drawer_ = new ChartDPX();     // Создаём указатель на объект DpxChart для отрисовки.
-    window_ = std::make_shared<DpxWindow>();
+    window_ = new DpxWindow;
     window_->SetChartWindow(dpx_drawer_);
-    connect(window_.get(), &DpxWindow::NeedDoSomething, this, &SpectrumDPX::OnDoSomething);
+	dpx_drawer_->SetVerticalSuffix("db");
+    connect(window_, &DpxWindow::NeedDoSomething, this, &SpectrumDPX::OnDoSomething);
+}
+
+dpx_core::SpectrumDPX::~SpectrumDPX()
+{
+	
 }
 
 // Отправляет данные для обработки спектра и отображения.
@@ -47,7 +53,7 @@ bool SpectrumDPX::SendData(fluctus::DataInfo const & data_info)
     
     // Отправляем вычисленные магнитуды и частотные границы в отрисовщик.
     draw_data draw_data;
-    draw_data.freq_bounds = freq_bounds;
+    draw_data.freq_bounds = freq_bounds / freq_divider_;
     draw_data.time_pos    = data_info.time_point;
     draw_data.data        = power_vec;
     dpx_drawer_->PushData(draw_data);
@@ -97,11 +103,9 @@ ArkType dpx_core::SpectrumDPX::GetArkType() const
 bool dpx_core::SpectrumDPX::Reload()
 {
     auto file_src = src_info_.ark.lock();
-    if(!file_src) 
-    {
-        dpx_drawer_->ClearData();
-        return true;
-    }
+	dpx_drawer_->ClearData();
+    if(!file_src) return true;
+    
     
     auto req_dove = std::make_shared<file_source::FileSrcDove>();
     req_dove->base_thought      = fluctus::DoveParrent::DoveThought::kSpecialThought;
@@ -113,6 +117,15 @@ bool dpx_core::SpectrumDPX::Reload()
     }
     src_info_.info.carrier      = (*req_dove->file_info).carrier_hz_;
     src_info_.info.samplerate   = (*req_dove->file_info).samplerate_hz_;
+	Limits<double> bounds_hz = {
+		double(src_info_.info.carrier) - src_info_.info.samplerate / 2.,
+		double(src_info_.info.carrier) + src_info_.info.samplerate / 2.
+	};
+	freq_divider_ = 1.e6;
+
+	bounds_hz = bounds_hz / freq_divider_;
+	dpx_drawer_->SetHorizontalMinMaxBounds(bounds_hz);
+	dpx_drawer_->SetHorizontalSuffix("MHz");
 
     OnDoSomething();
     

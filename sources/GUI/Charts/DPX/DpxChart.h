@@ -11,6 +11,7 @@ public:
     virtual void PushData                   (const draw_data& draw_data ) override;
     virtual void ClearData                  ()                            override;
     virtual void SetPowerBounds             (const Limits<double>& power_bounds, const bool is_adaptive = true) override;
+	virtual void SetHorizontalMinMaxBounds	(const Limits<double>& power_bounds) override;
 protected:
     bool ShouldRedraw();
 protected:

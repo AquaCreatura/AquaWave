@@ -11,11 +11,51 @@ spg_core::SpgRequester::SpgRequester(const spg_data & spg, const WorkBounds& tim
 {
 }
 
+spg_core::SpgRequester::~SpgRequester()
+{
+	StartProcess(false);
+}
+
+
+
 void spg_core::SpgRequester::Initialise(const ArkWptr & file_source, const ArkWptr & ark_spg)
 {
+	StartProcess(false);
     ark_file_src_   = file_source;
     ark_spg_        = ark_spg;
+	StartProcess(true);
 }
+
+void spg_core::SpgRequester::StartProcess(bool do_start)
+{
+	if (do_start) {
+		if (is_running_process_) return; // уже работает
+		is_running_process_ = true;
+		process_anchor_ = std::async(std::launch::async, [this] {
+			this->LoopProcess();
+		});
+	}
+	else {
+		if (!is_running_process_) return; // уже остановлено
+		is_running_process_ = false;
+		if (process_anchor_.valid()) {
+			process_anchor_.wait(); // дождаться завершения
+		}
+	}
+}
+
+void spg_core::SpgRequester::LoopProcess()
+{
+	while (is_running_process_) {
+
+		const auto request_info = GetRequestParams();
+		SendRequestDove(request_info);
+
+		//std::this_thread::sleep_for(std::chrono::milliseconds(10));
+	}
+}
+
+
 
 
 bool spg_core::SpgRequester::SendRequestDove(const request_params & req_info)
@@ -31,6 +71,7 @@ bool spg_core::SpgRequester::SendRequestDove(const request_params & req_info)
     req_dove->target_ark        = base_ark;
     req_dove->time_point_start  = req_dove->time_point_end = req_info.time_point;
     req_dove->data_size         = req_info.data_size;
+
     if (!file_src->SendDove(req_dove))
     {
         QMessageBox::warning( nullptr, "Cannot Request Data", "Do something with file source");
@@ -84,6 +125,7 @@ SpgRequester::request_params SpgRequester::GetRequestParams() {
 }
 void spg_core::SpgRequester::RequestData()
 {
+	return; //Заглушка
     std::this_thread::sleep_for(std::chrono::milliseconds(100));
     const auto request_info = GetRequestParams();
     SendRequestDove(request_info);

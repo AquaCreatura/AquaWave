@@ -128,10 +128,10 @@ void file_source::FileSourceDialog::ParseFileName(const QString& file_name)
     // Парсинг параметров из имени файла (формат: "... 869.977996MHz 219.999KHz.pcm")
     bool is_succesfully_parsed = true;
     int64_t samplerate_hz = 0, carrier_hz = 1.e6;
-    if(aqua_parse_tools::get_samplerate_from_filename(file_name.toStdString(),file_info_.samplerate_hz_))
+    if(aqua_parse_tools::get_samplerate_from_filename(file_name.toLocal8Bit().constData(),file_info_.samplerate_hz_))
     {
         is_succesfully_parsed = true;
-        aqua_parse_tools::get_carrier_from_filename(file_name.toStdString(), file_info_.carrier_hz_);
+        aqua_parse_tools::get_carrier_from_filename(file_name.toLocal8Bit().constData(), file_info_.carrier_hz_);
     }
     ui_.signal_settings_groupbox->setChecked(is_succesfully_parsed); //Факт того, что успешно достали ЧД, нас более чем удовлетворяет
     ui_.carrier_mhz_spinbox     ->setValue(file_info_.carrier_hz_   / 1.e6);

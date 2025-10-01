@@ -30,8 +30,8 @@ void ChartDPX::DrawData(QPainter & passed_painter)
 
 void ChartDPX::PushData(const draw_data& draw_data )
 {
-    power_man_.UpdateBounds(draw_data.data , scale_info_.val_info_.min_max_bounds_.horizontal /*data_bounds*/);
-    dpx_painter_.AccumulateNewData(draw_data.data , scale_info_.val_info_.min_max_bounds_.horizontal);
+    power_man_.UpdateBounds(draw_data.data , draw_data .freq_bounds);
+    dpx_painter_.AccumulateNewData(draw_data.data , draw_data.freq_bounds);
 }
 
 void ChartDPX::ClearData()
@@ -43,6 +43,12 @@ void ChartDPX::SetPowerBounds(const Limits<double>& power_bounds, const bool is_
 {
     dpx_painter_.SetPowerBounds(power_bounds);
     ChartInterface::SetPowerBounds(power_bounds, is_adaptive);
+}
+
+void ChartDPX::SetHorizontalMinMaxBounds(const Limits<double>& power_bounds)
+{
+	dpx_painter_.SetMinMax_X(power_bounds);
+	ChartInterface::SetHorizontalMinMaxBounds(power_bounds);
 }
 
 

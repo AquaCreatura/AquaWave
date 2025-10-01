@@ -25,7 +25,7 @@ namespace file_source
         void UpdateSource(); 
     protected:
         FileDataManager                     listener_man_; // Manages file listeners
-        std::shared_ptr<FileSourceDialog>   dialog_;        // Settings dialog interface
+        QPointer<FileSourceDialog>			dialog_;        // Settings dialog interface
         file_params                         file_info_;     // File parameters
     };
 };

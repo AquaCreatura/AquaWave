@@ -10,6 +10,7 @@
 #include <list>
 #include <qwidget.h>
 #include <qdialog.h>
+#include <qpointer.h>
 #include "aqua_defines.h"
 #include "Tools/utility_aqua.h"
 namespace fluctus
@@ -64,7 +65,7 @@ namespace fluctus
         thoughts_list                                   base_thought  = kSpecialThought ; //Basic 
         thoughts_list                                   special_thought {0}; //Child
         ArkSptr                                         target_ark     ; //To operate with another ark
-        std::shared_ptr<QWidget>                        show_widget; //Pointer to the dialog
+        QPointer<QWidget>								show_widget; //Pointer to the dialog
         virtual ~DoveParrent() = default;  // virtual destructor to make polymorphic inheritance
     };
 

@@ -5,7 +5,7 @@
 #include "GUI/Drawers/QimageZoomer.h"
 #include "GUI/basic tools/gui_helper.h"
 #include "GUI/basic tools/gui_conversions.h"
-
+#include <qelapsedtimer.h>
 using  namespace fluctus;
 using  namespace aqua_gui;
 
@@ -40,6 +40,7 @@ private:
 
     QPixmap               cached_pixmap_;
     QimageZoomer          zoomer_;
+	QElapsedTimer		  data_update_timer_; //
 
 };   
 

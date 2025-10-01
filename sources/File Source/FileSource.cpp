@@ -8,9 +8,9 @@ using namespace fluctus;
 file_source::FileSourceArk::FileSourceArk():
     listener_man_(file_info_)  // Инициализация менеджера с параметрами файла
 {
-    dialog_ = std::make_shared<FileSourceDialog>();  // Создание диалогового окна
+    dialog_ = new FileSourceDialog;  // Создание диалогового окна
     UpdateSource();
-    connect(dialog_.get(), &FileSourceDialog::UpdateSourceNeed, this, &FileSourceArk::UpdateSource);
+    connect(dialog_, &FileSourceDialog::UpdateSourceNeed, this, &FileSourceArk::UpdateSource);
    
 }
 

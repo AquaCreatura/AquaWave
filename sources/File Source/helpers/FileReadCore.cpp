@@ -17,9 +17,9 @@ bool FileReader::SetFileParams(const file_source::file_params &params) {
         ifstream_.close();
     }
 
-    ifstream_.open(params.file_name_.toStdString(), std::ios::binary | std::ios::ate);
+    ifstream_.open(params.file_name_.toLocal8Bit().constData(), std::ios::binary | std::ios::ate);
     if (!ifstream_.is_open()) {
-        std::cerr << "Error: Could not open file " << params.file_name_.toStdString() << std::endl;
+        std::cerr << "Error: Could not open file " << params.file_name_.toLocal8Bit().constData() << std::endl;
         return false; // Ошибка открытия файла
     }
 

@@ -10,9 +10,9 @@ Spectrogram::Spectrogram(QWidget * parrent) :
     spg_drawer_(new spg_core::ChartSPG()),
     requester_(spg_drawer_->GetSpectrogramInfo(), time_bounds_) 
 {
-    window_ = std::make_shared<SpgWindow>();
+    window_ = new SpgWindow;
     window_->SetChartWindow(spg_drawer_);
-    connect(spg_drawer_, &ChartSPG::NeedRequest, &requester_, &SpgRequester::RequestData/*, Qt::QueuedConnection*/);
+	
 }
 
 spg_core::Spectrogram::~Spectrogram()
@@ -100,12 +100,11 @@ ArkType spg_core::Spectrogram::GetArkType() const
 bool spg_core::Spectrogram::Reload()
 {
     auto file_src = src_info_.ark.lock();
+	spg_drawer_->ClearData();
     if(!file_src) 
     {
-        spg_drawer_->ClearData();
         return true;
     }
-    
     requester_.Initialise(file_src, this->shared_from_this());
 
     auto req_dove = std::make_shared<file_source::FileSrcDove>();
@@ -118,7 +117,19 @@ bool spg_core::Spectrogram::Reload()
     }
     src_info_.info.carrier      = (*req_dove->file_info).carrier_hz_;
     src_info_.info.samplerate   = (*req_dove->file_info).samplerate_hz_;
-    
+	{
+
+		Limits<double> bounds_hz = {
+			double(src_info_.info.carrier) - src_info_.info.samplerate / 2.,
+			double(src_info_.info.carrier) + src_info_.info.samplerate / 2.
+		};
+		freq_divider_ = 1.e6;
+
+		bounds_hz = bounds_hz / freq_divider_;
+		spg_drawer_->SetVerticalBounds(bounds_hz);
+		spg_drawer_->SetVerticalSuffix("MHz");
+	}
+
     
     return true;
 }

@@ -4,11 +4,15 @@ using namespace spg_core;
 
 spg_core::SpgRenderer::SpgRenderer(spg_data & init_val): spg_(init_val)
 {
+	data_update_timer_.start();
 }
 
 QPixmap & spg_core::SpgRenderer::GetRelevantPixmap(const ChartScaleInfo & scale_info)
 {
-    UpdateSpectrogramData();
+	if (data_update_timer_.elapsed() >= 100) { 
+		UpdateSpectrogramData();
+		data_update_timer_.restart();
+	}
     const WH_Info<Limits<double>> &base_bounds   = scale_info.val_info_.min_max_bounds_;
     const WH_Info<Limits<double>> &target_bounds = scale_info.val_info_.cur_bounds;
     return zoomer_.GetPrecisedPart(base_bounds, target_bounds, scale_info.pix_info_.chart_size_px, false);
@@ -37,10 +41,13 @@ bool spg_core::SpgRenderer::UpdateSpectrogramData()
         for(int y = 0; y < grid_height; y++)
         {
             const float* spg_iter = basic[grid_height - y - 1]; //We have inversed image
+			double last_good_density = 0;
             for(int x = 0; x < grid_width; x++)
             {
                 const double idx_power = *(spg_iter++);
-                const double density = (idx_power - spg_.power_bounds.low) / spg_.power_bounds.delta();
+                double density = (idx_power - spg_.power_bounds.low) / spg_.power_bounds.delta();
+				if (density > 0) last_good_density = density;
+				else if ((idx_power == 0) && (last_good_density != 0)) density = last_good_density;
                 argb_t color = *GetNormalizedColor(density);
 
                 *(rgb_iter++) = color;

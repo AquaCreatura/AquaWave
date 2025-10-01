@@ -37,6 +37,17 @@ namespace fluctus
         {
             return (low + high) / 2;
         }
+
+		Limits<W> operator*(const W& value) const
+		{
+			return { low * value, high * value };
+		}
+
+		// ќператор делени€ на скал€р
+		Limits<W> operator/(const W& value) const
+		{
+			return { low / value, high / value };
+		}
         W low;
         W high;
     };

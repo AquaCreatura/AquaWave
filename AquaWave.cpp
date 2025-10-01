@@ -33,7 +33,7 @@ AquaWave::AquaWave(QWidget *parent, const QString& file_path)
         spectrum_chart_->SendDove(req_dove); // Отправка запроса компоненту спектрального графика.
         auto spectrum_widget = req_dove->show_widget; // Получение виджета графика из запроса.
         // Добавление полученного виджета на вкладку "Spectre".
-        this->ui.spectre_tab->layout()->addWidget(spectrum_widget.get());
+        this->ui.spectre_tab->layout()->addWidget(spectrum_widget);
     }
 
     // Запрос и добавление виджета спектрограммы на Frame "TimeFreqFrame".
@@ -41,7 +41,7 @@ AquaWave::AquaWave(QWidget *parent, const QString& file_path)
         spectrogram_->SendDove(req_dove); // Отправка того же запроса компоненту спектрограммы.
         auto spg_widget = req_dove->show_widget; // Получение виджета спектрограммы из запроса.
         // Добавление полученного виджета на Frame "TimeFreqFrame".
-        this->ui.TimeFreqFrame->layout()->addWidget(spg_widget.get());
+        this->ui.TimeFreqFrame->layout()->addWidget(spg_widget);
     }
 
     // Установка связей между компонентами (например, "привязка" источника данных).
@@ -72,4 +72,6 @@ AquaWave::AquaWave(QWidget *parent, const QString& file_path)
 }
 
 AquaWave::~AquaWave()
-{}
+{
+	spectrum_chart_.reset();
+}

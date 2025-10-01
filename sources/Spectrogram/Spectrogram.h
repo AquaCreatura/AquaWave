@@ -21,11 +21,12 @@ protected:
     bool Reload();
 protected:
     QPointer<ChartSPG>          spg_drawer_;
-    std::shared_ptr<SpgWindow>  window_;
+    QPointer<SpgWindow>			window_;
     SourceInfo                  src_info_;
     WorkBounds                  time_bounds_;
     FFT_Worker                  fft_worker_;
     SpgRequester                requester_;
+	double						freq_divider_{ 1. };
 };
 
 

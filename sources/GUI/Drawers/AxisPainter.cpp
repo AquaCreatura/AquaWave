@@ -120,7 +120,7 @@ bool AxisManager::DrawAxis(QPainter& passed_painter)
         // Подпись оси
         {
             cur_painter.setPen(text_pen);
-            cur_painter.drawText(axis_width + 8, 9, axis_.vertical.qstr_suffix);
+            cur_painter.drawText(axis_width + 5, 15, axis_.vertical.qstr_suffix);
         }
         // Проходим по всем линиям сетки
         for (const auto& vert_line : cur_line_info.grid_lines_)

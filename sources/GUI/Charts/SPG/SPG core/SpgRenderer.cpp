@@ -9,7 +9,7 @@ spg_core::SpgRenderer::SpgRenderer(spg_data & init_val): spg_(init_val)
 
 QPixmap & spg_core::SpgRenderer::GetRelevantPixmap(const ChartScaleInfo & scale_info)
 {
-	if (data_update_timer_.elapsed() >= 100) { 
+	if (data_update_timer_.elapsed() >= 500) {
 		UpdateSpectrogramData();
 		data_update_timer_.restart();
 	}
@@ -37,6 +37,11 @@ bool spg_core::SpgRenderer::UpdateSpectrogramData()
         //Здесь бы mutex по-хорошему
         const int grid_height = basic.size.vertical;
         const int grid_width  = basic.size.horizontal;
+
+		double  max_density = 0;
+		double  summ_density = 0;
+		int64_t	density_counter = 0;
+
         argb_t *rgb_iter = wrapper_rgb.data.data();
         for(int y = 0; y < grid_height; y++)
         {
@@ -49,10 +54,25 @@ bool spg_core::SpgRenderer::UpdateSpectrogramData()
 				if (density > 0) last_good_density = density;
 				else if ((idx_power == 0) && (last_good_density != 0)) density = last_good_density;
                 argb_t color = *GetNormalizedColor(density);
-
                 *(rgb_iter++) = color;
+
+				//Собираем статистические данные
+				if (density > 0.)
+				{
+					max_density = std::max(max_density, density);
+					summ_density += density;
+					density_counter++;
+				}
             }
         }
+		const auto new_density = summ_density / density_counter;
+		if (new_density != last_average_density_) {
+			last_average_density_ = new_density;
+			basic.need_redraw = true;
+		}
+
+		last_max_density_ = max_density;  
+
         zoomer_.MarkForUpdate();
     }
     return true;
@@ -60,8 +80,8 @@ bool spg_core::SpgRenderer::UpdateSpectrogramData()
 
 const argb_t * spg_core::SpgRenderer::GetNormalizedColor(double relative_density) const
 {
-    constexpr double MAX_THRESHOLD = 1; // Normalization threshold
-    const double normalized_density = qBound(0.0, relative_density / MAX_THRESHOLD, 1.0);
+	double delta = last_max_density_ - last_average_density_;
+	const double normalized_density = qBound(0.0, (relative_density - last_average_density_) / (delta * 0.5),  1.0);
     // Validate palette size
     if ((normalized_density == 0)) 
     {

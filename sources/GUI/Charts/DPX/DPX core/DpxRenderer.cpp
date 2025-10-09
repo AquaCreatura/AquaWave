@@ -13,10 +13,15 @@ W clamp_value_helper(W value, W min_val, W max_val) {
 dpx_core::DpxRenderer::DpxRenderer(dpx_data & init_val):
     dpx_(init_val)
 {
+	data_update_timer_.start();
 }
 QPixmap & dpx_core::DpxRenderer::GetRelevantPixmap(const ChartScaleInfo & scale_info)
 {
-    UpdateDpxRgbData();
+	if (data_update_timer_.elapsed() >= 500) {
+		UpdateDpxRgbData();
+		data_update_timer_.restart();
+	}
+    
     const WH_Info<Limits<double>> &base_bounds   = scale_info.val_info_.min_max_bounds_;
     const WH_Info<Limits<double>> &target_bounds = scale_info.val_info_.cur_bounds;
     return zoomer_.GetPrecisedPart(base_bounds, target_bounds, scale_info.pix_info_.chart_size_px, false);
@@ -36,6 +41,10 @@ bool dpx_core::DpxRenderer::UpdateDpxRgbData()
     }
     if(need_redraw)
     {
+		double  max_density = 0;
+		double  summ_density = 0;
+		int64_t	density_counter = 0;
+
         tbb::spin_mutex::scoped_lock scoped_locker(dpx_.redraw_mutex);
         //Здесь бы mutex по-хорошему
         const int grid_height = dpx_.size.vertical;
@@ -47,22 +56,34 @@ bool dpx_core::DpxRenderer::UpdateDpxRgbData()
             const int64_t* dpx_iter           = dpx_[grid_height - column_iter - 1]; //We have inversed image
             for(int row_iter = 0; row_iter < grid_width; row_iter++)
             {
-                const double weight = *(column_weight_iter++);
-                const double density = weight ? *(dpx_iter++) / weight : 0;
+                const double column_weight = *(column_weight_iter++);
+                const double density = column_weight ? *(dpx_iter++) / column_weight : 0;
                 argb_t color = *GetNormalizedColor(density);
-
                 *(rgb_iter++) = color;
+				//Собираем статистические данные
+				if(density > 0.)
+				{
+					max_density		=	std::max(max_density, density);
+					summ_density	+= density;
+					density_counter ++;
+				}
             }
         }
+		const auto new_density = summ_density / density_counter;
+		if (new_density != last_average_density_) {
+			last_average_density_ = new_density;
+			dpx_.need_redraw = true;
+		}
+		
+		last_max_density_	  = max_density;
+
         zoomer_.MarkForUpdate();
     }
     return true;
 }
 // Maps relative density to a color from the palette
 const argb_t* dpx_core::DpxRenderer::GetNormalizedColor(double relative_density) const {
-
-    constexpr double MAX_THRESHOLD = 0.3; // Normalization threshold
-    const double normalized_density = clamp_value_helper(relative_density / MAX_THRESHOLD, 0.0, 1.0);
+    const double normalized_density = clamp_value_helper(relative_density / (last_average_density_ * 3), 0.0, 1.0);
     // Validate palette size
     if ((relative_density == 0)) 
     {

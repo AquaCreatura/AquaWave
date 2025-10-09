@@ -67,7 +67,7 @@ bool spg_core::SpgRequester::SendRequestDove(const request_params & req_info)
 
     auto req_dove = std::make_shared<file_source::FileSrcDove>();
     req_dove->base_thought      = fluctus::DoveParrent::DoveThought::kSpecialThought;
-    req_dove->special_thought   = file_source::FileSrcDove::kInitReaderInfo |  file_source::FileSrcDove::kAskSingleDataAround;
+    req_dove->special_thought   = file_source::FileSrcDove::kInitReaderInfo |  file_source::FileSrcDove::kAskChunkAround;
     req_dove->target_ark        = base_ark;
     req_dove->time_point_start  = req_dove->time_point_end = req_info.time_point;
     req_dove->data_size         = req_info.data_size;
@@ -122,12 +122,5 @@ SpgRequester::request_params SpgRequester::GetRequestParams() {
     req_info.time_point = req_bounds.low + draw_pos_ratio * req_bounds.delta();
 
     return req_info; // Return completed request parameters
-}
-void spg_core::SpgRequester::RequestData()
-{
-	return; //Заглушка
-    std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    const auto request_info = GetRequestParams();
-    SendRequestDove(request_info);
 }
 

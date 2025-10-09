@@ -22,12 +22,25 @@ void file_source::FileDataManager::InitReader(const fluctus::ArkWptr& reader,
     listener.SetBaseParams(carrier, samplerate, block_size);  // Настраивает базовые параметры
 }
 
-// Запуск чтения вокруг позиции для указанного ARK
-void file_source::FileDataManager::ReadAround(const fluctus::ArkWptr& reader, const double pos_ratio)
+void file_source::FileDataManager::StartReading(const fluctus::ArkWptr & reader, const double start_pos, const double end_pos, const SortOfReading read_type)
 {
-    auto& listener = listeners_.try_emplace(reader, reader, params_).first->second;  // Получает listener (должен быть инициализирован)
-    listener.StartReadAround(pos_ratio);  // Асинхронный запуск чтения
+	auto& listener = listeners_.try_emplace(reader, reader, params_).first->second;  // Получает listener (должен быть инициализирован)
+	// Асинхронный запуск чтения
+	switch (read_type)
+	{
+	case file_source::FileDataManager::kReadAround: // Запуск чтения вокруг позиции 
+		listener.StartReadAround(start_pos);  
+		break;
+	case file_source::FileDataManager::kReadChunksInRange:
+		listener.StartReadChunksInRange(start_pos, end_pos);
+		break;
+	default:
+		break;
+	}
+	
 }
+
+
 
 // Удаление слушателя для указанного ARK
 void file_source::FileDataManager::DeleteReader(const fluctus::ArkWptr& reader)
@@ -77,6 +90,17 @@ bool file_source::FileDataListener::StartReadAround(const double pos_ratio)
     return true;
 }
 
+bool file_source::FileDataListener::StartReadChunksInRange(double start_pos, double end_pos)
+{
+	WaitProcess();
+	// Запуск ReadAroundProcess в отдельном потоке
+	process_anchor_ = std::async(std::launch::async,
+		&FileDataListener::ReadChunksInRangeProcess,
+		this,
+		start_pos, end_pos);
+	return true;
+}
+
 // Отправка подготовленных данных в ARK
 void file_source::FileDataListener::SendPreparedData()
 {
@@ -92,18 +116,43 @@ const file_source::FileDataListener::ListenerState file_source::FileDataListener
     return state_;
 }
 
+void file_source::FileDataListener::ReadChunksInRangeProcess(double start_pos, double end_pos)
+{
+	const auto chunk_size = block_size_;
+	StreamReader reader;
+	if (!reader.SetFileParams(params_))  // Настройка файлового читателя
+	{
+		return;
+	}
+
+	state_ = kReadChunksInRange;  // Установка состояния "в процессе чтения"
+	reader.InitFloat(start_pos, end_pos, chunk_size); //Инициализируем в относительно состоянии
+	// Чтение данных вокруг позиции
+	
+	while (reader.ReadStream(data_info_.data_vec))
+	{
+		auto out_data_size = data_info_.data_vec.size() / 4;
+		std::vector<Ipp32fc> data_vec(out_data_size);
+
+		ippsConvert_16s32f((Ipp16s*)data_info_.data_vec.data(), (Ipp32f*)data_vec.data(), out_data_size * 2);
+		data_info_.data_vec.swap((std::vector<uint8_t>&)data_vec);
+		data_info_.time_point = 0.;
+
+		SendPreparedData();   // Успешное чтение - отправка данных
+	}
+	state_ = kNoProcess;  // Сброс состояния
+}
+
 // Основной процесс чтения данных вокруг позиции
 void file_source::FileDataListener::ReadAroundProcess(double pos_ratio, const int64_t out_data_size)
 {
-    FileReader reader;
+	FileReader reader;
     if(!reader.SetFileParams(params_))  // Настройка файлового читателя
     {
-        // Можно добавить callback для ошибки (не критическая ошибка)
         return;
     }
-    
-    state_ = kReadAround;  // Установка состояния "в процессе чтения"
-    
+    state_ = ListenerState::kReadAround;  // Установка состояния "в процессе чтения"
+	reader;
     // Чтение данных вокруг позиции
     if(!reader.GetDataAround(pos_ratio, out_data_size, data_info_.data_vec)) 
     {

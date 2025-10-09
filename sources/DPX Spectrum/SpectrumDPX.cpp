@@ -13,7 +13,7 @@ dpx_core::SpectrumDPX::SpectrumDPX()
     window_ = new DpxWindow;
     window_->SetChartWindow(dpx_drawer_);
 	dpx_drawer_->SetVerticalSuffix("db");
-    connect(window_, &DpxWindow::NeedDoSomething, this, &SpectrumDPX::OnDoSomething);
+    connect(window_, &DpxWindow::NeedDoSomething, this, &SpectrumDPX::RequestSelectedData);
 }
 
 dpx_core::SpectrumDPX::~SpectrumDPX()
@@ -127,22 +127,23 @@ bool dpx_core::SpectrumDPX::Reload()
 	dpx_drawer_->SetHorizontalMinMaxBounds(bounds_hz);
 	dpx_drawer_->SetHorizontalSuffix("MHz");
 
-    OnDoSomething();
+    RequestSelectedData();
     
     return true;
 }
 
-void SpectrumDPX::OnDoSomething()
+void SpectrumDPX::RequestSelectedData()
 {
     auto arks = GetBehindArks();
     if(arks.empty()) return;
     auto file_src_ = arks.front();
     auto req_dove = std::make_shared<file_source::FileSrcDove>();
     req_dove->base_thought      = fluctus::DoveParrent::DoveThought::kSpecialThought;
-    req_dove->special_thought   = file_source::FileSrcDove::kInitReaderInfo |  file_source::FileSrcDove::kAskSingleDataAround;
+    req_dove->special_thought   = file_source::FileSrcDove::kInitReaderInfo |  file_source::FileSrcDove::kAskChunksInRange;
     req_dove->target_ark        = shared_from_this();
-    req_dove->time_point_start  = 0.5;
-    req_dove->data_size         = 1'024 * 32;
+    req_dove->time_point_start  = 0;
+	req_dove->time_point_end	= 1.;
+    req_dove->data_size         = 1'024 * 16;
     if (!file_src_->SendDove(req_dove))
     {
         QMessageBox::warning(

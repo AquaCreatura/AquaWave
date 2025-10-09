@@ -24,8 +24,8 @@ DpxCore::DpxCore() : dpx_scaler_(dpx_data_), dpx_renderer_(dpx_data_)
 bool DpxCore::Emplace() {
     if(dpx_data_.val_bounds.horizontal.delta() <= 0) dpx_data_.val_bounds.horizontal = {0, 1000};              // Set x-axis Limits
     if(dpx_data_.val_bounds.vertical.delta()   <= 0) dpx_data_.val_bounds.vertical   = {0.0, 1.0};             // Set y-axis Limits
-    dpx_data_.size.vertical         = 1'000 / 5;                // Set data matrix height
-    dpx_data_.size.horizontal       = 1'000 ;              // Set data matrix width
+    dpx_data_.size.vertical         = 1'024 / 5;                // Set data matrix height
+    dpx_data_.size.horizontal       = 1'024 * 4 ;              // Set data matrix width
 
     // Check for valid dimensions before resizing
     if (dpx_data_.size.vertical == 0 || dpx_data_.size.horizontal == 0) {

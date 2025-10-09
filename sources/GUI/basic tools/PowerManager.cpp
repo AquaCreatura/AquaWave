@@ -8,7 +8,7 @@ PowerLimitMan::PowerLimitMan()
 {
     power_bounds_ = {10., 30.};            // Инициализация пределов мощности
     is_adaptive_mode_ = true;              // Адаптивный режим включён по умолчанию
-    power_margins_ = {0.05, 0.25};         // Запас (margin) на расширение пределов мощности
+    power_margins_ = {0.00, 0.20};         // Запас (margin) на расширение пределов мощности
 }
 
 void PowerLimitMan::SetNewViewBounds(const Limits<double>& x_bounds) {

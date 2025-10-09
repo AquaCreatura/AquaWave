@@ -26,11 +26,11 @@ namespace file_source
         {
             kUnknown = 0, 
             kInitReaderInfo       = 1 << 0, //To init new reader with passed samplerate and carrier
-            kAskSingleDataAround  = 1 << 1, //To get data around passed point
-            kAskCyclicData        = 1 << 2, //To join the cyclic read-send process
-            kAskSingleDataInRange = 1 << 3, //To get data, which is included inside passed points
+            kAskChunkAround		  = 1 << 1, //To get chunk around passed point
+            kAskChunksInRange     = 1 << 2, //To get chunks in range
+            kAskWholeInRange	  = 1 << 3, //To get data, which is included inside passed points
             kGetFileInfo          = 1 << 4, //To get description of the current file
-            kSetFileName              = 1 << 5, //To set file from command line
+            kSetFileName          = 1 << 5, //To set file from command line
         };
         aqua_opt<int64_t>       data_size;
         aqua_opt<double>        time_point_start;   //Base point of the data, we are trying to read

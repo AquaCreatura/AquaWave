@@ -19,7 +19,7 @@ public:
 protected:
     bool Reload();
 protected slots:
-    virtual void OnDoSomething();
+    virtual void RequestSelectedData();
 protected:
     SourceInfo                  src_info_;
     QPointer<ChartDPX>          dpx_drawer_;

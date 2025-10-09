@@ -18,8 +18,9 @@ namespace file_source
         {
             kNoProcess      = 0,          // Без обработки
             kProcessStopped = 1 << 0,     // Процесс остановлен
-            kReadAround     = 1 << 1,     // Режим чтения вокруг позиции (пока не реализован)
-            kReadCyclic     = 1 << 2      // Циклическое чтение (не требуется реализовывать сейчас)
+            kReadAround     = 1 << 1,     // Режим чтения вокруг позиции 
+            kReadCyclic     = 1 << 2,     // Циклическое чтение 
+			kReadChunksInRange = 1 << 3,  // Чтение блоков в указанном диапазоне
         };
 
     public:
@@ -34,11 +35,19 @@ namespace file_source
         
         // Асинхронный запуск чтения вокруг позиции (pos_ratio — относительная позиция в файле)
         bool StartReadAround(double pos_ratio);
+		// Асинхронный запуск чтения чанками в указанных пределах (start_pos, end_pos - относительная позиция в файле)
+		bool StartReadChunksInRange(double start_pos, double end_pos);
 
         // Получение текущего состояния слушателя
         const ListenerState GetState() const;
 
     private:
+		/*
+		* Чтение данных в 
+		* - pos_ratio — относительная позиция (0.0–1.0)
+		* - out_data_size — требуемый размер данных после ресемплера
+		*/
+		void ReadChunksInRangeProcess(double start_pos, double end_pos);
         /*
          * Чтение данных вокруг указанной позиции:
          * - pos_ratio — относительная позиция (0.0–1.0)
@@ -63,6 +72,12 @@ namespace file_source
     class FileDataManager
     {
     public:
+		enum SortOfReading : int
+		{
+			kDoNothing			= 0, //Заглушка
+			kReadAround			= 1 << 0,
+			kReadChunksInRange	= 1 << 1
+		};
         // Конструктор: принимает параметры файла
         FileDataManager(const file_params& params);
         
@@ -75,8 +90,8 @@ namespace file_source
         );
         
         // Запуск чтения вокруг позиции для указанного ARK
-        void ReadAround(const fluctus::ArkWptr& reader, double pos_ratio);
-        
+        void StartReading(const fluctus::ArkWptr& reader, const double start_pos, const double end_pos, const SortOfReading read_type);
+
         // Удаление слушателя для указанного ARK
         void DeleteReader(const fluctus::ArkWptr& reader);
 

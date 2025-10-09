@@ -58,25 +58,25 @@ bool file_source::FileSourceArk::SendDove(fluctus::DoveSptr const& sent_dove)
         // Инициализация читателя
         if (file_src_thought & FileSrcDove::FileSrcDoveThought::kInitReaderInfo)
         {
-            const auto carrier_hz    = file_src_dove->carrier_hz    ? *file_src_dove->carrier_hz    : file_info_.carrier_hz_;
-            const auto samplerate_hz = file_src_dove->samplerate_hz ? *file_src_dove->samplerate_hz : file_info_.samplerate_hz_;
+			const auto carrier_hz		= file_src_dove->carrier_hz		.value_or(file_info_.carrier_hz_	);
+			const auto samplerate_hz	= file_src_dove->samplerate_hz	.value_or(file_info_.samplerate_hz_	);
             listener_man_.InitReader(target_ark, carrier_hz, samplerate_hz, *file_src_dove->data_size);
         }
         
         // Запрос данных вокруг точки
-        if (file_src_thought & FileSrcDove::FileSrcDoveThought::kAskSingleDataAround)
+        if (file_src_thought & FileSrcDove::FileSrcDoveThought::kAskChunkAround)
         {
-            listener_man_.ReadAround(target_ark, *file_src_dove->time_point_start);
+            listener_man_.StartReading(target_ark, *file_src_dove->time_point_start, *file_src_dove->time_point_start, FileDataManager::kReadAround);
         }
         
-        // Запрос циклических данных (не реализовано)
-        if (file_src_thought & FileSrcDove::FileSrcDoveThought::kAskCyclicData)
+        // Запрос данных чанками в диапазоне (единожды)
+        if (file_src_thought & FileSrcDove::FileSrcDoveThought::kAskChunksInRange)
         {
-            //Do smth
+			listener_man_.StartReading(target_ark, *file_src_dove->time_point_start, *file_src_dove->time_point_end, FileDataManager::kReadChunksInRange);
         }
         
         // Запрос данных в диапазоне (не реализовано)
-        if (file_src_thought & FileSrcDove::FileSrcDoveThought::kAskSingleDataInRange)
+        if (file_src_thought & FileSrcDove::FileSrcDoveThought::kAskWholeInRange)
         {
             //Do smth
         }

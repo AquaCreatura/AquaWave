@@ -8,6 +8,7 @@ namespace utility_aqua
     {
     public:
         const    W value() { return (val ? *val: W());  };
+		const    W value_or(const W or_passed) { return (val ? *val : or_passed); };
         operator W* () { return val; };
         operator bool() const { return bool(val); }
         const W&  operator = (const W& passed_val)

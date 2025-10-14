@@ -68,18 +68,7 @@ file_source::FileSourceDialog::FileSourceDialog()
 
 file_source::FileSourceDialog::~FileSourceDialog()
 {
-    //File read path
-    {
-        QString last_path_file_name = QFileInfo(QCoreApplication::applicationFilePath())
-                                    .dir().absoluteFilePath("file_read_path.txt");
-        QFile file(last_path_file_name);
-        if (file.open(QIODevice::WriteOnly | QIODevice::Text)) 
-        {
-            QTextStream out(&file);
-            out << file_info_.file_name_;
-            file.close();
-        }
-    }
+
 }
 
 // Получение текущих параметров файла
@@ -114,6 +103,7 @@ void file_source::FileSourceDialog::OnChooseFilePath()
         if(current_file_name.isEmpty()) return;
         ParseFileName(current_file_name);    
     }
+	RememberFilePath();
     
 }
 
@@ -137,6 +127,22 @@ void file_source::FileSourceDialog::ParseFileName(const QString& file_name)
     ui_.carrier_mhz_spinbox     ->setValue(file_info_.carrier_hz_   / 1.e6);
     ui_.samplerate_khz_spinbox  ->setValue(file_info_.samplerate_hz_/ 1.e3);
 
+}
+
+void file_source::FileSourceDialog::RememberFilePath()
+{
+	//File read path
+	
+	QString last_path_file_name = QFileInfo(QCoreApplication::applicationFilePath())
+		.dir().absoluteFilePath("file_read_path.txt");
+	QFile file(last_path_file_name);
+	if (file.open(QIODevice::WriteOnly | QIODevice::Text))
+	{
+		QTextStream out(&file);
+		out << file_info_.file_name_;
+		file.close();
+	}
+	
 }
 
 // Обновление текста типов данных (real/complex)

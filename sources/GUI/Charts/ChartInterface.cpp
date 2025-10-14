@@ -11,7 +11,6 @@ ChartInterface::ChartInterface(QWidget* parent) :
     SetHorizontalMinMaxBounds({50'000, 200'000});
     SetHorizontalSuffix("counts");
 
-    SetPowerBounds({20, 40}, true);
     SetVerticalSuffix("power");
     connect(&redraw_timer_, &QTimer::timeout, this, QOverload<>::of(&ChartInterface::update));
     redraw_timer_.start(200);
@@ -116,7 +115,7 @@ void ChartInterface::paintEvent(QPaintEvent * paint_event)
 {
     //if widget size was changed
     UpdateWidgetSizeInfo();
-    if(domain_type_ != ChartDomainType::kTimeFrequency) //Для ЛЧМ не используем
+    if(domain_type_ != ChartDomainType::kTimeFrequency) //Для линейно-частотной интерпретации не используем
         UpdatePowerBounds();
 
     

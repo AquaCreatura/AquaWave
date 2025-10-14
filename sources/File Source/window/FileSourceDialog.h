@@ -25,7 +25,7 @@ namespace file_source
         void OnChooseFilePath();
 
         void ParseFileName(const QString& file_name);
-
+		void RememberFilePath();
         // Slot to update data type options in UI
         void UpdateDataTypes();
 

@@ -8,7 +8,6 @@ ChartDPX::ChartDPX(QWidget * parrent):
     dpx_painter_.SetMinMax_X(random_bounds);
     SetHorizontalSuffix("counts");
 
-    SetPowerBounds({0, 100}, true);
     SetVerticalSuffix("power");
 }
 
@@ -37,6 +36,8 @@ void ChartDPX::PushData(const draw_data& draw_data )
 void ChartDPX::ClearData()
 {
     dpx_painter_.Emplace();
+	power_man_.ResetBounds();
+	scale_info_.val_info_.need_reset_scale_ = true;
 }
 
 void ChartDPX::SetPowerBounds(const Limits<double>& power_bounds, const bool is_adaptive)

@@ -61,6 +61,7 @@ struct ChartScaleInfo
         //if bounds are changed
         WH_Bounds<double>                    min_max_bounds_;
         WH_Bounds<double>                    cur_bounds;
+		bool								 need_reset_scale_{false};
     };
     PixelScale pix_info_;
     ValueScale val_info_;

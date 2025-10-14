@@ -35,9 +35,13 @@ public:
     // Включение/отключение адаптивного режима
     void EnableAdaptiveMode(const bool is_true);
 
+	void ResetBounds();
+
 protected:
     Limits<double> x_bounds_;                         // Зарезервировано (не используется в реализации)
     std::atomic_bool is_adaptive_mode_ = false;       // Флаг адаптивного режима
+	std::atomic_bool need_reset_bounds_ = false;       // Флаг адаптивного режима
+
     std::atomic<Limits<double>> power_bounds_;        // Актуальные границы мощности
     std::atomic<Limits<double>> view_bounds_;         // Видимые границы (используются при адаптации)
     Limits<double> power_margins_;                    // Запасы (margins) для изменения границ мощности

@@ -51,7 +51,7 @@ bool aqua_gui::ZoomFromWheelDelta(ChartScaleInfo & scale_info, const int wheel_d
                 new_high = std::min(new_high, min_max_hor.high);
 
                 // ѕровер€ем минимальный размах (не меньше 1 единицы)
-                if (new_high - new_low >= 1)
+                if (new_high - new_low >= 0.01)
                 {
                     cur_hor = {new_low, new_high};
                     values_changed = true;
@@ -100,24 +100,37 @@ void aqua_gui::UpdatePowerBounds(ChartScaleInfo & scale_info, const Limits<doubl
     // ѕолучаем ссылку на текущие максимально допустимые (автоматические) границы шкалы
     auto &vert_min_max = scale_info.val_info_.min_max_bounds_.vertical;
 
+	const double min_epsilon = new_bounds.delta() * 0.02;
     // ≈сли автоматические границы изменились, обновл€ем шкалу
-    if(vert_min_max != new_bounds)
+    if(std::abs(vert_min_max.low - new_bounds.low) > min_epsilon || 
+		std::abs(vert_min_max.high - new_bounds.high) > min_epsilon )
     {
-        // ѕолучаем ссылку на текущие отображаемые границы шкалы (которые видит пользователь)
-        auto &vert_cur               = scale_info.val_info_.cur_bounds.vertical;
-        // ¬ычисл€ем текущий коэффициент масштабировани€ (зума) по вертикали
-        const double zoom_vert_koeff = vert_cur.delta() /  vert_min_max.delta();
-        // –ассчитываем новую высоту (диапазон) дл€ отображаемой шкалы, сохран€€ зум
-        const double new_height      = (new_bounds.high - new_bounds.low) * zoom_vert_koeff;
-        // ¬ычисл€ем текущий центр отображаемой шкалы
-        double zoom_centre           = (vert_cur.high + vert_cur.low) / 2;
-        //  орректируем центр зума, чтобы отображаемый диапазон не вышел за новые автоматические границы
-        zoom_centre = qBound(new_bounds.low + new_height / 2, zoom_centre, new_bounds.high - new_height / 2);
 
-        // ќбновл€ем максимально допустимые (автоматические) границы
-        vert_min_max = new_bounds;
-        // ќбновл€ем текущие отображаемые границы с учетом нового центра и высоты
-        vert_cur     = {zoom_centre - new_height/2, zoom_centre + new_height/2};
+        // ѕолучаем ссылку на текущие отображаемые границы шкалы (которые видит пользователь)
+        auto &vert_cur = scale_info.val_info_.cur_bounds.vertical;
+		// орретируем отображаемое
+		if (!scale_info.val_info_.need_reset_scale_) {
+
+			// ¬ычисл€ем текущий коэффициент масштабировани€ (зума) по вертикали
+			const double zoom_vert_koeff = vert_cur.delta() / vert_min_max.delta();
+			// –ассчитываем новую высоту (диапазон) дл€ отображаемой шкалы, сохран€€ зум
+			const double new_height = (new_bounds.high - new_bounds.low) * zoom_vert_koeff;
+			// ¬ычисл€ем текущий центр отображаемой шкалы
+			double zoom_centre = (vert_cur.high + vert_cur.low) / 2;
+			//  орректируем центр зума, чтобы отображаемый диапазон не вышел за новые автоматические границы
+			zoom_centre = qBound(new_bounds.low + new_height / 2, zoom_centre, new_bounds.high - new_height / 2);
+
+			// ќбновл€ем максимально допустимые (автоматические) границы
+			vert_min_max = new_bounds;
+			// ќбновл€ем текущие отображаемые границы с учетом нового центра и высоты
+			vert_cur = { zoom_centre - new_height / 2, zoom_centre + new_height / 2 };
+		}
+		else {
+			// ќбновл€ем максимально допустимые (автоматические) границы
+			vert_min_max = new_bounds;
+			vert_cur = new_bounds;
+			scale_info.val_info_.need_reset_scale_ = false;
+		}        
     }
 }
 

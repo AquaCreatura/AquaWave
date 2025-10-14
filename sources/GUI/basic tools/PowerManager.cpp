@@ -6,9 +6,10 @@ using namespace aqua_gui;
 
 PowerLimitMan::PowerLimitMan()
 {
-    power_bounds_ = {10., 30.};            // Инициализация пределов мощности
+	need_reset_bounds_ = true;
     is_adaptive_mode_ = true;              // Адаптивный режим включён по умолчанию
-    power_margins_ = {0.00, 0.20};         // Запас (margin) на расширение пределов мощности
+	power_bounds_ = { 0., 1. };
+    power_margins_ = {-0.15, 0.15};         // Запас (margin) на расширение пределов мощности
 }
 
 void PowerLimitMan::SetNewViewBounds(const Limits<double>& x_bounds) {
@@ -16,6 +17,7 @@ void PowerLimitMan::SetNewViewBounds(const Limits<double>& x_bounds) {
 }
 
 void PowerLimitMan::SetPowerBounds(const Limits<double>& power_bounds) {
+	need_reset_bounds_ = false;
     power_bounds_ = power_bounds;          // Установка границ мощности вручную
 }
 
@@ -62,8 +64,8 @@ void PowerLimitMan::UpdateBounds(const std::vector<float>& data, const Limits<do
     end_idx = std::max(start_idx + 1, end_idx - margin);
 
     // Поиск минимального и максимального значения с использованием IPP
-    float min_val, max_val;
-    IppStatus status = ippsMin_32f(&data[start_idx], static_cast<int>(end_idx - start_idx), &min_val);
+    float mean_val, max_val;
+    IppStatus status = ippsMin_32f(&data[start_idx], static_cast<int>(end_idx - start_idx), &mean_val/*, IppHintAlgorithm::ippAlgHintFast*/);
     if (status != ippStsNoErr) {
         return;                            // Ошибка при расчёте минимума
     }
@@ -73,19 +75,24 @@ void PowerLimitMan::UpdateBounds(const std::vector<float>& data, const Limits<do
         return;                            // Ошибка при расчёте максимума
     }
 
+
+
+
     // Формирование новых границ с учётом запасов
-    Limits<double> new_bounds{static_cast<double>(min_val), static_cast<double>(max_val)};
+    Limits<double> new_bounds{static_cast<double>(mean_val), static_cast<double>(max_val)};
     double delta = new_bounds.delta();
     new_bounds.low -= delta * power_margins_.low;   // Снижение нижней границы
     new_bounds.high += delta * power_margins_.high; // Повышение верхней границы
 
     // Объединение с текущими границами: расширение только наружу
     Limits<double> current_bounds = power_bounds_.load();
-    new_bounds.low = std::min(new_bounds.low, current_bounds.low);
-    new_bounds.high = std::max(new_bounds.high, current_bounds.high);
-
+	if (!need_reset_bounds_) {
+		new_bounds.low	= std::min(current_bounds.low, new_bounds.low);
+		new_bounds.high = std::max(new_bounds.high, current_bounds.high);
+	}	
     // Атомарное обновление границ мощности
     power_bounds_ = new_bounds;
+	need_reset_bounds_ = false;
 }
 
 bool PowerLimitMan::IsAdaptiveMode() const {
@@ -95,4 +102,9 @@ bool PowerLimitMan::IsAdaptiveMode() const {
 void PowerLimitMan::EnableAdaptiveMode(const bool is_true)
 {
     is_adaptive_mode_ = is_true;           // Включение/отключение адаптивного режима
+}
+
+void aqua_gui::PowerLimitMan::ResetBounds()
+{
+	need_reset_bounds_ = true;
 }

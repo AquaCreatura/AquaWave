@@ -6,8 +6,6 @@ ChartSPG::ChartSPG(QWidget * parrent):
     SetHorizontalMinMaxBounds({50'000, 200'000});
     SetHorizontalSuffix("counts");
 
-    SetPowerBounds({10, 80}, true);
-    SetVerticalBounds({0,100});
     SetVerticalSuffix("power");
     domain_type_ = ChartDomainType::kTimeFrequency;
 }
@@ -36,6 +34,7 @@ void ChartSPG::PushData(const draw_data & draw_data)
 void spg_core::ChartSPG::ClearData()
 {
     spg_core_.Emplace();
+	power_man_.ResetBounds();
 }
 
 

@@ -36,7 +36,8 @@ namespace file_source
         void OnOkButton();
 
     protected:
-        Ui::FileSettingsDialog  ui_;        // UI components from .ui file
-        file_params             file_info_; // Current file parameters
+        Ui::FileSettingsDialog  ui_;			// UI components from .ui file
+        file_params             edit_file_info_;		// Current file parameters
+		file_params				actual_file_info_;	//
     };
 };

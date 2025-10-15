@@ -4,7 +4,6 @@
 
 
 #include <stdint.h>
-
 namespace fluctus
 {
     struct freq_params

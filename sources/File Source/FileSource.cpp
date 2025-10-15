@@ -9,7 +9,6 @@ file_source::FileSourceArk::FileSourceArk():
     listener_man_(file_info_)  // Инициализация менеджера с параметрами файла
 {
     dialog_ = new FileSourceDialog;  // Создание диалогового окна
-    UpdateSource();
     connect(dialog_, &FileSourceDialog::UpdateSourceNeed, this, &FileSourceArk::UpdateSource);
    
 }
@@ -88,6 +87,7 @@ bool file_source::FileSourceArk::SendDove(fluctus::DoveSptr const& sent_dove)
         }//kSetFile
         if (file_src_thought & FileSrcDove::FileSrcDoveThought::kGetFileInfo)
         {
+			if (file_info_.file_name_.isEmpty()) return false;
             file_src_dove->file_info = this->file_info_;
             //Do smth
         }

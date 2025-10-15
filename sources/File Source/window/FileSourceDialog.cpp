@@ -38,7 +38,7 @@ file_source::FileSourceDialog::FileSourceDialog()
         connect(ui_.choose_path_tool_button, &QToolButton::clicked, this, &FileSourceDialog::OnChooseFilePath);
         connect(ui_.choose_path_line_edit, &QLineEdit::textChanged, [this](const QString& new_file_path)
         {   
-            file_info_.file_name_ = new_file_path;
+            edit_file_info_.file_name_ = new_file_path;
         });  
     }
     
@@ -46,17 +46,17 @@ file_source::FileSourceDialog::FileSourceDialog()
     {
         connect(ui_.signal_settings_groupbox, &QGroupBox::clicked, [this]()
         {
-            file_info_.is_signal_type = ui_.signal_settings_groupbox->isChecked();
+            edit_file_info_.is_signal_type = ui_.signal_settings_groupbox->isChecked();
         });
         connect(ui_.carrier_mhz_spinbox, static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), 
                 [this](const double new_val)
         {
-            file_info_.carrier_hz_ = std::llround(new_val * 1'000'000);  // MHz -> Hz
+            edit_file_info_.carrier_hz_ = std::llround(new_val * 1'000'000);  // MHz -> Hz
         });
         connect(ui_.samplerate_khz_spinbox, static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), 
                 [this](const double new_val)
         {
-            file_info_.samplerate_hz_ = std::llround(new_val * 1'000);  // kHz -> Hz
+            edit_file_info_.samplerate_hz_ = std::llround(new_val * 1'000);  // kHz -> Hz
         });
     }
     
@@ -68,13 +68,13 @@ file_source::FileSourceDialog::FileSourceDialog()
 
 file_source::FileSourceDialog::~FileSourceDialog()
 {
-
+	RememberFilePath();
 }
 
 // Получение текущих параметров файла
 const file_params& file_source::FileSourceDialog::GetFileInfo() const
 {
-    return file_info_;
+    return edit_file_info_;
 }
 
 const bool file_source::FileSourceDialog::SetFileName(const QString & file_name)
@@ -102,9 +102,7 @@ void file_source::FileSourceDialog::OnChooseFilePath()
                         QFileInfo(current_file_name).absolutePath(), set_of_filters, &cur_filter/*, QFileDialog::*/);
         if(current_file_name.isEmpty()) return;
         ParseFileName(current_file_name);    
-    }
-	RememberFilePath();
-    
+    } 
 }
 
 void file_source::FileSourceDialog::ParseFileName(const QString& file_name)
@@ -112,20 +110,20 @@ void file_source::FileSourceDialog::ParseFileName(const QString& file_name)
     // Обновление пути в интерфейсе
     {
         ui_.choose_path_line_edit->setText(file_name);
-        file_info_.file_name_ = file_name;
+        edit_file_info_.file_name_ = file_name;
     }
     
     // Парсинг параметров из имени файла (формат: "... 869.977996MHz 219.999KHz.pcm")
     bool is_succesfully_parsed = true;
     int64_t samplerate_hz = 0, carrier_hz = 1.e6;
-    if(aqua_parse_tools::get_samplerate_from_filename(file_name.toLocal8Bit().constData(),file_info_.samplerate_hz_))
+    if(aqua_parse_tools::get_samplerate_from_filename(file_name.toLocal8Bit().constData(),edit_file_info_.samplerate_hz_))
     {
         is_succesfully_parsed = true;
-        aqua_parse_tools::get_carrier_from_filename(file_name.toLocal8Bit().constData(), file_info_.carrier_hz_);
+        aqua_parse_tools::get_carrier_from_filename(file_name.toLocal8Bit().constData(), edit_file_info_.carrier_hz_);
     }
     ui_.signal_settings_groupbox->setChecked(is_succesfully_parsed); //Факт того, что успешно достали ЧД, нас более чем удовлетворяет
-    ui_.carrier_mhz_spinbox     ->setValue(file_info_.carrier_hz_   / 1.e6);
-    ui_.samplerate_khz_spinbox  ->setValue(file_info_.samplerate_hz_/ 1.e3);
+    ui_.carrier_mhz_spinbox     ->setValue(edit_file_info_.carrier_hz_   / 1.e6);
+    ui_.samplerate_khz_spinbox  ->setValue(edit_file_info_.samplerate_hz_/ 1.e3);
 
 }
 
@@ -139,7 +137,7 @@ void file_source::FileSourceDialog::RememberFilePath()
 	if (file.open(QIODevice::WriteOnly | QIODevice::Text))
 	{
 		QTextStream out(&file);
-		out << file_info_.file_name_;
+		out << edit_file_info_.file_name_;
 		file.close();
 	}
 	
@@ -163,23 +161,24 @@ void file_source::FileSourceDialog::OnDataTypeChanged()
     bool is_complex = ui_.is_data_complex_checkbox->isChecked();
 
     if (ui_.float32_radio_button->isChecked()) {
-        file_info_.data_type_ = is_complex ? ipp32fc : ipp32f;
+        edit_file_info_.data_type_ = is_complex ? ipp32fc : ipp32f;
     } else if (ui_.int16_radio_button->isChecked()) {
-        file_info_.data_type_ = is_complex ? ipp16sc : ipp16s;
+        edit_file_info_.data_type_ = is_complex ? ipp16sc : ipp16s;
     } else if (ui_.int8_radio_button->isChecked()) {
-        file_info_.data_type_ = is_complex ? ipp8sc : ipp8s;
+        edit_file_info_.data_type_ = is_complex ? ipp8sc : ipp8s;
     }
 } 
 
 // Обработчик кнопки OK
 void file_source::FileSourceDialog::OnOkButton()
 {
-    if (!QFileInfo::exists(file_info_.file_name_))
+    if (!QFileInfo::exists(edit_file_info_.file_name_))
     {
         QMessageBox::critical(this, tr("No file error"), 
-                          tr("Can not find specified file!\n\"%1\"").arg(file_info_.file_name_));
+                          tr("Can not find specified file!\n\"%1\"").arg(edit_file_info_.file_name_));
         return;
     }
+	RememberFilePath();
     UpdateSourceNeed();
     this->close();
 }

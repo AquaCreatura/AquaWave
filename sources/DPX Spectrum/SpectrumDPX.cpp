@@ -103,20 +103,21 @@ ArkType dpx_core::SpectrumDPX::GetArkType() const
 bool dpx_core::SpectrumDPX::Reload()
 {
     auto file_src = src_info_.ark.lock();
-	dpx_drawer_->ClearData();
+	
     if(!file_src) return true;
     
     
     auto req_dove = std::make_shared<file_source::FileSrcDove>();
     req_dove->base_thought      = fluctus::DoveParrent::DoveThought::kSpecialThought;
     req_dove->special_thought   = file_source::FileSrcDove::kGetFileInfo;
-    if (!file_src->SendDove(req_dove) || !req_dove->file_info)
+    if (!file_src->SendDove(req_dove) || !req_dove->file_info )
     {
-        QMessageBox::warning( nullptr, "Cannot Get info", "Do something with DPX or file source, or..." );
         return false;
     }
-    src_info_.info.carrier      = (*req_dove->file_info).carrier_hz_;
-    src_info_.info.samplerate   = (*req_dove->file_info).samplerate_hz_;
+
+	dpx_drawer_->ClearData();
+    src_info_.info.carrier      = req_dove->file_info->carrier_hz_;
+    src_info_.info.samplerate   = req_dove->file_info->samplerate_hz_;
 	Limits<double> bounds_hz = {
 		double(src_info_.info.carrier) - src_info_.info.samplerate / 2.,
 		double(src_info_.info.carrier) + src_info_.info.samplerate / 2.

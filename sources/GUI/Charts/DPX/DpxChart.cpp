@@ -13,7 +13,7 @@ ChartDPX::ChartDPX(QWidget * parrent):
 
 ChartDPX::~ChartDPX()
 {
-
+	SetVerticalSuffix("the end");
 }
 
 void ChartDPX::DrawData(QPainter & passed_painter)
@@ -29,7 +29,13 @@ void ChartDPX::DrawData(QPainter & passed_painter)
 
 void ChartDPX::PushData(const draw_data& draw_data )
 {
-    power_man_.UpdateBounds(draw_data.data , draw_data .freq_bounds);
+
+	bool need_reset = power_man_.NeedRelevantBounds();
+	power_man_.UpdateBounds(draw_data.data, draw_data.freq_bounds);
+	if (need_reset) {
+		UpdatePowerBounds();
+		dpx_painter_.SetPowerBounds(scale_info_.val_info_.min_max_bounds_.vertical);
+	}
     dpx_painter_.AccumulateNewData(draw_data.data , draw_data.freq_bounds);
 }
 

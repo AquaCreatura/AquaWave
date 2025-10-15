@@ -22,6 +22,7 @@ protected slots:
     virtual void RequestSelectedData();
 protected:
     SourceInfo                  src_info_;
+
     QPointer<ChartDPX>          dpx_drawer_;
 	QPointer<DpxWindow>			window_;
     FFT_Worker                  fft_worker_;

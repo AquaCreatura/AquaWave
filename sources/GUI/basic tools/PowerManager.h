@@ -37,6 +37,8 @@ public:
 
 	void ResetBounds();
 
+	bool NeedRelevantBounds() const;
+
 protected:
     Limits<double> x_bounds_;                         // Зарезервировано (не используется в реализации)
     std::atomic_bool is_adaptive_mode_ = false;       // Флаг адаптивного режима

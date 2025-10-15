@@ -108,3 +108,8 @@ void aqua_gui::PowerLimitMan::ResetBounds()
 {
 	need_reset_bounds_ = true;
 }
+
+bool aqua_gui::PowerLimitMan::NeedRelevantBounds() const
+{
+	return need_reset_bounds_;
+}

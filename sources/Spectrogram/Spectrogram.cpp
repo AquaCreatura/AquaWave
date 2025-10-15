@@ -112,7 +112,6 @@ bool spg_core::Spectrogram::Reload()
     req_dove->special_thought   = file_source::FileSrcDove::kGetFileInfo;
     if (!file_src->SendDove(req_dove) || !req_dove->file_info)
     {
-        QMessageBox::warning( nullptr, "Cannot Get info", "Do something with SPG or file source, or..." );
         return false;
     }
     src_info_.info.carrier      = (*req_dove->file_info).carrier_hz_;

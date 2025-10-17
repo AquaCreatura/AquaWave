@@ -4,13 +4,13 @@ using namespace file_source;
 using namespace fluctus;
 // ========================================== FileSourceArk =================================
 
-// Конструктор: создает диалог и инициализирует менеджер слушателей
-file_source::FileSourceArk::FileSourceArk():
-    listener_man_(file_info_)  // Инициализация менеджера с параметрами файла
+
+file_source::FileSourceArk::FileSourceArk(QWidget * main_window) :
+	listener_man_(file_info_),  // Инициализация менеджера с параметрами файла
+	qmain_window_(main_window)
 {
-    dialog_ = new FileSourceDialog;  // Создание диалогового окна
-    connect(dialog_, &FileSourceDialog::UpdateSourceNeed, this, &FileSourceArk::UpdateSource);
-   
+	dialog_ = new FileSourceDialog;  // Создание диалогового окна
+	connect(dialog_, &FileSourceDialog::UpdateSourceNeed, this, &FileSourceArk::UpdateSource);
 }
 
 file_source::FileSourceArk::~FileSourceArk()
@@ -103,6 +103,7 @@ fluctus::ArkType file_source::FileSourceArk::GetArkType() const
 void file_source::FileSourceArk::UpdateSource()
 {
     this->file_info_ = dialog_->GetFileInfo(); //Update info, according ui
+	if (qmain_window_) qmain_window_->setWindowTitle(tr("[AquaWave v.1.0] %1").arg(file_info_.file_name_));
     //Reset out arks
     {
         auto out_fleet   = GetFrontArks();

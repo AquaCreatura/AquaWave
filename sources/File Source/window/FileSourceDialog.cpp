@@ -35,6 +35,7 @@ file_source::FileSourceDialog::FileSourceDialog()
                 ParseFileName(current_file_name);
             }
         }
+		
         connect(ui_.choose_path_tool_button, &QToolButton::clicked, this, &FileSourceDialog::OnChooseFilePath);
         connect(ui_.choose_path_line_edit, &QLineEdit::textChanged, [this](const QString& new_file_path)
         {   

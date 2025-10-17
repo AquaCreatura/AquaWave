@@ -47,7 +47,8 @@ bool AxisManager::DrawAxis(QPainter& passed_painter)
     cache_pixmap_.fill(Qt::transparent);
     // Привязываем QPainter к Pixmap
     QPainter cur_painter(&cache_pixmap_);
-
+	if(scale_info_.val_info_.cur_bounds.vertical.high == 100) 
+		cache_pixmap_.fill(Qt::transparent);
     // Инициализация перьев
     QPen text_pen;
     text_pen.setColor("gray");

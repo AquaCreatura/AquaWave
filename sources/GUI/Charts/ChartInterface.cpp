@@ -116,7 +116,7 @@ void ChartInterface::paintEvent(QPaintEvent * paint_event)
     //if widget size was changed
     UpdateWidgetSizeInfo();
     if(domain_type_ != ChartDomainType::kTimeFrequency) //Для линейно-частотной интерпретации не используем
-        UpdatePowerBounds();
+        UpdateChartPowerBounds();
 
     
     QPainter new_frame_painter(this);
@@ -148,11 +148,15 @@ void ChartInterface::paintEvent(QPaintEvent * paint_event)
     }
 }
 
-void ChartInterface::UpdatePowerBounds()
+void ChartInterface::UpdateChartPowerBounds()
 {
     // Получаем текущие "автоматические" границы мощности от отрисовщика DPX
     auto new_bounds = power_man_.GetPowerBounds();
-    aqua_gui::UpdatePowerBounds(scale_info_, new_bounds);
+	if (domain_type_ != ChartDomainType::kTimeFrequency) //Для линейно-частотной интерпретации своя логика
+	{ 
+		aqua_gui::AdaptPowerBounds(scale_info_, new_bounds);
+	}
+    
 }
 
 void ChartInterface::UpdateWidgetSizeInfo()

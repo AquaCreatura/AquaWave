@@ -12,7 +12,7 @@ namespace file_source
     class FileSourceArk : public fluctus::ArkBase
     {
     public:
-        FileSourceArk();  // Constructor
+        FileSourceArk(QWidget *main_window = nullptr);  // Constructor
         ~FileSourceArk(); // Destructor
 
         // Sends data information to the destination
@@ -27,5 +27,6 @@ namespace file_source
         FileDataManager                     listener_man_; // Manages file listeners
         QPointer<FileSourceDialog>			dialog_;        // Settings dialog interface
         file_params                         file_info_;     // File parameters
+		QWidget *							qmain_window_ = nullptr; //Pointer to main to change tittles
     };
 };

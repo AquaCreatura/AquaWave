@@ -3,8 +3,9 @@
 AquaWave::AquaWave(QWidget *parent, const QString& file_path)
     : QMainWindow(parent)
 {
+	//(QString&)file_path = "D:\\signals\\17.10.2025 16_41_59 1875.300000MHz 12800.000KHz.pcm";
     ui.setupUi(this); // Инициализация пользовательского интерфейса для текущего виджета.
-    file_src_ = std::make_shared<file_source::FileSourceArk>(); // Создание источника файлов.
+    file_src_ = std::make_shared<file_source::FileSourceArk>(this); // Создание источника файлов.
 
     // Обработчик события для действия меню "Новый файл".
     {

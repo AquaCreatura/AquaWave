@@ -9,7 +9,7 @@ PowerLimitMan::PowerLimitMan()
 	need_reset_bounds_ = true;
     is_adaptive_mode_ = true;              // Адаптивный режим включён по умолчанию
 	power_bounds_ = { 0., 1. };
-    power_margins_ = {-0.15, 0.15};         // Запас (margin) на расширение пределов мощности
+    power_margins_ = {-0.20, 0.15};         // Запас (margin) на расширение пределов мощности
 }
 
 void PowerLimitMan::SetNewViewBounds(const Limits<double>& x_bounds) {
@@ -66,6 +66,7 @@ void PowerLimitMan::UpdateBounds(const std::vector<float>& data, const Limits<do
     // Поиск минимального и максимального значения с использованием IPP
     float mean_val, max_val;
     IppStatus status = ippsMin_32f(&data[start_idx], static_cast<int>(end_idx - start_idx), &mean_val/*, IppHintAlgorithm::ippAlgHintFast*/);
+	//IppStatus status = ippsMean_32f(&data[0], static_cast<int>(data_size), &mean_val, IppHintAlgorithm::ippAlgHintFast*);
     if (status != ippStsNoErr) {
         return;                            // Ошибка при расчёте минимума
     }
@@ -87,7 +88,7 @@ void PowerLimitMan::UpdateBounds(const std::vector<float>& data, const Limits<do
     // Объединение с текущими границами: расширение только наружу
     Limits<double> current_bounds = power_bounds_.load();
 	if (!need_reset_bounds_) {
-		new_bounds.low	= std::min(current_bounds.low, new_bounds.low);
+		/*if(new_bounds.low < current_bounds.low)*/	new_bounds.low = current_bounds.low  ;
 		new_bounds.high = std::max(new_bounds.high, current_bounds.high);
 	}	
     // Атомарное обновление границ мощности

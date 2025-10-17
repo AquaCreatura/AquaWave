@@ -94,7 +94,7 @@ protected slots:
 
 protected:
     // Update power bounds for chart scaling
-    virtual void UpdatePowerBounds();
+    virtual void UpdateChartPowerBounds();
 
     // Update widget size information
     void UpdateWidgetSizeInfo();

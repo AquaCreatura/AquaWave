@@ -54,8 +54,7 @@ bool ImageBG::DrawImage(QPainter& passed_painter)
         pixmap_to_show_ = image_zoomer_.GetPrecisedPart(
             full_image_value_bounds, 
             target_display_value_bounds, 
-            target_image_size, 
-            need_good_quality_
+            target_image_size
         );
         ResetRedrawFlags(); // Reset flags after successful redraw
     }
@@ -66,14 +65,6 @@ bool ImageBG::DrawImage(QPainter& passed_painter)
     return true;
 }
 
-/**
- * @brief Signals need for high quality redraw.
- */
-void ImageBG::SetGoodQuality()
-{
-    need_redraw_ = true; //
-    need_good_quality_ = true; //
-}
 
 // ======================== PRIVATE METHODS ======================== //
 
@@ -170,7 +161,6 @@ WH_Bounds<double> ImageBG::CalculateTargetDisplayValueBounds() const
 void ImageBG::ResetRedrawFlags()
 {
     need_redraw_            = false; //
-    need_good_quality_      = false; //
     last_pixmap_size_       = scale_info_.pix_info_.chart_size_px;
     last_scaled_val_bounds_ = scale_info_.val_info_.cur_bounds;
     last_base_val_bounds_   = scale_info_.val_info_.min_max_bounds_;

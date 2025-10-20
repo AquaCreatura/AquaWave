@@ -23,12 +23,13 @@ bool QimageZoomer::SetNewBase(QImage *base_qimage)
     last_full_image_value_bounds_ = {{0.0, 0.0}, {0.0, 0.0}}; // Reset
     last_target_display_value_bounds_ = {{0.0, 0.0}, {0.0, 0.0}}; // Reset
     last_target_output_size_ = {0, 0};
-    last_high_quality_ = true; 
+    need_high_quality_ = true; 
     rendered_full_image_value_bounds_ = {{0.0, 0.0}, {0.0, 0.0}}; // Reset rendered state
     rendered_target_display_value_bounds_ = {{0.0, 0.0}, {0.0, 0.0}}; // Reset rendered state
     rendered_target_output_size_ = {0, 0};
-    rendered_high_quality_ = true;
+    is_rendered_high_quality_ = true;
     MarkForUpdate();
+	good_quality_timer_.start();
     return (base_image_ != nullptr && !base_image_->isNull());
 }
 
@@ -50,11 +51,11 @@ QImage* QimageZoomer::ReleaseBase()
     last_full_image_value_bounds_ = {{0.0, 0.0}, {0.0, 0.0}}; 
     last_target_display_value_bounds_ = {{0.0, 0.0}, {0.0, 0.0}};
     last_target_output_size_ = {0, 0};
-    last_high_quality_ = true;
+    need_high_quality_ = true;
     rendered_full_image_value_bounds_ = {{0.0, 0.0}, {0.0, 0.0}};
     rendered_target_display_value_bounds_ = {{0.0, 0.0}, {0.0, 0.0}};
     rendered_target_output_size_ = {0, 0};
-    rendered_high_quality_ = true;
+    is_rendered_high_quality_ = true;
     return released_image;
 }
 
@@ -69,18 +70,23 @@ QImage* QimageZoomer::ReleaseBase()
  */
 QPixmap& QimageZoomer::GetPrecisedPart(const WH_Info<Limits<double>>& full_image_value_bounds, 
                                        const WH_Info<Limits<double>>& target_display_value_bounds,
-                                       const WH_Info<int>& target_output_size,
-                                       bool high_quality)
+                                       const WH_Info<int>& target_output_size)
 {
     // Update current request parameters
     last_full_image_value_bounds_ = full_image_value_bounds;
     last_target_display_value_bounds_ = target_display_value_bounds;
     last_target_output_size_ = target_output_size;
-    last_high_quality_ = high_quality;
+	need_high_quality_ = false; //ѕо умолчанию, хорошее качество не нужно
 
     if (NeedRedraw()) {
         UpdateQPixmap();
     }
+	
+	if (!is_rendered_high_quality_ && good_quality_timer_.elapsed() > 500) {
+		need_high_quality_ = true;
+		UpdateQPixmap();
+	}
+
     return cached_pixmap_;
 }
 
@@ -90,37 +96,49 @@ QPixmap& QimageZoomer::GetPrecisedPart(const WH_Info<Limits<double>>& full_image
  */
 bool QimageZoomer::NeedRedraw() const
 {
+	bool need_redraw = false;
     // Always redraw if no base image or invalid
     if (need_update_ || !base_image_ || base_image_->isNull()) {
-        return true;
+		need_redraw = true;
     }
 
+	bool is_change_by_user = false;
     // Always redraw if cached pixmap is null or empty
     if (cached_pixmap_.isNull() || cached_pixmap_.width() == 0 || cached_pixmap_.height() == 0) {
-        return true;
+		need_redraw = true;
+		is_change_by_user = true;
     }
 
     // Check if output size has changed from last rendered
     if (rendered_target_output_size_ != last_target_output_size_) {
-        return true;
+		need_redraw = true;
+		is_change_by_user = true;
     }
 
     // Check if full image value bounds have changed from last rendered
     if (rendered_full_image_value_bounds_ != last_full_image_value_bounds_) {
-        return true;
+		need_redraw = true;
+		is_change_by_user = true;
     }
 
     // Check if target display value bounds have changed from last rendered
     if (rendered_target_display_value_bounds_ != last_target_display_value_bounds_) {
-        return true;
+		need_redraw = true;
+		is_change_by_user = true;
     }
     
-    // Check if quality setting has changed from last rendered
-    if (rendered_high_quality_ != last_high_quality_) {
-        return true;
+
+	if (is_change_by_user) {
+		good_quality_timer_.restart();
+	} 
+	//ќтрисовываем только в хорошем качестве, если не трогаем отрисовщик какое-то врем€
+	else if (!is_rendered_high_quality_ && good_quality_timer_.elapsed() > 200) {
+		need_high_quality_ = true;
+		need_redraw = true;
     }
 
-    return false; // No changes requiring redraw
+
+    return need_redraw; // No changes requiring redraw
 }
 
 /**
@@ -156,7 +174,7 @@ bool QimageZoomer::UpdateQPixmap()
     QImage cropped_image = base_image_->copy(src_x, src_y, src_width, src_height);
 
     // Determine scaling quality
-    Qt::TransformationMode mode = last_high_quality_ ? Qt::SmoothTransformation : Qt::FastTransformation;
+    Qt::TransformationMode mode = need_high_quality_ ? Qt::SmoothTransformation : Qt::FastTransformation;
 
     // Scale to the desired size and convert to QPixmap
     cached_pixmap_ = QPixmap::fromImage(cropped_image.scaled(
@@ -170,7 +188,7 @@ bool QimageZoomer::UpdateQPixmap()
     rendered_full_image_value_bounds_ = last_full_image_value_bounds_;
     rendered_target_display_value_bounds_ = last_target_display_value_bounds_;
     rendered_target_output_size_ = last_target_output_size_;
-    rendered_high_quality_ = last_high_quality_;
+    is_rendered_high_quality_ = need_high_quality_;
     need_update_            = false;
     return !cached_pixmap_.isNull();
 }

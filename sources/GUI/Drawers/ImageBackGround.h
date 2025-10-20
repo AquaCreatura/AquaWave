@@ -33,10 +33,6 @@ public:
      */
     bool DrawImage(QPainter& painter);
 
-    /**
-     * @brief Signals need for high quality redraw.
-     */
-    void SetGoodQuality();
 
 private:
     // Determines if redraw is necessary based on state flags.
@@ -54,7 +50,6 @@ private:
     QPixmap                     pixmap_to_show_; // The final pixmap to draw
     int                         base_width_  {0}; //
     int                         base_height_ {0}; //
-    bool                        need_good_quality_ {false}; //
     bool                        need_redraw_       {false}; //
     const ChartScaleInfo&       scale_info_; //
 

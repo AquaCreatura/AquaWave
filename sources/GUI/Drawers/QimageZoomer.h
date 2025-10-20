@@ -4,7 +4,7 @@
 #include <qpixmap.h>
 #include <qpainter.h> 
 #include <algorithm> // Äëÿ std::min, std::max
-
+#include <qelapsedtimer.h>
 namespace aqua_gui
 {
 
@@ -35,8 +35,7 @@ public:
      */
     QPixmap& GetPrecisedPart(const WH_Info<Limits<double>>& full_image_value_bounds, 
                              const WH_Info<Limits<double>>& target_display_value_bounds,
-                             const WH_Info<int>& target_output_size,
-                             bool high_quality = true);
+                             const WH_Info<int>& target_output_size);
 
 protected:
     /**
@@ -71,14 +70,15 @@ private:
     WH_Info<Limits<double>> last_full_image_value_bounds_ = {{0.0, 0.0}, {0.0, 0.0}};
     WH_Info<Limits<double>> last_target_display_value_bounds_ = {{0.0, 0.0}, {0.0, 0.0}};
     WH_Info<int> last_target_output_size_ = {0, 0};
-    bool last_high_quality_ = true;
 
     // Parameters of the last successfully rendered pixmap, for robust NeedRedraw()
     WH_Info<Limits<double>> rendered_full_image_value_bounds_ = {{0.0, 0.0}, {0.0, 0.0}};
     WH_Info<Limits<double>> rendered_target_display_value_bounds_ = {{0.0, 0.0}, {0.0, 0.0}};
     WH_Info<int> rendered_target_output_size_ = {0, 0};
-    bool rendered_high_quality_ = true;
+    bool is_rendered_high_quality_	= false;
     bool need_update_           = false;
+	mutable bool need_high_quality_ = false;
+	mutable QElapsedTimer good_quality_timer_; //
 };
 
 } // namespace aqua_guií

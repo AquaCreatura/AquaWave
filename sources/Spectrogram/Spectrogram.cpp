@@ -110,12 +110,13 @@ bool spg_core::Spectrogram::Reload()
     auto req_dove = std::make_shared<file_source::FileSrcDove>();
     req_dove->base_thought      = fluctus::DoveParrent::DoveThought::kSpecialThought;
     req_dove->special_thought   = file_source::FileSrcDove::kGetFileInfo;
-    if (!file_src->SendDove(req_dove) || !req_dove->file_info)
-    {
+    if (!file_src->SendDove(req_dove) || !req_dove->file_info) {
         return false;
     }
-    src_info_.info.carrier      = (*req_dove->file_info).carrier_hz_;
-    src_info_.info.samplerate   = (*req_dove->file_info).samplerate_hz_;
+    src_info_.info.carrier      = req_dove->file_info->carrier_hz_;
+    src_info_.info.samplerate   = req_dove->file_info->samplerate_hz_;
+	Limits<double> new_hor_bounds = { 0., std::max(1.,double(req_dove->file_info->count_of_samples)) };
+	spg_drawer_->SetHorizontalMinMaxBounds(new_hor_bounds);
 	{
 
 		Limits<double> bounds_hz = {

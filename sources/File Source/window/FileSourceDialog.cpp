@@ -179,6 +179,8 @@ void file_source::FileSourceDialog::OnOkButton()
                           tr("Can not find specified file!\n\"%1\"").arg(edit_file_info_.file_name_));
         return;
     }
+	edit_file_info_.count_of_samples = QFile(edit_file_info_.file_name_).size() / GetSampleSize(edit_file_info_.data_type_);
+	
 	RememberFilePath();
     UpdateSourceNeed();
     this->close();

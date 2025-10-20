@@ -46,6 +46,7 @@ void ChartSPG::SetPowerBounds(const Limits<double>& power_bounds, const bool is_
 
 void ChartSPG::SetHorizontalMinMaxBounds(const Limits<double>& hor_bounds)
 {
+	ChartInterface::SetHorizontalMinMaxBounds(hor_bounds);
     spg_core_.SetTimeBounds(hor_bounds);
 }
 

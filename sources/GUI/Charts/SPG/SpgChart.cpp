@@ -27,7 +27,6 @@ void ChartSPG::DrawData(QPainter & passed_painter)
 
 void ChartSPG::PushData(const draw_data & draw_data)
 {
-	bool need_reset = power_man_.NeedRelevantBounds();
     power_man_.UpdateBounds(draw_data.data, scale_info_.val_info_.min_max_bounds_.horizontal /*data_bounds*/);
     spg_core_.AccumulateNewData(draw_data.data,draw_data.time_pos);
 }

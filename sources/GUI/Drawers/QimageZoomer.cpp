@@ -132,7 +132,7 @@ bool QimageZoomer::NeedRedraw() const
 		good_quality_timer_.restart();
 	} 
 	//Отрисовываем только в хорошем качестве, если не трогаем отрисовщик какое-то время
-	else if (!is_rendered_high_quality_ && good_quality_timer_.elapsed() > 200) {
+	else if (!is_rendered_high_quality_ && good_quality_timer_.elapsed() > 100) {
 		need_high_quality_ = true;
 		need_redraw = true;
     }

@@ -86,7 +86,7 @@ void DpxCore::SetPowerBounds(const Limits<double>& x_bounds)
 QPixmap & DpxCore::GetRelevantPixmap(const ChartScaleInfo & scale_info)
 {
     auto &min_max = scale_info.val_info_.min_max_bounds_;
-    SetPowerBounds(min_max.vertical);
+    //SetPowerBounds(min_max.vertical);
     SetMinMax_X   (min_max.horizontal);
     return dpx_renderer_.GetRelevantPixmap(scale_info);
 }

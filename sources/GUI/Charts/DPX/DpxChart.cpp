@@ -34,7 +34,7 @@ void ChartDPX::PushData(const draw_data& draw_data )
 	power_man_.UpdateBounds(draw_data.data, draw_data.freq_bounds);
 	if (need_reset) {
 		UpdateChartPowerBounds();
-		dpx_painter_.SetPowerBounds(scale_info_.val_info_.min_max_bounds_.vertical);
+		/*dpx_painter_.*/SetPowerBounds(scale_info_.val_info_.min_max_bounds_.vertical);
 	}
     dpx_painter_.AccumulateNewData(draw_data.data , draw_data.freq_bounds);
 }

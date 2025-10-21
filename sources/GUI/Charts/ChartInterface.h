@@ -123,6 +123,6 @@ protected:
     
     // Manages power limits for chart
     PowerLimitMan power_man_;
-
+	WH_Info<double, double> max_scale_koeff_ = { 20,20 };
     ChartDomainType domain_type_;
 };

@@ -20,12 +20,12 @@ bool QimageZoomer::SetNewBase(QImage *base_qimage)
     base_image_ = base_qimage;
     // Force redraw on next GetPrecisedPart call
     cached_pixmap_ = QPixmap(); 
-    last_full_image_value_bounds_ = {{0.0, 0.0}, {0.0, 0.0}}; // Reset
-    last_target_display_value_bounds_ = {{0.0, 0.0}, {0.0, 0.0}}; // Reset
+    last_min_max_value_bounds_ = {{0.0, 0.0}, {0.0, 0.0}}; // Reset
+    last_target_value_bounds_ = {{0.0, 0.0}, {0.0, 0.0}}; // Reset
     last_target_output_size_ = {0, 0};
     need_high_quality_ = true; 
-    rendered_full_image_value_bounds_ = {{0.0, 0.0}, {0.0, 0.0}}; // Reset rendered state
-    rendered_target_display_value_bounds_ = {{0.0, 0.0}, {0.0, 0.0}}; // Reset rendered state
+    rendered_min_max_value_bounds_ = {{0.0, 0.0}, {0.0, 0.0}}; // Reset rendered state
+    rendered_target_value_bounds_ = {{0.0, 0.0}, {0.0, 0.0}}; // Reset rendered state
     rendered_target_output_size_ = {0, 0};
     is_rendered_high_quality_ = true;
     MarkForUpdate();
@@ -48,12 +48,12 @@ QImage* QimageZoomer::ReleaseBase()
     base_image_ = nullptr;
     cached_pixmap_ = QPixmap(); // Clear cached pixmap
     // Reset all state to force redraw
-    last_full_image_value_bounds_ = {{0.0, 0.0}, {0.0, 0.0}}; 
-    last_target_display_value_bounds_ = {{0.0, 0.0}, {0.0, 0.0}};
+    last_min_max_value_bounds_ = {{0.0, 0.0}, {0.0, 0.0}}; 
+    last_target_value_bounds_ = {{0.0, 0.0}, {0.0, 0.0}};
     last_target_output_size_ = {0, 0};
     need_high_quality_ = true;
-    rendered_full_image_value_bounds_ = {{0.0, 0.0}, {0.0, 0.0}};
-    rendered_target_display_value_bounds_ = {{0.0, 0.0}, {0.0, 0.0}};
+    rendered_min_max_value_bounds_ = {{0.0, 0.0}, {0.0, 0.0}};
+    rendered_target_value_bounds_ = {{0.0, 0.0}, {0.0, 0.0}};
     rendered_target_output_size_ = {0, 0};
     is_rendered_high_quality_ = true;
     return released_image;
@@ -73,8 +73,8 @@ QPixmap& QimageZoomer::GetPrecisedPart(const WH_Info<Limits<double>>& full_image
                                        const WH_Info<int>& target_output_size)
 {
     // Update current request parameters
-    last_full_image_value_bounds_ = full_image_value_bounds;
-    last_target_display_value_bounds_ = target_display_value_bounds;
+    last_min_max_value_bounds_ = full_image_value_bounds;
+    last_target_value_bounds_ = target_display_value_bounds;
     last_target_output_size_ = target_output_size;
 	need_high_quality_ = false; //ѕо умолчанию, хорошее качество не нужно
 
@@ -82,11 +82,6 @@ QPixmap& QimageZoomer::GetPrecisedPart(const WH_Info<Limits<double>>& full_image
         UpdateQPixmap();
     }
 	
-	if (!is_rendered_high_quality_ && good_quality_timer_.elapsed() > 500) {
-		need_high_quality_ = true;
-		UpdateQPixmap();
-	}
-
     return cached_pixmap_;
 }
 
@@ -116,13 +111,13 @@ bool QimageZoomer::NeedRedraw() const
     }
 
     // Check if full image value bounds have changed from last rendered
-    if (rendered_full_image_value_bounds_ != last_full_image_value_bounds_) {
+    if (rendered_min_max_value_bounds_ != last_min_max_value_bounds_) {
 		need_redraw = true;
-		is_change_by_user = true;
+		//is_change_by_user = true;
     }
 
     // Check if target display value bounds have changed from last rendered
-    if (rendered_target_display_value_bounds_ != last_target_display_value_bounds_) {
+    if (rendered_target_value_bounds_ != last_target_value_bounds_) {
 		need_redraw = true;
 		is_change_by_user = true;
     }
@@ -132,7 +127,7 @@ bool QimageZoomer::NeedRedraw() const
 		good_quality_timer_.restart();
 	} 
 	//ќтрисовываем только в хорошем качестве, если не трогаем отрисовщик какое-то врем€
-	else if (!is_rendered_high_quality_ && good_quality_timer_.elapsed() > 100) {
+	else if ((need_redraw || !is_rendered_high_quality_) && good_quality_timer_.elapsed() > 100) {
 		need_high_quality_ = true;
 		need_redraw = true;
     }
@@ -156,8 +151,8 @@ bool QimageZoomer::UpdateQPixmap()
     // Calculate pixel coordinates for cropping based on value bounds
     WH_Info<Limits<int>> basic_pixel_crop_bounds = CalculatePixelCropBounds(
         base_image_width, base_image_height,
-        last_full_image_value_bounds_,
-        last_target_display_value_bounds_
+        last_min_max_value_bounds_,
+        last_target_value_bounds_
     );
 
     int src_width = basic_pixel_crop_bounds.horizontal.delta();
@@ -185,8 +180,8 @@ bool QimageZoomer::UpdateQPixmap()
     ));
 
     // Store parameters used for this successful render
-    rendered_full_image_value_bounds_ = last_full_image_value_bounds_;
-    rendered_target_display_value_bounds_ = last_target_display_value_bounds_;
+    rendered_min_max_value_bounds_ = last_min_max_value_bounds_;
+    rendered_target_value_bounds_ = last_target_value_bounds_;
     rendered_target_output_size_ = last_target_output_size_;
     is_rendered_high_quality_ = need_high_quality_;
     need_update_            = false;

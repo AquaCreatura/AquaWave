@@ -33,6 +33,7 @@ bool dpx_core::DpxRenderer::UpdateDpxRgbData()
     dpx_.need_redraw = false; //Сразу переводим в значение false, чтобы не пропустить новые данные, пока рисуем
     if(dpx_rgb_.size != dpx_.size)
     {
+		tbb::spin_mutex::scoped_lock scoped_locker(dpx_.redraw_mutex);
         dpx_rgb_.data.resize(dpx_.size.horizontal * dpx_.size.vertical);
         need_redraw = true;
         dpx_rgb_.qimage = QImage((uint8_t*)dpx_rgb_.data.data(), dpx_.size.horizontal, dpx_.size.vertical, QImage::Format::Format_ARGB32);

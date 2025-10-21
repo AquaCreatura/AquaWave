@@ -9,6 +9,7 @@ ChartDPX::ChartDPX(QWidget * parrent):
     SetHorizontalSuffix("counts");
 
     SetVerticalSuffix("power");
+	domain_type_ = kFreqDomain;
 }
 
 ChartDPX::~ChartDPX()
@@ -33,10 +34,10 @@ void ChartDPX::PushData(const draw_data& draw_data )
 	bool need_reset = power_man_.NeedRelevantBounds();
 	power_man_.UpdateBounds(draw_data.data, draw_data.freq_bounds);
 	if (need_reset) {
-		UpdateChartPowerBounds();
-		/*dpx_painter_.*/SetPowerBounds(scale_info_.val_info_.min_max_bounds_.vertical);
+		UpdateChartPowerBounds(); //Обновляем scale info
+		dpx_painter_.SetPowerBounds(scale_info_.val_info_.min_max_bounds_.vertical); //Обновляем матрицу DPX
 	}
-    dpx_painter_.AccumulateNewData(draw_data.data , draw_data.freq_bounds);
+    dpx_painter_.AccumulateNewData(draw_data.data , draw_data.freq_bounds); //Накапливаем новые данные
 }
 
 void ChartDPX::ClearData()

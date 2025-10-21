@@ -113,10 +113,9 @@ void ChartInterface::resizeEvent(QResizeEvent * resize_event)
 
 void ChartInterface::paintEvent(QPaintEvent * paint_event)
 {
-    //if widget size was changed
-    UpdateWidgetSizeInfo();
+    UpdateWidgetSizeInfo();     //if widget size was changed
     if(domain_type_ != ChartDomainType::kTimeFrequency) //Для линейно-частотной интерпретации не используем
-        UpdateChartPowerBounds();
+        UpdateChartPowerBounds(); //Необходимо знать акутальные границы мощности
 
     
     QPainter new_frame_painter(this);

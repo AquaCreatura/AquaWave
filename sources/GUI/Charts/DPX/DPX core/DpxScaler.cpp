@@ -28,6 +28,8 @@ bool DpxDataScaler::UpdateBounds_x(const Limits<double>& new_bounds) {
         data_.need_redraw = true;
         return true;
     }
+	// Обновляем данные
+	tbb::spin_mutex::scoped_lock scoped_locker(data_.redraw_mutex);
 
     // Создаём новый массив, инициализированный нулями
     std::vector<dpx_data::DataType> new_data(height * new_width, 0);
@@ -113,6 +115,8 @@ bool DpxDataScaler::UpdateBounds_y(const Limits<double>& new_bounds)
         data_.need_redraw = true;
         return true;
     }
+	// Обновляем данные
+	tbb::spin_mutex::scoped_lock scoped_locker(data_.redraw_mutex);
 
     // Создаём новый массив, инициализированный нулями
     std::vector<dpx_data::DataType> new_data(new_height * width, 0);
@@ -160,8 +164,6 @@ bool DpxDataScaler::UpdateBounds_y(const Limits<double>& new_bounds)
             }
         }
     }
-
-    // Обновляем данные
     data_.data.swap(new_data);
     data_.need_redraw = true;
     return true;

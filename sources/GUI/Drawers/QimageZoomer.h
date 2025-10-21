@@ -67,13 +67,13 @@ private:
     QPixmap cached_pixmap_;             // The cached result QPixmap
     
     // Parameters from the last GetPrecisedPart call, for redraw checks
-    WH_Info<Limits<double>> last_full_image_value_bounds_ = {{0.0, 0.0}, {0.0, 0.0}};
-    WH_Info<Limits<double>> last_target_display_value_bounds_ = {{0.0, 0.0}, {0.0, 0.0}};
+    WH_Info<Limits<double>> last_min_max_value_bounds_ = {{0.0, 0.0}, {0.0, 0.0}};
+    WH_Info<Limits<double>> last_target_value_bounds_ = {{0.0, 0.0}, {0.0, 0.0}};
     WH_Info<int> last_target_output_size_ = {0, 0};
 
     // Parameters of the last successfully rendered pixmap, for robust NeedRedraw()
-    WH_Info<Limits<double>> rendered_full_image_value_bounds_ = {{0.0, 0.0}, {0.0, 0.0}};
-    WH_Info<Limits<double>> rendered_target_display_value_bounds_ = {{0.0, 0.0}, {0.0, 0.0}};
+    WH_Info<Limits<double>> rendered_min_max_value_bounds_ = {{0.0, 0.0}, {0.0, 0.0}};
+    WH_Info<Limits<double>> rendered_target_value_bounds_ = {{0.0, 0.0}, {0.0, 0.0}};
     WH_Info<int> rendered_target_output_size_ = {0, 0};
     bool is_rendered_high_quality_	= false;
     bool need_update_           = false;

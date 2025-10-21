@@ -22,6 +22,9 @@ DpxCore::DpxCore() : dpx_scaler_(dpx_data_), dpx_renderer_(dpx_data_)
 }
 
 bool DpxCore::Emplace() {
+	// Обновляем данные
+	tbb::spin_mutex::scoped_lock scoped_locker(dpx_data_.redraw_mutex);
+
     if(dpx_data_.val_bounds.horizontal.delta() <= 0) dpx_data_.val_bounds.horizontal = {0, 1000};              // Set x-axis Limits
     if(dpx_data_.val_bounds.vertical.delta()   <= 0) dpx_data_.val_bounds.vertical   = {0.0, 1.0};             // Set y-axis Limits
     dpx_data_.size.vertical         = 1'024 / 5;                // Set data matrix height
@@ -64,7 +67,6 @@ bool DpxCore::AccumulateNewData(const std::vector<float>& passed_data, const Lim
 
 bool DpxCore::SetMinMax_X(const Limits<double>& new_x_bounds)
 {
-    tbb::spin_mutex::scoped_lock scoped_locker(dpx_data_.redraw_mutex);
     // Only call UpdateBounds_x if the bounds actually change
     if (new_x_bounds!= dpx_data_.val_bounds.horizontal) {
         return dpx_scaler_.UpdateBounds_x(new_x_bounds);
@@ -86,8 +88,8 @@ void DpxCore::SetPowerBounds(const Limits<double>& x_bounds)
 QPixmap & DpxCore::GetRelevantPixmap(const ChartScaleInfo & scale_info)
 {
     auto &min_max = scale_info.val_info_.min_max_bounds_;
-    //SetPowerBounds(min_max.vertical);
-    SetMinMax_X   (min_max.horizontal);
+    SetPowerBounds(min_max.vertical); //Обновляем границы мощности
+    SetMinMax_X   (min_max.horizontal); //Обновляем диапазон значений
     return dpx_renderer_.GetRelevantPixmap(scale_info);
 }
 
@@ -104,6 +106,7 @@ bool DpxCore::RoughPassedLoop(
     const std::vector<float>& passed_data,
     const Limits<double>& x_bounds)
 {
+
     // Unpack x-axis limits of the incoming data.
     const double input_x_min = x_bounds.low;
     const double input_x_max = x_bounds.high;
@@ -174,7 +177,6 @@ return true;
 bool DpxCore::SlopePassedLoop(const std::vector<float>& passed_data,
                               const Limits<double>& passed_bounds)
 {
-
     // Проверка входных данных: необходимо как минимум 2 точки для линейной интерполяции
     const size_t input_point_count = passed_data.size();
     if (input_point_count < 2) {

@@ -20,13 +20,14 @@ bool aqua_gui::ZoomFromWheelDelta(ChartScaleInfo & scale_info, const int wheel_d
 
     const double val_y_scale_koeff = (min_max_bounds.vertical.delta()) / (cur_bounds.vertical.delta());
     bool values_changed = false;
+	const auto zoom_threshold = scale_info.val_info_.max_zoom_koeffs_;
     // Масштабирование по оси X
     if (is_x_scale)
     {
         auto &cur_hor       = cur_bounds.horizontal;
         auto &min_max_hor   = min_max_bounds.horizontal;
         // Проверяем, можем ли мы увеличивать/уменьшать масштаб
-        bool can_zoom_in = direction > 0 && val_x_scale_koeff < 20;
+        bool can_zoom_in = direction > 0 && val_x_scale_koeff < zoom_threshold.horizontal;
         bool can_zoom_out = direction < 0;
         
         if (can_zoom_in || can_zoom_out)
@@ -63,7 +64,7 @@ bool aqua_gui::ZoomFromWheelDelta(ChartScaleInfo & scale_info, const int wheel_d
     // Масштабирование по оси Y (аналогично оси X)
     if (is_y_scale)
     {
-        bool can_zoom_in = direction > 0 && val_y_scale_koeff < 20;
+        bool can_zoom_in = direction > 0 && val_y_scale_koeff < zoom_threshold.vertical;
         bool can_zoom_out = direction < 0;
         auto &cur_vert      = cur_bounds.vertical;
         auto &min_max_vert  = min_max_bounds.vertical;
@@ -100,7 +101,7 @@ void aqua_gui::AdaptPowerBounds(ChartScaleInfo & scale_info, const Limits<double
     // Получаем ссылку на текущие максимально допустимые (автоматические) границы шкалы
     auto &vert_min_max = scale_info.val_info_.min_max_bounds_.vertical;
 
-	const double min_epsilon = new_bounds.delta() * 0.02;
+	const double min_epsilon = new_bounds.delta() * 0.05;
     // Если автоматические границы изменились, обновляем шкалу
     if(std::abs(vert_min_max.low - new_bounds.low) > min_epsilon || 
 		std::abs(vert_min_max.high - new_bounds.high) > min_epsilon )

@@ -8,6 +8,7 @@ ChartSPG::ChartSPG(QWidget * parrent):
 
     SetVerticalSuffix("power");
     domain_type_ = ChartDomainType::kTimeFrequency;
+	scale_info_.val_info_.max_zoom_koeffs_ = { 200, 100 };
 }
 
 ChartSPG::~ChartSPG()

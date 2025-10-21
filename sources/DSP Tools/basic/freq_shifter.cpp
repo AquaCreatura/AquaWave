@@ -14,20 +14,12 @@ void FrequencyShifter::Init(double baseCarrierHz, double targetCarrierHz, double
 {
     // Вычисляем разницу частот (может быть положительной или отрицательной)
     double freqShift = targetCarrierHz - baseCarrierHz;
-    
+
     // Вычисляем относительную частоту тона (rFreq) как абсолютное значение
-    tone_freq_ = static_cast<Ipp32f>(std::abs(freqShift) / sampleRateHz);
-    
-    // Убеждаемся, что tone_freq_ находится в допустимом диапазоне [0.0, 1.0)
-    if (tone_freq_ >= 1.0f) {
-        tone_freq_ = 0.0f; // Безопасное значение в случае выхода за пределы
-    }
-
-    // Запоминаем, нужен ли отрицательный сдвиг (для применения сопряжения)
-    need_conj_ = (freqShift > 0.0);
-
+    tone_freq_ = -1 * static_cast<Ipp32f>(std::abs(freqShift) / sampleRateHz);
+	if (tone_freq_ < 0) tone_freq_ += 1;
     // Инициализируем амплитуду (по умолчанию 1.0)
-    tone_magn_ = 1.0f; // Можно сделать параметром, если нужно
+    tone_magn_ = 1.0f; 
 
     // Инициализируем начальную фазу
     phase_ = 0.0f;
@@ -56,13 +48,6 @@ bool FrequencyShifter::ProcessBlock(const Ipp32fc* inputData, Ipp32fc* outputDat
         return false;
     }
 
-    // Если нужен отрицательный сдвиг, применяем комплексное сопряжение
-    if (need_conj_) {
-        status = ippsConj_32fc(tone_vec_.data(), tone_vec_.data(), blockSize);
-        if (status != ippStsNoErr) {
-            return false;
-        }
-    }
 
     // Умножаем входной сигнал на тон и записываем результат
     status = ippsMul_32fc(inputData, tone_vec_.data(), outputData, blockSize);
@@ -83,15 +68,6 @@ bool FrequencyShifter::ProcessBlockInPlace(Ipp32fc* data, int blockSize)
     if (status != ippStsNoErr) {
         return false;
     }
-
-    // Если нужен отрицательный сдвиг, применяем комплексное сопряжение
-    if (need_conj_) {
-        status = ippsConj_32fc(tone.data(), tone.data(), blockSize);
-        if (status != ippStsNoErr) {
-            return false;
-        }
-    }
-
     // Умножаем сигнал на тон "на месте"
     status = ippsMul_32fc_I(tone.data(), data, blockSize);
     return (status == ippStsNoErr);

@@ -12,11 +12,19 @@ using namespace aqua_gui;
 namespace spg_core
 {
     typedef float DataType;
+	
+
 	enum HolderStation {
-		Preparing	= 1,
-		ReadyToUse	= 2,
-		FullOfData	= 3
+		kNewData	= 1 << 0, //Требуются новые данные
+		kPrecising  = 1 << 1, //Происходит уточнение данных		
+
+		kReadyToUse = 1 << 2,
+		kFullData   = 1 << 3,
+
+		kRequestStation  = 1 << 10,
+		kPreparingStation = 1 << 11,
 	};
+
     struct spg_holder
     {
 		
@@ -32,8 +40,7 @@ namespace spg_core
         std::vector<bool>					relevant_vec;	//Актуальность наших данных столбцов
         std::vector<DataType>				data;			//Наши данные
         std::atomic<bool>					need_redraw;
-		mutable std::atomic<HolderStation>	station;		//Состояние наполненности наших массивов
-		mutable std::atomic_bool			need_reset{ false };
+		mutable std::atomic<int>			state;			//Состояние нашего холдера
     };
 
     struct spg_data
@@ -41,7 +48,7 @@ namespace spg_core
         mutable tbb::spin_mutex				rw_mutex_;		
         spg_holder							base_data;		//Данные целого полотна
 		spg_holder							realtime_data;	//Отображаемые, зазумленные данные
-		
+
         Limits<double>						power_bounds;
 
     };

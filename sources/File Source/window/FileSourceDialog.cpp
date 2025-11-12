@@ -126,6 +126,12 @@ void file_source::FileSourceDialog::ParseFileName(const QString& file_name)
     ui_.carrier_mhz_spinbox     ->setValue(edit_file_info_.carrier_hz_   / 1.e6);
     ui_.samplerate_khz_spinbox  ->setValue(edit_file_info_.samplerate_hz_/ 1.e3);
 
+	if (QFileInfo::exists(edit_file_info_.file_name_))
+	{
+		edit_file_info_.count_of_samples = QFile(edit_file_info_.file_name_).size() / GetSampleSize(edit_file_info_.data_type_);
+	}
+	
+
 }
 
 void file_source::FileSourceDialog::RememberFilePath()
@@ -173,14 +179,14 @@ void file_source::FileSourceDialog::OnDataTypeChanged()
 // Обработчик кнопки OK
 void file_source::FileSourceDialog::OnOkButton()
 {
-    if (!QFileInfo::exists(edit_file_info_.file_name_))
-    {
-        QMessageBox::critical(this, tr("No file error"), 
-                          tr("Can not find specified file!\n\"%1\"").arg(edit_file_info_.file_name_));
-        return;
-    }
+	if (!QFileInfo::exists(edit_file_info_.file_name_))
+	{
+		QMessageBox::critical(this, tr("No file error"),
+			tr("Can not find specified file!\n\"%1\"").arg(edit_file_info_.file_name_));
+		return;
+	}
 	edit_file_info_.count_of_samples = QFile(edit_file_info_.file_name_).size() / GetSampleSize(edit_file_info_.data_type_);
-	
+
 	RememberFilePath();
     UpdateSourceNeed();
     this->close();

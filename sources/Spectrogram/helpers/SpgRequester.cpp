@@ -83,15 +83,30 @@ bool spg_core::SpgRequester::SendRequestDove(const request_params & req_info)
 
 SpgRequester::request_params SpgRequester::GetRequestParams() {
     request_params req_info; // Initialize request parameters structure
-	if (spg_.realtime_data.need_reset) {
-		spg_.realtime_data.station = spg_core::Preparing;
-		spg_.realtime_data.need_reset = false;
-	}
-	if (spg_.base_data.station == spg_core::FullOfData && spg_.realtime_data.station == spg_core::FullOfData)
+	
+	if (spg_.realtime_data.state & kRequestStation) { //Сообщаем, что начали подготовку
+		tbb::spin_mutex::scoped_lock guard_lock(spg_.rw_mutex_);
+		if (spg_.realtime_data.state & kRequestStation)
+		{
+			spg_.realtime_data.state = (spg_.realtime_data.state ^ kRequestStation) | kPreparingStation;
+		}
+	};
+	if (spg_.base_data.state & kRequestStation) { //Сообщаем, что начали подготовку
+		tbb::spin_mutex::scoped_lock guard_lock(spg_.rw_mutex_);
+		if (spg_.base_data.state & kRequestStation)
+		{
+			spg_.base_data.state = (spg_.base_data.state ^ kRequestStation) | kPreparingStation;
+		}
+	};
+
+
+
+
+	if (spg_.base_data.state == spg_core::kFullData && spg_.realtime_data.state == spg_core::kFullData)
 		return req_info;
 
 
-	bool need_request_base = (spg_.base_data.station == spg_core::Preparing) || (spg_.realtime_data.station == spg_core::FullOfData);
+	bool need_request_base = (spg_.base_data.state & kPreparingStation) || (spg_.realtime_data.state == spg_core::kFullData);
 	auto &holder_to_request = need_request_base ? spg_.base_data : spg_.realtime_data;
 
 	
@@ -132,12 +147,15 @@ SpgRequester::request_params SpgRequester::GetRequestParams() {
 
     // If all data is relevant, no request needed
     if (res_draw_location < 0) {
-		
-			holder_to_request.station = spg_core::FullOfData;
+		tbb::spin_mutex::scoped_lock guard_lock(spg_.rw_mutex_);
+		if (!(holder_to_request.state & kRequestStation))
+		{
+			holder_to_request.state = kFullData;
+		}
         return req_info;
     }
 
-	if (holder_to_request.station == spg_core::Preparing)
+	if (holder_to_request.state & kPreparingStation && need_request_base)
 	{
 		int relevant_counter = 0;
 		int need_minimum = 100; 
@@ -150,7 +168,8 @@ SpgRequester::request_params SpgRequester::GetRequestParams() {
 		for (auto rel_iter : relevant_vec) {
 			relevant_counter += rel_iter;
 			if (relevant_counter > need_minimum) {
-				holder_to_request.station = spg_core::ReadyToUse;
+				tbb::spin_mutex::scoped_lock guard_lock(spg_.rw_mutex_);
+				holder_to_request.state = spg_core::kReadyToUse;
 				break;
 			}
 		}

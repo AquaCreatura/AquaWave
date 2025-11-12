@@ -27,7 +27,7 @@ bool spg_core::SpgCore::AccumulateNewData(const std::vector<float>& passed_data,
 	const auto src_bounds = spg_.base_data.val_bounds;
 
 	auto SetRatioToMatrix = [&](spg_holder& data_holder) -> bool {
-		if (data_holder.station == HolderStation::FullOfData) return true;
+		if (data_holder.state == HolderStation::kFullData) return true;
 		//Ќеобходимо перевести в относитльный вид, относительно текущего диапазона
 
 		auto &hor_bounds  = data_holder.val_bounds.horizontal;
@@ -43,8 +43,8 @@ bool spg_core::SpgCore::AccumulateNewData(const std::vector<float>& passed_data,
 		if (ratio_vert_bounds.low < 0. || ratio_vert_bounds.high <= ratio_vert_bounds.low || ratio_vert_bounds.high > 1)
 			return false;
 		Limits<size_t> row_id_bounds = {
-			std::llround(ratio_vert_bounds.low  * (passed_data.size() - 1)),
-			std::llround(ratio_vert_bounds.high * (passed_data.size() - 1))
+			size_t(std::llround(ratio_vert_bounds.low  * (passed_data.size() - 1))),
+			size_t(std::llround(ratio_vert_bounds.high * (passed_data.size() - 1)))
 		};
 		SetDataToColumn(passed_data, row_id_bounds, column_index, data_holder);
 		return true;
@@ -64,22 +64,23 @@ spg_core::spg_data const & spg_core::SpgCore::GetSpectrogramInfo() const
     return spg_;
 }
 
-void spg_core::SpgCore::SetDataToColumn(const std::vector<float>& passed_data, Limits<size_t> row_id, size_t column_idx, spg_holder& data_to_fill)
+void spg_core::SpgCore::SetDataToColumn(const std::vector<float>& passed_data, Limits<size_t> row_id, size_t column_idx, spg_holder& passed_holder)
 {
-	if (data_to_fill.relevant_vec[column_idx]) return; //if allready is relevant - do nothing
-	const auto height = data_to_fill.size.vertical;
+	if (passed_holder.relevant_vec[column_idx]) return; //if allready is relevant - do nothing
+	const auto height = passed_holder.size.vertical;
 
 	const double norm_koeff = double(row_id.delta()) / (height - 1);
 	tbb::spin_mutex::scoped_lock guard_lock(spg_.rw_mutex_);
+
 	for (int y = 0; y < height; y++)
 	{
 		const auto passed_id = row_id.low + double(y) * norm_koeff;
-		data_to_fill[y][column_idx] = passed_data[passed_id];
+		passed_holder[y][column_idx] = passed_data[passed_id];
 	}
 	
 
-	data_to_fill.need_redraw = true;
-	data_to_fill.relevant_vec[column_idx] = true;
+	passed_holder.need_redraw = true;
+	passed_holder.relevant_vec[column_idx] = true;
 }
 
 
@@ -91,7 +92,7 @@ bool spg_core::SpgCore::Emplace()
 {
 
 	auto emplace_holder = [&](spg_holder &holder_to_emplace, WH_Info<size_t> matrix_size) {
-		holder_to_emplace.station = HolderStation::Preparing;
+		holder_to_emplace.state = kNewData | kRequestStation;
 		if (holder_to_emplace.val_bounds.horizontal.delta() <= 0) holder_to_emplace.val_bounds.horizontal = { 0, 1000 };              // Set x-axis Limits
 		if (holder_to_emplace.val_bounds.vertical.delta() <= 0) holder_to_emplace.val_bounds.vertical = { 0.0, 1.0 };             // Set y-axis Limits
 		auto& ref_size = holder_to_emplace.size;

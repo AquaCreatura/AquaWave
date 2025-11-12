@@ -11,6 +11,7 @@ file_source::FileSourceArk::FileSourceArk(QWidget * main_window) :
 {
 	dialog_ = new FileSourceDialog;  // Создание диалогового окна
 	connect(dialog_, &FileSourceDialog::UpdateSourceNeed, this, &FileSourceArk::UpdateSource);
+	UpdateSource();
 }
 
 file_source::FileSourceArk::~FileSourceArk()
@@ -83,6 +84,7 @@ bool file_source::FileSourceArk::SendDove(fluctus::DoveSptr const& sent_dove)
         if (file_src_thought & FileSrcDove::FileSrcDoveThought::kSetFileName)
         {
             const QString file_name = (*file_src_dove->file_info).file_name_;
+			UpdateSource();
             dialog_->SetFileName(file_name);
             //Do smth 
         }//kSetFile

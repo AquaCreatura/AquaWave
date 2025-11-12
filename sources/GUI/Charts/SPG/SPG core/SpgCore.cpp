@@ -11,24 +11,51 @@ spg_core::SpgCore::SpgCore():
 
 void spg_core::SpgCore::SetTimeBounds(const Limits<double>& power_bounds)
 {
+	spg_.base_data.val_bounds.horizontal = power_bounds;
+	Emplace();
 }
 
 
 void spg_core::SpgCore::SetFreqBounds(const Limits<double>& freq_bounds)
 {
+	spg_.base_data.val_bounds.vertical = freq_bounds;
+	Emplace();
 }
 
 bool spg_core::SpgCore::AccumulateNewData(const std::vector<float>& passed_data, const double pos_ratio)
 {
-    const int column_index = std::round (pos_ratio * (spg_.base_data.size.horizontal)); //Определяем индекс колонки
+	const auto src_bounds = spg_.base_data.val_bounds;
 
-    SetDataToColumn(passed_data, column_index);
+	auto SetRatioToMatrix = [&](spg_holder& data_holder) -> bool {
+		if (data_holder.station == HolderStation::FullOfData) return true;
+		//Необходимо перевести в относитльный вид, относительно текущего диапазона
+
+		auto &hor_bounds  = data_holder.val_bounds.horizontal;
+		auto &vert_bounds = data_holder.val_bounds.vertical;
+		const double local_ratio = (pos_ratio * src_bounds.horizontal.delta() - hor_bounds.low) / hor_bounds.delta();
+		if (local_ratio < 0. || local_ratio > 1.01) return false;
+		size_t column_index = std::round(local_ratio * (data_holder.size.horizontal)); //Определяем индекс колонки
+		column_index = qBound(0ui64, column_index, data_holder.size.horizontal - 1);
+		Limits<double> ratio_vert_bounds = {
+			(vert_bounds.low - src_bounds.vertical.low) / src_bounds.vertical.delta(),
+			(vert_bounds.high - src_bounds.vertical.low) / src_bounds.vertical.delta()
+		};
+		if (ratio_vert_bounds.low < 0. || ratio_vert_bounds.high <= ratio_vert_bounds.low || ratio_vert_bounds.high > 1)
+			return false;
+		Limits<size_t> row_id_bounds = {
+			std::llround(ratio_vert_bounds.low  * (passed_data.size() - 1)),
+			std::llround(ratio_vert_bounds.high * (passed_data.size() - 1))
+		};
+		SetDataToColumn(passed_data, row_id_bounds, column_index, data_holder);
+		return true;
+	};
+	SetRatioToMatrix(spg_.base_data	   );
+	SetRatioToMatrix(spg_.realtime_data);
     return true;
 }
 
 QPixmap & spg_core::SpgCore::GetRelevantPixmap(const ChartScaleInfo & scale_info)
 {
-    // TODO: insert return statement here
     return renderer_.GetRelevantPixmap(scale_info);
 }
 
@@ -37,20 +64,24 @@ spg_core::spg_data const & spg_core::SpgCore::GetSpectrogramInfo() const
     return spg_;
 }
 
-void spg_core::SpgCore::SetDataToColumn(const std::vector<float>& passed_data, size_t column_idx)
+void spg_core::SpgCore::SetDataToColumn(const std::vector<float>& passed_data, Limits<size_t> row_id, size_t column_idx, spg_holder& data_to_fill)
 {
-    column_idx = qBound(0ui64, column_idx, spg_.base_data.size.horizontal -1);
-    if(spg_.base_data.relevant_vec[column_idx]) return; //if allready is relevant - do nothing
-    const auto height = spg_.base_data.size.vertical;
-    if(passed_data.size() != height) return;
-    tbb::spin_mutex::scoped_lock guard_lock(spg_.rw_mutex_);
-    for(int y = 0; y < height; y++)
-    {
-        spg_.base_data[y][column_idx] = passed_data[y];
-    }
-    spg_.base_data.need_redraw = true;
-    spg_.base_data.relevant_vec[column_idx] = true;
+	if (data_to_fill.relevant_vec[column_idx]) return; //if allready is relevant - do nothing
+	const auto height = data_to_fill.size.vertical;
+
+	const double norm_koeff = double(row_id.delta()) / (height - 1);
+	tbb::spin_mutex::scoped_lock guard_lock(spg_.rw_mutex_);
+	for (int y = 0; y < height; y++)
+	{
+		const auto passed_id = row_id.low + double(y) * norm_koeff;
+		data_to_fill[y][column_idx] = passed_data[passed_id];
+	}
+	
+
+	data_to_fill.need_redraw = true;
+	data_to_fill.relevant_vec[column_idx] = true;
 }
+
 
 spg_core::SpgCore::~SpgCore()
 {
@@ -58,24 +89,32 @@ spg_core::SpgCore::~SpgCore()
 
 bool spg_core::SpgCore::Emplace()
 {
-    auto &basic = spg_.base_data;
-    if(basic.val_bounds.horizontal.delta() <= 0) basic.val_bounds.horizontal = {0, 1000};              // Set x-axis Limits
-    if(basic.val_bounds.vertical.delta()   <= 0) basic.val_bounds.vertical   = {0.0, 1.0};             // Set y-axis Limits
-    basic.size.vertical         = 1024 * 4;                // Set data matrix height
-    basic.size.horizontal       = 1024 * 8;              // Set data matrix width
-    spg_.power_bounds           = {0, 100};
-    // Check for valid dimensions before resizing
-    if (basic.size.vertical == 0 || basic.size.horizontal == 0) {
-        std::cerr << "Error: Initial DPX data dimensions cannot be zero." << std::endl;
-        return false;
-    }
 
-    const size_t data_size = static_cast<size_t>(basic.size.vertical) * basic.size.horizontal;  // Total number of data elements
-    basic.data.clear();                      // Clear any existing data
-    basic.data.resize(data_size, 0);         // Allocate and zero-initialize data
-    basic.relevant_vec.assign(basic.size.horizontal, 0); // Use assign for clear and resize
-    basic.need_redraw = true;                // Set redraw flag
-    return true;                                 // Initialization successful
+	auto emplace_holder = [&](spg_holder &holder_to_emplace, WH_Info<size_t> matrix_size) {
+		holder_to_emplace.station = HolderStation::Preparing;
+		if (holder_to_emplace.val_bounds.horizontal.delta() <= 0) holder_to_emplace.val_bounds.horizontal = { 0, 1000 };              // Set x-axis Limits
+		if (holder_to_emplace.val_bounds.vertical.delta() <= 0) holder_to_emplace.val_bounds.vertical = { 0.0, 1.0 };             // Set y-axis Limits
+		auto& ref_size = holder_to_emplace.size;
+		ref_size = matrix_size; 
+		// Check for valid dimensions before resizing
+		if (ref_size.vertical == 0 || ref_size.horizontal == 0) {
+			std::cerr << "Error: Initial DPX data dimensions cannot be zero." << std::endl;
+			return false;
+		}
+
+		const size_t data_size = static_cast<size_t>(ref_size.vertical) * ref_size.horizontal;  // Total number of data elements
+		holder_to_emplace.data.clear();                      // Clear any existing data
+		holder_to_emplace.data.resize(data_size, 0);         // Allocate and zero-initialize data
+		holder_to_emplace.relevant_vec.assign(ref_size.horizontal, 0); // Use assign for clear and resize
+		holder_to_emplace.need_redraw = true;                // Set redraw flag
+		return true;
+	};
+	spg_.power_bounds = { 0, 100 };
+	if (!emplace_holder(spg_.base_data, { 1024 * 8, 1024 * 4 }))
+		return false;
+	if (!emplace_holder(spg_.realtime_data, { 1024 * 2, 1024 * 1 }))
+		return false;
+    return true;        // Initialization successful
 }
 
 void spg_core::SpgCore::Initialise(const freq_params & freq_params, const size_t samples_count)

@@ -65,6 +65,7 @@ bool file_source::FileSourceArk::SendDove(fluctus::DoveSptr const& sent_dove)
         // Запрос данных вокруг точки
         if (file_src_thought & FileSrcDove::FileSrcDoveThought::kAskChunkAround)
         {
+			if (file_info_.file_name_.isEmpty()) return false;
             listener_man_.StartReading(target_ark, *file_src_dove->time_point_start, *file_src_dove->time_point_start, FileDataManager::kReadAround);
         }
         

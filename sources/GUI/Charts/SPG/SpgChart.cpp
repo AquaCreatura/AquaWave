@@ -39,9 +39,10 @@ void spg_core::ChartSPG::ClearData()
 }
 
 
-void ChartSPG::SetPowerBounds(const Limits<double>& power_bounds, const bool is_adaptive)
+void ChartSPG::SetVerticalMinMaxBounds(const Limits<double>& vert_bounds)
 {
-    ChartInterface::SetPowerBounds(power_bounds, is_adaptive);
+    ChartInterface::SetVerticalMinMaxBounds(vert_bounds);
+	spg_core_.SetFreqBounds(vert_bounds);
 }
 
 void ChartSPG::SetHorizontalMinMaxBounds(const Limits<double>& hor_bounds)

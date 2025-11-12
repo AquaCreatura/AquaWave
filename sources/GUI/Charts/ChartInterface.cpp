@@ -28,7 +28,7 @@ bool ChartInterface::SetBackgroundImage(const QString & image_path)
     return res_of_init;
 }
 
-void ChartInterface::SetVerticalBounds(const Limits<double>& vertical_bounds)
+void ChartInterface::SetVerticalMinMaxBounds(const Limits<double>& vertical_bounds)
 {
     auto& cur_min_max = scale_info_.val_info_.min_max_bounds_.vertical;
     // Если ничего не изменилось — выходим
@@ -64,7 +64,7 @@ void ChartInterface::SetPowerBounds(const Limits<double>& power_bounds, const bo
     power_man_.SetPowerBounds(power_bounds);
     if(domain_type_ != ChartDomainType::kTimeFrequency) //В случае, когда мощность - это вертикальная шкала
     {
-        SetVerticalBounds(power_bounds);
+        SetVerticalMinMaxBounds(power_bounds);
     }
 
 

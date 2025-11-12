@@ -82,8 +82,8 @@ namespace fluctus
 
     struct WorkBounds
     {
-        Limits<double>  source;
-        Limits<double>  scaled;                  
+		Limits<double>  source {0.,1.};
+        Limits<double>  scaled {0.,1.};
     };
 
     struct SourceInfo

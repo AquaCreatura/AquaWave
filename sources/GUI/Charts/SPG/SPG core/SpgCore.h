@@ -25,7 +25,7 @@ public:
     QPixmap&         GetRelevantPixmap(const ChartScaleInfo& scale_info);
     spg_data const & GetSpectrogramInfo() const;
 protected:
-    void SetDataToColumn (const std::vector<float>& passed_data, size_t column_idx);
+	void SetDataToColumn(const std::vector<float>& passed_data, Limits<size_t> row_id, size_t column_idx, spg_holder& holder_to_fill);
 private:
     spg_data    spg_;
     SpgRenderer renderer_;

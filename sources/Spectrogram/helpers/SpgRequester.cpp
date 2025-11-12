@@ -7,7 +7,7 @@
 using namespace spg_core; // Используем пространство имён dpx_core
 
 spg_core::SpgRequester::SpgRequester(const spg_data & spg, const WorkBounds& time_bounds) : 
-    spg_(spg), time_bounds_(time_bounds)
+    spg_(spg), src_time_bounds_(time_bounds)
 {
 }
 
@@ -49,9 +49,11 @@ void spg_core::SpgRequester::LoopProcess()
 	while (is_running_process_) {
 
 		const auto request_info = GetRequestParams();
-		SendRequestDove(request_info);
+		if (!SendRequestDove(request_info)) {
+			std::this_thread::sleep_for(std::chrono::milliseconds(100));
+		}
 
-		//std::this_thread::sleep_for(std::chrono::milliseconds(10));
+		//
 	}
 }
 
@@ -60,7 +62,7 @@ void spg_core::SpgRequester::LoopProcess()
 
 bool spg_core::SpgRequester::SendRequestDove(const request_params & req_info)
 {
-    if(!req_info.need_request) return true;
+    if(!req_info.need_request) return false;
     const auto file_src = ark_file_src_.lock();
     const auto base_ark = ark_spg_.lock();
     if(!file_src || !base_ark) return false;
@@ -74,7 +76,6 @@ bool spg_core::SpgRequester::SendRequestDove(const request_params & req_info)
 
     if (!file_src->SendDove(req_dove))
     {
-        QMessageBox::warning( nullptr, "Cannot Request Data", "Do something with file source");
         return false;
     }
     return true;
@@ -82,19 +83,37 @@ bool spg_core::SpgRequester::SendRequestDove(const request_params & req_info)
 
 SpgRequester::request_params SpgRequester::GetRequestParams() {
     request_params req_info; // Initialize request parameters structure
-    auto &data = spg_.base_data; // Reference to base data for convenience
-    const auto &hor_bounds = data.val_bounds.horizontal; // Horizontal value bounds
-    const auto &src_bounds = hor_bounds; // Source time bounds
+	if (spg_.realtime_data.need_reset) {
+		spg_.realtime_data.station = spg_core::Preparing;
+		spg_.realtime_data.need_reset = false;
+	}
+	if (spg_.base_data.station == spg_core::FullOfData && spg_.realtime_data.station == spg_core::FullOfData)
+		return req_info;
+
+
+	bool need_request_base = (spg_.base_data.station == spg_core::Preparing) || (spg_.realtime_data.station == spg_core::FullOfData);
+	auto &holder_to_request = need_request_base ? spg_.base_data : spg_.realtime_data;
+
+	
+    const auto &hor_bounds = holder_to_request.val_bounds.horizontal; // Horizontal value bounds
+    const auto &src_bounds = src_time_bounds_.source; // Source time bounds
 
     // Calculate normalized request bounds relative to source time bounds
     const Limits<double> req_bounds = {
-        (hor_bounds.low - src_bounds.low) / src_bounds.delta(),
-        (hor_bounds.high - src_bounds.low) / src_bounds.delta()
+        (hor_bounds.low		- src_bounds.low) / src_bounds.delta(),
+        (hor_bounds.high	- src_bounds.low) / src_bounds.delta()
     };
+	if (need_request_base)
+	{
+		req_info.data_size = holder_to_request.size.vertical; // Set vertical data size (1:1 mapping)
+	}
+	else 
+	{
 
-    req_info.data_size = data.size.vertical; // Set vertical data size (1:1 mapping)
-    const int hor_size = data.size.horizontal; // Horizontal data size
-    const auto &relevant_vec = data.relevant_vec; // Vector indicating relevant data points
+		req_info.data_size = 8'192;
+	}
+    const int hor_size = holder_to_request.size.horizontal; // Horizontal data size
+    const auto &relevant_vec = holder_to_request.relevant_vec; // Vector indicating relevant data points
 
     // Generate pixel locations if not already computed for horizontal size
     if (base_draw_locations_.size() != hor_size) {
@@ -113,14 +132,35 @@ SpgRequester::request_params SpgRequester::GetRequestParams() {
 
     // If all data is relevant, no request needed
     if (res_draw_location < 0) {
-        req_info.need_request = false;
+		
+			holder_to_request.station = spg_core::FullOfData;
         return req_info;
     }
 
+	if (holder_to_request.station == spg_core::Preparing)
+	{
+		int relevant_counter = 0;
+		int need_minimum = 100; 
+		//В случае с real time данными, порог динамический
+		if (!need_request_base) {
+			double scale_koeff = spg_.base_data.val_bounds.horizontal.delta() / 
+									spg_.realtime_data.val_bounds.horizontal.delta();
+			need_minimum = spg_.base_data.size.horizontal / scale_koeff;
+		}
+		for (auto rel_iter : relevant_vec) {
+			relevant_counter += rel_iter;
+			if (relevant_counter > need_minimum) {
+				holder_to_request.station = spg_core::ReadyToUse;
+				break;
+			}
+		}
+		
+
+	}
     // Calculate time point for request based on pixel position
     const double draw_pos_ratio = static_cast<double>(res_draw_location) / hor_size;
-    req_info.time_point = req_bounds.low + draw_pos_ratio * req_bounds.delta();
-
+	req_info.time_point = (req_bounds.low + draw_pos_ratio * req_bounds.delta()); // src_bounds.delta();
+	req_info.need_request = true;
     return req_info; // Return completed request parameters
 }
 

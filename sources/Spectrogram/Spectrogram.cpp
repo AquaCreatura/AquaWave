@@ -116,6 +116,7 @@ bool spg_core::Spectrogram::Reload()
     src_info_.info.carrier      = req_dove->file_info->carrier_hz_;
     src_info_.info.samplerate   = req_dove->file_info->samplerate_hz_;
 	Limits<double> new_hor_bounds = { 0., std::max(1.,double(req_dove->file_info->count_of_samples)) };
+	time_bounds_.source = new_hor_bounds;
 	spg_drawer_->SetHorizontalMinMaxBounds(new_hor_bounds);
 	{
 
@@ -126,7 +127,7 @@ bool spg_core::Spectrogram::Reload()
 		freq_divider_ = 1.e6;
 
 		bounds_hz = bounds_hz / freq_divider_;
-		spg_drawer_->SetVerticalBounds(bounds_hz);
+		spg_drawer_->SetVerticalMinMaxBounds(bounds_hz);
 		spg_drawer_->SetVerticalSuffix("MHz");
 	}
 

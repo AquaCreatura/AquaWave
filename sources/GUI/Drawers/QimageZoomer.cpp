@@ -68,8 +68,8 @@ QImage* QimageZoomer::ReleaseBase()
  * @param high_quality If true, uses smooth scaling.
  * @return Reference to the cached QPixmap.
  */
-QPixmap& QimageZoomer::GetPrecisedPart(const WH_Info<Limits<double>>& full_image_value_bounds, 
-                                       const WH_Info<Limits<double>>& target_display_value_bounds,
+QPixmap& QimageZoomer::GetPrecisedPart(const WH_Bounds<double>& full_image_value_bounds,
+                                       const WH_Bounds<double>& target_display_value_bounds,
                                        const WH_Info<int>& target_output_size)
 {
     // Update current request parameters

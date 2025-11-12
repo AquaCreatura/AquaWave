@@ -32,7 +32,7 @@ public:
         Set start and end values for verical
     
     */
-    virtual void                    SetVerticalBounds(const Limits<double>& vertical_bounds);
+    virtual void                    SetVerticalMinMaxBounds(const Limits<double>& vertical_bounds);
 
     /*
         Set start and end values for horizontal axis 

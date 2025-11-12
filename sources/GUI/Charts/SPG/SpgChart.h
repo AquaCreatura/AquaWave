@@ -12,7 +12,7 @@ public:
     virtual void DrawData                   (QPainter& painter          ) override;
     virtual void PushData                   (const draw_data& draw_data ) override;
     virtual void ClearData                  ()                            override;
-    virtual void SetPowerBounds             (const Limits<double>& power_bounds, const bool is_adaptive = true) override;
+    virtual void SetVerticalMinMaxBounds	(const Limits<double>& vert_bounds) override;
     virtual void SetHorizontalMinMaxBounds  (const Limits<double>& hor_bounds) override;
     spg_data const & GetSpectrogramInfo() const;
 protected:

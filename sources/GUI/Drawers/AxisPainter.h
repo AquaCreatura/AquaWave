@@ -3,6 +3,7 @@
 #include <qgraphicsview.h>
 #include <qgraphicsitem.h>
 #include <qpainter.h>
+#include "Tools\parse_tools.h"
 #include "GUI/gui_defs.h"
 namespace aqua_gui
 {

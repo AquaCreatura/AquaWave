@@ -79,7 +79,7 @@ QTabBar::tab:selected {
       </widget>
      </item>
      <item row="0" column="2">
-      <widget class="QComboBox" name="FFt">
+      <widget class="QComboBox" name="fft_combobox">
        <property name="maximumSize">
         <size>
          <width>400</width>

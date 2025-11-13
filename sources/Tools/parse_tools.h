@@ -5,7 +5,7 @@
 namespace aqua_parse_tools
 {
 //AMOS 5_17E_LinkWay-S2_1137.01MHz 23312.5KHz.pcm - Why can not parse this string?
-bool get_samplerate_from_filename(const std::string& filename, int64_t &samplerate_hz)
+inline bool get_samplerate_from_filename(const std::string& filename, int64_t &samplerate_hz)
 {
     // Разрешаем любой регистр единиц, дробную часть — опционально,
     // и возможный пробел перед 'kHz'
@@ -23,7 +23,7 @@ bool get_samplerate_from_filename(const std::string& filename, int64_t &samplera
     return false;
 }
 
-bool get_carrier_from_filename(const std::string& filename, int64_t &carrier_hz)
+inline bool get_carrier_from_filename(const std::string& filename, int64_t &carrier_hz)
 {
     static const std::regex carrier_regex(
         R"((\d+(?:\.\d+)?)\s*MHz)",
@@ -39,13 +39,13 @@ bool get_carrier_from_filename(const std::string& filename, int64_t &carrier_hz)
 }
 
 
-void parse_filename(const std::string& filename, int64_t &carrier_hz, int64_t &samplerate_hz) 
+inline void parse_filename(const std::string& filename, int64_t &carrier_hz, int64_t &samplerate_hz) 
 {
     get_samplerate_from_filename(filename, samplerate_hz);
     get_carrier_from_filename(filename, carrier_hz);
 }
 
-std::string generate_filename(const int64_t carrier_hz,
+inline std::string generate_filename(const int64_t carrier_hz,
                               const int64_t symbol_rate_hz,
                               const std::string& comment,
                               const std::string& extension = "pcm") 
@@ -70,7 +70,7 @@ std::string generate_filename(const int64_t carrier_hz,
 
 // Функция генерирует имя файла с датой, временем и комментариями
 // Формат: "dd.mm.yyyy hh_mm_ss comment"
-std::string gen_time_string(const std::string& comment = "") {
+inline std::string gen_time_string(const std::string& comment = "") {
     // Получаем текущее время
     std::time_t t = std::time(nullptr);
 
@@ -92,6 +92,32 @@ std::string gen_time_string(const std::string& comment = "") {
                   comment.c_str());
     
     return std::string(buffer);
+}
+
+inline std::string ValueToString(double v, const int precision, const char* divider = ",") {
+
+	bool neg = v < 0;
+	if (neg) v = -v;
+	long long int_part = static_cast<long long>(v);
+
+	double frac = v - int_part;
+	// --- Форматируем целую часть ---
+	std::string s = std::to_string(int_part);
+	int n = static_cast<int>(s.size());
+	for (int i = n - 3; i > 0; i -= 3)
+		s.insert(i, divider);
+	// --- Форматируем дробную часть ---
+	if (precision > 0) {
+		s += '.';
+		double scale = std::pow(10, precision);
+		long long frac_part = static_cast<long long>(frac * scale + 0.5);
+		auto frac_str = std::to_string(frac_part);
+		if (frac_str.size() < static_cast<size_t>(precision))
+			frac_str.insert(0, precision - frac_str.size(), '0');
+		s += frac_str;
+	}
+	if (neg) s.insert(0, "-");
+	return s;
 }
 
 }

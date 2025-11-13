@@ -66,10 +66,10 @@ QTabBar::tab:selected {
    <property name="spacing">
     <number>3</number>
    </property>
-   <item row="1" column="1">
+   <item row="1" column="0">
     <widget class="QFrame" name="DpxChart">
      <property name="sizePolicy">
-      <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+      <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
        <horstretch>0</horstretch>
        <verstretch>0</verstretch>
       </sizepolicy>
@@ -105,43 +105,27 @@ QTabBar::tab:selected {
      </layout>
     </widget>
    </item>
-   <item row="1" column="0">
-    <layout class="QVBoxLayout" name="verticalLayout">
-     <item>
-      <widget class="QPushButton" name="do_something">
-       <property name="minimumSize">
-        <size>
-         <width>25</width>
-         <height>25</height>
-        </size>
-       </property>
-       <property name="maximumSize">
-        <size>
-         <width>25</width>
-         <height>25</height>
-        </size>
-       </property>
+   <item row="2" column="0">
+    <layout class="QGridLayout" name="gridLayout_3">
+     <item row="0" column="1">
+      <widget class="QLabel" name="label">
        <property name="text">
-        <string>Sm</string>
+        <string>FFT:</string>
        </property>
       </widget>
      </item>
-     <item>
-      <widget class="QPushButton" name="scale_plus">
-       <property name="text">
-        <string>+</string>
-       </property>
-      </widget>
+     <item row="0" column="2">
+      <widget class="QComboBox" name="fft_combobox"/>
      </item>
-     <item>
-      <spacer name="verticalSpacer">
+     <item row="0" column="0">
+      <spacer name="horizontalSpacer">
        <property name="orientation">
-        <enum>Qt::Vertical</enum>
+        <enum>Qt::Horizontal</enum>
        </property>
        <property name="sizeHint" stdset="0">
         <size>
-         <width>20</width>
-         <height>40</height>
+         <width>40</width>
+         <height>20</height>
         </size>
        </property>
       </spacer>

@@ -42,8 +42,8 @@ private:
 
     QimageZoomer          zoomer_;
 	QElapsedTimer		  data_update_timer_; //
-	double				  last_average_density_[2]{ 1. , 1. };
-	double				  last_max_density_{ 1. };
+	double				  last_average_density_[2]{ 0.9 , 0.9 };
+	double				  last_max_density_ [2] { 1. , 1. };
 	std::atomic<bool>     realtime_mode_{false};
 
 };   

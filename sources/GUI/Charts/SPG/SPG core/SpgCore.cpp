@@ -111,9 +111,9 @@ bool spg_core::SpgCore::Emplace()
 		return true;
 	};
 	spg_.power_bounds = { 0, 100 };
-	if (!emplace_holder(spg_.base_data, { 1024 * 8, 1024 * 4 }))
+	if (!emplace_holder(spg_.base_data, { 1024 * 2, 1024 * 1 }))
 		return false;
-	if (!emplace_holder(spg_.realtime_data, { 1024 * 2, 1024 * 1 }))
+	if (!emplace_holder(spg_.realtime_data, { 1024 * 1, 1024 / 2}))
 		return false;
     return true;        // Initialization successful
 }

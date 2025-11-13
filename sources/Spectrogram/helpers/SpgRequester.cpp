@@ -125,7 +125,7 @@ SpgRequester::request_params SpgRequester::GetRequestParams() {
 	else 
 	{
 
-		req_info.data_size = 8'192;
+		req_info.data_size = 8'192 / 2;
 	}
     const int hor_size = holder_to_request.size.horizontal; // Horizontal data size
     const auto &relevant_vec = holder_to_request.relevant_vec; // Vector indicating relevant data points

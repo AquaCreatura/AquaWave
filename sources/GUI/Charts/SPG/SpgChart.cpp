@@ -3,12 +3,12 @@ using namespace spg_core;
 ChartSPG::ChartSPG(QWidget * parrent):
     ChartInterface(parrent)
 {
-    SetHorizontalMinMaxBounds({50'000, 200'000});
+    SetHorizontalMinMaxBounds({0, 1});
     SetHorizontalSuffix("counts");
 
     SetVerticalSuffix("power");
     domain_type_ = ChartDomainType::kTimeFrequency;
-	scale_info_.val_info_.max_zoom_koeffs_ = { 200, 100 };
+	scale_info_.val_info_.max_zoom_koeffs_ = { 2000, 1000 };
 }
 
 ChartSPG::~ChartSPG()

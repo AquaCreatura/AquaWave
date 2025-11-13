@@ -2,7 +2,6 @@
 DpxWindow::DpxWindow()
 {
     ui_.setupUi(this);
-    connect(ui_.do_something, &QPushButton::clicked, this, &DpxWindow::NeedDoSomething); 
 };
 
 void DpxWindow::SetChartWindow(QWidget * wigdet_ptr)

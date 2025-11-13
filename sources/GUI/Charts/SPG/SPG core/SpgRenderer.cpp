@@ -22,7 +22,7 @@ QPixmap & spg_core::SpgRenderer::GetRelevantPixmap(const ChartScaleInfo & scale_
 bool spg_core::SpgRenderer::UpdateSpectrogramData()
 {
     auto &holder_to_draw = realtime_mode_ ? spg_.realtime_data : spg_.base_data;
-
+	bool is_rt_mode = realtime_mode_;
 	if (holder_to_draw.state & kPrecising) return true;
 	if (holder_to_draw.state != kFullData && holder_to_draw.state != kReadyToUse) return false;
 
@@ -73,10 +73,11 @@ bool spg_core::SpgRenderer::UpdateSpectrogramData()
 		const auto new_density = summ_density / density_counter;
 		if (new_density != last_average_density_[realtime_mode_] ) {
 			last_average_density_[realtime_mode_] = new_density;
+			if (!realtime_mode_) last_average_density_[true] = last_average_density_[false];
 			holder_to_draw.need_redraw = true;
 		}
 
-		last_max_density_ = max_density;  
+		last_max_density_[realtime_mode_] = max_density;
 		last_val_bounds_ = holder_to_draw.val_bounds;
         zoomer_.MarkForUpdate();
     }
@@ -86,15 +87,15 @@ bool spg_core::SpgRenderer::UpdateSpectrogramData()
 
 const argb_t * spg_core::SpgRenderer::GetNormalizedColor(double relative_density) const
 {
-	double delta = (last_max_density_ - last_average_density_[realtime_mode_]) * 0.5;
-	const double normalized_density = qBound(0.0, (relative_density - last_average_density_[realtime_mode_]) / (delta),  1.0);
+	double delta = (last_max_density_[realtime_mode_] - last_average_density_[realtime_mode_]) * 0.7;
+	double normalized_density = (relative_density - last_average_density_[realtime_mode_]) / delta;
     // Validate palette size
-    if ((normalized_density == 0)) 
+    if ((normalized_density <= 0)) 
     {
         static const uint8_t default_color[4] = {0, 0, 0, 0}; // Default to black (little-endian)
         return (uint32_t*)(default_color);
     }
-
+	normalized_density = qBound(0.0, normalized_density * normalized_density, 1.0);
     argb_t* color_palette = LUT_HSV_Instance::get_table_ptr();
     // Calculate palette index and clamp within valid range
     int color_index = static_cast<int>(normalized_density * (hsv_table_size_c - 1));
@@ -122,7 +123,7 @@ bool spg_core::SpgRenderer::IsModeSwitched(WH_Bounds<double> realtime_size)
 		auto &rt_vert		= rt_data.val_bounds.vertical;
 		is_out_of_range = (passed_hor.low < rt_hor.low || passed_hor.high > rt_hor.high) ||
 										(passed_vert.low < rt_vert.low || passed_vert.high > rt_vert.high);
-		const double max_zoom = 2;
+		const double max_zoom = 1.05;
 		const bool strong_focus = (rt_hor.delta() > max_zoom * passed_hor.delta()) ||
 									(rt_vert.delta() > max_zoom * passed_vert.delta());
 		if (is_out_of_range || strong_focus) {

@@ -59,6 +59,11 @@ void ChartDPX::SetHorizontalMinMaxBounds(const Limits<double>& power_bounds)
 	ChartInterface::SetHorizontalMinMaxBounds(power_bounds);
 }
 
+void ChartDPX::SetFftOrder(const int fft_order)
+{
+	dpx_painter_.SetFftOrder(fft_order);
+}
+
 
 bool ChartDPX::ShouldRedraw()
 {

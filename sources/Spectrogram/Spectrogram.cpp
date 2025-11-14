@@ -12,6 +12,7 @@ Spectrogram::Spectrogram(QWidget * parrent) :
 {
     window_ = new SpgWindow;
     window_->SetChartWindow(spg_drawer_);
+	connect(window_, &SpgWindow::FftChangeNeed, spg_drawer_, &ChartSPG::SetFftOrder);
 	
 }
 

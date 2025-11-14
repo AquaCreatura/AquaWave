@@ -19,8 +19,7 @@ public:
     //Bнициализаци¤ палитры
     SpgRenderer(spg_data &init_val);
     //
-    QPixmap& GetRelevantPixmap(const ChartScaleInfo& scale_info);
-
+	QPixmap& GetRelevantPixmap(const ChartScaleInfo& scale_info);
 
 protected:
     /*

@@ -14,7 +14,7 @@ class SpgRequester : public QObject
 public:
     SpgRequester(const spg_data& spg, const WorkBounds& time_bounds);
 	~SpgRequester();
-    void Initialise(const ArkWptr& file_source, const ArkWptr& ark_spg);
+    void Initialise	 (const ArkWptr& file_source, const ArkWptr& ark_spg);
 protected:
 	void StartProcess(bool do_start);
 	void LoopProcess();

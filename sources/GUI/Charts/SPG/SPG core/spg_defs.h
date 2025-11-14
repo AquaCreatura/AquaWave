@@ -50,6 +50,7 @@ namespace spg_core
 		spg_holder							realtime_data;	//Отображаемые, зазумленные данные
 
         Limits<double>						power_bounds;
+		std::atomic<int64_t>				n_fft_{1024};
 
     };
 

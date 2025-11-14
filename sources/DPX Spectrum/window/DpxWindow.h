@@ -13,8 +13,8 @@ Q_OBJECT
 public:
     DpxWindow();
     void SetChartWindow(QWidget* wigdet_ptr);
-    signals:
-    void NeedDoSomething();
+signals:
+	void FftChangeNeed(int new_fft);
 protected:
     Ui::DpxWindow ui_;
 };

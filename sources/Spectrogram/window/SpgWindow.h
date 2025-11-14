@@ -13,6 +13,8 @@ Q_OBJECT
 public:
     SpgWindow();
     void SetChartWindow(QWidget* wigdet_ptr);
+	signals:
+	void FftChangeNeed(int new_fft);
 protected:
     Ui::SpgWindow ui_;
 };

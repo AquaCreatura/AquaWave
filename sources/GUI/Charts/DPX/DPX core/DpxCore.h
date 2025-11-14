@@ -49,6 +49,8 @@ public:
 
     //Is Used to get pixmap from our dpx
     QPixmap&       GetRelevantPixmap(const ChartScaleInfo& scale_info);
+
+	void		   SetFftOrder(int n_fft_order);
 private:
     /**
      * @brief Processes the input data directly, assuming passed_data size is greater than or equal to dpx_data_.size.horizontal.

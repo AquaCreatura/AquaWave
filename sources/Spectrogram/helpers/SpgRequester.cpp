@@ -26,6 +26,8 @@ void spg_core::SpgRequester::Initialise(const ArkWptr & file_source, const ArkWp
 	StartProcess(true);
 }
 
+
+
 void spg_core::SpgRequester::StartProcess(bool do_start)
 {
 	if (do_start) {
@@ -127,7 +129,7 @@ SpgRequester::request_params SpgRequester::GetRequestParams() {
 	else 
 	{
 
-		req_info.data_size = 8'192 / 2;
+		req_info.data_size = spg_.n_fft_;
 	}
     const int hor_size = holder_to_request.size.horizontal; // Horizontal data size
     const auto &relevant_vec = holder_to_request.relevant_vec; // Vector indicating relevant data points

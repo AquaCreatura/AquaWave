@@ -22,6 +22,18 @@ void spg_core::SpgCore::SetFreqBounds(const Limits<double>& freq_bounds)
 	Emplace();
 }
 
+void spg_core::SpgCore::SetNfftOrder(int fft_order)
+{
+	tbb::spin_mutex::scoped_lock guard_lock(spg_.rw_mutex_);
+	spg_.n_fft_ = 1 << fft_order;;
+
+	spg_.base_data.state = kPrecising | kRequestStation;
+	spg_.base_data.relevant_vec.assign(spg_.base_data.relevant_vec.size(), 0);
+
+	spg_.realtime_data.state = kPrecising | kRequestStation;
+	spg_.realtime_data.relevant_vec.assign(spg_.realtime_data.relevant_vec.size(), 0);
+}
+
 bool spg_core::SpgCore::AccumulateNewData(const std::vector<float>& passed_data, const double pos_ratio)
 {
 	const auto src_bounds = spg_.base_data.val_bounds;
@@ -106,7 +118,7 @@ bool spg_core::SpgCore::Emplace()
 		const size_t data_size = static_cast<size_t>(ref_size.vertical) * ref_size.horizontal;  // Total number of data elements
 		holder_to_emplace.data.clear();                      // Clear any existing data
 		holder_to_emplace.data.resize(data_size, 0);         // Allocate and zero-initialize data
-		holder_to_emplace.relevant_vec.assign(ref_size.horizontal, 0); // Use assign for clear and resize
+		holder_to_emplace.relevant_vec.assign(ref_size.horizontal, 0); 
 		holder_to_emplace.need_redraw = true;                // Set redraw flag
 		return true;
 	};

@@ -30,6 +30,7 @@ struct dpx_data
     // Индикатор необходимости перерисовки
     std::atomic_bool        need_redraw = {false};
     tbb::spin_mutex         redraw_mutex;
+	std::atomic<int64_t>	n_fft_;
 
 };
 

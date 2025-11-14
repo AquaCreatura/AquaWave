@@ -13,7 +13,8 @@ dpx_core::SpectrumDPX::SpectrumDPX()
     window_ = new DpxWindow;
     window_->SetChartWindow(dpx_drawer_);
 	dpx_drawer_->SetVerticalSuffix("db");
-    connect(window_, &DpxWindow::NeedDoSomething, this, &SpectrumDPX::RequestSelectedData);
+	connect(window_, &DpxWindow::FftChangeNeed, dpx_drawer_, &ChartDPX::SetFftOrder);
+    //connect(window_, &DpxWindow::NeedDoSomething, this, &SpectrumDPX::RequestSelectedData);
 }
 
 dpx_core::SpectrumDPX::~SpectrumDPX()

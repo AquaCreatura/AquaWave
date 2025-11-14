@@ -14,6 +14,9 @@ public:
     virtual void ClearData                  ()                            override;
     virtual void SetVerticalMinMaxBounds	(const Limits<double>& vert_bounds) override;
     virtual void SetHorizontalMinMaxBounds  (const Limits<double>& hor_bounds) override;
+
+//Requests for core
+	void			 SetFftOrder(int fft_order);
     spg_data const & GetSpectrogramInfo() const;
 protected:
     bool ShouldRedraw();

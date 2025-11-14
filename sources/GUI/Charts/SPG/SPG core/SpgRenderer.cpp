@@ -19,6 +19,7 @@ QPixmap & spg_core::SpgRenderer::GetRelevantPixmap(const ChartScaleInfo & scale_
     return zoomer_.GetPrecisedPart(last_val_bounds_, target_bounds, scale_info.pix_info_.chart_size_px);
 }
 
+
 bool spg_core::SpgRenderer::UpdateSpectrogramData()
 {
     auto &holder_to_draw = realtime_mode_ ? spg_.realtime_data : spg_.base_data;

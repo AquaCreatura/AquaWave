@@ -51,6 +51,11 @@ void ChartSPG::SetHorizontalMinMaxBounds(const Limits<double>& hor_bounds)
     spg_core_.SetTimeBounds(hor_bounds);
 }
 
+void spg_core::ChartSPG::SetFftOrder(int fft_order)
+{
+	spg_core_.SetNfftOrder(fft_order);
+}
+
 spg_data const & ChartSPG::GetSpectrogramInfo() const
 {
     return spg_core_.GetSpectrogramInfo();

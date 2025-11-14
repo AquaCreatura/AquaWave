@@ -36,6 +36,9 @@ protected:
 
 	std::atomic_bool	is_running_process_	{false};
 	std::future<void>	process_anchor_;
+
+	int 				last_sent_positions_[15];
+	int					sent_positions_counter_{ 0 };
 };
 
 

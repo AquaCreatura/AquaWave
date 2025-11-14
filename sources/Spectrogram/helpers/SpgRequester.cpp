@@ -36,6 +36,8 @@ void spg_core::SpgRequester::StartProcess(bool do_start)
 		});
 	}
 	else {
+		for (auto &it : last_sent_positions_) it = -1;
+		
 		if (!is_running_process_) return; // уже остановлено
 		is_running_process_ = false;
 		if (process_anchor_.valid()) {
@@ -137,13 +139,23 @@ SpgRequester::request_params SpgRequester::GetRequestParams() {
 
     int res_draw_location = -1; // Initialize result pixel location as not found
 
+	auto IsLocationUsed = [&](int location) -> bool {
+		for (auto it : last_sent_positions_)
+			if (it == location) return true;
+		return false;
+
+	};
     // Find first non-relevant pixel location
+	
     for (const auto location : base_draw_locations_) {
         if (!relevant_vec[location]) {
             res_draw_location = location;
-            break; // Exit loop once found
+			if(!IsLocationUsed(location))
+				break; 
         }
     }
+	last_sent_positions_[sent_positions_counter_] = res_draw_location;
+	sent_positions_counter_ = (sent_positions_counter_ + 1) % (sizeof(last_sent_positions_) / sizeof(last_sent_positions_[0]));
 
     // If all data is relevant, no request needed
     if (res_draw_location < 0) {
@@ -177,8 +189,9 @@ SpgRequester::request_params SpgRequester::GetRequestParams() {
 
 	}
     // Calculate time point for request based on pixel position
-    const double draw_pos_ratio = static_cast<double>(res_draw_location) / hor_size;
+    const double draw_pos_ratio = static_cast<double>(res_draw_location + 0.5) / hor_size;
 	req_info.time_point = (req_bounds.low + draw_pos_ratio * req_bounds.delta()); // src_bounds.delta();
+
 	req_info.need_request = true;
     return req_info; // Return completed request parameters
 }

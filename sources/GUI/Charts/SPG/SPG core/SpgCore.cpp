@@ -33,8 +33,8 @@ bool spg_core::SpgCore::AccumulateNewData(const std::vector<float>& passed_data,
 		auto &hor_bounds  = data_holder.val_bounds.horizontal;
 		auto &vert_bounds = data_holder.val_bounds.vertical;
 		const double local_ratio = (pos_ratio * src_bounds.horizontal.delta() - hor_bounds.low) / hor_bounds.delta();
-		if (local_ratio < 0. || local_ratio > 1.01) return false;
-		size_t column_index = std::round(local_ratio * (data_holder.size.horizontal)); //Определяем индекс колонки
+		if (local_ratio < 0.0 || local_ratio > 1.0) return false;
+		size_t column_index = std::round(local_ratio * (data_holder.size.horizontal) - 0.5); //Определяем индекс колонки
 		column_index = qBound(0ui64, column_index, data_holder.size.horizontal - 1);
 		Limits<double> ratio_vert_bounds = {
 			(vert_bounds.low - src_bounds.vertical.low) / src_bounds.vertical.delta(),

@@ -73,6 +73,7 @@ void file_source::FileDataListener::SetBaseParams(const int64_t carrier,
 // Остановка текущего асинхронного процесса
 void file_source::FileDataListener::WaitProcess()
 {
+	state_ = kNeedStop;
     if(process_anchor_.valid()) 
         process_anchor_.get();  // Блокирует, пока поток не завершится
 }
@@ -129,7 +130,7 @@ void file_source::FileDataListener::ReadChunksInRangeProcess(double start_pos, d
 	reader.InitFloat(start_pos, end_pos, chunk_size); //Инициализируем в относительно состоянии
 	// Чтение данных вокруг позиции
 	
-	while (reader.ReadStream(data_info_.data_vec))
+	while (state_!= kNeedStop && reader.ReadStream(data_info_.data_vec))
 	{
 		auto out_data_size = data_info_.data_vec.size() / 4;
 		std::vector<Ipp32fc> data_vec(out_data_size);

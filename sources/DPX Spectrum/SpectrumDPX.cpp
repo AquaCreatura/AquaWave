@@ -13,7 +13,7 @@ dpx_core::SpectrumDPX::SpectrumDPX()
     window_ = new DpxWindow;
     window_->SetChartWindow(dpx_drawer_);
 	dpx_drawer_->SetVerticalSuffix("db");
-	connect(window_, &DpxWindow::FftChangeNeed, dpx_drawer_, &ChartDPX::SetFftOrder);
+	connect(window_, &DpxWindow::FftChangeNeed, this, &SpectrumDPX::SetNewFftOrder);
     //connect(window_, &DpxWindow::NeedDoSomething, this, &SpectrumDPX::RequestSelectedData);
 }
 
@@ -28,11 +28,12 @@ bool SpectrumDPX::SendData(fluctus::DataInfo const & data_info)
 {
     // Если входные данные пусты, выходим.
     if(data_info.data_vec.empty()) return true;
-
     // Ссылки на информацию о частоте и входные комплексные данные.
     auto &freq_info  = data_info.freq_info_;
     auto &passed_data = (std::vector<Ipp32fc>&)data_info.data_vec; // Приведение типа.
-    
+	if (passed_data.size() != n_fft_) return false;
+
+
     // Буфер для результата БПФ.
     std::vector<Ipp32fc> transformed_data(passed_data.size());
     // Выполняем прямое Быстрое Преобразование Фурье (БПФ).
@@ -134,6 +135,13 @@ bool dpx_core::SpectrumDPX::Reload()
     return true;
 }
 
+void dpx_core::SpectrumDPX::SetNewFftOrder(int n_fft_order)
+{
+	n_fft_ = 1 << n_fft_order;
+	dpx_drawer_->ClearData();
+	RequestSelectedData();
+}
+
 void SpectrumDPX::RequestSelectedData()
 {
     auto arks = GetBehindArks();
@@ -145,7 +153,7 @@ void SpectrumDPX::RequestSelectedData()
     req_dove->target_ark        = shared_from_this();
     req_dove->time_point_start  = 0;
 	req_dove->time_point_end	= 1.;
-    req_dove->data_size         = 1'024 * 16;
+    req_dove->data_size         = n_fft_;
     if (!file_src_->SendDove(req_dove))
     {
         QMessageBox::warning(

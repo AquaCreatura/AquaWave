@@ -93,12 +93,6 @@ QPixmap & DpxCore::GetRelevantPixmap(const ChartScaleInfo & scale_info)
     return dpx_renderer_.GetRelevantPixmap(scale_info);
 }
 
-void DpxCore::SetFftOrder(int n_fft_order)
-{
-	tbb::spin_mutex::scoped_lock scoped_locker(dpx_data_.redraw_mutex);
-	dpx_data_.n_fft_ = 1 << n_fft_order;
-}
-
 
 /**
  * @brief  Distributes a sequence of y-values into a 2D histogram-like grid (dpx_data_),

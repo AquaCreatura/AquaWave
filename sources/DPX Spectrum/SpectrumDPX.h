@@ -18,8 +18,10 @@ public:
     ArkType      GetArkType () const override;
 protected:
     bool Reload();
+	void SetNewFftOrder(int n_fft_order);
 protected slots:
     virtual void RequestSelectedData();
+
 protected:
     SourceInfo                  src_info_;
 
@@ -27,6 +29,7 @@ protected:
 	QPointer<DpxWindow>			window_;
     FFT_Worker                  fft_worker_;
 	double						freq_divider_ = 1.;
+	int64_t						n_fft_{1024};
 };
 
 }

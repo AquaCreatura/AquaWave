@@ -12,8 +12,6 @@ public:
     virtual void ClearData                  ()                            override;
     virtual void SetPowerBounds             (const Limits<double>& power_bounds, const bool is_adaptive = true) override;
 	virtual void SetHorizontalMinMaxBounds	(const Limits<double>& power_bounds) override;
-	//requests for core
-	void SetFftOrder(const int fft_order);
 protected:
     bool ShouldRedraw();
 protected:

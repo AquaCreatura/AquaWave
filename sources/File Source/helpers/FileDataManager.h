@@ -21,6 +21,7 @@ namespace file_source
             kReadAround     = 1 << 1,     // Режим чтения вокруг позиции 
             kReadCyclic     = 1 << 2,     // Циклическое чтение 
 			kReadChunksInRange = 1 << 3,  // Чтение блоков в указанном диапазоне
+			kNeedStop		   = 1 << 4,  //Запрос на остановку чтения
         };
 
     public:

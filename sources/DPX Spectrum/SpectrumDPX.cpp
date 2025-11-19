@@ -118,6 +118,8 @@ bool dpx_core::SpectrumDPX::Reload()
     }
 
 	dpx_drawer_->ClearData();
+	const int max_order = std::min(log2(req_dove->file_info->count_of_samples), 21.);
+	window_->SetMaxFFtOrder(max_order);
     src_info_.info.carrier      = req_dove->file_info->carrier_hz_;
     src_info_.info.samplerate   = req_dove->file_info->samplerate_hz_;
 	Limits<double> bounds_hz = {

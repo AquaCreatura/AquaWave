@@ -155,14 +155,15 @@ void file_source::FileDataListener::ReadAroundProcess(double pos_ratio, const in
     state_ = ListenerState::kReadAround;  // Установка состояния "в процессе чтения"
 	reader;
     // Чтение данных вокруг позиции
-    if(!reader.GetDataAround(pos_ratio, out_data_size, data_info_.data_vec)) 
+    if(!reader.GetDataAround(pos_ratio, out_data_size, data_info_.data_vec) ||
+		(data_info_.data_vec.size() != out_data_size * 4))
     {
         state_ = kProcessStopped;  // Ошибка чтения
         return;
     }
     
     std::vector<Ipp32fc> data_vec(out_data_size);
-
+	
     ippsConvert_16s32f((Ipp16s*)data_info_.data_vec.data(), (Ipp32f*)data_vec.data(), out_data_size * 2);
     data_info_.data_vec.swap((std::vector<uint8_t>&)data_vec);
     data_info_.time_point = pos_ratio;

@@ -131,7 +131,9 @@ bool spg_core::Spectrogram::Reload()
 		spg_drawer_->SetVerticalMinMaxBounds(bounds_hz);
 		spg_drawer_->SetVerticalSuffix("MHz");
 	}
-
+	const int max_order = std::min(log2(req_dove->file_info->count_of_samples), 21.);
+	window_->SetMaxFFtOrder(max_order);
+	
     
     return true;
 }

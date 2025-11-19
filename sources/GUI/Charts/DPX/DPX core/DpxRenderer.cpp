@@ -47,14 +47,15 @@ bool dpx_core::DpxRenderer::UpdateDpxRgbData()
 		int64_t	density_counter = 0;
 
         tbb::spin_mutex::scoped_lock scoped_locker(dpx_.redraw_mutex);
-        //Здесь бы mutex по-хорошему
+
         const int grid_height = dpx_.size.vertical;
         const int grid_width  = dpx_.size.horizontal;
         argb_t *rgb_iter = dpx_rgb_.data.data();
         for(int column_iter = 0; column_iter < grid_height; column_iter++)
         {
             const int64_t* column_weight_iter = &dpx_.column_weight[0]; //Reset for every row
-            const int64_t* dpx_iter           = dpx_[grid_height - column_iter - 1]; //We have inversed image
+			const auto matrix_idx = grid_height - column_iter - 1;
+            const int64_t* dpx_iter           = dpx_[matrix_idx]; //We have inversed image
             for(int row_iter = 0; row_iter < grid_width; row_iter++)
             {
                 const double column_weight = *(column_weight_iter++);

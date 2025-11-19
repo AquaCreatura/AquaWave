@@ -196,7 +196,7 @@ bool DpxCore::SlopePassedLoop(const std::vector<float>& passed_data,
     const double dpx_x_start = x_bounds_dpx.low;
     const double dpx_x_bin_width = x_bounds_dpx.delta() / static_cast<double>(grid_width);
 
-    const double dpx_y_start = y_bounds_dpx.low;
+    const double y_val_start = y_bounds_dpx.low;
     const double dpx_y_step = y_bounds_dpx.delta() / static_cast<double>(grid_height);
     const double inv_dpx_y_step = 1.0 / dpx_y_step;
 
@@ -237,12 +237,9 @@ bool DpxCore::SlopePassedLoop(const std::vector<float>& passed_data,
             const double y_val = interpolator.Interpolate(t);
 
             // Индекс строки сетки по Y
-            size_t y_bin = static_cast<size_t>((y_val - dpx_y_start) * inv_dpx_y_step);
-            if (y_bin >= grid_height) {
-                if (grid_height > 0) y_bin = grid_height - 1;
-                else continue;
-            }
-
+            double y_norm = std::round(((y_val - y_val_start) * inv_dpx_y_step));
+			if (y_norm < 0 || y_norm >= grid_height) continue;
+			size_t y_bin = static_cast<size_t>(y_norm);
             // Инкремент значения в ячейке и веса колонки
             if (x_bin < grid_width && y_bin < grid_height) {
                 dpx_data_[y_bin][x_bin] += 1;

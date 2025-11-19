@@ -101,7 +101,7 @@ void aqua_gui::AdaptPowerBounds(ChartScaleInfo & scale_info, const Limits<double
     // Получаем ссылку на текущие максимально допустимые (автоматические) границы шкалы
     auto &vert_min_max = scale_info.val_info_.min_max_bounds_.vertical;
 
-	const double min_epsilon = new_bounds.delta() * 0.05;
+	const double min_epsilon = new_bounds.delta() * 0;
     // Если автоматические границы изменились, обновляем шкалу
     if(std::abs(vert_min_max.low - new_bounds.low) > min_epsilon || 
 		std::abs(vert_min_max.high - new_bounds.high) > min_epsilon )

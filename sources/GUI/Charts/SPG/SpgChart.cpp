@@ -8,7 +8,7 @@ ChartSPG::ChartSPG(QWidget * parrent):
 
     SetVerticalSuffix("power");
     domain_type_ = ChartDomainType::kTimeFrequency;
-	scale_info_.val_info_.max_zoom_koeffs_ = { 2000, 1000 };
+	scale_info_.val_info_.max_zoom_koeffs_ = { 20, 1000};
 }
 
 ChartSPG::~ChartSPG()
@@ -47,7 +47,8 @@ void ChartSPG::SetVerticalMinMaxBounds(const Limits<double>& vert_bounds)
 
 void ChartSPG::SetHorizontalMinMaxBounds(const Limits<double>& hor_bounds)
 {
-	ChartInterface::SetHorizontalMinMaxBounds(hor_bounds);
+	scale_info_.val_info_.max_zoom_koeffs_.horizontal = std::max(2., hor_bounds.delta() / 100);
+	ChartInterface::SetHorizontalMinMaxBounds(hor_bounds);	
     spg_core_.SetTimeBounds(hor_bounds);
 }
 

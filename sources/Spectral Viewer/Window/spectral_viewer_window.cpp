@@ -1,6 +1,6 @@
-#include "DpxWindow.h"
+#include "spectral_viewer_window.h"
 #include "Tools\parse_tools.h"
-DpxWindow::DpxWindow()
+SpectralViewerWindow::SpectralViewerWindow()
 {
     ui_.setupUi(this);
 	//Определяем Combobox для FFT
@@ -14,18 +14,18 @@ DpxWindow::DpxWindow()
 	
 };
 
-void DpxWindow::SetChartWindow(QWidget * wigdet_ptr)
+void SpectralViewerWindow::SetChartWindow(QWidget * wigdet_ptr)
 {
     ui_.DpxChart->layout()->addWidget(wigdet_ptr);
     
 }
 
-void DpxWindow::SetMaxFFtOrder(int max_fft_order)
+void SpectralViewerWindow::SetMaxFFtOrder(int max_fft_order)
 {
 	const auto cur_fft = ui_.fft_combobox->currentData().toInt();
 	UpdateFFtCombobox(max_fft_order, cur_fft);
 }
-void DpxWindow::UpdateFFtCombobox(const int max_order, const int cur_fft_order)
+void SpectralViewerWindow::UpdateFFtCombobox(const int max_order, const int cur_fft_order)
 {
 	ui_.fft_combobox->clear();
 	for (int fft_counter = 6; fft_counter <= max_order; fft_counter++) {

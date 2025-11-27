@@ -10,10 +10,9 @@ using namespace dpx_core; // Используем пространство имён dpx_core
 dpx_core::SpectrumDPX::SpectrumDPX()
 {
     dpx_drawer_ = new ChartDPX();     // Создаём указатель на объект DpxChart для отрисовки.
-    window_ = new DpxWindow;
     window_->SetChartWindow(dpx_drawer_);
 	dpx_drawer_->SetVerticalSuffix("db");
-	connect(window_, &DpxWindow::FftChangeNeed, this, &SpectrumDPX::SetNewFftOrder);
+	//connect(window_, &DpxWindow::FftChangeNeed, this, &SpectrumDPX::SetNewFftOrder);
     //connect(window_, &DpxWindow::NeedDoSomething, this, &SpectrumDPX::RequestSelectedData);
 }
 
@@ -78,7 +77,7 @@ bool dpx_core::SpectrumDPX::SendDove(fluctus::DoveSptr const & sent_dove)
     if (base_thought & fluctus::DoveParrent::DoveThought::kGetDialog)
     {
         // Прикрепляем отрисовщик спектра к виджету сообщения.
-        sent_dove->show_widget = window_;
+        sent_dove->show_widget = dpx_drawer_;
         return true; // Запрос обработан.
     }
     if(base_thought == fluctus::DoveParrent::DoveThought::kTieBehind)

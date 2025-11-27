@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1094</width>
-    <height>578</height>
+    <width>1077</width>
+    <height>617</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -59,73 +59,93 @@ QTabBar::tab:selected {
    </property>
    <layout class="QGridLayout" name="gridLayout">
     <item row="0" column="0">
-     <widget class="QSplitter" name="splitter">
-      <property name="orientation">
-       <enum>Qt::Vertical</enum>
+     <widget class="QFrame" name="frame_2">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
       </property>
-      <widget class="QTabWidget" name="harmonics_viewer_tab_widget">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-         <horstretch>0</horstretch>
-         <verstretch>2</verstretch>
-        </sizepolicy>
+      <property name="minimumSize">
+       <size>
+        <width>32</width>
+        <height>32</height>
+       </size>
+      </property>
+      <property name="frameShape">
+       <enum>QFrame::StyledPanel</enum>
+      </property>
+      <property name="frameShadow">
+       <enum>QFrame::Raised</enum>
+      </property>
+      <layout class="QHBoxLayout" name="horizontalLayout">
+       <property name="leftMargin">
+        <number>9</number>
        </property>
-       <property name="currentIndex">
+       <property name="topMargin">
+        <number>1</number>
+       </property>
+       <property name="bottomMargin">
         <number>0</number>
        </property>
-       <widget class="QWidget" name="spectre_tab">
-        <attribute name="title">
-         <string>Spectre</string>
-        </attribute>
-        <layout class="QGridLayout" name="gridLayout_2" columnstretch="0">
-         <property name="leftMargin">
-          <number>0</number>
+       <item>
+        <widget class="QPushButton" name="spectral_viewer_navigate_button">
+         <property name="minimumSize">
+          <size>
+           <width>32</width>
+           <height>32</height>
+          </size>
          </property>
-         <property name="topMargin">
-          <number>0</number>
+         <property name="maximumSize">
+          <size>
+           <width>32</width>
+           <height>32</height>
+          </size>
          </property>
-         <property name="rightMargin">
-          <number>0</number>
+         <property name="text">
+          <string>SPG</string>
          </property>
-         <property name="bottomMargin">
-          <number>0</number>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="analyze_navigate_button">
+         <property name="minimumSize">
+          <size>
+           <width>32</width>
+           <height>32</height>
+          </size>
          </property>
-         <property name="spacing">
-          <number>0</number>
+         <property name="maximumSize">
+          <size>
+           <width>32</width>
+           <height>32</height>
+          </size>
          </property>
-        </layout>
-       </widget>
-       <widget class="QWidget" name="constellation_tab">
-        <attribute name="title">
-         <string>Constellation</string>
-        </attribute>
-       </widget>
-      </widget>
-      <widget class="QFrame" name="TimeFreqFrame">
-       <property name="sizePolicy">
-        <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-         <horstretch>0</horstretch>
-         <verstretch>2</verstretch>
-        </sizepolicy>
-       </property>
-       <layout class="QGridLayout" name="TimeFreqWidget">
-        <property name="leftMargin">
-         <number>3</number>
-        </property>
-        <property name="topMargin">
-         <number>1</number>
-        </property>
-        <property name="rightMargin">
-         <number>0</number>
-        </property>
-        <property name="bottomMargin">
-         <number>0</number>
-        </property>
-        <property name="spacing">
-         <number>0</number>
-        </property>
-       </layout>
-      </widget>
+         <property name="text">
+          <string>ANZ</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="horizontalSpacer">
+         <property name="orientation">
+          <enum>Qt::Horizontal</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>40</width>
+           <height>20</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item row="1" column="0">
+     <widget class="QStackedWidget" name="stackedWidget">
+      <widget class="QWidget" name="spectral_viewer"/>
+      <widget class="QWidget" name="scope_analyzer"/>
      </widget>
     </item>
    </layout>
@@ -135,7 +155,7 @@ QTabBar::tab:selected {
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1094</width>
+     <width>1077</width>
      <height>21</height>
     </rect>
    </property>

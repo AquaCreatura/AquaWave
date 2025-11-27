@@ -115,8 +115,6 @@
   <ItemGroup>
     <ClCompile Include="AquaWave.cpp" />
     <ClCompile Include="main.cpp" />
-    <ClCompile Include="sources\DPX Spectrum\SpectrumDPX.cpp" />
-    <ClCompile Include="sources\DPX Spectrum\window\DpxWindow.cpp" />
     <ClCompile Include="sources\DSP Tools\basic\freq_shifter.cpp" />
     <ClCompile Include="sources\DSP Tools\FFT\FFT_Worker.cpp" />
     <ClCompile Include="sources\DSP Tools\Resampler\ResamplersImpl\MR Resampler\MultiRateResampler.cpp" />
@@ -138,6 +136,7 @@
     <ClCompile Include="sources\GUI\Charts\DPX\DpxChart.cpp" />
     <ClCompile Include="sources\GUI\Charts\Simple chart\ChartSingle.cpp" />
     <ClCompile Include="sources\GUI\Charts\ChartInterface.cpp" />
+    <ClCompile Include="sources\GUI\Charts\SPG\helpers\SpgRequester.cpp" />
     <ClCompile Include="sources\GUI\Charts\SPG\SPG core\SpgCore.cpp" />
     <ClCompile Include="sources\GUI\Charts\SPG\SPG core\SpgRenderer.cpp" />
     <ClCompile Include="sources\GUI\Charts\SPG\SPG core\SpgScaler.cpp" />
@@ -146,14 +145,15 @@
     <ClCompile Include="sources\GUI\Drawers\ImageBackGround.cpp" />
     <ClCompile Include="sources\GUI\Drawers\QimageZoomer.cpp" />
     <ClCompile Include="sources\Interfaces\base_impl\ark_base.cpp" />
-    <ClCompile Include="sources\Spectrogram\helpers\SpgRequester.cpp" />
-    <ClCompile Include="sources\Spectrogram\Spectrogram.cpp" />
-    <ClCompile Include="sources\Spectrogram\window\SpgWindow.cpp" />
+    <ClCompile Include="sources\Scope Analyzer\ScopeAnalyzer.cpp" />
+    <ClCompile Include="sources\Scope Analyzer\window\scope_analyzer_window.cpp" />
+    <ClCompile Include="sources\Spectral Viewer\DPX Spectrum\SpectrumDPX.cpp" />
+    <ClCompile Include="sources\Spectral Viewer\SpectralViewer.cpp" />
+    <ClCompile Include="sources\Spectral Viewer\Spectrogram\Spectrogram.cpp" />
+    <ClCompile Include="sources\Spectral Viewer\Window\spectral_viewer_window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="sources\aqua_defines.h" />
-    <QtMoc Include="sources\DPX Spectrum\SpectrumDPX.h" />
-    <QtMoc Include="sources\DPX Spectrum\window\DpxWindow.h" />
     <ClInclude Include="sources\DSP Tools\basic\freq_shifter.h" />
     <ClInclude Include="sources\DSP Tools\FFT\FFT_Worker.h" />
     <ClInclude Include="sources\DSP Tools\Resampler\ResamplersImpl\MR Resampler\MultiRateResampler.h" />
@@ -169,14 +169,18 @@
     <ClInclude Include="sources\GUI\basic tools\gui_worker.h" />
     <ClInclude Include="sources\GUI\basic tools\PowerManager.h" />
     <ClInclude Include="sources\GUI\Charts\DPX\DPX core\DpxScaler.h" />
+    <ClInclude Include="sources\GUI\Charts\SPG\helpers\SpgRequester.h" />
     <ClInclude Include="sources\GUI\Charts\SPG\SPG core\SpgCore.h" />
     <ClInclude Include="sources\GUI\Charts\SPG\SPG core\SpgRenderer.h" />
     <ClInclude Include="sources\GUI\Charts\SPG\SPG core\SpgScaler.h" />
     <ClInclude Include="sources\GUI\Charts\SPG\SPG core\spg_defs.h" />
     <QtMoc Include="sources\GUI\Charts\SPG\SpgChart.h" />
-    <QtMoc Include="sources\Spectrogram\helpers\SpgRequester.h" />
-    <ClInclude Include="sources\Spectrogram\Spectrogram.h" />
-    <QtMoc Include="sources\Spectrogram\window\SpgWindow.h" />
+    <ClInclude Include="sources\Scope Analyzer\ScopeAnalyzer.h" />
+    <ClInclude Include="sources\Scope Analyzer\window\scope_analyzer_window.h" />
+    <ClInclude Include="sources\Spectral Viewer\DPX Spectrum\SpectrumDPX.h" />
+    <ClInclude Include="sources\Spectral Viewer\SpectralViewer.h" />
+    <ClInclude Include="sources\Spectral Viewer\Spectrogram\Spectrogram.h" />
+    <ClInclude Include="sources\Spectral Viewer\Window\spectral_viewer_window.h" />
     <ClInclude Include="sources\Tools\utility_aqua.h" />
     <ClInclude Include="sources\Tools\parse_tools.h" />
     <ClInclude Include="sources\File Source\FileSource.h" />
@@ -202,9 +206,9 @@
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="AquaWave.ui" />
-    <QtUic Include="sources\DPX Spectrum\window\DpxWindow.ui" />
     <QtUic Include="sources\File Source\window\file_settings_dialog.ui" />
-    <QtUic Include="sources\Spectrogram\window\SpgWindow.ui" />
+    <QtUic Include="sources\Scope Analyzer\window\scope_analyzer_window.ui" />
+    <QtUic Include="sources\Spectral Viewer\Window\spectral_viewer_window.ui" />
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="AquaWave.qrc" />

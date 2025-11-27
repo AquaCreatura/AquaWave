@@ -1,10 +1,9 @@
 #pragma once
 #include <qpointer.h>
 #include "Interfaces/base_impl/ark_base.h"
-#include "helpers/SpgRequester.h"
+#include "GUI/Charts/SPG/helpers/SpgRequester.h"
 #include "GUI/Charts/SPG/SpgChart.h"
 #include "DSP Tools/FFT/FFT_Worker.h"
-#include "window/SpgWindow.h"
 namespace spg_core
 {
 
@@ -21,7 +20,6 @@ protected:
     bool Reload();
 protected:
     QPointer<ChartSPG>          spg_drawer_;
-    QPointer<SpgWindow>			window_;
     SourceInfo                  src_info_;
 	WorkBounds                  time_bounds_;
     FFT_Worker                  fft_worker_;

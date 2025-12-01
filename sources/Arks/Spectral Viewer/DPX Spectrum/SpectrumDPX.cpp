@@ -80,7 +80,7 @@ bool dpx_core::SpectrumDPX::SendDove(fluctus::DoveSptr const & sent_dove)
         sent_dove->show_widget = dpx_drawer_;
         return true; // Запрос обработан.
     }
-    if(base_thought == fluctus::DoveParrent::DoveThought::kTieBehind)
+    if(base_thought == fluctus::DoveParrent::DoveThought::kTieSource)
     {
         if(target_val->GetArkType() != ArkType::kFileSource) throw std::logic_error("Only signal sources are able to connect!");
         src_info_.ark = target_val;

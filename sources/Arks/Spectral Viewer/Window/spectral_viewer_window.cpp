@@ -14,10 +14,14 @@ SpectralViewerWindow::SpectralViewerWindow()
 	
 };
 
-void SpectralViewerWindow::SetChartWindow(QWidget * wigdet_ptr)
+void SpectralViewerWindow::SetDpxSpectrumWindow(QWidget * wigdet_ptr)
 {
-    ui_.DpxChart->layout()->addWidget(wigdet_ptr);
-    
+	ui_.dpx_chart->layout()->addWidget(wigdet_ptr);
+}
+
+void SpectralViewerWindow::SetSpectrogramWindow(QWidget * wigdet_ptr)
+{
+	ui_.spg_chart->layout()->addWidget(wigdet_ptr);
 }
 
 void SpectralViewerWindow::SetMaxFFtOrder(int max_fft_order)

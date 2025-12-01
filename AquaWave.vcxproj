@@ -115,16 +115,24 @@
   <ItemGroup>
     <ClCompile Include="AquaWave.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="sources\Arks\File Source\FileSource.cpp" />
+    <ClCompile Include="sources\Arks\File Source\helpers\FileDataManager.cpp" />
+    <ClCompile Include="sources\Arks\File Source\helpers\FileReadCore.cpp" />
+    <ClCompile Include="sources\Arks\File Source\window\FileSourceDialog.cpp" />
+    <ClCompile Include="sources\Arks\Interfaces\base_impl\ark_base.cpp" />
+    <ClCompile Include="sources\Arks\Scope Analyzer\ScopeAnalyzer.cpp" />
+    <ClCompile Include="sources\Arks\Scope Analyzer\window\scope_analyzer_window.cpp" />
+    <ClCompile Include="sources\Arks\ShipBuilder.cpp" />
+    <ClCompile Include="sources\Arks\Spectral Viewer\DPX Spectrum\SpectrumDPX.cpp" />
+    <ClCompile Include="sources\Arks\Spectral Viewer\SpectralViewer.cpp" />
+    <ClCompile Include="sources\Arks\Spectral Viewer\Spectrogram\Spectrogram.cpp" />
+    <ClCompile Include="sources\Arks\Spectral Viewer\Window\spectral_viewer_window.cpp" />
     <ClCompile Include="sources\DSP Tools\basic\freq_shifter.cpp" />
     <ClCompile Include="sources\DSP Tools\FFT\FFT_Worker.cpp" />
     <ClCompile Include="sources\DSP Tools\Resampler\ResamplersImpl\MR Resampler\MultiRateResampler.cpp" />
     <ClCompile Include="sources\DSP Tools\Resampler\ResamplersImpl\Precise Resampler\Interpolator\FarrowInterpolator.cpp" />
     <ClCompile Include="sources\DSP Tools\Resampler\ResamplersImpl\Precise Resampler\PreciseResampler.cpp" />
     <ClCompile Include="sources\DSP Tools\Resampler\ResamplerMan.cpp" />
-    <ClCompile Include="sources\File Source\FileSource.cpp" />
-    <ClCompile Include="sources\File Source\helpers\FileDataManager.cpp" />
-    <ClCompile Include="sources\File Source\helpers\FileReadCore.cpp" />
-    <ClCompile Include="sources\File Source\window\FileSourceDialog.cpp" />
     <ClCompile Include="sources\GUI\basic tools\ChartSelection.cpp" />
     <ClCompile Include="sources\GUI\basic tools\gui_conversions.cpp" />
     <ClCompile Include="sources\GUI\basic tools\gui_helper.cpp" />
@@ -144,16 +152,24 @@
     <ClCompile Include="sources\GUI\Drawers\AxisPainter.cpp" />
     <ClCompile Include="sources\GUI\Drawers\ImageBackGround.cpp" />
     <ClCompile Include="sources\GUI\Drawers\QimageZoomer.cpp" />
-    <ClCompile Include="sources\Interfaces\base_impl\ark_base.cpp" />
-    <ClCompile Include="sources\Scope Analyzer\ScopeAnalyzer.cpp" />
-    <ClCompile Include="sources\Scope Analyzer\window\scope_analyzer_window.cpp" />
-    <ClCompile Include="sources\Spectral Viewer\DPX Spectrum\SpectrumDPX.cpp" />
-    <ClCompile Include="sources\Spectral Viewer\SpectralViewer.cpp" />
-    <ClCompile Include="sources\Spectral Viewer\Spectrogram\Spectrogram.cpp" />
-    <ClCompile Include="sources\Spectral Viewer\Window\spectral_viewer_window.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="sources\aqua_defines.h" />
+    <ClInclude Include="sources\Arks\File Source\FileSource.h" />
+    <ClInclude Include="sources\Arks\File Source\file_souce_defs.h" />
+    <ClInclude Include="sources\Arks\File Source\helpers\FileDataManager.h" />
+    <ClInclude Include="sources\Arks\File Source\helpers\FileReadCore.h" />
+    <ClInclude Include="sources\Arks\File Source\window\FileSourceDialog.h" />
+    <ClInclude Include="sources\Arks\Interfaces\ark_defs.h" />
+    <ClInclude Include="sources\Arks\Interfaces\ark_interface.h" />
+    <ClInclude Include="sources\Arks\Interfaces\base_impl\ark_base.h" />
+    <ClInclude Include="sources\Arks\Scope Analyzer\ScopeAnalyzer.h" />
+    <ClInclude Include="sources\Arks\Scope Analyzer\window\scope_analyzer_window.h" />
+    <ClInclude Include="sources\Arks\ShipBuilder.h" />
+    <ClInclude Include="sources\Arks\Spectral Viewer\DPX Spectrum\SpectrumDPX.h" />
+    <ClInclude Include="sources\Arks\Spectral Viewer\SpectralViewer.h" />
+    <ClInclude Include="sources\Arks\Spectral Viewer\Spectrogram\Spectrogram.h" />
+    <ClInclude Include="sources\Arks\Spectral Viewer\Window\spectral_viewer_window.h" />
     <ClInclude Include="sources\DSP Tools\basic\freq_shifter.h" />
     <ClInclude Include="sources\DSP Tools\FFT\FFT_Worker.h" />
     <ClInclude Include="sources\DSP Tools\Resampler\ResamplersImpl\MR Resampler\MultiRateResampler.h" />
@@ -162,10 +178,6 @@
     <ClInclude Include="sources\DSP Tools\Resampler\ResamplersImpl\ResamperInterface.h" />
     <ClInclude Include="sources\DSP Tools\Resampler\tools\resampler_tools.h" />
     <ClInclude Include="sources\DSP Tools\Resampler\ResamplerMan.h" />
-    <ClInclude Include="sources\File Source\file_souce_defs.h" />
-    <ClInclude Include="sources\File Source\helpers\FileDataManager.h" />
-    <ClInclude Include="sources\File Source\helpers\FileReadCore.h" />
-    <QtMoc Include="sources\File Source\window\FileSourceDialog.h" />
     <ClInclude Include="sources\GUI\basic tools\gui_worker.h" />
     <ClInclude Include="sources\GUI\basic tools\PowerManager.h" />
     <ClInclude Include="sources\GUI\Charts\DPX\DPX core\DpxScaler.h" />
@@ -175,15 +187,8 @@
     <ClInclude Include="sources\GUI\Charts\SPG\SPG core\SpgScaler.h" />
     <ClInclude Include="sources\GUI\Charts\SPG\SPG core\spg_defs.h" />
     <QtMoc Include="sources\GUI\Charts\SPG\SpgChart.h" />
-    <ClInclude Include="sources\Scope Analyzer\ScopeAnalyzer.h" />
-    <ClInclude Include="sources\Scope Analyzer\window\scope_analyzer_window.h" />
-    <ClInclude Include="sources\Spectral Viewer\DPX Spectrum\SpectrumDPX.h" />
-    <ClInclude Include="sources\Spectral Viewer\SpectralViewer.h" />
-    <ClInclude Include="sources\Spectral Viewer\Spectrogram\Spectrogram.h" />
-    <ClInclude Include="sources\Spectral Viewer\Window\spectral_viewer_window.h" />
     <ClInclude Include="sources\Tools\utility_aqua.h" />
     <ClInclude Include="sources\Tools\parse_tools.h" />
-    <ClInclude Include="sources\File Source\FileSource.h" />
     <ClInclude Include="sources\GUI\basic tools\ChartSelection.h" />
     <ClInclude Include="sources\GUI\basic tools\gui_conversions.h" />
     <ClInclude Include="sources\GUI\basic tools\gui_helper.h" />
@@ -196,19 +201,16 @@
     <ClInclude Include="sources\GUI\Drawers\AxisPainter.h" />
     <ClInclude Include="sources\GUI\Drawers\ImageBackGround.h" />
     <ClInclude Include="sources\GUI\Drawers\QimageZoomer.h" />
-    <ClInclude Include="sources\Interfaces\base_impl\ark_base.h" />
-    <ClInclude Include="sources\Interfaces\ark_defs.h" />
   </ItemGroup>
   <ItemGroup>
     <QtMoc Include="AquaWave.h" />
-    <QtMoc Include="sources\Interfaces\ark_interface.h" />
     <QtMoc Include="sources\GUI\Charts\ChartInterface.h" />
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="AquaWave.ui" />
-    <QtUic Include="sources\File Source\window\file_settings_dialog.ui" />
-    <QtUic Include="sources\Scope Analyzer\window\scope_analyzer_window.ui" />
-    <QtUic Include="sources\Spectral Viewer\Window\spectral_viewer_window.ui" />
+    <QtUic Include="sources\Arks\File Source\window\file_settings_dialog.ui" />
+    <QtUic Include="sources\Arks\Scope Analyzer\window\scope_analyzer_window.ui" />
+    <QtUic Include="sources\Arks\Spectral Viewer\Window\spectral_viewer_window.ui" />
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="AquaWave.qrc" />

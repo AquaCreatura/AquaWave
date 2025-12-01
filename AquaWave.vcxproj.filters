@@ -47,12 +47,6 @@
     <Filter Include="ARKS\File Source\window">
       <UniqueIdentifier>{ed7f86a2-8e84-4826-9d03-e8b1338322bd}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Interfaces">
-      <UniqueIdentifier>{246bf404-9815-450a-81cc-3d0180094961}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="Interfaces\base_impl">
-      <UniqueIdentifier>{19bffdfb-f2d4-4c80-8468-e01314f71841}</UniqueIdentifier>
-    </Filter>
     <Filter Include="DSP Tools">
       <UniqueIdentifier>{8b03fb09-fc61-48b3-8cc8-92757a7aa6e7}</UniqueIdentifier>
     </Filter>
@@ -101,6 +95,12 @@
     <Filter Include="ARKS\Spectral Viewer\window">
       <UniqueIdentifier>{a2c61dc1-c71e-4a1e-9293-c93eeeb2976a}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ARKS\Interfaces">
+      <UniqueIdentifier>{246bf404-9815-450a-81cc-3d0180094961}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ARKS\Interfaces\base_impl">
+      <UniqueIdentifier>{19bffdfb-f2d4-4c80-8468-e01314f71841}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <!-- ClCompile (CPP Files) -->
   <ItemGroup>
@@ -124,9 +124,6 @@
     </ClCompile>
     <ClCompile Include="sources\DSP Tools\Resampler\ResamplerMan.cpp">
       <Filter>DSP Tools\Resampler</Filter>
-    </ClCompile>
-    <ClCompile Include="sources\File Source\FileSource.cpp">
-      <Filter>ARKS\File Source</Filter>
     </ClCompile>
     <ClCompile Include="sources\GUI\basic tools\ChartSelection.cpp">
       <Filter>GUI\basic tools</Filter>
@@ -154,9 +151,6 @@
     </ClCompile>
     <ClCompile Include="sources\GUI\Drawers\ImageBackGround.cpp">
       <Filter>GUI\Drawers</Filter>
-    </ClCompile>
-    <ClCompile Include="sources\Interfaces\base_impl\ark_base.cpp">
-      <Filter>Interfaces\base_impl</Filter>
     </ClCompile>
     <ClCompile Include="sources\DSP Tools\FFT\FFT_Worker.cpp">
       <Filter>DSP Tools\FFT</Filter>
@@ -188,35 +182,44 @@
     <ClCompile Include="sources\GUI\basic tools\gui_worker.cpp">
       <Filter>GUI\basic tools</Filter>
     </ClCompile>
-    <ClCompile Include="sources\File Source\helpers\FileDataManager.cpp">
-      <Filter>ARKS\File Source\helpers</Filter>
-    </ClCompile>
-    <ClCompile Include="sources\File Source\helpers\FileReadCore.cpp">
-      <Filter>ARKS\File Source\helpers</Filter>
-    </ClCompile>
-    <ClCompile Include="sources\File Source\window\FileSourceDialog.cpp">
-      <Filter>ARKS\File Source\window</Filter>
-    </ClCompile>
     <ClCompile Include="sources\GUI\Charts\SPG\helpers\SpgRequester.cpp">
       <Filter>GUI\Charts\SPG\helpers</Filter>
     </ClCompile>
-    <ClCompile Include="sources\Spectral Viewer\DPX Spectrum\SpectrumDPX.cpp">
-      <Filter>ARKS\Spectral Viewer\DPX Spectrum</Filter>
+    <ClCompile Include="sources\Arks\File Source\FileSource.cpp">
+      <Filter>ARKS\File Source</Filter>
     </ClCompile>
-    <ClCompile Include="sources\Spectral Viewer\Spectrogram\Spectrogram.cpp">
-      <Filter>ARKS\Spectral Viewer\Spectrogram</Filter>
+    <ClCompile Include="sources\Arks\File Source\helpers\FileDataManager.cpp">
+      <Filter>ARKS\File Source\helpers</Filter>
     </ClCompile>
-    <ClCompile Include="sources\Spectral Viewer\Window\spectral_viewer_window.cpp">
-      <Filter>ARKS\Spectral Viewer\window</Filter>
+    <ClCompile Include="sources\Arks\File Source\helpers\FileReadCore.cpp">
+      <Filter>ARKS\File Source\helpers</Filter>
     </ClCompile>
-    <ClCompile Include="sources\Spectral Viewer\SpectralViewer.cpp">
-      <Filter>ARKS\Spectral Viewer</Filter>
+    <ClCompile Include="sources\Arks\File Source\window\FileSourceDialog.cpp">
+      <Filter>ARKS\File Source\window</Filter>
     </ClCompile>
-    <ClCompile Include="sources\Scope Analyzer\window\scope_analyzer_window.cpp">
+    <ClCompile Include="sources\Arks\Scope Analyzer\ScopeAnalyzer.cpp">
+      <Filter>ARKS\Scope Analyzer</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\Arks\Scope Analyzer\window\scope_analyzer_window.cpp">
       <Filter>ARKS\Scope Analyzer\window</Filter>
     </ClCompile>
-    <ClCompile Include="sources\Scope Analyzer\ScopeAnalyzer.cpp">
-      <Filter>ARKS\Scope Analyzer</Filter>
+    <ClCompile Include="sources\Arks\Spectral Viewer\SpectralViewer.cpp">
+      <Filter>ARKS\Spectral Viewer</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\Arks\Spectral Viewer\Window\spectral_viewer_window.cpp">
+      <Filter>ARKS\Spectral Viewer\window</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\Arks\Spectral Viewer\Spectrogram\Spectrogram.cpp">
+      <Filter>ARKS\Spectral Viewer\Spectrogram</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\Arks\Spectral Viewer\DPX Spectrum\SpectrumDPX.cpp">
+      <Filter>ARKS\Spectral Viewer\DPX Spectrum</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\Arks\Interfaces\base_impl\ark_base.cpp">
+      <Filter>ARKS\Interfaces\base_impl</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\Arks\ShipBuilder.cpp">
+      <Filter>ARKS</Filter>
     </ClCompile>
   </ItemGroup>
   <!-- ClInclude (H Files) -->
@@ -241,9 +244,6 @@
     </ClInclude>
     <ClInclude Include="sources\DSP Tools\Resampler\ResamplerMan.h">
       <Filter>DSP Tools\Resampler</Filter>
-    </ClInclude>
-    <ClInclude Include="sources\File Source\file_souce_defs.h">
-      <Filter>ARKS\File Source</Filter>
     </ClInclude>
     <ClInclude Include="sources\GUI\basic tools\ChartSelection.h">
       <Filter>GUI\basic tools</Filter>
@@ -271,12 +271,6 @@
     </ClInclude>
     <ClInclude Include="sources\GUI\Drawers\ImageBackGround.h">
       <Filter>GUI\Drawers</Filter>
-    </ClInclude>
-    <ClInclude Include="sources\Interfaces\base_impl\ark_base.h">
-      <Filter>Interfaces\base_impl</Filter>
-    </ClInclude>
-    <ClInclude Include="sources\Interfaces\ark_defs.h">
-      <Filter>Interfaces</Filter>
     </ClInclude>
     <ClInclude Include="sources\DSP Tools\FFT\FFT_Worker.h">
       <Filter>DSP Tools\FFT</Filter>
@@ -318,35 +312,53 @@
     <ClInclude Include="sources\GUI\basic tools\gui_worker.h">
       <Filter>GUI\basic tools</Filter>
     </ClInclude>
-    <ClInclude Include="sources\File Source\FileSource.h">
-      <Filter>ARKS\File Source</Filter>
-    </ClInclude>
-    <ClInclude Include="sources\File Source\helpers\FileDataManager.h">
-      <Filter>ARKS\File Source\helpers</Filter>
-    </ClInclude>
-    <ClInclude Include="sources\File Source\helpers\FileReadCore.h">
-      <Filter>ARKS\File Source\helpers</Filter>
-    </ClInclude>
     <ClInclude Include="sources\GUI\Charts\SPG\helpers\SpgRequester.h">
       <Filter>GUI\Charts\SPG\helpers</Filter>
     </ClInclude>
-    <ClInclude Include="sources\Spectral Viewer\DPX Spectrum\SpectrumDPX.h">
-      <Filter>ARKS\Spectral Viewer\DPX Spectrum</Filter>
+    <ClInclude Include="sources\Arks\File Source\file_souce_defs.h">
+      <Filter>ARKS\File Source</Filter>
     </ClInclude>
-    <ClInclude Include="sources\Spectral Viewer\Spectrogram\Spectrogram.h">
-      <Filter>ARKS\Spectral Viewer\Spectrogram</Filter>
+    <ClInclude Include="sources\Arks\File Source\FileSource.h">
+      <Filter>ARKS\File Source</Filter>
     </ClInclude>
-    <ClInclude Include="sources\Spectral Viewer\Window\spectral_viewer_window.h">
-      <Filter>ARKS\Spectral Viewer\window</Filter>
+    <ClInclude Include="sources\Arks\File Source\helpers\FileDataManager.h">
+      <Filter>ARKS\File Source\helpers</Filter>
     </ClInclude>
-    <ClInclude Include="sources\Spectral Viewer\SpectralViewer.h">
-      <Filter>ARKS\Spectral Viewer</Filter>
+    <ClInclude Include="sources\Arks\File Source\helpers\FileReadCore.h">
+      <Filter>ARKS\File Source\helpers</Filter>
     </ClInclude>
-    <ClInclude Include="sources\Scope Analyzer\window\scope_analyzer_window.h">
+    <ClInclude Include="sources\Arks\File Source\window\FileSourceDialog.h">
+      <Filter>ARKS\File Source\window</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\Arks\Scope Analyzer\ScopeAnalyzer.h">
+      <Filter>ARKS\Scope Analyzer</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\Arks\Scope Analyzer\window\scope_analyzer_window.h">
       <Filter>ARKS\Scope Analyzer\window</Filter>
     </ClInclude>
-    <ClInclude Include="sources\Scope Analyzer\ScopeAnalyzer.h">
-      <Filter>ARKS\Scope Analyzer</Filter>
+    <ClInclude Include="sources\Arks\Spectral Viewer\SpectralViewer.h">
+      <Filter>ARKS\Spectral Viewer</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\Arks\Spectral Viewer\Window\spectral_viewer_window.h">
+      <Filter>ARKS\Spectral Viewer\window</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\Arks\Spectral Viewer\Spectrogram\Spectrogram.h">
+      <Filter>ARKS\Spectral Viewer\Spectrogram</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\Arks\Spectral Viewer\DPX Spectrum\SpectrumDPX.h">
+      <Filter>ARKS\Spectral Viewer\DPX Spectrum</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\Arks\Interfaces\ark_defs.h">
+      <Filter>ARKS\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\Arks\Interfaces\ark_interface.h">
+      <Filter>ARKS\Interfaces</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\Arks\Interfaces\base_impl\ark_base.h">
+      <Filter>ARKS\Interfaces\base_impl</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\Arks\ShipBuilder.h">
+      <Filter>ARKS</Filter>
     </ClInclude>
   </ItemGroup>
   <!-- QtMoc (For Headers Requiring Moc) -->
@@ -354,17 +366,11 @@
     <QtMoc Include="AquaWave.h">
       <Filter>Application</Filter>
     </QtMoc>
-    <QtMoc Include="sources\Interfaces\ark_interface.h">
-      <Filter>Interfaces</Filter>
-    </QtMoc>
     <QtMoc Include="sources\GUI\Charts\ChartInterface.h">
       <Filter>GUI\Charts</Filter>
     </QtMoc>
     <QtMoc Include="sources\GUI\Charts\SPG\SpgChart.h">
       <Filter>GUI\Charts\SPG</Filter>
-    </QtMoc>
-    <QtMoc Include="sources\File Source\window\FileSourceDialog.h">
-      <Filter>ARKS\File Source\window</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>
@@ -372,14 +378,14 @@
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="AquaWave.ui" />
-    <QtUic Include="sources\File Source\window\file_settings_dialog.ui">
+    <QtUic Include="sources\Arks\File Source\window\file_settings_dialog.ui">
       <Filter>ARKS\File Source\window</Filter>
     </QtUic>
-    <QtUic Include="sources\Spectral Viewer\Window\spectral_viewer_window.ui">
-      <Filter>ARKS\Spectral Viewer\window</Filter>
-    </QtUic>
-    <QtUic Include="sources\Scope Analyzer\window\scope_analyzer_window.ui">
+    <QtUic Include="sources\Arks\Scope Analyzer\window\scope_analyzer_window.ui">
       <Filter>ARKS\Scope Analyzer\window</Filter>
+    </QtUic>
+    <QtUic Include="sources\Arks\Spectral Viewer\Window\spectral_viewer_window.ui">
+      <Filter>ARKS\Spectral Viewer\window</Filter>
     </QtUic>
   </ItemGroup>
   <ItemGroup>

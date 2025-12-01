@@ -47,7 +47,7 @@ file_source::FileSourceDialog::FileSourceDialog()
     {
         connect(ui_.signal_settings_groupbox, &QGroupBox::clicked, [this]()
         {
-            edit_file_info_.is_signal_type = ui_.signal_settings_groupbox->isChecked();
+            edit_file_info_.is_signal = ui_.signal_settings_groupbox->isChecked();
         });
         connect(ui_.carrier_mhz_spinbox, static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), 
                 [this](const double new_val)

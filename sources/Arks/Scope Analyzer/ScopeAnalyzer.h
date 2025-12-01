@@ -1,6 +1,6 @@
 #pragma once
 #include <qpointer.h>
-#include "Interfaces/base_impl/ark_base.h"
+#include "Arks\Interfaces\base_impl\ark_base.h"
 #include "window\scope_analyzer_window.h"
 
 class ScopeAnalyzer : public fluctus::ArkBase

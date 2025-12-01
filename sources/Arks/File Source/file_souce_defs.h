@@ -16,7 +16,7 @@ namespace file_source
         int64_t     samplerate_hz_{ 100'000 };
         IppDataType data_type_ {ipp16sc} ;
         int64_t     count_of_samples;
-        bool        is_signal_type{ true };
+        bool        is_signal{ true };
     };
 
     struct FileSrcDove : public fluctus::DoveParrent

@@ -10,7 +10,7 @@ bool fluctus::ArkBase::SendDove(DoveSptr const & sent_dove)
     if      (base_thought == DoveParrent::DoveThought::kNothing)
         return true;
     //connect input connection
-    else if (base_thought & DoveParrent::DoveThought::kTieBehind)
+    else if (base_thought & DoveParrent::DoveThought::kTieSource)
     {
         if (!target_val)
             throw std::invalid_argument("Wrong target ark! (Behind tie)");
@@ -24,7 +24,7 @@ bool fluctus::ArkBase::SendDove(DoveSptr const & sent_dove)
 
     }
     //connect output connection
-    else if (base_thought & DoveParrent::DoveThought::kTieFront)
+    else if (base_thought & DoveParrent::DoveThought::kTieSink)
     {   
         if (!target_val)
             throw std::invalid_argument("Wrong target ark (front tie)");

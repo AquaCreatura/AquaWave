@@ -12,7 +12,8 @@ class SpectralViewerWindow: public QDialog
 Q_OBJECT
 public:
 	SpectralViewerWindow();
-    void SetChartWindow(QWidget* wigdet_ptr);
+    void SetDpxSpectrumWindow(QWidget* wigdet_ptr);
+	void SetSpectrogramWindow(QWidget* wigdet_ptr);
 	void SetMaxFFtOrder(int n_fft_order);
 signals:
 	void FftChangeNeed(int new_fft);

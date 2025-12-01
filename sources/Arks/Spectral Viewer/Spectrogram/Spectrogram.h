@@ -1,6 +1,6 @@
 #pragma once
 #include <qpointer.h>
-#include "Interfaces/base_impl/ark_base.h"
+#include "Arks\Interfaces\base_impl\ark_base.h"
 #include "GUI/Charts/SPG/helpers/SpgRequester.h"
 #include "GUI/Charts/SPG/SpgChart.h"
 #include "DSP Tools/FFT/FFT_Worker.h"

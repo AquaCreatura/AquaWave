@@ -1,8 +1,7 @@
 #pragma once
 #include <qpointer.h>
-#include "Interfaces/base_impl/ark_base.h"
+#include "Arks\Interfaces\base_impl\ark_base.h"
 #include "GUI/Charts/DPX/DpxChart.h"
-#include "window/DpxWindow.h"
 #include "DSP Tools/FFT/FFT_Worker.h"
 namespace dpx_core
 {

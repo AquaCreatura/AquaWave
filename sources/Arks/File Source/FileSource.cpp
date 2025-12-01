@@ -27,7 +27,7 @@ bool file_source::FileSourceArk::SendDove(fluctus::DoveSptr const& sent_dove)
     const auto parrent_type = sent_dove->base_thought;
     
     // Обработка базовых команд
-    if (parrent_type & fluctus::DoveParrent::kTieFront)
+    if (parrent_type & fluctus::DoveParrent::kTieSink)
     {
         fluctus::DoveSptr message   = std::make_shared<fluctus::DoveParrent>();
         message->base_thought       = DoveParrent::kReset;

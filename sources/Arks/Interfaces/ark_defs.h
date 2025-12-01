@@ -42,9 +42,11 @@ namespace fluctus
     enum ArkType
     {
         kUnknown = 0,
-        kSpectrumDpx ,
-        kFileSource  ,
-        kFileSpectrogram
+        kSpectrumDpx = 1 ,
+        kFileSource  = 2,
+        kFileSpectrogram = 3,
+		kSpectralViewer	 = 4,
+		kScopeAnalyser	 = 5
     };
 
 
@@ -57,7 +59,7 @@ namespace fluctus
         enum DoveThought : int64_t
         {
             kNothing        = 0,                                //Ignore thought
-            kTieBehind      = 1 << 0 , kTieFront    = 1 << 1,   //To connect arks
+            kTieSource      = 1 << 0 , kTieSink    = 1 << 1,   //To connect arks
             kUntieFront     = 1 << 2 , kUntieBehind = 1 << 3,   //To disconnect arks
             kGetDialog      = 1 << 5 , kReset       = 1 << 6,   //Request dialog and request for reset
             kSpecialThought = 1 << 31

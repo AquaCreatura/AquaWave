@@ -2,7 +2,7 @@
 
 #include <qobject.h>
 #include <QWidget>
-#include "Interfaces/ark_defs.h"
+#include "ark_defs.h"
 
 namespace fluctus
 {

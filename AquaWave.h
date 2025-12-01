@@ -2,9 +2,7 @@
 
 #include <QtWidgets/QMainWindow>
 #include "ui_AquaWave.h"
-#include "DPX Spectrum/SpectrumDPX.h"
-#include "Spectrogram/Spectrogram.h"
-#include "File Source/FileSource.h"
+#include "Arks\ShipBuilder.h"
 class AquaWave : public QMainWindow
 {
     Q_OBJECT
@@ -14,8 +12,6 @@ public:
     ~AquaWave();
 
 private:
-    std::shared_ptr<dpx_core::SpectrumDPX>      spectrum_chart_;
-    std::shared_ptr<file_source::FileSourceArk> file_src_;
-    std::shared_ptr<spg_core::Spectrogram>      spectrogram_;
     Ui::AquaWaveWindow              ui;
+	ShipBuilder						ship_builder_;
 };

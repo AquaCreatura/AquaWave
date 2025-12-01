@@ -17,6 +17,11 @@ ScopeAnalyzer::~ScopeAnalyzer()
 	
 }
 
+bool ScopeAnalyzer::SendData(fluctus::DataInfo const & data_info)
+{
+	return false;
+}
+
 // Отправляет данные для обработки спектра и отображения.
 // data_info: Структура с входными данными и информацией о частоте.
 bool SendData(fluctus::DataInfo const & data_info)
@@ -43,7 +48,7 @@ bool ScopeAnalyzer::SendDove(fluctus::DoveSptr const & sent_dove)
         sent_dove->show_widget = window_;
         return true; // Запрос обработан.
     }
-    if(base_thought == fluctus::DoveParrent::DoveThought::kTieBehind)
+    if(base_thought == fluctus::DoveParrent::DoveThought::kTieSource)
     {
         if(target_val->GetArkType() != ArkType::kFileSource) throw std::logic_error("Only signal sources are able to connect!");
         //src_info_.ark = target_val;

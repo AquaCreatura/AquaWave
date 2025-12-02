@@ -1,5 +1,5 @@
 #include "SpectrumDPX.h" // Включаем заголовок класса SpectrumDPX
-#include "File Source/file_souce_defs.h"
+#include "Arks\File Source\file_souce_defs.h"
 #include <ippvm.h>
 
 #include <qmessagebox.h>
@@ -10,7 +10,6 @@ using namespace dpx_core; // Используем пространство имён dpx_core
 dpx_core::SpectrumDPX::SpectrumDPX()
 {
     dpx_drawer_ = new ChartDPX();     // Создаём указатель на объект DpxChart для отрисовки.
-    window_->SetChartWindow(dpx_drawer_);
 	dpx_drawer_->SetVerticalSuffix("db");
 	//connect(window_, &DpxWindow::FftChangeNeed, this, &SpectrumDPX::SetNewFftOrder);
     //connect(window_, &DpxWindow::NeedDoSomething, this, &SpectrumDPX::RequestSelectedData);
@@ -118,7 +117,6 @@ bool dpx_core::SpectrumDPX::Reload()
 
 	dpx_drawer_->ClearData();
 	const int max_order = std::min(log2(req_dove->file_info->count_of_samples), 21.);
-	window_->SetMaxFFtOrder(max_order);
     src_info_.info.carrier      = req_dove->file_info->carrier_hz_;
     src_info_.info.samplerate   = req_dove->file_info->samplerate_hz_;
 	Limits<double> bounds_hz = {

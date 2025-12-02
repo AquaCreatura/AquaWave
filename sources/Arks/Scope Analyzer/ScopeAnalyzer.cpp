@@ -1,5 +1,5 @@
 #include "ScopeAnalyzer.h"
-#include "File Source/file_souce_defs.h"
+#include "Arks\File Source\file_souce_defs.h"
 #include <ippvm.h>
 
 #include <qmessagebox.h>

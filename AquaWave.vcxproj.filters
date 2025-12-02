@@ -351,14 +351,14 @@
     <ClInclude Include="sources\Arks\Interfaces\ark_defs.h">
       <Filter>ARKS\Interfaces</Filter>
     </ClInclude>
-    <ClInclude Include="sources\Arks\Interfaces\ark_interface.h">
-      <Filter>ARKS\Interfaces</Filter>
-    </ClInclude>
     <ClInclude Include="sources\Arks\Interfaces\base_impl\ark_base.h">
       <Filter>ARKS\Interfaces\base_impl</Filter>
     </ClInclude>
     <ClInclude Include="sources\Arks\ShipBuilder.h">
       <Filter>ARKS</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\Arks\Interfaces\ark_interface.h">
+      <Filter>ARKS\Interfaces</Filter>
     </ClInclude>
   </ItemGroup>
   <!-- QtMoc (For Headers Requiring Moc) -->

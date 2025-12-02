@@ -162,6 +162,7 @@
     <ClInclude Include="sources\Arks\File Source\window\FileSourceDialog.h" />
     <ClInclude Include="sources\Arks\Interfaces\ark_defs.h" />
     <ClInclude Include="sources\Arks\Interfaces\ark_interface.h" />
+	<QtMoc Include="sources\Arks\Interfaces\ark_interface.h" />
     <ClInclude Include="sources\Arks\Interfaces\base_impl\ark_base.h" />
     <ClInclude Include="sources\Arks\Scope Analyzer\ScopeAnalyzer.h" />
     <ClInclude Include="sources\Arks\Scope Analyzer\window\scope_analyzer_window.h" />
@@ -187,6 +188,13 @@
     <ClInclude Include="sources\GUI\Charts\SPG\SPG core\SpgScaler.h" />
     <ClInclude Include="sources\GUI\Charts\SPG\SPG core\spg_defs.h" />
     <QtMoc Include="sources\GUI\Charts\SPG\SpgChart.h" />
+	<QtMoc Include="sources\Arks\File Source\window\FileSourceDialog.h" />
+	<QtMoc Include="sources\Arks\Scope Analyzer\ScopeAnalyzer.h" />
+	<QtMoc Include="sources\Arks\Scope Analyzer\window\scope_analyzer_window.h" />
+	<QtMoc Include="sources\Arks\Spectral Viewer\DPX Spectrum\SpectrumDPX.h" />
+	<QtMoc Include="sources\Arks\Spectral Viewer\Window\spectral_viewer_window.h" />
+	<QtMoc Include="sources\Arks\Spectral Viewer\SpectralViewer.h" />
+	<QtMoc Include="sources\GUI\Charts\SPG\helpers\SpgRequester.h" />
     <ClInclude Include="sources\Tools\utility_aqua.h" />
     <ClInclude Include="sources\Tools\parse_tools.h" />
     <ClInclude Include="sources\GUI\basic tools\ChartSelection.h" />

@@ -5,8 +5,8 @@
 #include <unordered_map> // Для хранения слушателей
 
 #include "DSP Tools/Resampler/ResamplerMan.h" // Менеджер ресемплера
-#include "Interfaces/ark_interface.h"
-#include "File Source/file_souce_defs.h"
+#include "Arks\Interfaces\ark_interface.h"
+#include "Arks\File Source\file_souce_defs.h"
 
 namespace file_source
 {

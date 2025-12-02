@@ -1,5 +1,5 @@
 #pragma once
-#include "Interfaces/ark_interface.h"
+#include "Arks\Interfaces\ark_interface.h"
 #include "GUI/Charts/SPG/SPG core/spg_defs.h"
 #include <future>
 #include <qtimer.h>

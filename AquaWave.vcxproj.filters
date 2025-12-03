@@ -297,9 +297,6 @@
     <ClInclude Include="sources\GUI\Charts\SPG\SPG core\spg_defs.h">
       <Filter>GUI\Charts\SPG\SPG core</Filter>
     </ClInclude>
-    <ClInclude Include="sources\GUI\Charts\SPG\SPG core\SpgCore.h">
-      <Filter>GUI\Charts\SPG\SPG core</Filter>
-    </ClInclude>
     <ClInclude Include="sources\GUI\Charts\SPG\SPG core\SpgRenderer.h">
       <Filter>GUI\Charts\SPG\SPG core</Filter>
     </ClInclude>
@@ -311,9 +308,6 @@
     </ClInclude>
     <ClInclude Include="sources\GUI\basic tools\gui_worker.h">
       <Filter>GUI\basic tools</Filter>
-    </ClInclude>
-    <ClInclude Include="sources\GUI\Charts\SPG\helpers\SpgRequester.h">
-      <Filter>GUI\Charts\SPG\helpers</Filter>
     </ClInclude>
     <ClInclude Include="sources\Arks\File Source\file_souce_defs.h">
       <Filter>ARKS\File Source</Filter>
@@ -327,26 +321,8 @@
     <ClInclude Include="sources\Arks\File Source\helpers\FileReadCore.h">
       <Filter>ARKS\File Source\helpers</Filter>
     </ClInclude>
-    <ClInclude Include="sources\Arks\File Source\window\FileSourceDialog.h">
-      <Filter>ARKS\File Source\window</Filter>
-    </ClInclude>
-    <ClInclude Include="sources\Arks\Scope Analyzer\ScopeAnalyzer.h">
-      <Filter>ARKS\Scope Analyzer</Filter>
-    </ClInclude>
-    <ClInclude Include="sources\Arks\Scope Analyzer\window\scope_analyzer_window.h">
-      <Filter>ARKS\Scope Analyzer\window</Filter>
-    </ClInclude>
-    <ClInclude Include="sources\Arks\Spectral Viewer\SpectralViewer.h">
-      <Filter>ARKS\Spectral Viewer</Filter>
-    </ClInclude>
-    <ClInclude Include="sources\Arks\Spectral Viewer\Window\spectral_viewer_window.h">
-      <Filter>ARKS\Spectral Viewer\window</Filter>
-    </ClInclude>
     <ClInclude Include="sources\Arks\Spectral Viewer\Spectrogram\Spectrogram.h">
       <Filter>ARKS\Spectral Viewer\Spectrogram</Filter>
-    </ClInclude>
-    <ClInclude Include="sources\Arks\Spectral Viewer\DPX Spectrum\SpectrumDPX.h">
-      <Filter>ARKS\Spectral Viewer\DPX Spectrum</Filter>
     </ClInclude>
     <ClInclude Include="sources\Arks\Interfaces\ark_defs.h">
       <Filter>ARKS\Interfaces</Filter>
@@ -357,8 +333,8 @@
     <ClInclude Include="sources\Arks\ShipBuilder.h">
       <Filter>ARKS</Filter>
     </ClInclude>
-    <ClInclude Include="sources\Arks\Interfaces\ark_interface.h">
-      <Filter>ARKS\Interfaces</Filter>
+    <ClInclude Include="sources\Arks\Spectral Viewer\spectral_viewer_defs.h">
+      <Filter>ARKS\Spectral Viewer</Filter>
     </ClInclude>
   </ItemGroup>
   <!-- QtMoc (For Headers Requiring Moc) -->
@@ -368,6 +344,33 @@
     </QtMoc>
     <QtMoc Include="sources\GUI\Charts\ChartInterface.h">
       <Filter>GUI\Charts</Filter>
+    </QtMoc>
+    <QtMoc Include="sources\Arks\File Source\window\FileSourceDialog.h">
+      <Filter>ARKS\File Source\window</Filter>
+    </QtMoc>
+    <QtMoc Include="sources\Arks\Spectral Viewer\SpectralViewer.h">
+      <Filter>ARKS\Spectral Viewer</Filter>
+    </QtMoc>
+    <QtMoc Include="sources\Arks\Spectral Viewer\DPX Spectrum\SpectrumDPX.h">
+      <Filter>ARKS\Spectral Viewer\DPX Spectrum</Filter>
+    </QtMoc>
+    <QtMoc Include="sources\Arks\Scope Analyzer\window\scope_analyzer_window.h">
+      <Filter>ARKS\Scope Analyzer\window</Filter>
+    </QtMoc>
+    <QtMoc Include="sources\Arks\Scope Analyzer\ScopeAnalyzer.h">
+      <Filter>ARKS\Scope Analyzer</Filter>
+    </QtMoc>
+    <QtMoc Include="sources\GUI\Charts\SPG\helpers\SpgRequester.h">
+      <Filter>GUI\Charts\SPG\helpers</Filter>
+    </QtMoc>
+    <QtMoc Include="sources\Arks\Interfaces\ark_interface.h">
+      <Filter>ARKS\Interfaces</Filter>
+    </QtMoc>
+    <QtMoc Include="sources\GUI\Charts\SPG\SPG core\SpgCore.h">
+      <Filter>GUI\Charts\SPG\SPG core</Filter>
+    </QtMoc>
+    <QtMoc Include="sources\Arks\Spectral Viewer\Window\spectral_viewer_window.h">
+      <Filter>ARKS\Spectral Viewer\window</Filter>
     </QtMoc>
     <QtMoc Include="sources\GUI\Charts\SPG\SpgChart.h">
       <Filter>GUI\Charts\SPG</Filter>

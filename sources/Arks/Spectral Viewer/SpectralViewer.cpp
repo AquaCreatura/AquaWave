@@ -69,7 +69,7 @@ bool SpectralViewer::SendDove(fluctus::DoveSptr const & sent_dove)
 		{
 			fluctus::DoveSptr req_dove = std::make_shared<fluctus::DoveParrent>();
 			req_dove->base_thought = fluctus::DoveParrent::kTieSource; // Изменение типа запроса: привязать.
-			req_dove->target_ark = shared_from_this();
+			req_dove->target_ark = target_val;
 			spectrogram_->SendDove(req_dove);
 			dpx_spectrum_->SendDove(req_dove);
 		}
@@ -84,6 +84,9 @@ bool SpectralViewer::SendDove(fluctus::DoveSptr const & sent_dove)
     // Передаём сообщение базовому классу для дальнейшей обработки.
     return ArkBase::SendDove(sent_dove);
 }
+
+
+
 
 ArkType SpectralViewer::GetArkType() const
 {
@@ -105,6 +108,10 @@ bool SpectralViewer::Reload()
 
 void SpectralViewer::SetNewFftOrder(int n_fft_order)
 {
+	auto req_dove = std::make_shared<DoveParrent>();
+	req_dove->base_thought = fluctus::DoveParrent::DoveThought::kReset;
+	spectrogram_->SendDove(req_dove);
+	dpx_spectrum_->SendDove(req_dove);
 	//n_fft_ = 1 << n_fft_order;
 	//dpx_drawer_->ClearData();
 	RequestSelectedData();

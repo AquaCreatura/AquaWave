@@ -143,9 +143,16 @@ QTabBar::tab:selected {
      </widget>
     </item>
     <item row="1" column="0">
-     <widget class="QStackedWidget" name="stackedWidget">
-      <widget class="QWidget" name="spectral_viewer"/>
-      <widget class="QWidget" name="scope_analyzer"/>
+     <widget class="QStackedWidget" name="main_stacked">
+      <property name="currentIndex">
+       <number>1</number>
+      </property>
+      <widget class="QWidget" name="spectral_viewer">
+       <layout class="QGridLayout" name="gridLayout_2"/>
+      </widget>
+      <widget class="QWidget" name="scope_analyzer">
+       <layout class="QGridLayout" name="gridLayout_3"/>
+      </widget>
      </widget>
     </item>
    </layout>

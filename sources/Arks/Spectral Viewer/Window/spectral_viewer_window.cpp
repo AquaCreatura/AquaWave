@@ -32,8 +32,8 @@ void SpectralViewerWindow::SetMaxFFtOrder(int max_fft_order)
 void SpectralViewerWindow::UpdateFFtCombobox(const int max_order, const int cur_fft_order)
 {
 	ui_.fft_combobox->clear();
-	for (int fft_counter = 6; fft_counter <= max_order; fft_counter++) {
-		QString item_text = QString("%1 (%2)").arg(aqua_parse_tools::ValueToString(1 << fft_counter, 0, " ").c_str()).arg(fft_counter);
+	for (int fft_counter = 4; fft_counter <= max_order; fft_counter++) {
+		QString item_text = QString("%1").arg(aqua_parse_tools::ValueToString(1 << fft_counter, 0, " ").c_str());
 		ui_.fft_combobox->addItem(item_text, fft_counter);
 	}
 	{

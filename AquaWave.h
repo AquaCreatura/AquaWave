@@ -14,4 +14,5 @@ public:
 private:
     Ui::AquaWaveWindow              ui;
 	ShipBuilder						ship_builder_;
+	fluctus::ArkSptr				file_src_;
 };

@@ -3,6 +3,8 @@
 #include "Arks\Interfaces\base_impl\ark_base.h"
 #include "GUI/Charts/DPX/DpxChart.h"
 #include "DSP Tools/FFT/FFT_Worker.h"
+
+#include "..\spectral_viewer_defs.h"
 namespace dpx_core
 {
 

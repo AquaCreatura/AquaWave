@@ -7,12 +7,19 @@ AquaWave::AquaWave(QWidget *parent, const QString& file_path)
 {
 	//(QString&)file_path = "D:\\signals\\17.10.2025 16_41_59 1875.300000MHz 12800.000KHz.pcm";
     ui.setupUi(this); 
-	auto file_src			= ship_builder_.BuildNewShip(fluctus::kFileSource);
+	file_src_				= ship_builder_.BuildNewShip(fluctus::kFileSource);
 	auto spectral_viewer	= ship_builder_.BuildNewShip(fluctus::kSpectralViewer);
-	auto scope_analyser		= ship_builder_.BuildNewShip(fluctus::kFileSpectrogram);
+	auto scope_analyser		= ship_builder_.BuildNewShip(fluctus::kScopeAnalyser);
 
-	ShipBuilder::Bind_SrcSink(file_src, spectral_viewer);
-	ShipBuilder::Bind_SrcSink(file_src, scope_analyser);
+	ShipBuilder::Bind_SrcSink(file_src_, spectral_viewer);
+	ShipBuilder::Bind_SrcSink(file_src_, scope_analyser);
+
+	
+	connect(ui.new_file_menu_action, &QAction::triggered, [this]()
+	{
+		auto file_window = ShipBuilder::GetWindow(file_src_);
+		file_window->show();
+	});
 
 	if (!file_path.isEmpty()) //Если запускали через файл - инициализируем файловый источник
 	{
@@ -20,12 +27,13 @@ AquaWave::AquaWave(QWidget *parent, const QString& file_path)
 		file_dove->special_thought = file_source::FileSrcDove::kSetFileName;
 		file_dove->file_info = file_source::file_params();
 		(*file_dove->file_info).file_name_ = file_path;
-		file_src->SendDove(file_dove);
+		file_src_->SendDove(file_dove);
 	}
 
+	this->ui.main_stacked->addWidget(ShipBuilder::GetWindow(spectral_viewer));
+	this->ui.main_stacked->addWidget(ShipBuilder::GetWindow(scope_analyser));
 
-	this->ui.spectral_viewer->layout()->addWidget(ShipBuilder::GetWindow(spectral_viewer));
-	this->ui.scope_analyzer	->layout()->addWidget(ShipBuilder::GetWindow(scope_analyser));
+	this->ui.main_stacked->setCurrentWidget(ShipBuilder::GetWindow(spectral_viewer));
 }
 
 AquaWave::~AquaWave()

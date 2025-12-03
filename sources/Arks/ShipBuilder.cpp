@@ -4,16 +4,20 @@
 #include "Arks\Scope Analyzer\ScopeAnalyzer.h"
 fluctus::ArkSptr ShipBuilder::BuildNewShip(fluctus::ArkType ship_type)
 {
+	fluctus::ArkSptr ark;
 	switch (ship_type)
 	{
-	case fluctus::kFileSource:		return std::make_shared<file_source::FileSourceArk>();
-	case fluctus::kSpectralViewer:	return std::make_shared<SpectralViewer>();
-	case fluctus::kScopeAnalyser:	return std::make_shared<ScopeAnalyzer>();
+	case fluctus::kFileSource:		ark = std::make_shared<file_source::FileSourceArk>();
+		break;
+	case fluctus::kSpectralViewer:	ark = std::make_shared<SpectralViewer>();
+		break;
+	case fluctus::kScopeAnalyser:	ark = std::make_shared<ScopeAnalyzer>();
+		break;
 	default:
 		break;
 	};
-
-	return {};
+	if (ark) fleet.push_back(ark);
+	return ark;
 }
 
 bool ShipBuilder::Bind_SrcSink(fluctus::ArkSptr source_ark, fluctus::ArkSptr sink_ark)

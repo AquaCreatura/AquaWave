@@ -9,7 +9,7 @@ fluctus::ArkSptr ShipBuilder::BuildNewShip(fluctus::ArkType ship_type)
 	{
 	case fluctus::kFileSource:		ark = std::make_shared<file_source::FileSourceArk>();
 		break;
-	case fluctus::kSpectralViewer:	ark = std::make_shared<SpectralViewer>();
+	case fluctus::kSpectralViewer:	ark = std::make_shared<spectral_viewer::SpectralViewer>();
 		break;
 	case fluctus::kScopeAnalyser:	ark = std::make_shared<ScopeAnalyzer>();
 		break;

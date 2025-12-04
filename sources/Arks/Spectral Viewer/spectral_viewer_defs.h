@@ -10,7 +10,7 @@ namespace spectral_viewer
     struct SpectralDove : public fluctus::DoveParrent
     {
 		SpectralDove() { base_thought = fluctus::DoveParrent::kSpecialThought; };
-        enum FileSrcDoveThought : int64_t
+        enum SpectralThought : int64_t
         {
             kUnknown = 0, 
             kSetFFtOrder = 1,

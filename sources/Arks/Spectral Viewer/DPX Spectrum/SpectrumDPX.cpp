@@ -90,7 +90,16 @@ bool dpx_core::SpectrumDPX::SendDove(fluctus::DoveSptr const & sent_dove)
     {
         return Reload();
     }
-
+	if (base_thought == fluctus::DoveParrent::DoveThought::kSpecialThought) {
+		const auto special_thought = sent_dove->special_thought;
+		if (auto spectral_dove = std::dynamic_pointer_cast<spectral_viewer::SpectralDove>(sent_dove)) {
+			if (special_thought & spectral_viewer::SpectralDove::kSetFFtOrder) {
+				n_fft_ = 1 << *spectral_dove->fft_order_;
+				dpx_drawer_->ClearData();
+				RequestSelectedData();
+			}
+		};
+	}
     // Передаём сообщение базовому классу для дальнейшей обработки.
     return ArkBase::SendDove(sent_dove);
 }
@@ -114,9 +123,6 @@ bool dpx_core::SpectrumDPX::Reload()
     {
         return false;
     }
-
-	dpx_drawer_->ClearData();
-	const int max_order = std::min(log2(req_dove->file_info->count_of_samples), 21.);
     src_info_.info.carrier      = req_dove->file_info->carrier_hz_;
     src_info_.info.samplerate   = req_dove->file_info->samplerate_hz_;
 	Limits<double> bounds_hz = {

@@ -89,6 +89,14 @@ bool Spectrogram::SendDove(fluctus::DoveSptr const & sent_dove)
     {
         return Reload();
     }
+	if (base_thought == fluctus::DoveParrent::DoveThought::kSpecialThought) {
+		const auto special_thought = sent_dove->special_thought;
+		if (auto spectral_dove = std::dynamic_pointer_cast<spectral_viewer::SpectralDove>(sent_dove)) {
+			if (special_thought & spectral_viewer::SpectralDove::kSetFFtOrder) {
+				spg_drawer_->SetFftOrder(spectral_dove->fft_order_);
+			}
+		};
+	}
     return ArkBase::SendDove(sent_dove);
 }
 

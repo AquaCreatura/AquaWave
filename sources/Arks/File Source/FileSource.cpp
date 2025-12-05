@@ -16,6 +16,7 @@ file_source::FileSourceArk::FileSourceArk(QWidget * main_window) :
 
 file_source::FileSourceArk::~FileSourceArk()
 {
+	listener_man_.StopAllReaders();
 }
 
 // Обработчик сообщений (Dove - "голубь" как сообщение)
@@ -105,6 +106,7 @@ fluctus::ArkType file_source::FileSourceArk::GetArkType() const
 
 void file_source::FileSourceArk::UpdateSource()
 {
+	listener_man_.StopAllReaders();
     this->file_info_ = dialog_->GetFileInfo(); //Update info, according ui
 	if (qmain_window_) qmain_window_->setWindowTitle(tr("[AquaWave v.1.0] %1").arg(file_info_.file_name_));
     //Reset out arks

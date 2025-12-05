@@ -51,6 +51,13 @@ void file_source::FileDataManager::DeleteReader(const fluctus::ArkWptr& reader)
     listeners_.erase(it);                // Удаление из map
 }
 
+void file_source::FileDataManager::StopAllReaders()
+{
+	for (auto &listener_iter : listeners_) {
+		listener_iter.second.WaitProcess();
+	};
+}
+
 //=================================== FileDataListener Implementation ============================
 
 // Конструктор: инициализирует weak_ptr на ARK и параметры файла

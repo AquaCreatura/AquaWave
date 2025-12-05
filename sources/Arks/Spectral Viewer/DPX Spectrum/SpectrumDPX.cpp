@@ -44,6 +44,7 @@ bool SpectrumDPX::SendData(fluctus::DataInfo const & data_info)
     
     // Вычисляем магнитуду (амплитуду) комплексных чисел.
     ippsPowerSpectr_32fc(transformed_data.data(), power_vec.data(), passed_data.size());
+	ippsAddC_32f_I(0.0001, power_vec.data(), power_vec.size());
     ippsLog10_32f_A11(power_vec.data(), power_vec.data(), power_vec.size());
     ippsMulC_32f_I(10, power_vec.data(), power_vec.size());
     
@@ -111,10 +112,10 @@ ArkType dpx_core::SpectrumDPX::GetArkType() const
 
 bool dpx_core::SpectrumDPX::Reload()
 {
+	dpx_drawer_->ClearData();
+
     auto file_src = src_info_.ark.lock();
-	
     if(!file_src) return true;
-    
     
     auto req_dove = std::make_shared<file_source::FileSrcDove>();
     req_dove->base_thought      = fluctus::DoveParrent::DoveThought::kSpecialThought;

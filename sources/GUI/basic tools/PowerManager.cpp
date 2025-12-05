@@ -93,9 +93,9 @@ void PowerLimitMan::UpdateBounds(const std::vector<float>& data, const Limits<do
 	}	
     // Атомарное обновление границ мощности
 	if (max_val > current_bounds.high) {
-		need_update_max_ = true;
+		need_external_update_max_ = true;
 	}
-	else need_update_max_ = false;
+	else need_external_update_max_ = false;
     power_bounds_ = new_bounds;
 	need_reset_bounds_ = false;
 	
@@ -117,5 +117,5 @@ void aqua_gui::PowerLimitMan::ResetBounds()
 
 bool aqua_gui::PowerLimitMan::NeedRelevantBounds() const
 {
-	return need_reset_bounds_ || need_update_max_;
+	return need_reset_bounds_ || need_external_update_max_;
 }

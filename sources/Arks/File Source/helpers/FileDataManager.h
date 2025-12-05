@@ -95,10 +95,10 @@ namespace file_source
 
         // Удаление слушателя для указанного ARK
         void DeleteReader(const fluctus::ArkWptr& reader);
-
+		void StopAllReaders();
     private:
         std::unordered_map<std::weak_ptr<fluctus::ArkInterface>, FileDataListener, 
             fluctus::WeakPtrHash<fluctus::ArkInterface>, fluctus::WeakPtrEqual<fluctus::ArkInterface>> listeners_; // Словарь слушателей
-        const file_params& params_; // Параметры файла (константная ссылка)
+        const file_params& params_; // Параметры файла
     };
 };

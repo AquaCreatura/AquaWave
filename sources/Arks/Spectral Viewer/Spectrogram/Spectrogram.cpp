@@ -42,6 +42,7 @@ bool Spectrogram::SendData(fluctus::DataInfo const & data_info)
     
     // Вычисляем магнитуду (амплитуду) комплексных чисел.
     ippsPowerSpectr_32fc(transformed_data.data(), power_vec.data(), passed_data.size());
+	ippsAddC_32f_I(0.0001, power_vec.data(), power_vec.size());
     ippsLog10_32f_A11(power_vec.data(), power_vec.data(), power_vec.size());
     ippsMulC_32f_I(10, power_vec.data(), power_vec.size());
     
@@ -93,7 +94,7 @@ bool Spectrogram::SendDove(fluctus::DoveSptr const & sent_dove)
 		const auto special_thought = sent_dove->special_thought;
 		if (auto spectral_dove = std::dynamic_pointer_cast<spectral_viewer::SpectralDove>(sent_dove)) {
 			if (special_thought & spectral_viewer::SpectralDove::kSetFFtOrder) {
-				spg_drawer_->SetFftOrder(spectral_dove->fft_order_);
+				spg_drawer_->SetFftOrder(*spectral_dove->fft_order_);
 			}
 		};
 	}

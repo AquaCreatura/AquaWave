@@ -123,15 +123,10 @@ SpgRequester::request_params SpgRequester::GetRequestParams() {
         (hor_bounds.low		- src_bounds.low) / src_bounds.delta(),
         (hor_bounds.high	- src_bounds.low) / src_bounds.delta()
     };
-	if (need_request_base)
-	{
-		req_info.data_size = holder_to_request.size.vertical; // Set vertical data size (1:1 mapping)
-	}
-	else 
-	{
 
-		req_info.data_size = spg_.n_fft_;
-	}
+
+	req_info.data_size = spg_.n_fft_;
+	
     const int hor_size = holder_to_request.size.horizontal; // Horizontal data size
     const auto &relevant_vec = holder_to_request.relevant_vec; // Vector indicating relevant data points
 

@@ -36,8 +36,8 @@ void spg_core::SpgCore::SetNfftOrder(int fft_order)
 
 bool spg_core::SpgCore::AccumulateNewData(const std::vector<float>& passed_data, const double pos_ratio)
 {
+	if (passed_data.size() != spg_.n_fft_) return false;
 	const auto src_bounds = spg_.base_data.val_bounds;
-
 	auto SetRatioToMatrix = [&](spg_holder& data_holder) -> bool {
 		if (data_holder.state == HolderStation::kFullData) return true;
 		//Ќеобходимо перевести в относитльный вид, относительно текущего диапазона

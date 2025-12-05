@@ -41,7 +41,7 @@ bool SpectralViewer::SendData(fluctus::DataInfo const & data_info)
     // Если входные данные пусты, выходим.
     if(data_info.data_vec.empty()) return true;
 	//spectrogram_->SendData	(data_info);
-	//dpx_spectrum_->SendData	(data_info);
+	dpx_spectrum_->SendData	(data_info);
     return true; // Успех.
 }
 
@@ -102,10 +102,6 @@ bool SpectralViewer::Reload()
     if(!file_src) return true;
 	
     auto req_dove = std::make_shared<DoveParrent>();
-    req_dove->base_thought      = fluctus::DoveParrent::DoveThought::kReset;
-	spectrogram_->SendDove(req_dove);
-	dpx_spectrum_->SendDove(req_dove);
-
 	{
 		auto req_dove = std::make_shared<file_source::FileSrcDove>();
 		req_dove->base_thought = fluctus::DoveParrent::DoveThought::kSpecialThought;
@@ -116,7 +112,10 @@ bool SpectralViewer::Reload()
 		const int max_order = std::min(log2(req_dove->file_info->count_of_samples), 21.);
 		window_->SetMaxFFtOrder(max_order);
 	}
-
+	req_dove->base_thought = fluctus::DoveParrent::DoveThought::kReset;
+	spectrogram_->SendDove(req_dove);
+	dpx_spectrum_->SendDove(req_dove);
+	RequestSelectedData();
     return true;
 }
 

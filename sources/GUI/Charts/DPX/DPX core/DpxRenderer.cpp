@@ -89,7 +89,7 @@ const argb_t* dpx_core::DpxRenderer::GetNormalizedColor(double relative_density)
     // Validate palette size
     if ((relative_density == 0)) 
     {
-        static const uint8_t default_color[4] = {0, 0, 0, 200}; // Default to black (little-endian)
+        static const uint8_t default_color[4] = {0, 0, 0, 0}; // Default to black (little-endian)
         return (uint32_t*)(default_color);
     }
 

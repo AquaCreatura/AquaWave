@@ -10,6 +10,7 @@ ChartDPX::ChartDPX(QWidget * parrent):
 
     SetVerticalSuffix("power");
 	domain_type_ = kFreqDomain;
+	//SetBackgroundImage(":/AquaWave/third_party/background/dark_sky.jpg");
 }
 
 ChartDPX::~ChartDPX()

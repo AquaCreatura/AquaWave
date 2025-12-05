@@ -123,8 +123,8 @@ WH_Bounds<double> ImageBG::CalculateTargetDisplayValueBounds() const
     // Рабочий коэффициент зума с учетом весов
     double zoom_koeff_h = full_image_span_x / current_span_x - 1;
     double zoom_koeff_v = full_image_span_y / current_span_y - 1;
-    double working_zoom_koeff = std::max(1 + (zoom_koeff_h * 0.07 + zoom_koeff_v * 0.03) / 2.0, 1.0);
-
+    double working_zoom_koeff = std::max(1 + (zoom_koeff_h * 0.05 + zoom_koeff_v * 0.05) / 10.0, 1.0);
+	working_zoom_koeff = std::min(working_zoom_koeff, 2.);
     // 3. Новые размеры
     double new_span_x = full_image_span_x / working_zoom_koeff;
     double new_span_y = full_image_span_y / working_zoom_koeff;

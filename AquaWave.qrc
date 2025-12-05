@@ -1,8 +1,7 @@
 <RCC>
     <qresource prefix="/AquaWave">
         <file>wave.png</file>
-        <file>third_party/background/night_city.jpg</file>
-        <file>third_party/background/dark_city_2.jpg</file>
-        <file>third_party/background/dark_city_2_cut.jpg</file>
+        <file>third_party/background/black_forest.jpg</file>
+        <file>third_party/background/black_mountain.jpg</file>
     </qresource>
 </RCC>

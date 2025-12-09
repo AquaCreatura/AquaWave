@@ -70,7 +70,7 @@ QImage* QimageZoomer::ReleaseBase()
  */
 QPixmap& QimageZoomer::GetPrecisedPart(const WH_Bounds<double>& full_image_value_bounds,
                                        const WH_Bounds<double>& target_display_value_bounds,
-                                       const WH_Info<int>& target_output_size)
+                                       const HV_Info<int>& target_output_size)
 {
     // Update current request parameters
     last_min_max_value_bounds_ = full_image_value_bounds;
@@ -149,7 +149,7 @@ bool QimageZoomer::UpdateQPixmap()
     const auto base_image_width  = base_image_->width();
     const auto base_image_height = base_image_->height();
     // Calculate pixel coordinates for cropping based on value bounds
-    WH_Info<Limits<int>> basic_pixel_crop_bounds = CalculatePixelCropBounds(
+    HV_Info<Limits<int>> basic_pixel_crop_bounds = CalculatePixelCropBounds(
         base_image_width, base_image_height,
         last_min_max_value_bounds_,
         last_target_value_bounds_
@@ -196,10 +196,10 @@ bool QimageZoomer::UpdateQPixmap()
  * @param target_val_bounds Value bounds to be displayed.
  * @return Pixel bounds (min, max) for cropping.
  */
-WH_Info<Limits<int>> QimageZoomer::CalculatePixelCropBounds(
+HV_Info<Limits<int>> QimageZoomer::CalculatePixelCropBounds(
     int img_width, int img_height,
-    const WH_Info<Limits<double>>& full_val_bounds,
-    const WH_Info<Limits<double>>& target_val_bounds) const
+    const HV_Info<Limits<double>>& full_val_bounds,
+    const HV_Info<Limits<double>>& target_val_bounds) const
 {
     // Clamp values to prevent division by zero or extreme ratios if ranges are invalid.
     auto safe_span = [](double low, double high) {

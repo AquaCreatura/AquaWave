@@ -1,5 +1,4 @@
 #include "AxisPainter.h"
-#include <QLocale>
 using namespace aqua_gui;
 constexpr int hatch_size_px_c_expr  =  10; //Length of hatch (штрих)
 
@@ -147,7 +146,8 @@ bool AxisManager::DrawAxis(QPainter& passed_painter)
             if (vert_line.is_text_line_)
             {
                 cur_painter.setPen(text_pen);
-                QString str_value = QString::number(vert_line.value_, 'f', dot_power_string);
+				auto casted_string = aqua_parse_tools::ValueToString(vert_line.value_, dot_power_string);
+				QString str_value(casted_string.c_str());
                 cur_painter.drawText(QPoint(axis_point.x() + 5, axis_point.y() - 5), str_value);
             }
         }

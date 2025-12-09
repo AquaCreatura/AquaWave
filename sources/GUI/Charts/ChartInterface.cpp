@@ -2,7 +2,7 @@
 #include <qsizepolicy.h>
 #include "GUI/basic tools/gui_helper.h"
 ChartInterface::ChartInterface(QWidget* parent) : 
-    QWidget(parent), axis_man_(scale_info_), bg_image_(scale_info_)
+    QWidget(parent), axis_man_(scale_info_), bg_image_(scale_info_), selection_drawer_(scale_info_)
 { 
     // Our widget params
     this->setMouseTracking(true);
@@ -84,17 +84,19 @@ std::shared_ptr<ChartSelection> ChartInterface::GetSelection()
 
 void ChartInterface::mousePressEvent(QMouseEvent * mouse_event)
 {
+	selection_drawer_.EditableEvent(mouse_event->pos(), SelectionDrawer::kPressed);
 }
 
 
 void ChartInterface::mouseMoveEvent(QMouseEvent * mouse_event)
 {
-    mouse_pos_ = mouse_event->pos();
-    //this->update();
+	selection_drawer_.EditableEvent(mouse_event->pos(), SelectionDrawer::kMove);
+	update();
 }
 
 void ChartInterface::mouseReleaseEvent(QMouseEvent * mouse_event)
 {
+	selection_drawer_.EditableEvent(mouse_event->pos(), SelectionDrawer::kReleased);
 }
 
 void ChartInterface::wheelEvent(QWheelEvent* wheel_event)
@@ -126,20 +128,15 @@ void ChartInterface::paintEvent(QPaintEvent * paint_event)
     }
     //Axis + Grid
     {
-        bool res = axis_man_.DrawAxis(new_frame_painter);
+        axis_man_.DrawAxis(new_frame_painter);
     }
     //Data
     {
         DrawData(new_frame_painter);
     }
-    //Static selections
-    {
-    
-    
-    }
     //Selection
     {
-    
+		selection_drawer_.DrawSelections(new_frame_painter);
     }
     //Mouse Pos
     {
@@ -160,7 +157,7 @@ void ChartInterface::UpdateChartPowerBounds()
 
 void ChartInterface::UpdateWidgetSizeInfo()
 {
-    aqua_gui::WH_Info<int> cur_size = {this->width(), this->height()};
+    aqua_gui::HV_Info<int> cur_size = {this->width(), this->height()};
     auto        &pix_info = scale_info_.pix_info_;
     //if data is not changed - go away (don't touch anything)
     if(pix_info.widget_size_px == cur_size) return;

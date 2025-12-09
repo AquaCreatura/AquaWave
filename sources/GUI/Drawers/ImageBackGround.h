@@ -53,7 +53,7 @@ private:
     bool                        need_redraw_       {false}; //
     const ChartScaleInfo&       scale_info_; //
 
-    WH_Info<int>                last_pixmap_size_;
+    HV_Info<int>                last_pixmap_size_;
     WH_Bounds<double>           last_base_val_bounds_;
     WH_Bounds<double>           last_scaled_val_bounds_;
 

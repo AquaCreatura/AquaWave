@@ -41,11 +41,11 @@ bool ImageBG::DrawImage(QPainter& passed_painter)
 
     // Only recalculate and redraw if needed
     if (ShouldRedraw()) {
-        const WH_Info<Limits<double>> full_image_value_bounds = scale_info_.val_info_.min_max_bounds_;
-        const WH_Info<Limits<double>> target_display_value_bounds = CalculateTargetDisplayValueBounds();
+        const HV_Info<Limits<double>> full_image_value_bounds = scale_info_.val_info_.min_max_bounds_;
+        const HV_Info<Limits<double>> target_display_value_bounds = CalculateTargetDisplayValueBounds();
         
         // Get target size for the output pixmap
-        WH_Info<int> target_image_size = {
+        HV_Info<int> target_image_size = {
             scale_info_.pix_info_.chart_size_px.horizontal + 1,
             scale_info_.pix_info_.chart_size_px.vertical + 1
         };

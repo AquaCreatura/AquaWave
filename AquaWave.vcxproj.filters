@@ -221,6 +221,9 @@
     <ClCompile Include="sources\Arks\ShipBuilder.cpp">
       <Filter>ARKS</Filter>
     </ClCompile>
+    <ClCompile Include="sources\GUI\Drawers\SelectionDrawer.cpp">
+      <Filter>GUI\Drawers</Filter>
+    </ClCompile>
   </ItemGroup>
   <!-- ClInclude (H Files) -->
   <ItemGroup>
@@ -335,6 +338,9 @@
     </ClInclude>
     <ClInclude Include="sources\Arks\Spectral Viewer\spectral_viewer_defs.h">
       <Filter>ARKS\Spectral Viewer</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\GUI\Drawers\SelectionDrawer.h">
+      <Filter>GUI\Drawers</Filter>
     </ClInclude>
   </ItemGroup>
   <!-- QtMoc (For Headers Requiring Moc) -->

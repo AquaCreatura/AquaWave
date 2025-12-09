@@ -103,7 +103,7 @@ spg_core::SpgCore::~SpgCore()
 bool spg_core::SpgCore::Emplace()
 {
 
-	auto emplace_holder = [&](spg_holder &holder_to_emplace, WH_Info<size_t> matrix_size) {
+	auto emplace_holder = [&](spg_holder &holder_to_emplace, HV_Info<size_t> matrix_size) {
 		holder_to_emplace.state = kNewData | kRequestStation;
 		if (holder_to_emplace.val_bounds.horizontal.delta() <= 0) holder_to_emplace.val_bounds.horizontal = { 0, 1000 };              // Set x-axis Limits
 		if (holder_to_emplace.val_bounds.vertical.delta() <= 0) holder_to_emplace.val_bounds.vertical = { 0.0, 1.0 };             // Set y-axis Limits

@@ -158,6 +158,7 @@
     <ClCompile Include="sources\GUI\Drawers\AxisPainter.cpp" />
     <ClCompile Include="sources\GUI\Drawers\ImageBackGround.cpp" />
     <ClCompile Include="sources\GUI\Drawers\QimageZoomer.cpp" />
+    <ClCompile Include="sources\GUI\Drawers\SelectionDrawer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="sources\aqua_defines.h" />
@@ -194,6 +195,7 @@
     <ClInclude Include="sources\GUI\Charts\SPG\SPG core\SpgRenderer.h" />
     <ClInclude Include="sources\GUI\Charts\SPG\SPG core\SpgScaler.h" />
     <ClInclude Include="sources\GUI\Charts\SPG\SPG core\spg_defs.h" />
+    <ClInclude Include="sources\GUI\Drawers\SelectionDrawer.h" />
     <ClInclude Include="sources\Tools\utility_aqua.h" />
     <ClInclude Include="sources\Tools\parse_tools.h" />
     <ClInclude Include="sources\GUI\basic tools\ChartSelection.h" />

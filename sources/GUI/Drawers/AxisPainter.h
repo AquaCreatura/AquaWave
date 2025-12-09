@@ -62,12 +62,12 @@ struct GridInfo
     LinesInfo               grid_info;
     QString                 qstr_suffix;
 };
-    WH_Info<GridInfo>       axis_;
+    HV_Info<GridInfo>       axis_;
     bool                    need_be_updated_ {true}; //flag of necessaty to redraw pixmap
     QPixmap                 cache_pixmap_;
     const ChartScaleInfo&   scale_info_;
-    WH_Info<Limits<double>> last_val_scaled_bounds_;
-    WH_Info<int>            last_widget_size_;
+    HV_Info<Limits<double>> last_val_scaled_bounds_;
+    HV_Info<int>            last_widget_size_;
 };
 
 }

@@ -35,7 +35,7 @@ public:
      */
     QPixmap& GetPrecisedPart(const WH_Bounds<double>& full_image_value_bounds, 
                              const WH_Bounds<double>& target_display_value_bounds,
-                             const WH_Info<int>& target_output_size);
+                             const HV_Info<int>& target_output_size);
 
 protected:
     /**
@@ -59,22 +59,22 @@ private:
      * @param target_val_bounds Value bounds to be displayed.
      * @return Pixel bounds (min, max) for cropping.
      */
-    WH_Info<Limits<int>> CalculatePixelCropBounds(
+    HV_Info<Limits<int>> CalculatePixelCropBounds(
         int img_width, int img_height,
-        const WH_Info<Limits<double>>& full_val_bounds,
-        const WH_Info<Limits<double>>& target_val_bounds) const;
+        const HV_Info<Limits<double>>& full_val_bounds,
+        const HV_Info<Limits<double>>& target_val_bounds) const;
     QImage *base_image_ = nullptr;      // Pointer to the base image (not owned)
     QPixmap cached_pixmap_;             // The cached result QPixmap
     
     // Parameters from the last GetPrecisedPart call, for redraw checks
-    WH_Info<Limits<double>> last_min_max_value_bounds_ = {{0.0, 0.0}, {0.0, 0.0}};
-    WH_Info<Limits<double>> last_target_value_bounds_ = {{0.0, 0.0}, {0.0, 0.0}};
-    WH_Info<int> last_target_output_size_ = {0, 0};
+    HV_Info<Limits<double>> last_min_max_value_bounds_ = {{0.0, 0.0}, {0.0, 0.0}};
+    HV_Info<Limits<double>> last_target_value_bounds_ = {{0.0, 0.0}, {0.0, 0.0}};
+    HV_Info<int> last_target_output_size_ = {0, 0};
 
     // Parameters of the last successfully rendered pixmap, for robust NeedRedraw()
-    WH_Info<Limits<double>> rendered_min_max_value_bounds_ = {{0.0, 0.0}, {0.0, 0.0}};
-    WH_Info<Limits<double>> rendered_target_value_bounds_ = {{0.0, 0.0}, {0.0, 0.0}};
-    WH_Info<int> rendered_target_output_size_ = {0, 0};
+    HV_Info<Limits<double>> rendered_min_max_value_bounds_ = {{0.0, 0.0}, {0.0, 0.0}};
+    HV_Info<Limits<double>> rendered_target_value_bounds_ = {{0.0, 0.0}, {0.0, 0.0}};
+    HV_Info<int> rendered_target_output_size_ = {0, 0};
     bool is_rendered_high_quality_	= false;
     bool need_update_           = false;
 	mutable bool need_high_quality_ = false;

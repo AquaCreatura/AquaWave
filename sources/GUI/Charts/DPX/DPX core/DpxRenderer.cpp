@@ -22,8 +22,8 @@ QPixmap & dpx_core::DpxRenderer::GetRelevantPixmap(const ChartScaleInfo & scale_
 		data_update_timer_.restart();
 	}
     
-    const WH_Info<Limits<double>> &base_bounds   = scale_info.val_info_.min_max_bounds_;
-    const WH_Info<Limits<double>> &target_bounds = scale_info.val_info_.cur_bounds;
+    const HV_Info<Limits<double>> &base_bounds   = scale_info.val_info_.min_max_bounds_;
+    const HV_Info<Limits<double>> &target_bounds = scale_info.val_info_.cur_bounds;
     return zoomer_.GetPrecisedPart(base_bounds, target_bounds, scale_info.pix_info_.chart_size_px);
 
 }

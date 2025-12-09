@@ -8,6 +8,7 @@
 #include "GUI/Drawers/AxisPainter.h"
 #include "GUI/Drawers/ImageBackGround.h"
 #include "GUI/basic tools/PowerManager.h"
+#include "GUI\Drawers\SelectionDrawer.h"
 #include <qlayout.h>
 using namespace aqua_gui;
 class ChartInterface : public QWidget
@@ -123,6 +124,10 @@ protected:
     
     // Manages power limits for chart
     PowerLimitMan power_man_;
-	WH_Info<double, double> max_scale_koeff_ = { 20,20 };
+	
+	// Manages selections ot the spectrum
+	SelectionDrawer selection_drawer_;
+
+	HV_Info<double, double> max_scale_koeff_ = { 2 ,2 };
     ChartDomainType domain_type_;
 };

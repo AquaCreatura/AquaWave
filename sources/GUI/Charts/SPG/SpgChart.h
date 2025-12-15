@@ -7,7 +7,7 @@ class ChartSPG : public ChartInterface
 {
     Q_OBJECT 
 public:
-    ChartSPG(QWidget* parrent = nullptr);
+	ChartSPG(QWidget* parrent = nullptr, std::shared_ptr<SelectionHolder> selection_holder = {});
     ~ChartSPG();
     virtual void DrawData                   (QPainter& painter          ) override;
     virtual void PushData                   (const draw_data& draw_data ) override;

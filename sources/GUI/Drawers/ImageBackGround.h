@@ -40,7 +40,7 @@ private:
 
     // Calculates the value bounds for the currently displayed portion of the chart.
     // This is derived from the ChartScaleInfo's cur_bounds.
-    WH_Bounds<double> CalculateTargetDisplayValueBounds() const;
+    HorVerLim<double> CalculateTargetDisplayValueBounds() const;
     
     // Resets state flags after redraw.
     void ResetRedrawFlags();
@@ -54,8 +54,8 @@ private:
     const ChartScaleInfo&       scale_info_; //
 
     HV_Info<int>                last_pixmap_size_;
-    WH_Bounds<double>           last_base_val_bounds_;
-    WH_Bounds<double>           last_scaled_val_bounds_;
+    HorVerLim<double>           last_base_val_bounds_;
+    HorVerLim<double>           last_scaled_val_bounds_;
 
     QimageZoomer                image_zoomer_; // QimageZoomer instance
 };

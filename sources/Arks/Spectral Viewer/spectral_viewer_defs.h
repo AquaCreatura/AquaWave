@@ -14,8 +14,11 @@ namespace spectral_viewer
         {
             kUnknown = 0, 
             kSetFFtOrder = 1,
+			kSetSelectionHolder = 2,
+
         };
         aqua_opt<int> fft_order_;
+		aqua_opt<std::shared_ptr<aqua_gui::SelectionHolder>> sel_holder;
     };
 
 }

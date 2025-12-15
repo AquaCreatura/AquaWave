@@ -148,7 +148,6 @@
     <ClCompile Include="sources\GUI\Charts\DPX\DPX core\DpxRenderer.cpp" />
     <ClCompile Include="sources\GUI\Charts\DPX\DPX core\DpxScaler.cpp" />
     <ClCompile Include="sources\GUI\Charts\DPX\DpxChart.cpp" />
-    <ClCompile Include="sources\GUI\Charts\Simple chart\ChartSingle.cpp" />
     <ClCompile Include="sources\GUI\Charts\ChartInterface.cpp" />
     <ClCompile Include="sources\GUI\Charts\SPG\helpers\SpgRequester.cpp" />
     <ClCompile Include="sources\GUI\Charts\SPG\SPG core\SpgCore.cpp" />
@@ -206,7 +205,6 @@
     <ClInclude Include="sources\GUI\Charts\DPX\DPX core\DpxCore.h" />
     <ClInclude Include="sources\GUI\Charts\DPX\DPX core\DpxRenderer.h" />
     <ClInclude Include="sources\GUI\Charts\DPX\DpxChart.h" />
-    <ClInclude Include="sources\GUI\Charts\Simple chart\ChartSingle.h" />
     <ClInclude Include="sources\GUI\Drawers\AxisPainter.h" />
     <ClInclude Include="sources\GUI\Drawers\ImageBackGround.h" />
     <ClInclude Include="sources\GUI\Drawers\QimageZoomer.h" />

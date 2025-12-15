@@ -4,7 +4,6 @@
 #include <qgraphicsview.h>
 #include <qevent.h>
 
-#include "GUI/basic tools/ChartSelection.h"
 #include "GUI/Drawers/AxisPainter.h"
 #include "GUI/Drawers/ImageBackGround.h"
 #include "GUI/basic tools/PowerManager.h"
@@ -23,7 +22,7 @@ public:
         kCountsDomain,  // ќсь X - это отсчЄты
     };
     //We pass 
-    ChartInterface(QWidget* parrent);
+    ChartInterface(QWidget* parrent, std::shared_ptr<SelectionHolder> selection_holder);
     ~ChartInterface();
     /*
         Set an image from the precised path on background
@@ -60,14 +59,13 @@ public:
         Draw values
     */
     virtual void                    DrawData            (QPainter& painter) = 0;
-    /*
-        Ask for selection 
-    */
-    std::shared_ptr<ChartSelection> GetSelection();
+
     /*
         Clear data from the spectrum
     */
     virtual void                    ClearData           () = 0;
+
+	virtual void					SetSelectionHolder(std::shared_ptr<SelectionHolder> selection_holder);
 protected slots:
     /*
         Reaction on mouse clicking. 
@@ -110,8 +108,6 @@ protected:
     // Manages axis rendering
     aqua_gui::AxisManager axis_man_;
     
-    // Manages chart selection
-    std::shared_ptr<ChartSelection> chart_selection_;
     
     // Background image for chart
     aqua_gui::ImageBG bg_image_;

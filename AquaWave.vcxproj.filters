@@ -23,9 +23,6 @@
     <Filter Include="GUI\Charts\DPX\DPX core">
       <UniqueIdentifier>{d4e5f6a7-8b9c-0d1e-2f3a-4b5c6d7e8f9a}</UniqueIdentifier>
     </Filter>
-    <Filter Include="GUI\Charts\Simple chart">
-      <UniqueIdentifier>{edd5ddbf-9c88-4174-879d-effa008d2742}</UniqueIdentifier>
-    </Filter>
     <Filter Include="GUI\Drawers">
       <UniqueIdentifier>{33333333-3333-3333-3333-333333333333}</UniqueIdentifier>
     </Filter>
@@ -139,9 +136,6 @@
     </ClCompile>
     <ClCompile Include="sources\GUI\Charts\DPX\DpxChart.cpp">
       <Filter>GUI\Charts\DPX</Filter>
-    </ClCompile>
-    <ClCompile Include="sources\GUI\Charts\Simple chart\ChartSingle.cpp">
-      <Filter>GUI\Charts\Simple chart</Filter>
     </ClCompile>
     <ClCompile Include="sources\GUI\Charts\ChartInterface.cpp">
       <Filter>GUI\Charts</Filter>
@@ -265,9 +259,6 @@
     </ClInclude>
     <ClInclude Include="sources\GUI\Charts\DPX\DpxChart.h">
       <Filter>GUI\Charts\DPX</Filter>
-    </ClInclude>
-    <ClInclude Include="sources\GUI\Charts\Simple chart\ChartSingle.h">
-      <Filter>GUI\Charts\Simple chart</Filter>
     </ClInclude>
     <ClInclude Include="sources\GUI\Drawers\AxisPainter.h">
       <Filter>GUI\Drawers</Filter>

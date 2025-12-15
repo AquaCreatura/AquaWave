@@ -44,7 +44,7 @@ struct HV_Info
     H vertical   = H();
 };
 template <typename T>
-using WH_Bounds = HV_Info<Limits<T>>;
+using HorVerLim = HV_Info<Limits<T>>;
 struct ChartScaleInfo
 {   
     struct PixelScale
@@ -59,8 +59,8 @@ struct ChartScaleInfo
     struct ValueScale
     {
         //if bounds are changed
-        WH_Bounds<double>                    min_max_bounds_;
-        WH_Bounds<double>                    cur_bounds;
+        HorVerLim<double>                    min_max_bounds_;
+        HorVerLim<double>                    cur_bounds;
 		bool								 need_reset_scale_{false};
 		HV_Info<double>						 max_zoom_koeffs_{20., 20.};
     };
@@ -84,5 +84,12 @@ struct draw_data
     double              time_pos;       //Временная метка наших данных
 };
 
+struct selection_info {
+	Limits<double> freq_bounds;
+	Limits<double> time_bounds;
+	Limits<double> power_bounds;
+
+	bool is_finished = true;
+};
 
 }

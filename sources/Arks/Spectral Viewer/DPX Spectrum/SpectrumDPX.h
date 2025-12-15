@@ -25,7 +25,7 @@ protected slots:
 
 protected:
     SourceInfo                  src_info_;
-
+	std::shared_ptr<aqua_gui::SelectionHolder> selection_holder_;
     QPointer<ChartDPX>          dpx_drawer_;
     FFT_Worker                  fft_worker_;
 	double						freq_divider_ = 1.;

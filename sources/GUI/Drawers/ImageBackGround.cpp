@@ -93,9 +93,9 @@ constexpr const T& clamp(const T& val, const T& low, const T& high) {
  * This ensures that the proportions of the original image are maintained.
  * 4. Define the new rectangle based on the calculated center, width, and height.
  *
- * @return WH_Bounds<double> representing the target display value bounds.
+ * @return HorVerLim<double> representing the target display value bounds.
  */
-WH_Bounds<double> ImageBG::CalculateTargetDisplayValueBounds() const
+HorVerLim<double> ImageBG::CalculateTargetDisplayValueBounds() const
 {
     // 1. Определяем центр текущего отображения
     const auto& current_h_bounds = scale_info_.val_info_.cur_bounds.horizontal;

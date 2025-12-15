@@ -1,7 +1,7 @@
 #include "DpxChart.h"
 
-ChartDPX::ChartDPX(QWidget * parrent):
-    ChartInterface(parrent)
+ChartDPX::ChartDPX(QWidget * parrent, std::shared_ptr<SelectionHolder> selection_holder):
+    ChartInterface(parrent, selection_holder)
 {
     Limits<double> random_bounds = {50'000, 200'000};
     SetHorizontalMinMaxBounds(random_bounds);

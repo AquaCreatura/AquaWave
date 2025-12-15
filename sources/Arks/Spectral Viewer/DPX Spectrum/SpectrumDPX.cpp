@@ -99,6 +99,15 @@ bool dpx_core::SpectrumDPX::SendDove(fluctus::DoveSptr const & sent_dove)
 				dpx_drawer_->ClearData();
 				RequestSelectedData();
 			}
+			if (special_thought & spectral_viewer::SpectralDove::kSetFFtOrder) {
+				n_fft_ = 1 << *spectral_dove->fft_order_;
+				dpx_drawer_->ClearData();
+				RequestSelectedData();
+			}
+			if (special_thought & spectral_viewer::SpectralDove::kSetSelectionHolder) {
+				selection_holder_ = *spectral_dove->sel_holder;
+				dpx_drawer_->SetSelectionHolder(selection_holder_);
+			}
 		};
 	}
     // Передаём сообщение базовому классу для дальнейшей обработки.

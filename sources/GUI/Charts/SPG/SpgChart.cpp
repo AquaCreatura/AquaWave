@@ -1,7 +1,7 @@
 #include "SpgChart.h"
 using namespace spg_core;
-ChartSPG::ChartSPG(QWidget * parrent):
-    ChartInterface(parrent)
+ChartSPG::ChartSPG(QWidget * parrent, std::shared_ptr<SelectionHolder> selection_holder):
+    ChartInterface(parrent, selection_holder)
 {
     SetHorizontalMinMaxBounds({0, 1});
     SetHorizontalSuffix("counts");

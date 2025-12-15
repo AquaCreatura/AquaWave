@@ -7,6 +7,18 @@
 #include "GUI/gui_defs.h"
 namespace aqua_gui
 {
+
+//Class, which hold selections
+class SelectionHolder {
+
+public:
+	selection_info GetCurrentSelection();
+	void		   SetCurrentSelection(selection_info sel_info);
+protected:
+	selection_info	cur_sel_;
+
+
+};
 /*
 Class, which works with selections
      _____________
@@ -15,8 +27,9 @@ Class, which works with selections
 	|   QPSK	  |
 	|_____________|
 */
-class SelectionDrawer
+class SelectionDrawer 
 {
+	
 public:
 	enum mouse_event_type {
 		kMove,
@@ -24,18 +37,16 @@ public:
 		kReleased
 	};
 	SelectionDrawer		(const ChartScaleInfo& base_scale_info);
+	void SetSelectionHolder(std::shared_ptr<SelectionHolder> holder);
 	bool DrawSelections	(QPainter& painter);
 	void EditableEvent	(const QPoint& mouse_location, const mouse_event_type event_type);
 protected:
-	struct sel_info {
-		WH_Bounds<double> bounds;
-
-	};
+	void ChangeCurSelection();
 private:
-	const ChartScaleInfo&  scale_info_;
-
-	sel_info			   editable_selection_;
-	bool				   is_pressed_{ false };
+	const ChartScaleInfo&			 scale_info_;
+	std::shared_ptr<SelectionHolder> sel_holder_;
+	HorVerLim<double>				 cur_hv_;
+	bool							 is_pressed_{ false };
 };
 
 }

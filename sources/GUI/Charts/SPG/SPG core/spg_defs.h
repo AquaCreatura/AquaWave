@@ -35,7 +35,7 @@ namespace spg_core
         DataType* operator[](size_t row) { return &data[row * size.horizontal]; }
         const DataType* operator[](size_t row) const { return &data[row * size.horizontal]; }
 
-        WH_Bounds<double>					val_bounds;		//Диапазон значений 
+        HorVerLim<double>					val_bounds;		//Диапазон значений 
         HV_Info<size_t>						size;			//Размерность массива
         std::vector<bool>					relevant_vec;	//Актуальность наших данных столбцов
         std::vector<DataType>				data;			//Наши данные

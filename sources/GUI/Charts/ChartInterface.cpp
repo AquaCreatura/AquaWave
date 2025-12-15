@@ -1,9 +1,10 @@
 #include "ChartInterface.h"
 #include <qsizepolicy.h>
 #include "GUI/basic tools/gui_helper.h"
-ChartInterface::ChartInterface(QWidget* parent) : 
+ChartInterface::ChartInterface(QWidget* parent, std::shared_ptr<SelectionHolder> selection_holder) :
     QWidget(parent), axis_man_(scale_info_), bg_image_(scale_info_), selection_drawer_(scale_info_)
 { 
+	selection_drawer_.SetSelectionHolder(selection_holder);
     // Our widget params
     this->setMouseTracking(true);
     this->setMinimumSize(200, 100);
@@ -77,16 +78,16 @@ void ChartInterface::SetVerticalSuffix(const QString & suffix)
 }
 
 
-std::shared_ptr<ChartSelection> ChartInterface::GetSelection()
-{
-    return chart_selection_;
-}
 
 void ChartInterface::mousePressEvent(QMouseEvent * mouse_event)
 {
 	selection_drawer_.EditableEvent(mouse_event->pos(), SelectionDrawer::kPressed);
 }
 
+
+void ChartInterface::SetSelectionHolder(std::shared_ptr<SelectionHolder> selection_holder)
+{
+}
 
 void ChartInterface::mouseMoveEvent(QMouseEvent * mouse_event)
 {

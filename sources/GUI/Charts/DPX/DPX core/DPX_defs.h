@@ -23,7 +23,7 @@ struct dpx_data
     DataType* operator[](size_t row) { return &data[row * size.horizontal]; }
     const DataType* operator[](size_t row) const { return &data[row * size.horizontal]; }
 
-    WH_Bounds<double>       val_bounds; // Диапазон значений 
+    HorVerLim<double>       val_bounds; // Диапазон значений 
     HV_Info<size_t>         size;
     std::vector<DataType>   column_weight;   // Содержит суммарной вес каждой колонки. (size = width)
     std::vector<DataType>   data;            // (Плотность) Хранилище данных (size = высота * ширина) (values can not be negative)

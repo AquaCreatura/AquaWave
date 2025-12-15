@@ -26,6 +26,7 @@ protected:
 	WorkBounds                  time_bounds_;
     FFT_Worker                  fft_worker_;
     SpgRequester                requester_;
+	std::shared_ptr<aqua_gui::SelectionHolder> selection_holder_;
 	double						freq_divider_{ 1. };
 };
 

@@ -8,14 +8,14 @@ using namespace spectral_viewer;
 // parrent: Указатель на родительский QWidget.
 SpectralViewer::SpectralViewer()
 {
-
+	selection_holder_ = std::make_shared<aqua_gui::SelectionHolder>();
     window_ = new SpectralViewerWindow;
 	{
 		dpx_spectrum_ = std::make_shared<dpx_core::SpectrumDPX>(); // Создание компонента для спектрального графика.
 		spectrogram_ = std::make_shared<spg_core::Spectrogram>(); // Создание компонента для спектрограммы.
 
 		// Установка типа запроса: получить диалог/виджет.
-		fluctus::DoveSptr req_dove = std::make_shared<fluctus::DoveParrent>(); 
+		std::shared_ptr<spectral_viewer::SpectralDove> req_dove = std::make_shared<spectral_viewer::SpectralDove>();
 		req_dove->base_thought = fluctus::DoveParrent::kGetDialog; 
 		{
 			dpx_spectrum_->SendDove(req_dove);
@@ -24,6 +24,12 @@ SpectralViewer::SpectralViewer()
 			spectrogram_->SendDove(req_dove);
 			window_->SetSpectrogramWindow(req_dove->show_widget);
 		}
+
+		req_dove->base_thought = fluctus::DoveParrent::kSpecialThought;
+		req_dove->special_thought = spectral_viewer::SpectralDove::kSetSelectionHolder;		
+		req_dove->sel_holder = selection_holder_;
+		dpx_spectrum_->SendDove(req_dove);
+		spectrogram_->SendDove(req_dove);
 	}
 	connect(window_, &SpectralViewerWindow::FftChangeNeed, this, &SpectralViewer::SetNewFftOrder);
 }

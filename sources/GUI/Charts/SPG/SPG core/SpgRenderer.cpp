@@ -9,8 +9,8 @@ spg_core::SpgRenderer::SpgRenderer(spg_data & init_val): spg_(init_val)
 
 QPixmap & spg_core::SpgRenderer::GetRelevantPixmap(const ChartScaleInfo & scale_info)
 {
-	const WH_Bounds<double> &base_bounds	= scale_info.val_info_.min_max_bounds_;
-	const WH_Bounds<double> &target_bounds	= scale_info.val_info_.cur_bounds;
+	const HorVerLim<double> &base_bounds	= scale_info.val_info_.min_max_bounds_;
+	const HorVerLim<double> &target_bounds	= scale_info.val_info_.cur_bounds;
 
 	if (IsModeSwitched(target_bounds) || data_update_timer_.elapsed() >= 500  ) {
 		UpdateSpectrogramData();
@@ -106,7 +106,7 @@ const argb_t * spg_core::SpgRenderer::GetNormalizedColor(double relative_density
     return color_palette + color_index;
 }
 
-bool spg_core::SpgRenderer::IsModeSwitched(WH_Bounds<double> realtime_size)
+bool spg_core::SpgRenderer::IsModeSwitched(HorVerLim<double> realtime_size)
 {
 	auto &rt_data	= spg_.realtime_data;
 	auto &base_data = spg_.base_data;

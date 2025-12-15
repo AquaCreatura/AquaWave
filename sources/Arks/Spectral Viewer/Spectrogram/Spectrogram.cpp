@@ -96,7 +96,12 @@ bool Spectrogram::SendDove(fluctus::DoveSptr const & sent_dove)
 			if (special_thought & spectral_viewer::SpectralDove::kSetFFtOrder) {
 				spg_drawer_->SetFftOrder(*spectral_dove->fft_order_);
 			}
+			if (special_thought & spectral_viewer::SpectralDove::kSetSelectionHolder) {
+				selection_holder_ = *spectral_dove->sel_holder;	
+				spg_drawer_->SetSelectionHolder(selection_holder_);
+			}
 		};
+
 	}
     return ArkBase::SendDove(sent_dove);
 }

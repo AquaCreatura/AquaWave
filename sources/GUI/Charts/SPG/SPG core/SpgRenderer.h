@@ -30,13 +30,13 @@ protected:
     // ѕреобразует относительную плотность в цвет из палитры
     const argb_t* GetNormalizedColor( double relative_density) const;
 protected: 
-	bool IsModeSwitched(WH_Bounds<double> realtime_size);
+	bool IsModeSwitched(HorVerLim<double> realtime_size);
 private:
     spg_data              &spg_;                  // Reference to the underlying data structure
     size_t                data_memory_ = 1'024;   // Cколько последних значений учитываем при отрисовке
 
     dynamic_qimage        wrapper_rgb;      // Структура для работы с QImage в качестве обёркти
-	WH_Bounds<double>	  last_val_bounds_;
+	HorVerLim<double>	  last_val_bounds_;
     QPixmap               cached_pixmap_;
 
     QimageZoomer          zoomer_;

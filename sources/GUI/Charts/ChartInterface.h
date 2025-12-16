@@ -14,13 +14,6 @@ class ChartInterface : public QWidget
 {
     Q_OBJECT
 public: 
-    enum ChartDomainType
-    {
-        kFreqDomain,    // Default АЧХ
-        kTimeFrequency, // Частотно временная область
-        kTimeDomain,    // Амплитудно временная область
-        kCountsDomain,  // Ось X - это отсчёты
-    };
     //We pass 
     ChartInterface(QWidget* parrent, std::shared_ptr<SelectionHolder> selection_holder);
     ~ChartInterface();
@@ -125,5 +118,4 @@ protected:
 	SelectionDrawer selection_drawer_;
 
 	HV_Info<double, double> max_scale_koeff_ = { 2 ,2 };
-    ChartDomainType domain_type_;
 };

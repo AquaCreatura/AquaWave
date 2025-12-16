@@ -45,6 +45,16 @@ struct HV_Info
 };
 template <typename T>
 using HorVerLim = HV_Info<Limits<T>>;
+
+enum ChartDomainType
+{
+	kFreqDomain,    // Default АЧХ
+	kTimeFrequency, // Частотно временная область
+	kTimeDomain,    // Амплитудно временная область
+	kCountsDomain,  // Ось X - это отсчёты
+};
+
+
 struct ChartScaleInfo
 {   
     struct PixelScale
@@ -63,6 +73,7 @@ struct ChartScaleInfo
         HorVerLim<double>                    cur_bounds;
 		bool								 need_reset_scale_{false};
 		HV_Info<double>						 max_zoom_koeffs_{20., 20.};
+		ChartDomainType						 domain_type;
     };
     PixelScale pix_info_;
     ValueScale val_info_;
@@ -91,5 +102,6 @@ struct selection_info {
 
 	bool is_finished = true;
 };
+
 
 }

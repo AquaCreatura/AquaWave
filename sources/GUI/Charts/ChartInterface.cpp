@@ -14,7 +14,7 @@ ChartInterface::ChartInterface(QWidget* parent, std::shared_ptr<SelectionHolder>
 
     SetVerticalSuffix("power");
     connect(&redraw_timer_, &QTimer::timeout, this, QOverload<>::of(&ChartInterface::update));
-    redraw_timer_.start(200);
+    redraw_timer_.start(50);
     SetBackgroundImage(":/AquaWave/third_party/background/black_mountain.jpg");
 
 }
@@ -63,7 +63,7 @@ void ChartInterface::SetPowerBounds(const Limits<double>& power_bounds, const bo
 {
     power_man_.EnableAdaptiveMode(is_adaptive);
     power_man_.SetPowerBounds(power_bounds);
-    if(domain_type_ != ChartDomainType::kTimeFrequency) //В случае, когда мощность - это вертикальная шкала
+    if(scale_info_.val_info_.domain_type != ChartDomainType::kTimeFrequency) //В случае, когда мощность - это вертикальная шкала
     {
         SetVerticalMinMaxBounds(power_bounds);
     }
@@ -87,6 +87,7 @@ void ChartInterface::mousePressEvent(QMouseEvent * mouse_event)
 
 void ChartInterface::SetSelectionHolder(std::shared_ptr<SelectionHolder> selection_holder)
 {
+	selection_drawer_.SetSelectionHolder(selection_holder);
 }
 
 void ChartInterface::mouseMoveEvent(QMouseEvent * mouse_event)
@@ -117,7 +118,7 @@ void ChartInterface::resizeEvent(QResizeEvent * resize_event)
 void ChartInterface::paintEvent(QPaintEvent * paint_event)
 {
     UpdateWidgetSizeInfo();     //if widget size was changed
-    if(domain_type_ != ChartDomainType::kTimeFrequency) //Для линейно-частотной интерпретации не используем
+    if(scale_info_.val_info_.domain_type != ChartDomainType::kTimeFrequency) //Для линейно-частотной интерпретации не используем
         UpdateChartPowerBounds(); //Необходимо знать акутальные границы мощности
 
     
@@ -149,7 +150,7 @@ void ChartInterface::UpdateChartPowerBounds()
 {
     // Получаем текущие "автоматические" границы мощности от отрисовщика DPX
     auto new_bounds = power_man_.GetPowerBounds();
-	if (domain_type_ != ChartDomainType::kTimeFrequency) //Для линейно-частотной интерпретации своя логика
+	if (scale_info_.val_info_.domain_type != ChartDomainType::kTimeFrequency) //Для линейно-частотной интерпретации своя логика
 	{ 
 		aqua_gui::AdaptPowerBounds(scale_info_, new_bounds);
 	}

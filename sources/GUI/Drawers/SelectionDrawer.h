@@ -42,6 +42,7 @@ public:
 	void EditableEvent	(const QPoint& mouse_location, const mouse_event_type event_type);
 protected:
 	void ChangeCurSelection();
+	HorVerLim<double> GetHorVert(const selection_info& sel_info);
 private:
 	const ChartScaleInfo&			 scale_info_;
 	std::shared_ptr<SelectionHolder> sel_holder_;

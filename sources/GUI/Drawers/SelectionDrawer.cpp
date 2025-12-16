@@ -1,14 +1,32 @@
 #include "SelectionDrawer.h"
 using namespace aqua_gui;
 
+//============================ SelectionHolder ================================
+selection_info aqua_gui::SelectionHolder::GetCurrentSelection()
+{
+	return cur_sel_;
+}
+
+void aqua_gui::SelectionHolder::SetCurrentSelection(selection_info sel_info)
+{
+	cur_sel_ = sel_info;
+}
+
+
+
+//======================================== SelectionDrawer ====================================
+
+
 aqua_gui::SelectionDrawer::SelectionDrawer(const ChartScaleInfo & base_scale_info):
 	scale_info_(base_scale_info)
 {
+	sel_holder_ = std::make_shared<SelectionHolder>();
 }
 
 void aqua_gui::SelectionDrawer::SetSelectionHolder(std::shared_ptr<SelectionHolder> holder)
 {
-	sel_holder_ = holder;
+	if(holder)
+		sel_holder_ = holder;
 }
 
 bool aqua_gui::SelectionDrawer::DrawSelections(QPainter & painter)
@@ -23,9 +41,10 @@ bool aqua_gui::SelectionDrawer::DrawSelections(QPainter & painter)
 	
 	//painter
 	{
-	
-		auto vert_sel = cur_hv_.hv.vertical;
-		auto hor_sel = cur_hv_.hv.horizontal;
+		auto cur_hv = GetHorVert(sel_holder_->GetCurrentSelection());
+
+		auto vert_sel = cur_hv.vertical;
+		auto hor_sel = cur_hv.horizontal;
 	
 		if (vert_sel.high < vert_sel.low) std::swap(vert_sel.low, vert_sel.high);
 		if (hor_sel.high < hor_sel.low) std::swap(hor_sel.low, hor_sel.high);
@@ -41,8 +60,8 @@ bool aqua_gui::SelectionDrawer::DrawSelections(QPainter & painter)
 			std::lround((cur_chart_val.vertical.high - vert_sel.high) / cur_chart_val.vertical.delta() * chart_size_px.vertical),
 			std::lround((cur_chart_val.vertical.high - vert_sel.low) / cur_chart_val.vertical.delta() * chart_size_px.vertical)
 		};
-		bool is_hor_valid = user_rect.horizontal.delta() > 1;
-		bool is_vert_valid = user_rect.vertical.delta() > 1;
+		bool is_hor_valid = user_rect.horizontal.delta() >= 1;
+		bool is_vert_valid = user_rect.vertical.delta() >= 1;
 		if (!is_hor_valid && !is_vert_valid) return true;
 	
 		const QRect pixel_rect = { int(user_rect.horizontal.low), int(user_rect.vertical.low), 
@@ -128,18 +147,37 @@ void aqua_gui::SelectionDrawer::EditableEvent(const QPoint& mouse_location, cons
 	default:
 		break;
 	}
-	emit ChangeCurSelection();
+	ChangeCurSelection();
 }
 
 void aqua_gui::SelectionDrawer::ChangeCurSelection()
 {
+	selection_info sel_info;
+	if (scale_info_.val_info_.domain_type == ChartDomainType::kTimeFrequency) {
+		sel_info.freq_bounds = cur_hv_.vertical;
+		sel_info.time_bounds = cur_hv_.horizontal / scale_info_.val_info_.min_max_bounds_.horizontal.delta();
+	}
+	else
+	{
+		sel_info.freq_bounds  = cur_hv_.horizontal;
+		sel_info.time_bounds  = {0., 1.}; 
+		sel_info.power_bounds = cur_hv_.vertical;
+	}
+	sel_holder_->SetCurrentSelection(sel_info);
 }
 
-selection_info aqua_gui::SelectionHolder::GetCurrentSelection()
+HorVerLim<double> aqua_gui::SelectionDrawer::GetHorVert(const selection_info & sel_info)
 {
-	return selection_info();
+	HorVerLim<double> hor_ver;
+	if (scale_info_.val_info_.domain_type == ChartDomainType::kTimeFrequency) {
+		hor_ver.horizontal = sel_info.time_bounds * scale_info_.val_info_.min_max_bounds_.horizontal.delta();
+		hor_ver.vertical = sel_info.freq_bounds;
+	}
+	else
+	{
+		hor_ver.horizontal = sel_info.freq_bounds;
+		hor_ver.vertical = sel_info.power_bounds;
+	}
+	return hor_ver;
 }
 
-void aqua_gui::SelectionHolder::SetCurrentSelection(selection_info sel_info)
-{
-}

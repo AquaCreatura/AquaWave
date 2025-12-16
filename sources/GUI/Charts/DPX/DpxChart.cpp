@@ -9,7 +9,7 @@ ChartDPX::ChartDPX(QWidget * parrent, std::shared_ptr<SelectionHolder> selection
     SetHorizontalSuffix("counts");
 
     SetVerticalSuffix("power");
-	domain_type_ = kFreqDomain;
+	scale_info_.val_info_.domain_type = kFreqDomain;
 	//SetBackgroundImage(":/AquaWave/third_party/background/dark_sky.jpg");
 }
 

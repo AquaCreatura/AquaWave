@@ -9,7 +9,7 @@ ChartSPG::ChartSPG(QWidget * parrent, std::shared_ptr<SelectionHolder> selection
     SetVerticalSuffix("power");
 	scale_info_.val_info_.domain_type = ChartDomainType::kTimeFrequency;
 	scale_info_.val_info_.max_zoom_koeffs_ = { 20, 1000};
-	SetBackgroundImage(":/AquaWave/third_party/background/black_forest.jpg");
+	//SetBackgroundImage(":/AquaWave/third_party/background/black_forest.jpg");
 }
 
 ChartSPG::~ChartSPG()

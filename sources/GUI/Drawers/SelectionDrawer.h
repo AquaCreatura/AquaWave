@@ -43,6 +43,9 @@ public:
 protected:
 	void ChangeCurSelection();
 	HorVerLim<double> GetHorVert(const selection_info& sel_info);
+protected: //Draw functions
+	bool DrawRectangles	(QPainter& painter, const HorVerLim<int>& user_rect);
+	bool DrawSizes		(QPainter& painter, const HorVerLim<int>& user_rect, const HorVerLim<double> &hv_val);
 private:
 	const ChartScaleInfo&			 scale_info_;
 	std::shared_ptr<SelectionHolder> sel_holder_;

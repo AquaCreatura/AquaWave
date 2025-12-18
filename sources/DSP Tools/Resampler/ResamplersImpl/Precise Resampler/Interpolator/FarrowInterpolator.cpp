@@ -15,62 +15,64 @@ void FarrowInterpolator::SetResampleRatio(double resample_ratio) {
     ratio_ = resample_ratio;
 }
 
-void FarrowInterpolator::process(const Ipp32fc* input, size_t input_size, std::vector<Ipp32fc>& output) {
+void FarrowInterpolator::process(
+    const Ipp32fc* input,
+    size_t input_size,
+    std::vector<Ipp32fc>& output)
+{
     output.clear();
-    if (input_size == 0) return;
+    if (input_size == 0)
+        return;
 
-    std::array<Ipp32fc, 6> combined{};
-    size_t combined_size = 0;
+    auto get_sample = [&](int idx) -> Ipp32fc {
+        // idx < 0  берём из prev_samples_
+        if (idx < 0) {
+            const int p = static_cast<int>(prev_samples_count_) + idx;
+            if (p >= 0)
+                return prev_samples_[p];
+            return {0.0f, 0.0f};
+        }
 
-    // Копируем предыдущие отсчёты
-    if (prev_samples_count_ > 0) {
-        memcpy(combined.data(), prev_samples_.data(), prev_samples_count_ * sizeof(Ipp32fc));
-        combined_size = prev_samples_count_;
-    }
+        // idx >= 0  из текущего input
+        if (idx < static_cast<int>(input_size))
+            return input[idx];
 
-    // Копируем новые отсчёты (не более 3)
-    const size_t new_to_copy = std::min(input_size, static_cast<size_t>(3));
-    memcpy(combined.data() + combined_size, input, new_to_copy * sizeof(Ipp32fc));
-    combined_size += new_to_copy;
+        return {0.0f, 0.0f};
+    };
 
     while (true) {
-        const int base_index = static_cast<int>(virtual_index_);
-        const float frac = virtual_index_ - base_index;
+        const int base_index = static_cast<int>(std::floor(virtual_index_));
+        const float t = static_cast<float>(virtual_index_ - base_index);
 
-        const int required_samples = base_index + 4;
-        if (required_samples > static_cast<int>(combined_size + input_size - new_to_copy)) {
+        // Проверяем доступность y(-2), y(-1), y0, y1
+        if (base_index - 2 < -static_cast<int>(prev_samples_count_))
             break;
-        }
+        if (base_index + 1 >= static_cast<int>(input_size))
+            break;
 
-        Ipp32fc samples[4] = {{0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}, {0.0f, 0.0f}};
-        if (base_index < static_cast<int>(combined_size)) {
-            const int copy_pos = std::max(base_index, 0);
-            const int elements_available = combined_size - copy_pos;
-            const int to_copy = std::min(4, elements_available);
+        Ipp32fc samples[4];
+        samples[0] = get_sample(base_index - 2);
+        samples[1] = get_sample(base_index - 1);
+        samples[2] = get_sample(base_index);
+        samples[3] = get_sample(base_index + 1);
 
-            memcpy(samples, combined.data() + copy_pos, to_copy * sizeof(Ipp32fc));
-            if (to_copy < 4 && input_size > 0) {
-                memcpy(samples + to_copy, input, std::min(4 - to_copy, int(input_size)) * sizeof(Ipp32fc));
-            }
-        } else {
-            const size_t offset = base_index - combined_size;
-            if (offset + 4 > input_size) break;
-            memcpy(samples, input + offset, 4 * sizeof(Ipp32fc));
-        }
+        output.push_back(
+            FarrowCoeffs(samples).interpolate(t)
+        );
 
-        output.push_back(FarrowCoeffs(samples).interpolate(frac));
         virtual_index_ += ratio_;
     }
 
-    // Сохраняем последние 3 отсчёта
+    // Сохраняем последние 3 отсчёта для следующего вызова
     prev_samples_count_ = std::min(input_size, static_cast<size_t>(3));
-    if (prev_samples_count_ > 0) {
-        const size_t start_pos = input_size - prev_samples_count_;
-        memcpy(prev_samples_.data(), input + start_pos, prev_samples_count_ * sizeof(Ipp32fc));
+    for (size_t i = 0; i < prev_samples_count_; ++i) {
+        prev_samples_[i] = input[input_size - prev_samples_count_ + i];
     }
 
-    virtual_index_ -= (input_size - prev_samples_count_);
+    // Сдвигаем виртуальный индекс в новую систему координат
+    virtual_index_ -= static_cast<double>(input_size);
 }
+
 
 void FarrowInterpolator::reset() {
     virtual_index_ = 0.0;

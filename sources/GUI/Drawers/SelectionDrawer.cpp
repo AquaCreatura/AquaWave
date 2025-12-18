@@ -105,12 +105,11 @@ void aqua_gui::SelectionDrawer::ChangeCurSelection()
 	selection_info sel_info;
 	if (scale_info_.val_info_.domain_type == ChartDomainType::kTimeFrequency) {
 		sel_info.freq_bounds = cur_hv_.vertical;
-		sel_info.time_bounds = cur_hv_.horizontal / scale_info_.val_info_.min_max_bounds_.horizontal.delta();
+		sel_info.time_bounds = cur_hv_.horizontal;
 	}
 	else
 	{
 		sel_info.freq_bounds  = cur_hv_.horizontal;
-		sel_info.time_bounds  = {0., 1.}; 
 		sel_info.power_bounds = cur_hv_.vertical;
 	}
 	sel_holder_->SetCurrentSelection(sel_info);
@@ -120,7 +119,7 @@ HorVerLim<double> aqua_gui::SelectionDrawer::GetHorVert(const selection_info & s
 {
 	HorVerLim<double> hor_ver;
 	if (scale_info_.val_info_.domain_type == ChartDomainType::kTimeFrequency) {
-		hor_ver.horizontal = sel_info.time_bounds * scale_info_.val_info_.min_max_bounds_.horizontal.delta();
+		hor_ver.horizontal = sel_info.time_bounds;
 		hor_ver.vertical = sel_info.freq_bounds;
 	}
 	else
@@ -201,7 +200,6 @@ bool aqua_gui::SelectionDrawer::DrawSizes(
 	const HorVerLim<double>& hv_val)
 {
 	auto &chart = scale_info_.pix_info_.chart_size_px;
-
 	const int chartW = chart.horizontal;
 	const int chartH = chart.vertical;
 
@@ -209,100 +207,111 @@ bool aqua_gui::SelectionDrawer::DrawSizes(
 	painter.setRenderHint(QPainter::Antialiasing, true);
 	painter.setPen(QPen(Qt::white, 1));
 
-	const int offset = 12;
-	const int arrowSize = 6;
+	const int offset = 20;     // Отступ линии от прямоугольника
+	const int arrowSize = 8;    // Размер наконечника
+	const int textMargin = 5;   // Отступ текста от линии
+	const int minSizeForInsideArrows = 40;
 
 	int left = user_rect.horizontal.low;
 	int right = user_rect.horizontal.high;
 	int top = user_rect.vertical.low;
 	int bottom = user_rect.vertical.high;
 
-	/* ---------- стрелка ---------- */
-	auto drawArrow = [&](QPointF from, QPointF to)
-	{
-		QLineF line(from, to);
-		painter.drawLine(line);
-
-		double angle = std::atan2(-line.dy(), line.dx());
-
-		QPointF p1 = to + QPointF(
-			std::sin(angle + M_PI / 3) * arrowSize,
-			std::cos(angle + M_PI / 3) * arrowSize);
-
-		QPointF p2 = to + QPointF(
-			std::sin(angle + M_PI - M_PI / 3) * arrowSize,
-			std::cos(angle + M_PI - M_PI / 3) * arrowSize);
-
-		painter.drawPolygon(QPolygonF() << to << p1 << p2);
+	// Вспомогательная функция для отрисовки только "головы" стрелки
+	auto drawArrowHead = [&](QPointF tip, double angle) {
+		QPointF p1 = tip + QPointF(std::cos(angle + M_PI / 6) * arrowSize,
+			std::sin(angle + M_PI / 6) * arrowSize);
+		QPointF p2 = tip + QPointF(std::cos(angle - M_PI / 6) * arrowSize,
+			std::sin(angle - M_PI / 6) * arrowSize);
+		painter.drawPolygon(QPolygonF() << tip << p1 << p2);
 	};
 
-	/* ---------- текст с минимальным фоном ---------- */
-	auto drawTextBG = [&](QPointF center, const QString& text)
-	{
+	/* ===============================
+	ЛОГИКА ПОЗИЦИОНИРОВАНИЯ И ОТРИСОВКИ
+	=============================== */
+	const int textGap = 1;      // Зазор между текстом и линией
+	const int arrowExt = 15;    // Длина "хвостиков" для маленьких размеров
+	const QColor bgColor(100, 100, 100, 180); // Цвет фона текста
+
+											  // Определение Y (для ширины) - Приоритет СНИЗУ
+	int y = (bottom + offset + 5 <= chartH) ? (bottom + offset) :
+		(top - offset - 5 >= 0) ? (top - offset) : qBound(5, bottom + offset, chartH - 5);
+
+	// Определение X (для высоты) - Приоритет СПРАВА
+	int x = (right + offset + 15 <= chartW) ? (right + offset) :
+		(left - offset - 15 >= 0) ? (left - offset) : qBound(5, right + offset, chartW - 5);
+
+	auto drawDimension = [&](QPointF p1, QPointF p2, bool isVertical, QString text) {
+		double len = isVertical ? std::abs(p2.y() - p1.y()) : std::abs(p2.x() - p1.x());
+		bool small = len < 40;
+
+		// 1. Линия и стрелки
+		painter.setPen(QPen(Qt::white, 1));
+		painter.drawLine(p1, p2);
+
+		if (!small) {
+			if (!isVertical) { drawArrowHead(p1, 0); drawArrowHead(p2, M_PI); }
+			else { drawArrowHead(p1, M_PI / 2); drawArrowHead(p2, -M_PI / 2); }
+		}
+		else {
+			if (!isVertical) {
+				painter.drawLine(p1, p1 - QPointF(arrowExt, 0));
+				painter.drawLine(p2, p2 + QPointF(arrowExt, 0));
+				drawArrowHead(p1, M_PI); drawArrowHead(p2, 0);
+			}
+			else {
+				painter.drawLine(p1, p1 - QPointF(0, arrowExt));
+				painter.drawLine(p2, p2 + QPointF(0, arrowExt));
+				drawArrowHead(p1, -M_PI / 2); drawArrowHead(p2, M_PI / 2);
+			}
+		}
+
+		// 2. Текст с фоном (Над или Слева)
 		QFontMetrics fm(painter.font());
-		QRectF r = fm.boundingRect(text);
-		r.moveCenter(center);
-		r.adjust(-3, -1, 3, 1);   // минимальный отступ
+		QRectF txtRect = fm.boundingRect(text);
+		txtRect.adjust(-3, 0, 3, 0); // Небольшие поля для красоты фона
+		QPointF center = (p1 + p2) / 2.0;
 
 		painter.save();
-		painter.setPen(Qt::NoPen);
-		painter.setBrush(QColor(100, 100, 100, 255));
-		painter.drawRect(r);
-		painter.restore();
+		if (!isVertical) {
+			// Смещение над линией: y - высота_текста - зазор
+			QRectF bgRect(center.x() - txtRect.width() / 2.0, p1.y() - txtRect.height() - textGap,
+				txtRect.width(), txtRect.height());
 
-		painter.drawText(r, Qt::AlignCenter, text);
+			painter.setPen(Qt::NoPen);
+			painter.setBrush(bgColor);
+			painter.drawRect(bgRect);
+
+			painter.setPen(Qt::white);
+			painter.drawText(bgRect, Qt::AlignCenter, text);
+		}
+		else {
+			// Поворот и смещение слева от линии
+			painter.translate(p1.x() - textGap, center.y());
+			painter.rotate(-90);
+
+			// В повернутой системе координат "слева" становится "сверху" (отрицательный Y)
+			QRectF bgRect(-txtRect.width() / 2.0, -txtRect.height(), txtRect.width(), txtRect.height());
+
+			painter.setPen(Qt::NoPen);
+			painter.setBrush(bgColor);
+			painter.drawRect(bgRect);
+
+			painter.setPen(Qt::white);
+			painter.drawText(bgRect, Qt::AlignCenter, text);
+		}
+		painter.restore();
 	};
 
-	/* ===============================
-	Горизонтальный размер
-	=============================== */
+	// Вызовы отрисовки
+	drawDimension(QPointF(left, y), QPointF(right, y), false,
+		QString::number(hv_val.horizontal.high - hv_val.horizontal.low, 'f', 2));
 
-	int freeTop = top;
-	int freeBottom = chartH - bottom;
-	bool drawTop = freeTop >= freeBottom;
-
-	int y = drawTop
-		? qMax(0, top - offset)
-		: qMin(chartH, bottom + offset);
-
-	QPointF hL(left, y);
-	QPointF hR(right, y);
-
-	drawArrow(hR, hL);
-	drawArrow(hL, hR);
-
-	QString wText = QString::number(
-		hv_val.horizontal.high - hv_val.horizontal.low, 'f', 2);
-
-	drawTextBG(QPointF((left + right) / 2.0, y), wText);
-
-	/* ===============================
-	Вертикальный размер
-	=============================== */
-
-	int freeLeft = left;
-	int freeRight = chartW - right;
-	bool drawRight = freeRight >= freeLeft;
-
-	int x = drawRight
-		? qMin(chartW, right + offset)
-		: qMax(0, left - offset);
-
-	QPointF vT(x, top);
-	QPointF vB(x, bottom);
-
-	drawArrow(vT, vB);
-	drawArrow(vB, vT);
-
-	QString hText = QString::number(
-		hv_val.vertical.high - hv_val.vertical.low, 'f', 2);
-
-	painter.save();
-	painter.translate(x, (top + bottom) / 2.0);
-	painter.rotate(-90);
-	drawTextBG(QPointF(0, 0), hText);
-	painter.restore();
+	drawDimension(QPointF(x, top), QPointF(x, bottom), true,
+		QString::number(hv_val.vertical.high - hv_val.vertical.low, 'f', 2));
 
 	painter.restore();
 	return true;
 }
+
+

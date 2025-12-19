@@ -84,6 +84,11 @@ protected slots:
     // Handle widget repaint requests
     virtual void paintEvent(QPaintEvent* paint_event) override;
 
+	void leaveEvent(QEvent *event) override;
+
+	void enterEvent(QEvent *event) override;
+	
+
 protected:
     // Update power bounds for chart scaling
     virtual void UpdateChartPowerBounds();
@@ -106,7 +111,7 @@ protected:
     aqua_gui::ImageBG bg_image_;
     
     // Current mouse position
-    QPoint mouse_pos_;
+	MouseDrawer mouse_man_;
     
     // Timer for periodic redraws
     QTimer redraw_timer_;

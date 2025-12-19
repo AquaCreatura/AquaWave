@@ -1,4 +1,5 @@
 #include "SelectionDrawer.h"
+#include "Tools\parse_tools.h"
 using namespace aqua_gui;
 
 //============================ SelectionHolder ================================
@@ -176,7 +177,7 @@ bool aqua_gui::SelectionDrawer::DrawRectangles(QPainter & painter, const HorVerL
 	if (is_hor_valid && is_vert_valid)
 	{
 		// Заливка (наполовину прозрачная)
-		QColor fillColor(0, 0, 255, 65); // синий, alpha 128 = 50% прозрачность
+		QColor fillColor(100, 100, 100, 130); // синий, alpha 128 = 50% прозрачность
 										 //painter.fillRect(pixel_rect, fillColor);
 
 										 // Рамка прямоугольника
@@ -185,6 +186,7 @@ bool aqua_gui::SelectionDrawer::DrawRectangles(QPainter & painter, const HorVerL
 		pen.setWidth(1); // толщина рамки
 		painter.setPen(pen);
 		painter.drawRect(pixel_rect);
+		painter.fillRect(pixel_rect, fillColor);
 	}
 	return true;
 }
@@ -314,4 +316,84 @@ bool aqua_gui::SelectionDrawer::DrawSizes(
 	return true;
 }
 
+bool aqua_gui::SelectionDrawer::DrawMarks(QPainter & painter, const HorVerLim<int>& user_rect, const HorVerLim<double>& hv_val)
+{
+	return false;
+}
 
+
+
+//============================================ MouseDrawer ====================================================
+
+aqua_gui::MouseDrawer::MouseDrawer(const ChartScaleInfo& base_scale_info)
+	:scale_info_(base_scale_info)
+{
+}
+
+void aqua_gui::MouseDrawer::MouseEvent(const QPoint & mouse_location, const SelectionDrawer::mouse_event_type event_type)
+{
+	pos_ = mouse_location;
+}
+
+void aqua_gui::MouseDrawer::SetWidgetInsideState(const bool is_enter)
+{
+	is_inside_widget_ = is_enter;
+}
+
+bool aqua_gui::MouseDrawer::Draw(QPainter & painter)
+{
+	if (!is_inside_widget_)
+		return true;
+
+	auto &cur_chart_val = scale_info_.val_info_.cur_bounds;
+	auto &chart_size_px = scale_info_.pix_info_.chart_size_px;
+	auto hor_px = pos_.x();
+	auto vert_px = pos_.y();
+
+	auto val_hor = cur_chart_val.horizontal.low + double(hor_px) / chart_size_px.horizontal * cur_chart_val.horizontal.delta();
+	auto val_vert = cur_chart_val.vertical.low + (1 - double(vert_px) / chart_size_px.vertical) * cur_chart_val.vertical.delta();
+
+	// Настройка пера для линий
+	QPen dashPen(QColor(200, 200, 200));
+	dashPen.setDashPattern({ 7, 7 });
+	painter.setPen(dashPen);
+
+	// Рисуем перекрестие
+	painter.drawLine(hor_px, 0, hor_px, chart_size_px.vertical);
+	painter.drawLine(0, vert_px, chart_size_px.horizontal, vert_px);
+
+	// Лямбда для отрисовки текстовой плашки
+	// Аргументы: текст, базовая координата X, базовая координата Y, центрировать по X или по Y
+	auto drawValueLabel = [&](const QString& text, int x, int y, bool centerHorizontally) {
+		QFontMetrics fm = painter.fontMetrics();
+		int padding_h = 6;
+		int padding_v = 2;
+
+		QRect text_rect = fm.boundingRect(text);
+		int w = text_rect.width() + padding_h * 2;
+		int h = text_rect.height() + padding_v * 2;
+
+		QRect bgRect;
+		if (centerHorizontally) {
+			// Для нижней оси: центрируем по X, верх прижат к краю графика
+			bgRect = QRect(x - w / 2, y, w, h);
+		}
+		else {
+			// Для боковой оси: центрируем по Y, лево прижато к краю графика
+			bgRect = QRect(x, y - h / 2, w, h);
+		}
+
+		painter.fillRect(bgRect,QColor(0, 0, 125) );
+		painter.setPen(Qt::white);
+		painter.drawText(bgRect, Qt::AlignCenter, text);
+	};
+
+	// Отрисовка значений
+	QString vert_text = aqua_parse_tools::ValueToString(val_vert, 0).c_str();
+	drawValueLabel(vert_text, chart_size_px.horizontal, vert_px, false);
+
+	QString hor_text = aqua_parse_tools::ValueToString(val_hor, 0).c_str();
+	drawValueLabel(hor_text, hor_px, chart_size_px.vertical + 5, true);
+
+	return true;
+}

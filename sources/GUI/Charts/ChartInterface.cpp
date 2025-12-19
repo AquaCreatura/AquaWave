@@ -2,7 +2,8 @@
 #include <qsizepolicy.h>
 #include "GUI/basic tools/gui_helper.h"
 ChartInterface::ChartInterface(QWidget* parent, std::shared_ptr<SelectionHolder> selection_holder) :
-    QWidget(parent), axis_man_(scale_info_), bg_image_(scale_info_), selection_drawer_(scale_info_)
+    QWidget(parent), axis_man_(scale_info_), bg_image_(scale_info_), selection_drawer_(scale_info_),
+	mouse_man_(scale_info_)
 { 
 	selection_drawer_.SetSelectionHolder(selection_holder);
     // Our widget params
@@ -93,6 +94,7 @@ void ChartInterface::SetSelectionHolder(std::shared_ptr<SelectionHolder> selecti
 void ChartInterface::mouseMoveEvent(QMouseEvent * mouse_event)
 {
 	selection_drawer_.EditableEvent(mouse_event->pos(), SelectionDrawer::kMove);
+	mouse_man_.MouseEvent(mouse_event->pos(), SelectionDrawer::kMove);
 	update();
 }
 
@@ -142,8 +144,20 @@ void ChartInterface::paintEvent(QPaintEvent * paint_event)
     }
     //Mouse Pos
     {
-    
+		mouse_man_.Draw(new_frame_painter);
     }
+}
+
+void ChartInterface::leaveEvent(QEvent * event)
+{
+	QWidget::leaveEvent(event); // גûחמג באחמגמדמ לועמהא
+	mouse_man_.SetWidgetInsideState(false);
+}
+
+void ChartInterface::enterEvent(QEvent * event)
+{
+	QWidget::enterEvent(event);
+	mouse_man_.SetWidgetInsideState(true);
 }
 
 void ChartInterface::UpdateChartPowerBounds()

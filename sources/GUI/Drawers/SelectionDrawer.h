@@ -46,6 +46,7 @@ protected:
 protected: //Draw functions
 	bool DrawRectangles	(QPainter& painter, const HorVerLim<int>& user_rect);
 	bool DrawSizes		(QPainter& painter, const HorVerLim<int>& user_rect, const HorVerLim<double> &hv_val);
+	bool DrawMarks		(QPainter& painter, const HorVerLim<int>& user_rect, const HorVerLim<double> &hv_val);
 private:
 	const ChartScaleInfo&			 scale_info_;
 	std::shared_ptr<SelectionHolder> sel_holder_;
@@ -53,4 +54,16 @@ private:
 	bool							 is_pressed_{ false };
 };
 
+class MouseDrawer
+{
+public:
+	MouseDrawer(const ChartScaleInfo& base_scale_info);
+	void MouseEvent(const QPoint& mouse_location, const SelectionDrawer::mouse_event_type event_type);
+	void SetWidgetInsideState(const bool is_enter);
+	bool Draw(QPainter& painter);
+protected:
+	QPoint pos_;
+	bool is_inside_widget_{ false };
+	const ChartScaleInfo& scale_info_;
+};
 }

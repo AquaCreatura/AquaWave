@@ -107,6 +107,7 @@ void aqua_gui::SelectionDrawer::ChangeCurSelection()
 	if (scale_info_.val_info_.domain_type == ChartDomainType::kTimeFrequency) {
 		sel_info.freq_bounds = cur_hv_.vertical;
 		sel_info.time_bounds = cur_hv_.horizontal;
+		sel_info.power_bounds = { 0,0 };
 	}
 	else
 	{
@@ -143,7 +144,7 @@ bool aqua_gui::SelectionDrawer::DrawRectangles(QPainter & painter, const HorVerL
 		int(user_rect.horizontal.delta() + 1), int(user_rect.vertical.delta() + 1) };
 	{
 		QPen sel_pen;
-		sel_pen.setColor(QColor(80, 80, 80, 255));
+		sel_pen.setColor((is_vert_valid && is_hor_valid) ? QColor(80, 80, 80, 255) : QColor(255, 255, 255, 255));
 
 		QColor fillColor(0, 255, 255, 60); // синий, alpha 128 = 50% прозрачность
 		sel_pen.setWidth(1);
@@ -234,14 +235,16 @@ bool aqua_gui::SelectionDrawer::DrawSizes(
 	const int textGap = 1;      // Зазор между текстом и линией
 	const int arrowExt = 15;    // Длина "хвостиков" для маленьких размеров
 	const QColor bgColor(100, 100, 100, 180); // Цвет фона текста
-
 											  // Определение Y (для ширины) - Приоритет СНИЗУ
 	int y = (bottom + offset + 5 <= chartH) ? (bottom + offset) :
 		(top - offset - 5 >= 0) ? (top - offset) : qBound(5, bottom + offset, chartH - 5);
-
+	if (user_rect.vertical.delta() == 0)
+		y = chartH - 5;
 	// Определение X (для высоты) - Приоритет СПРАВА
 	int x = (right + offset + 15 <= chartW) ? (right + offset) :
 		(left - offset - 15 >= 0) ? (left - offset) : qBound(5, right + offset, chartW - 5);
+	if (user_rect.horizontal.delta() == 0) 
+		x = chartW - 5;
 
 	auto drawDimension = [&](QPointF p1, QPointF p2, bool isVertical, QString text) {
 		double len = isVertical ? std::abs(p2.y() - p1.y()) : std::abs(p2.x() - p1.x());
@@ -306,11 +309,14 @@ bool aqua_gui::SelectionDrawer::DrawSizes(
 	};
 
 	// Вызовы отрисовки
-	drawDimension(QPointF(left, y), QPointF(right, y), false,
-		QString::number(hv_val.horizontal.high - hv_val.horizontal.low, 'f', 2));
-
-	drawDimension(QPointF(x, top), QPointF(x, bottom), true,
-		QString::number(hv_val.vertical.high - hv_val.vertical.low, 'f', 2));
+	if ((user_rect.horizontal.delta())) {
+		QString hor_text = aqua_parse_tools::ValueToString(hv_val.horizontal.delta(), -1).c_str();
+		drawDimension(QPointF(left, y), QPointF(right, y), false, hor_text);
+	}
+	if (user_rect.vertical.delta()) {
+		QString vert_text = aqua_parse_tools::ValueToString(hv_val.vertical.delta(), -1).c_str();
+		drawDimension(QPointF(x, top), QPointF(x, bottom), true, vert_text);
+	}
 
 	painter.restore();
 	return true;
@@ -389,10 +395,10 @@ bool aqua_gui::MouseDrawer::Draw(QPainter & painter)
 	};
 
 	// Отрисовка значений
-	QString vert_text = aqua_parse_tools::ValueToString(val_vert, 0).c_str();
+	QString vert_text = aqua_parse_tools::ValueToString(val_vert, -1).c_str();
 	drawValueLabel(vert_text, chart_size_px.horizontal, vert_px, false);
 
-	QString hor_text = aqua_parse_tools::ValueToString(val_hor, 0).c_str();
+	QString hor_text = aqua_parse_tools::ValueToString(val_hor, -1).c_str();
 	drawValueLabel(hor_text, hor_px, chart_size_px.vertical + 5, true);
 
 	return true;

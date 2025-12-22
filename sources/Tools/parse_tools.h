@@ -94,8 +94,13 @@ inline std::string gen_time_string(const std::string& comment = "") {
     return std::string(buffer);
 }
 
-inline std::string ValueToString(double v, const int precision, const char* divider = ",") {
+inline double GetPrecission(double value) {
+	return std::max(0., -1 * log10(value) + 3);
+}
 
+inline std::string ValueToString(double v, int precision, const char* divider = ",") {
+
+	if (precision < 0) precision = GetPrecission(v);
 	bool neg = v < 0;
 	if (neg) v = -v;
 	long long int_part = static_cast<long long>(v);

@@ -32,13 +32,11 @@ void aqua_gui::SelectionDrawer::SetSelectionHolder(std::shared_ptr<SelectionHold
 
 bool aqua_gui::SelectionDrawer::DrawSelections(QPainter & painter)
 {
-	painter.save();
 	auto &cur_chart_val = scale_info_.val_info_.cur_bounds;
 	auto &base_chart_val = scale_info_.val_info_.min_max_bounds_;
 	auto &chart_size_px = scale_info_.pix_info_.chart_size_px;
 	
-	QRect limit_rect = { 0,0, chart_size_px.horizontal, chart_size_px.vertical };
-	painter.setClipRect(limit_rect);
+	
 	
 	//painter
 	{
@@ -55,13 +53,12 @@ bool aqua_gui::SelectionDrawer::DrawSelections(QPainter & painter)
 			std::lround((cur_chart_val.vertical.high - vert_sel.high) / cur_chart_val.vertical.delta() * chart_size_px.vertical),
 			std::lround((cur_chart_val.vertical.high - vert_sel.low) / cur_chart_val.vertical.delta() * chart_size_px.vertical)
 		};
-
 		if (DrawRectangles(painter, user_rect)) {
+			DrawMarks(painter, user_rect, val_hv);
 			DrawSizes(painter, user_rect, val_hv);
 		}
 	}
 	
-	painter.restore();
 	return true;
 }
 
@@ -134,11 +131,18 @@ HorVerLim<double> aqua_gui::SelectionDrawer::GetHorVert(const selection_info & s
 
 bool aqua_gui::SelectionDrawer::DrawRectangles(QPainter & painter, const HorVerLim<int>& user_rect)
 {
+
 	auto &chart_size_px = scale_info_.pix_info_.chart_size_px;
 
 	bool is_hor_valid = user_rect.horizontal.delta() >= 1;
 	bool is_vert_valid = user_rect.vertical.delta() >= 1;
 	if (!is_hor_valid && !is_vert_valid) return false;
+
+	painter.save();
+	QRect limit_rect = { 0,0, chart_size_px.horizontal, chart_size_px.vertical };
+	painter.setClipRect(limit_rect);
+	
+
 
 	const QRect pixel_rect = { int(user_rect.horizontal.low), int(user_rect.vertical.low),
 		int(user_rect.horizontal.delta() + 1), int(user_rect.vertical.delta() + 1) };
@@ -189,6 +193,7 @@ bool aqua_gui::SelectionDrawer::DrawRectangles(QPainter & painter, const HorVerL
 		painter.drawRect(pixel_rect);
 		painter.fillRect(pixel_rect, fillColor);
 	}
+	painter.restore();
 	return true;
 }
 /*
@@ -324,9 +329,69 @@ bool aqua_gui::SelectionDrawer::DrawSizes(
 
 bool aqua_gui::SelectionDrawer::DrawMarks(QPainter & painter, const HorVerLim<int>& user_rect, const HorVerLim<double>& hv_val)
 {
-	return false;
-}
+	auto &cur_chart_val = scale_info_.val_info_.cur_bounds;
+	auto &chart_size_px = scale_info_.pix_info_.chart_size_px;
+	auto domain = scale_info_.val_info_.domain_type;
 
+	using namespace aqua_parse_tools;
+
+	// 1. Настройка стиля
+	QPen dashPen(QColor(200, 200, 200));
+	dashPen.setDashPattern({ 7, 7 });
+	painter.setPen(dashPen);
+
+	// 2. Компактная лямбда для отрисовки плашки
+	// Принимает только текст, позицию на оси и флаг ориентации
+	auto drawLabel = [&](const QString& text, int p, bool isHor) {
+		QFontMetrics fm = painter.fontMetrics();
+		QRect tr = fm.boundingRect(text);
+		int w = tr.width() + 12, h = tr.height() + 4;
+
+		// Определяем координаты: если Hor -> X=p, Y=низ графика. Если Ver -> X=край графика, Y=p.
+		QRect bg = isHor ? QRect(p - w / 2, chart_size_px.vertical + 5, w, h)
+			: QRect(chart_size_px.horizontal + 5, p - h / 2, w, h);
+
+		painter.fillRect(bg, QColor(50, 50, 50));
+		painter.setPen(Qt::white);
+		painter.drawText(bg, Qt::AlignCenter, text);
+	};
+
+	// 3. Главная логика обработки оси (всего 1 параметр!)
+	auto processAxis = [&](bool isHor) {
+		const auto& v = isHor ? hv_val.horizontal : hv_val.vertical;
+		const auto& p = isHor ? user_rect.horizontal : user_rect.vertical;
+
+		if (v.delta() < 0.000001) return;
+
+		double total_delta = isHor ? cur_chart_val.horizontal.delta() : cur_chart_val.vertical.delta();
+		int precision = GetPrecission(total_delta);
+
+		// Рисуем центральную линию и метку, если совпадает тип домена
+		bool needLine = isHor ? (domain == ChartDomainType::kFreqDomain)
+			: (domain == ChartDomainType::kTimeFrequency);
+
+		if (needLine) {
+			int mid_p = p.low + p.delta() / 2;
+			painter.setPen(dashPen);
+			if (isHor) painter.drawLine(mid_p, 0, mid_p, chart_size_px.vertical);
+			else       painter.drawLine(0, mid_p, chart_size_px.horizontal, mid_p);
+
+			drawLabel(ValueToString(v.low + v.delta() / 2, precision).c_str(), mid_p, isHor);
+		}
+
+		// Дополнительные метки по краям (> 60px)
+		if (p.delta() > 60) {
+			drawLabel(ValueToString(v.low, precision).c_str(), p.low, isHor);
+			drawLabel(ValueToString(v.high, precision).c_str(), p.high, isHor);
+		}
+	};
+
+	// 4. Вызов для обеих осей
+	processAxis(true);  // Horizontal
+	processAxis(false); // Vertical
+
+	return true;
+}
 
 
 //============================================ MouseDrawer ====================================================
@@ -348,6 +413,7 @@ void aqua_gui::MouseDrawer::SetWidgetInsideState(const bool is_enter)
 
 bool aqua_gui::MouseDrawer::Draw(QPainter & painter)
 {
+	using namespace aqua_parse_tools;
 	if (!is_inside_widget_)
 		return true;
 
@@ -395,10 +461,10 @@ bool aqua_gui::MouseDrawer::Draw(QPainter & painter)
 	};
 
 	// Отрисовка значений
-	QString vert_text = aqua_parse_tools::ValueToString(val_vert, -1).c_str();
+	QString vert_text = ValueToString(val_vert, GetPrecission(cur_chart_val.vertical.delta())).c_str();
 	drawValueLabel(vert_text, chart_size_px.horizontal, vert_px, false);
 
-	QString hor_text = aqua_parse_tools::ValueToString(val_hor, -1).c_str();
+	QString hor_text = ValueToString(val_hor, GetPrecission(cur_chart_val.horizontal.delta())).c_str();
 	drawValueLabel(hor_text, hor_px, chart_size_px.vertical + 5, true);
 
 	return true;

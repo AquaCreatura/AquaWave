@@ -47,14 +47,14 @@ void file_source::FileDataManager::DeleteReader(const fluctus::ArkWptr& reader)
 {
     auto it = listeners_.find(reader);
     if(it == listeners_.end()) return;   // Выход, если listener не найден
-    it->second.WaitProcess();           // Остановка процесса перед удалением
+    it->second.WaitProcessLocked();           // Остановка процесса перед удалением
     listeners_.erase(it);                // Удаление из map
 }
 
 void file_source::FileDataManager::StopAllReaders()
 {
 	for (auto &listener_iter : listeners_) {
-		listener_iter.second.WaitProcess();
+		listener_iter.second.WaitProcessLocked();
 	};
 }
 
@@ -85,10 +85,19 @@ void file_source::FileDataListener::WaitProcess()
         process_anchor_.get();  // Блокирует, пока поток не завершится
 }
 
+void file_source::FileDataListener::WaitProcessLocked()
+{
+	tbb::spin_mutex::scoped_lock scoped_locker(init_mutex_);
+	WaitProcess();
+
+}
+
 // Асинхронный запуск чтения вокруг позиции
 bool file_source::FileDataListener::StartReadAround(const double pos_ratio)
 {  
+	tbb::spin_mutex::scoped_lock scoped_locker(init_mutex_);
     WaitProcess();
+	state_ = ListenerState::kReadAround;  // Установка состояния "в процессе чтения"
     // Запуск ReadAroundProcess в отдельном потоке
     process_anchor_ = std::async(std::launch::async, 
                                 &FileDataListener::ReadAroundProcess, 
@@ -100,7 +109,9 @@ bool file_source::FileDataListener::StartReadAround(const double pos_ratio)
 
 bool file_source::FileDataListener::StartReadChunksInRange(double start_pos, double end_pos)
 {
+	tbb::spin_mutex::scoped_lock scoped_locker(init_mutex_);
 	WaitProcess();
+	state_ = kReadChunksInRange;  // Установка состояния "в процессе чтения"
 	// Запуск ReadAroundProcess в отдельном потоке
 	process_anchor_ = std::async(std::launch::async,
 		&FileDataListener::ReadChunksInRangeProcess,
@@ -130,11 +141,10 @@ void file_source::FileDataListener::ReadChunksInRangeProcess(double start_pos, d
 	StreamReader reader;
 	if (!reader.SetFileParams(params_))  // Настройка файлового читателя
 	{
+		state_ = kProcessStopped;  // Ошибка чтения
 		return;
 	}
-
-	state_ = kReadChunksInRange;  // Установка состояния "в процессе чтения"
-	reader.InitFloat(start_pos, end_pos, chunk_size); //Инициализируем в относительно состоянии
+	reader.InitStartEndRatio(start_pos, end_pos, chunk_size); //Инициализируем в относительно состоянии
 	// Чтение данных вокруг позиции
 	
 	while (state_!= kNeedStop && reader.ReadStream(data_info_.data_vec))
@@ -157,10 +167,9 @@ void file_source::FileDataListener::ReadAroundProcess(double pos_ratio, const in
 	FileReader reader;
     if(!reader.SetFileParams(params_))  // Настройка файлового читателя
     {
+		state_ = kProcessStopped;  // Ошибка чтения
         return;
     }
-    state_ = ListenerState::kReadAround;  // Установка состояния "в процессе чтения"
-	reader;
     // Чтение данных вокруг позиции
     if(!reader.GetDataAround(pos_ratio, out_data_size, data_info_.data_vec) ||
 		(data_info_.data_vec.size() != out_data_size * 4))

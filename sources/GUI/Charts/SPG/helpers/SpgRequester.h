@@ -15,8 +15,8 @@ public:
     SpgRequester(const spg_data& spg, const WorkBounds& time_bounds);
 	~SpgRequester();
     void Initialise	 (const ArkWptr& file_source, const ArkWptr& ark_spg);
-protected:
 	void StartProcess(bool do_start);
+protected:
 	void LoopProcess();
     struct request_params
     {

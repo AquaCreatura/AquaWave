@@ -17,6 +17,7 @@ Spectrogram::Spectrogram(QWidget * parrent) :
 
 spg_core::Spectrogram::~Spectrogram()
 {
+	requester_.StartProcess(false);
 }
 
 // Отправляет данные для обработки спектра и отображения.
@@ -82,7 +83,6 @@ bool Spectrogram::SendDove(fluctus::DoveSptr const & sent_dove)
     // Передаём сообщение базовому классу для дальнейшей обработки.
     if(base_thought & DoveParrent::DoveThought::kTieSource)
     {
-        Reload();
         if(target_val->GetArkType() != ArkType::kFileSource) throw std::logic_error("Only signal sources are able to connect!");
         src_info_.ark = target_val;
     }
@@ -114,7 +114,6 @@ ArkType spg_core::Spectrogram::GetArkType() const
 bool spg_core::Spectrogram::Reload()
 {
     auto file_src = src_info_.ark.lock();
-	spg_drawer_->ClearData();
     if(!file_src) 
     {
         return true;
@@ -130,23 +129,22 @@ bool spg_core::Spectrogram::Reload()
     src_info_.info.carrier      = req_dove->file_info->carrier_hz_;
     src_info_.info.samplerate   = req_dove->file_info->samplerate_hz_;
 	Limits<double> new_hor_bounds = { 0., std::max(1.,double(req_dove->file_info->count_of_samples)) };
-	time_bounds_.source = new_hor_bounds;
-	spg_drawer_->SetHorizontalMinMaxBounds(new_hor_bounds);
-	{
+	if (1) {
+		time_bounds_.source = new_hor_bounds;
+		spg_drawer_->ClearData();
+		spg_drawer_->SetHorizontalMinMaxBounds(new_hor_bounds);
+		{
+			Limits<double> bounds_hz = {
+				double(src_info_.info.carrier) - src_info_.info.samplerate / 2.,
+				double(src_info_.info.carrier) + src_info_.info.samplerate / 2.
+			};
+			freq_divider_ = 1.e6;
 
-		Limits<double> bounds_hz = {
-			double(src_info_.info.carrier) - src_info_.info.samplerate / 2.,
-			double(src_info_.info.carrier) + src_info_.info.samplerate / 2.
-		};
-		freq_divider_ = 1.e6;
-
-		bounds_hz = bounds_hz / freq_divider_;
-		spg_drawer_->SetVerticalMinMaxBounds(bounds_hz);
-		spg_drawer_->SetVerticalSuffix("MHz");
+			bounds_hz = bounds_hz / freq_divider_;
+			spg_drawer_->SetVerticalMinMaxBounds(bounds_hz);
+			spg_drawer_->SetVerticalSuffix("MHz");
+		}
 	}
-	const int max_order = std::min(log2(req_dove->file_info->count_of_samples), 21.);
-	//window_->SetMaxFFtOrder(max_order);
-	
     
     return true;
 }

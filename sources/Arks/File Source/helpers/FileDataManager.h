@@ -1,7 +1,7 @@
 #include <future>       // Для std::future и асинхронных операций
 #include <functional>   // Для std::bind и функторов
 #include <thread>       // Для работы с потоками
-
+#include <tbb\spin_mutex.h>
 #include <unordered_map> // Для хранения слушателей
 
 #include "DSP Tools/Resampler/ResamplerMan.h" // Менеджер ресемплера
@@ -33,6 +33,7 @@ namespace file_source
         
         // Остановка процесса чтения
         void WaitProcess();
+		void WaitProcessLocked();
         
         // Асинхронный запуск чтения вокруг позиции (pos_ratio — относительная позиция в файле)
         bool StartReadAround(double pos_ratio);
@@ -67,6 +68,7 @@ namespace file_source
         const fluctus::ArkWptr target_ark_;       // Ссылка на weak_ptr целевого ARK
         int64_t block_size_;                 // Размер блока данных
         const file_params& params_;          // Параметры файла (константная ссылка)
+		tbb::spin_mutex init_mutex_;
     };
 
     // Менеджер слушателей файловых данных

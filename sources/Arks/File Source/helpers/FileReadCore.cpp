@@ -223,7 +223,7 @@ bool StreamReader::Init(const size_t start_sample, const size_t total_samples, c
     return true;
 }
 
-bool StreamReader::InitFloat(const double start_ratio, const double end_ratio, const size_t block_size) {
+bool StreamReader::InitStartEndRatio(const double start_ratio, const double end_ratio, const size_t block_size) {
     if (!ifstream_.is_open()) {
         std::cerr << "Error: File not open. Call FileReader::SetFileParams() first." << std::endl;
         return false;

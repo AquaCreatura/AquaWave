@@ -81,7 +81,6 @@ bool SpectralViewer::SendDove(fluctus::DoveSptr const & sent_dove)
 			spectrogram_->SendDove(req_dove);
 			dpx_spectrum_->SendDove(req_dove);
 		}
-		Reload();
     }
     //
     if(base_thought == fluctus::DoveParrent::DoveThought::kReset)
@@ -127,7 +126,9 @@ bool SpectralViewer::Reload()
 
 void SpectralViewer::SetNewFftOrder(int n_fft_order)
 {
-	n_fft_ = 1 << n_fft_order;
+	int new_fft = 1 << n_fft_order;
+	if (n_fft_ == new_fft) return;
+	n_fft_ = new_fft;
 	auto req_dove = std::make_shared<SpectralDove>();
 	req_dove->special_thought = SpectralDove::SpectralThought::kSetFFtOrder;
 	req_dove->fft_order_ = n_fft_order;

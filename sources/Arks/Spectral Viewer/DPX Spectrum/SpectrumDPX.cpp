@@ -84,21 +84,16 @@ bool dpx_core::SpectrumDPX::SendDove(fluctus::DoveSptr const & sent_dove)
     {
         if(target_val->GetArkType() != ArkType::kFileSource) throw std::logic_error("Only signal sources are able to connect!");
         src_info_.ark = target_val;
-        Reload();
+		Reload();
     }
-    //
     if(base_thought == fluctus::DoveParrent::DoveThought::kReset)
     {
-        return Reload();
+		Reload();
+		RequestSelectedData();
     }
 	if (base_thought == fluctus::DoveParrent::DoveThought::kSpecialThought) {
 		const auto special_thought = sent_dove->special_thought;
 		if (auto spectral_dove = std::dynamic_pointer_cast<spectral_viewer::SpectralDove>(sent_dove)) {
-			if (special_thought & spectral_viewer::SpectralDove::kSetFFtOrder) {
-				n_fft_ = 1 << *spectral_dove->fft_order_;
-				dpx_drawer_->ClearData();
-				RequestSelectedData();
-			}
 			if (special_thought & spectral_viewer::SpectralDove::kSetFFtOrder) {
 				n_fft_ = 1 << *spectral_dove->fft_order_;
 				dpx_drawer_->ClearData();
@@ -144,9 +139,6 @@ bool dpx_core::SpectrumDPX::Reload()
 	bounds_hz = bounds_hz / freq_divider_;
 	dpx_drawer_->SetHorizontalMinMaxBounds(bounds_hz);
 	dpx_drawer_->SetHorizontalSuffix("MHz");
-
-    RequestSelectedData();
-    
     return true;
 }
 

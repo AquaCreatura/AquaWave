@@ -57,8 +57,6 @@ void spg_core::SpgRequester::LoopProcess()
 		if (!SendRequestDove(request_info)) {
 			std::this_thread::sleep_for(std::chrono::milliseconds(100));
 		}
-
-		//
 	}
 }
 

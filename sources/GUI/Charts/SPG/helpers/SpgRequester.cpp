@@ -109,7 +109,7 @@ SpgRequester::request_params SpgRequester::GetRequestParams() {
 		return req_info;
 
 
-	bool need_request_base = (spg_.base_data.state & kPreparingStation) || (spg_.realtime_data.state == spg_core::kFullData);
+	bool need_request_base = (spg_.realtime_data.state == spg_core::kFullData);
 	auto &holder_to_request = need_request_base ? spg_.base_data : spg_.realtime_data;
 
 	
@@ -163,19 +163,13 @@ SpgRequester::request_params SpgRequester::GetRequestParams() {
         return req_info;
     }
 
-	if (holder_to_request.state & kPreparingStation && need_request_base)
+	if (holder_to_request.state & kPreparingStation)
 	{
+
 		int relevant_counter = 0;
-		int need_minimum = 100; 
-		//В случае с real time данными, порог динамический
-		if (!need_request_base) {
-			double scale_koeff = spg_.base_data.val_bounds.horizontal.delta() / 
-									spg_.realtime_data.val_bounds.horizontal.delta();
-			need_minimum = spg_.base_data.size.horizontal / scale_koeff;
-		}
 		for (auto rel_iter : relevant_vec) {
 			relevant_counter += rel_iter;
-			if (relevant_counter > need_minimum) {
+			if (relevant_counter > holder_to_request.ready_threshold) {
 				tbb::spin_mutex::scoped_lock guard_lock(spg_.rw_mutex_);
 				holder_to_request.state = spg_core::kReadyToUse;
 				break;

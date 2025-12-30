@@ -15,7 +15,7 @@ namespace spg_core
 	
 
 	enum HolderStation {
-		kNewData	= 1 << 0, //Требуются новые данные
+		kEmptyData	= 1 << 0, //Требуются новые данные
 		kPrecising  = 1 << 1, //Происходит уточнение данных		
 
 		kReadyToUse = 1 << 2,
@@ -41,6 +41,8 @@ namespace spg_core
         std::vector<DataType>				data;			//Наши данные
         std::atomic<bool>					need_redraw;
 		mutable std::atomic<int>			state;			//Состояние нашего холдера
+		std::atomic<int>					ready_threshold;
+		int									count_of_relevant;
     };
 
     struct spg_data

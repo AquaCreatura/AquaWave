@@ -104,7 +104,7 @@ bool spg_core::SpgCore::Emplace()
 {
 
 	auto emplace_holder = [&](spg_holder &holder_to_emplace, HV_Info<size_t> matrix_size) {
-		holder_to_emplace.state = kNewData | kRequestStation;
+		holder_to_emplace.state = kEmptyData | kRequestStation;
 		if (holder_to_emplace.val_bounds.horizontal.delta() <= 0) holder_to_emplace.val_bounds.horizontal = { 0, 1000 };              // Set x-axis Limits
 		if (holder_to_emplace.val_bounds.vertical.delta() <= 0) holder_to_emplace.val_bounds.vertical = { 0.0, 1.0 };             // Set y-axis Limits
 		auto& ref_size = holder_to_emplace.size;
@@ -120,6 +120,7 @@ bool spg_core::SpgCore::Emplace()
 		holder_to_emplace.data.resize(data_size, 0);         // Allocate and zero-initialize data
 		holder_to_emplace.relevant_vec.assign(ref_size.horizontal, 0); 
 		holder_to_emplace.need_redraw = true;                // Set redraw flag
+		holder_to_emplace.ready_threshold = 0;
 		return true;
 	};
 	spg_.power_bounds = { 0, 100 };

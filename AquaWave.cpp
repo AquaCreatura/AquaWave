@@ -8,8 +8,8 @@ AquaWave::AquaWave(QWidget *parent, const QString& file_path)
 	//(QString&)file_path = "D:\\signals\\17.10.2025 16_41_59 1875.300000MHz 12800.000KHz.pcm";
     ui.setupUi(this); 
 	file_src_				= ship_builder_.BuildNewShip(fluctus::kFileSource);
-	auto spectral_viewer	= ship_builder_.BuildNewShip(fluctus::kSpectralViewer);
-	auto scope_analyser		= ship_builder_.BuildNewShip(fluctus::kScopeAnalyser);
+	spectral_viewer	= ship_builder_.BuildNewShip(fluctus::kSpectralViewer);
+	scope_analyser		= ship_builder_.BuildNewShip(fluctus::kScopeAnalyser);
 
 	ShipBuilder::Bind_SrcSink(file_src_, spectral_viewer);
 	ShipBuilder::Bind_SrcSink(file_src_, scope_analyser);
@@ -32,7 +32,14 @@ AquaWave::AquaWave(QWidget *parent, const QString& file_path)
 
 	this->ui.main_stacked->addWidget(ShipBuilder::GetWindow(spectral_viewer));
 	this->ui.main_stacked->addWidget(ShipBuilder::GetWindow(scope_analyser));
-
+	connect(ui.spectral_viewer_navigate_button, &QPushButton::clicked, [this](){
+		ui.main_stacked->setCurrentWidget(ShipBuilder::GetWindow(spectral_viewer));
+	});
+	connect(ui.analyze_navigate_button, &QPushButton::clicked, [this]() {
+		ui.main_stacked->setCurrentWidget(ShipBuilder::GetWindow(scope_analyser));
+	});
+	
+	//connect
 	this->ui.main_stacked->setCurrentWidget(ShipBuilder::GetWindow(spectral_viewer));
 }
 

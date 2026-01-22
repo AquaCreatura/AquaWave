@@ -4,9 +4,6 @@
 #include <limits> // Required for std::numeric_limits
 #include <iostream> // For error/warning output
 
-// Assuming aqua_gui is a global namespace or included differently
-// If not, 'using namespace aqua_gui;' might cause issues.
-// For now, I'll keep it as it was in your original code.
 using namespace aqua_gui;
 
 namespace dpx_core

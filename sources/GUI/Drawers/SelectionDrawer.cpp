@@ -421,6 +421,8 @@ bool aqua_gui::MouseDrawer::Draw(QPainter & painter)
 	auto &chart_size_px = scale_info_.pix_info_.chart_size_px;
 	auto hor_px = pos_.x();
 	auto vert_px = pos_.y();
+	if (hor_px < 0 || hor_px > chart_size_px.horizontal) return true;
+	if (vert_px < 0 || vert_px > chart_size_px.vertical) return true;
 
 	auto val_hor = cur_chart_val.horizontal.low + double(hor_px) / chart_size_px.horizontal * cur_chart_val.horizontal.delta();
 	auto val_vert = cur_chart_val.vertical.low + (1 - double(vert_px) / chart_size_px.vertical) * cur_chart_val.vertical.delta();

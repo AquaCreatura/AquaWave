@@ -1,6 +1,6 @@
 #include <qmessagebox.h>
 #include "AquaWave.h"
-#include "Arks\File Source\file_souce_defs.h"
+#include "special_defs/file_souce_defs.h"
 
 AquaWave::AquaWave(QWidget *parent, const QString& file_path)
     : QMainWindow(parent)

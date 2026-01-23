@@ -4,7 +4,7 @@
 #include "GUI/Charts/DPX/DpxChart.h"
 #include "DSP Tools/FFT/FFT_Worker.h"
 
-#include "..\spectral_viewer_defs.h"
+#include "special_defs\spectral_viewer_defs.h"
 namespace dpx_core
 {
 

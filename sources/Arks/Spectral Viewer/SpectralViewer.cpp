@@ -1,5 +1,5 @@
 #include "SpectralViewer.h"
-#include "Arks\File Source\file_souce_defs.h"
+#include "special_defs/file_souce_defs.h"
 
 #include <qmessagebox.h>
 

@@ -56,7 +56,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>sources;.\GeneratedFiles;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtCore;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>sources;.\GeneratedFiles;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtCore;sources/Arks/Interfaces;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -88,7 +88,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>sources;.\GeneratedFiles;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtCore;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>sources;.\GeneratedFiles;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtCore;sources/Arks/Interfaces;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -162,7 +162,6 @@
   <ItemGroup>
     <ClInclude Include="sources\aqua_defines.h" />
     <ClInclude Include="sources\Arks\File Source\FileSource.h" />
-    <ClInclude Include="sources\Arks\File Source\file_souce_defs.h" />
     <ClInclude Include="sources\Arks\File Source\helpers\FileDataManager.h" />
     <ClInclude Include="sources\Arks\File Source\helpers\FileReadCore.h" />
     <QtMoc Include="sources\Arks\File Source\window\FileSourceDialog.h" />
@@ -171,10 +170,12 @@
     <ClInclude Include="sources\Arks\Interfaces\base_impl\ark_base.h" />
     <QtMoc Include="sources\Arks\Scope Analyzer\ScopeAnalyzer.h" />
     <QtMoc Include="sources\Arks\Scope Analyzer\window\scope_analyzer_window.h" />
+    <ClInclude Include="sources\Arks\Interfaces\special_defs\analyzer_defs.h" />
+    <ClInclude Include="sources\Arks\Interfaces\special_defs\file_souce_defs.h" />
+    <ClInclude Include="sources\Arks\Interfaces\special_defs\spectral_viewer_defs.h" />
     <ClInclude Include="sources\Arks\ShipBuilder.h" />
     <QtMoc Include="sources\Arks\Spectral Viewer\DPX Spectrum\SpectrumDPX.h" />
     <QtMoc Include="sources\Arks\Spectral Viewer\SpectralViewer.h" />
-    <ClInclude Include="sources\Arks\Spectral Viewer\spectral_viewer_defs.h" />
     <ClInclude Include="sources\Arks\Spectral Viewer\Spectrogram\Spectrogram.h" />
     <QtMoc Include="sources\Arks\Spectral Viewer\Window\spectral_viewer_window.h" />
     <ClInclude Include="sources\DSP Tools\basic\freq_shifter.h" />

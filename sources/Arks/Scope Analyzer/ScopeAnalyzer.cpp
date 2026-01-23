@@ -1,5 +1,6 @@
 #include "ScopeAnalyzer.h"
-#include "Arks\File Source\file_souce_defs.h"
+#include "special_defs/file_souce_defs.h"
+#include "special_defs/analyzer_defs.h"
 #include <ippvm.h>
 
 #include <qmessagebox.h>
@@ -59,7 +60,11 @@ bool ScopeAnalyzer::SendDove(fluctus::DoveSptr const & sent_dove)
     {
         return Reload();
     }
+	if (base_thought == fluctus::DoveParrent::DoveThought::kSpecialThought) {
+		const auto special_thought = sent_dove->special_thought;
+		
 
+	}
     // Передаём сообщение базовому классу для дальнейшей обработки.
     return ArkBase::SendDove(sent_dove);
 }

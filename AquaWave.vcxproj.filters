@@ -98,6 +98,9 @@
     <Filter Include="ARKS\Interfaces\base_impl">
       <UniqueIdentifier>{19bffdfb-f2d4-4c80-8468-e01314f71841}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ARKS\Interfaces\special_defs">
+      <UniqueIdentifier>{931e463f-950f-42b6-bccb-6a7c88747747}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <!-- ClCompile (CPP Files) -->
   <ItemGroup>
@@ -303,9 +306,6 @@
     <ClInclude Include="sources\GUI\basic tools\gui_worker.h">
       <Filter>GUI\basic tools</Filter>
     </ClInclude>
-    <ClInclude Include="sources\Arks\File Source\file_souce_defs.h">
-      <Filter>ARKS\File Source</Filter>
-    </ClInclude>
     <ClInclude Include="sources\Arks\File Source\FileSource.h">
       <Filter>ARKS\File Source</Filter>
     </ClInclude>
@@ -327,11 +327,17 @@
     <ClInclude Include="sources\Arks\ShipBuilder.h">
       <Filter>ARKS</Filter>
     </ClInclude>
-    <ClInclude Include="sources\Arks\Spectral Viewer\spectral_viewer_defs.h">
-      <Filter>ARKS\Spectral Viewer</Filter>
-    </ClInclude>
     <ClInclude Include="sources\GUI\Drawers\SelectionDrawer.h">
       <Filter>GUI\Drawers</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\Arks\Interfaces\special_defs\analyzer_defs.h">
+      <Filter>ARKS\Interfaces\special_defs</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\Arks\Interfaces\special_defs\file_souce_defs.h">
+      <Filter>ARKS\Interfaces\special_defs</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\Arks\Interfaces\special_defs\spectral_viewer_defs.h">
+      <Filter>ARKS\Interfaces\special_defs</Filter>
     </ClInclude>
   </ItemGroup>
   <!-- QtMoc (For Headers Requiring Moc) -->

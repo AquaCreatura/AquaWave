@@ -1,5 +1,5 @@
 #include "SpectrumDPX.h" // ¬ключаем заголовок класса SpectrumDPX
-#include "Arks\File Source\file_souce_defs.h"
+#include "special_defs/file_souce_defs.h"
 #include <ippvm.h>
 
 #include <qmessagebox.h>

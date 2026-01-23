@@ -1,7 +1,7 @@
 #include <qdialog.h>
 
 #include "ui_file_settings_dialog.h"
-#include "Arks\File Source\file_souce_defs.h"
+#include "special_defs/file_souce_defs.h"
 
 
 namespace file_source

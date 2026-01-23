@@ -4,8 +4,7 @@
 #include "GUI/Charts/SPG/helpers/SpgRequester.h"
 #include "GUI/Charts/SPG/SpgChart.h"
 #include "DSP Tools/FFT/FFT_Worker.h"
-
-#include "..\spectral_viewer_defs.h"
+#include "special_defs\spectral_viewer_defs.h"
 namespace spg_core
 {
 

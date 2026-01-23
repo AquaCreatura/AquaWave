@@ -4,7 +4,7 @@
 #include "Spectrogram\Spectrogram.h"
 #include "DPX Spectrum\SpectrumDPX.h"
 #include "Window/spectral_viewer_window.h"
-#include "spectral_viewer_defs.h"
+#include "special_defs\spectral_viewer_defs.h"
 namespace spectral_viewer {
 	class SpectralViewer : public fluctus::ArkBase
 	{

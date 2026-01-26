@@ -17,6 +17,7 @@ Spectrogram::Spectrogram(QWidget * parrent) :
 
 spg_core::Spectrogram::~Spectrogram()
 {
+	printf_s("Destroyed...");
 	requester_.StartProcess(false);
 }
 

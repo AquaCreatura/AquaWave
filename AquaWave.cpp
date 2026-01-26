@@ -13,6 +13,7 @@ AquaWave::AquaWave(QWidget *parent, const QString& file_path)
 
 	ShipBuilder::Bind_SrcSink(file_src_, spectral_viewer);
 	ShipBuilder::Bind_SrcSink(file_src_, scope_analyser);
+	ShipBuilder::Bind_SrcSink(spectral_viewer, scope_analyser);
 
 	
 	connect(ui.new_file_menu_action, &QAction::triggered, [this]()

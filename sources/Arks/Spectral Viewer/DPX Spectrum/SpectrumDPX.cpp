@@ -17,7 +17,7 @@ dpx_core::SpectrumDPX::SpectrumDPX()
 
 dpx_core::SpectrumDPX::~SpectrumDPX()
 {
-	
+	printf_s("SpectrumDPX Destroyed...");
 }
 
 // Отправляет данные для обработки спектра и отображения.

@@ -101,6 +101,8 @@ void ChartInterface::mouseMoveEvent(QMouseEvent * mouse_event)
 void ChartInterface::mouseReleaseEvent(QMouseEvent * mouse_event)
 {
 	selection_drawer_.EditableEvent(mouse_event->pos(), SelectionDrawer::kReleased);
+	if (selection_drawer_.GetSelectionHolder()->GetCurrentSelection().is_finished)
+		emit SelectionIsReady();
 }
 
 void ChartInterface::wheelEvent(QWheelEvent* wheel_event)

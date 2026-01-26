@@ -14,6 +14,7 @@ public:
     fluctus::ArkType	GetArkType () const override;
 protected:
     bool Reload();
+	bool Restart(fluctus::Limits<double> freq_bounds_hz, fluctus::Limits<double> time_bounds);
 	void SetNewFftOrder(int n_fft_order);
 protected slots:
     virtual void RequestSelectedData();

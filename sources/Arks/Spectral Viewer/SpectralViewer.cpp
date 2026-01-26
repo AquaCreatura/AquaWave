@@ -1,9 +1,11 @@
 #include "SpectralViewer.h"
 #include "special_defs/file_souce_defs.h"
-
+#include "special_defs/analyzer_defs.h"
+#include "Arks/ShipBuilder.h"
 #include <qmessagebox.h>
 
 using namespace spectral_viewer;
+using namespace aqua_gui;
 // Конструктор: Инициализирует компонент для отрисовки спектра.
 // parrent: Указатель на родительский QWidget.
 SpectralViewer::SpectralViewer()
@@ -14,22 +16,25 @@ SpectralViewer::SpectralViewer()
 		dpx_spectrum_ = std::make_shared<dpx_core::SpectrumDPX>(); // Создание компонента для спектрального графика.
 		spectrogram_ = std::make_shared<spg_core::Spectrogram>(); // Создание компонента для спектрограммы.
 
-		// Установка типа запроса: получить диалог/виджет.
 		std::shared_ptr<spectral_viewer::SpectralDove> req_dove = std::make_shared<spectral_viewer::SpectralDove>();
-		req_dove->base_thought = fluctus::DoveParrent::kGetDialog; 
-		{
-			dpx_spectrum_->SendDove(req_dove);
-			window_->SetDpxSpectrumWindow(req_dove->show_widget);
-
-			spectrogram_->SendDove(req_dove);
-			window_->SetSpectrogramWindow(req_dove->show_widget);
-		}
-
-		req_dove->base_thought = fluctus::DoveParrent::kSpecialThought;
 		req_dove->special_thought = spectral_viewer::SpectralDove::kSetSelectionHolder;		
 		req_dove->sel_holder = selection_holder_;
 		dpx_spectrum_->SendDove(req_dove);
 		spectrogram_->SendDove(req_dove);
+
+		auto dpx_window = ShipBuilder::GetWindow(dpx_spectrum_);
+		auto spg_window = ShipBuilder::GetWindow(spectrogram_);
+
+		window_->SetDpxSpectrumWindow(dpx_window);
+		window_->SetSpectrogramWindow(spg_window);
+
+
+		if (QPointer<ChartInterface> derivedPtr = qobject_cast<ChartInterface*>(dpx_window.data()) ) {
+			connect(derivedPtr, &ChartInterface::SelectionIsReady, this, &SpectralViewer::OnSelectionIsReady);
+		}
+		if (QPointer<ChartInterface> derivedPtr = qobject_cast<ChartInterface*>(spg_window.data())) {
+			connect(derivedPtr, &ChartInterface::SelectionIsReady, this, &SpectralViewer::OnSelectionIsReady);
+		}
 	}
 	connect(window_, &SpectralViewerWindow::FftChangeNeed, this, &SpectralViewer::SetNewFftOrder);
 }
@@ -135,6 +140,18 @@ void SpectralViewer::SetNewFftOrder(int n_fft_order)
 	spectrogram_->SendDove(req_dove);
 	dpx_spectrum_->SendDove(req_dove);
 	RequestSelectedData();
+}
+
+void spectral_viewer::SpectralViewer::OnSelectionIsReady()
+{
+	auto front_arks = GetFrontArks();
+	for (auto front_iter : front_arks) {
+		if (front_iter->GetArkType() == fluctus::kScopeAnalyser) {
+			auto an_dove = std::make_shared<analyzer::AnalyzeDove>();
+			an_dove->special_thought = analyzer::AnalyzeDove::kStartFromFileSource;
+			front_iter->SendDove(an_dove);
+		}
+	}
 }
 
 void SpectralViewer::RequestSelectedData()

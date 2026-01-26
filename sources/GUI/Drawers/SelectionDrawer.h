@@ -38,6 +38,7 @@ public:
 	};
 	SelectionDrawer		(const ChartScaleInfo& base_scale_info);
 	void SetSelectionHolder(std::shared_ptr<SelectionHolder> holder);
+	std::shared_ptr<SelectionHolder> GetSelectionHolder();
 	bool DrawSelections	(QPainter& painter);
 	void EditableEvent	(const QPoint& mouse_location, const mouse_event_type event_type);
 protected:

@@ -18,6 +18,7 @@ namespace spectral_viewer {
 	protected:
 		bool Reload();
 		void SetNewFftOrder(int n_fft_order);
+		void OnSelectionIsReady();
 		protected slots:
 		virtual void RequestSelectedData();
 

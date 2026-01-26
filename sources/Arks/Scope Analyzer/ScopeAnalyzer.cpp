@@ -51,9 +51,9 @@ bool ScopeAnalyzer::SendDove(fluctus::DoveSptr const & sent_dove)
     }
     if(base_thought == fluctus::DoveParrent::DoveThought::kTieSource)
     {
-        if(target_val->GetArkType() != ArkType::kFileSource) throw std::logic_error("Only signal sources are able to connect!");
-        //src_info_.ark = target_val;
-        Reload();
+        //if(target_val->GetArkType() != ArkType::kFileSource) throw std::logic_error("Only signal sources are able to connect!");
+        ////src_info_.ark = target_val;
+        //Reload();
     }
     //
     if(base_thought == fluctus::DoveParrent::DoveThought::kReset)
@@ -62,8 +62,11 @@ bool ScopeAnalyzer::SendDove(fluctus::DoveSptr const & sent_dove)
     }
 	if (base_thought == fluctus::DoveParrent::DoveThought::kSpecialThought) {
 		const auto special_thought = sent_dove->special_thought;
-		
-
+		if (auto spectral_dove = std::dynamic_pointer_cast<analyzer::AnalyzeDove>(sent_dove)) {
+			if (special_thought & analyzer::AnalyzeDove::kStartFromFileSource) {
+				return Restart(spectral_dove->freq_bounds_hz, spectral_dove->file_bounds_ratio);
+			}
+		};
 	}
     // Передаём сообщение базовому классу для дальнейшей обработки.
     return ArkBase::SendDove(sent_dove);
@@ -71,7 +74,7 @@ bool ScopeAnalyzer::SendDove(fluctus::DoveSptr const & sent_dove)
 
 ArkType ScopeAnalyzer::GetArkType() const
 {
-    return ArkType::kSpectrumDpx;
+    return ArkType::kScopeAnalyser;
 }
 
 bool ScopeAnalyzer::Reload()
@@ -79,6 +82,11 @@ bool ScopeAnalyzer::Reload()
 
     
     return true;
+}
+
+bool ScopeAnalyzer::Restart(Limits<double> freq_bounds_hz, Limits<double> time_bounds)
+{
+	return true;
 }
 
 void ScopeAnalyzer::SetNewFftOrder(int n_fft_order)

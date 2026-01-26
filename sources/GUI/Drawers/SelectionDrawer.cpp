@@ -30,6 +30,11 @@ void aqua_gui::SelectionDrawer::SetSelectionHolder(std::shared_ptr<SelectionHold
 		sel_holder_ = holder;
 }
 
+std::shared_ptr<SelectionHolder> aqua_gui::SelectionDrawer::GetSelectionHolder()
+{
+	return sel_holder_;
+}
+
 bool aqua_gui::SelectionDrawer::DrawSelections(QPainter & painter)
 {
 	auto &cur_chart_val = scale_info_.val_info_.cur_bounds;

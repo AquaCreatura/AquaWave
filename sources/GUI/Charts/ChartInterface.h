@@ -59,6 +59,8 @@ public:
     virtual void                    ClearData           () = 0;
 
 	virtual void					SetSelectionHolder(std::shared_ptr<SelectionHolder> selection_holder);
+signals:
+	virtual void					SelectionIsReady();
 protected slots:
     /*
         Reaction on mouse clicking. 

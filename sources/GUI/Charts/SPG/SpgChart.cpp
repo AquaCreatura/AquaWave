@@ -14,7 +14,7 @@ ChartSPG::ChartSPG(QWidget * parrent, std::shared_ptr<SelectionHolder> selection
 
 ChartSPG::~ChartSPG()
 {
-
+	printf_s("ChartSPG Destroyed...");
 }
 
 void ChartSPG::DrawData(QPainter & passed_painter)

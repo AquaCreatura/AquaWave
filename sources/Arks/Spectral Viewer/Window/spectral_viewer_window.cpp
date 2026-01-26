@@ -17,6 +17,7 @@ SpectralViewerWindow::SpectralViewerWindow()
 void SpectralViewerWindow::SetDpxSpectrumWindow(QWidget * wigdet_ptr)
 {
 	ui_.dpx_chart->layout()->addWidget(wigdet_ptr);
+	
 }
 
 void SpectralViewerWindow::SetSpectrogramWindow(QWidget * wigdet_ptr)

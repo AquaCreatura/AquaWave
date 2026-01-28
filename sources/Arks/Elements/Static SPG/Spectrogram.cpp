@@ -6,7 +6,7 @@ using namespace spg_core; // Используем пространство имён dpx_core
 
 // Конструктор: Инициализирует компонент для отрисовки спектра.
 // parrent: Указатель на родительский QWidget.
-Spectrogram::Spectrogram(QWidget * parrent) : 
+StaticSpg::StaticSpg(QWidget * parrent) : 
     spg_drawer_(new spg_core::ChartSPG()),
     requester_(spg_drawer_->GetSpectrogramInfo(), time_bounds_) 
 {
@@ -15,7 +15,7 @@ Spectrogram::Spectrogram(QWidget * parrent) :
 	
 }
 
-spg_core::Spectrogram::~Spectrogram()
+spg_core::StaticSpg::~StaticSpg()
 {
 	printf_s("Destroyed...");
 	requester_.StartProcess(false);
@@ -23,7 +23,7 @@ spg_core::Spectrogram::~Spectrogram()
 
 // Отправляет данные для обработки спектра и отображения.
 // data_info: Структура с входными данными и информацией о частоте.
-bool Spectrogram::SendData(fluctus::DataInfo const & data_info)
+bool StaticSpg::SendData(fluctus::DataInfo const & data_info)
 {
     // Если входные данные пусты, выходим.
     if(data_info.data_vec.empty()) return true;
@@ -64,7 +64,7 @@ bool Spectrogram::SendData(fluctus::DataInfo const & data_info)
 
 // Обрабатывает сообщения "Dove".
 // sent_dove: Умный указатель на сообщение Dove.
-bool Spectrogram::SendDove(fluctus::DoveSptr const & sent_dove)
+bool StaticSpg::SendDove(fluctus::DoveSptr const & sent_dove)
 {
     // Если сообщение недействительно, выбрасываем исключение.
     if (!sent_dove) throw std::invalid_argument("Not created message sent!");
@@ -107,12 +107,12 @@ bool Spectrogram::SendDove(fluctus::DoveSptr const & sent_dove)
     return ArkBase::SendDove(sent_dove);
 }
 
-ArkType spg_core::Spectrogram::GetArkType() const
+ArkType spg_core::StaticSpg::GetArkType() const
 {
-    return ArkType::kFileSpectrogram;
+    return ArkType::kStaticSpg;
 }
 
-bool spg_core::Spectrogram::Reload()
+bool spg_core::StaticSpg::Reload()
 {
     auto file_src = src_info_.ark.lock();
     if(!file_src) 

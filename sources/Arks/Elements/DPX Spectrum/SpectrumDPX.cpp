@@ -1,4 +1,4 @@
-#include "SpectrumDPX.h" // Включаем заголовок класса SpectrumDPX
+#include "SpectrumDPX.h" // Включаем заголовок класса SpectrumDpx
 #include "special_defs/file_souce_defs.h"
 #include <ippvm.h>
 
@@ -7,22 +7,22 @@ using namespace dpx_core; // Используем пространство имён dpx_core
 
 // Конструктор: Инициализирует компонент для отрисовки спектра.
 // parrent: Указатель на родительский QWidget.
-dpx_core::SpectrumDPX::SpectrumDPX()
+dpx_core::SpectrumDpx::SpectrumDpx()
 {
     dpx_drawer_ = new ChartDPX();     // Создаём указатель на объект DpxChart для отрисовки.
 	dpx_drawer_->SetVerticalSuffix("db");
-	//connect(window_, &DpxWindow::FftChangeNeed, this, &SpectrumDPX::SetNewFftOrder);
-    //connect(window_, &DpxWindow::NeedDoSomething, this, &SpectrumDPX::RequestSelectedData);
+	//connect(window_, &DpxWindow::FftChangeNeed, this, &SpectrumDpx::SetNewFftOrder);
+    //connect(window_, &DpxWindow::NeedDoSomething, this, &SpectrumDpx::RequestSelectedData);
 }
 
-dpx_core::SpectrumDPX::~SpectrumDPX()
+dpx_core::SpectrumDpx::~SpectrumDpx()
 {
 	printf_s("SpectrumDPX Destroyed...");
 }
 
 // Отправляет данные для обработки спектра и отображения.
 // data_info: Структура с входными данными и информацией о частоте.
-bool SpectrumDPX::SendData(fluctus::DataInfo const & data_info)
+bool SpectrumDpx::SendData(fluctus::DataInfo const & data_info)
 {
     // Если входные данные пусты, выходим.
     if(data_info.data_vec.empty()) return true;
@@ -64,7 +64,7 @@ bool SpectrumDPX::SendData(fluctus::DataInfo const & data_info)
 
 // Обрабатывает сообщения "Dove".
 // sent_dove: Умный указатель на сообщение Dove.
-bool dpx_core::SpectrumDPX::SendDove(fluctus::DoveSptr const & sent_dove)
+bool dpx_core::SpectrumDpx::SendDove(fluctus::DoveSptr const & sent_dove)
 {
     // Если сообщение недействительно, выбрасываем исключение.
     if (!sent_dove) throw std::invalid_argument("Not created message sent!");
@@ -109,12 +109,12 @@ bool dpx_core::SpectrumDPX::SendDove(fluctus::DoveSptr const & sent_dove)
     return ArkBase::SendDove(sent_dove);
 }
 
-ArkType dpx_core::SpectrumDPX::GetArkType() const
+ArkType dpx_core::SpectrumDpx::GetArkType() const
 {
     return ArkType::kSpectrumDpx;
 }
 
-bool dpx_core::SpectrumDPX::Reload()
+bool dpx_core::SpectrumDpx::Reload()
 {
 	dpx_drawer_->ClearData();
 
@@ -142,14 +142,14 @@ bool dpx_core::SpectrumDPX::Reload()
     return true;
 }
 
-void dpx_core::SpectrumDPX::SetNewFftOrder(int n_fft_order)
+void dpx_core::SpectrumDpx::SetNewFftOrder(int n_fft_order)
 {
 	n_fft_ = 1 << n_fft_order;
 	dpx_drawer_->ClearData();
 	RequestSelectedData();
 }
 
-void SpectrumDPX::RequestSelectedData()
+void SpectrumDpx::RequestSelectedData()
 {
     auto arks = GetBehindArks();
     if(arks.empty()) return;

@@ -8,12 +8,12 @@
 namespace dpx_core
 {
 
-class SpectrumDPX : public fluctus::ArkBase
+class SpectrumDpx : public fluctus::ArkBase
 {
 Q_OBJECT
 public:
-    SpectrumDPX();
-	~SpectrumDPX();
+    SpectrumDpx();
+	~SpectrumDpx();
     virtual bool SendData   (fluctus::DataInfo const& data_info) override;
     virtual bool SendDove   (fluctus::DoveSptr const & sent_dove) override;
     ArkType      GetArkType () const override;

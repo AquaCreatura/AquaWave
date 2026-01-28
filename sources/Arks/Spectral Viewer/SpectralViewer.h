@@ -1,8 +1,8 @@
 #pragma once
 #include <qpointer.h>
 #include "Arks\Interfaces\base_impl\ark_base.h"
-#include "Spectrogram\Spectrogram.h"
-#include "DPX Spectrum\SpectrumDPX.h"
+#include "Elements/DPX Spectrum/SpectrumDPX.h"
+#include "Elements/Static SPG/Spectrogram.h"
 #include "Window/spectral_viewer_window.h"
 #include "special_defs\spectral_viewer_defs.h"
 namespace spectral_viewer {
@@ -25,8 +25,8 @@ namespace spectral_viewer {
 	protected:
 		SourceInfo									src_info_;
 		QPointer<SpectralViewerWindow>				window_;
-		std::shared_ptr<dpx_core::SpectrumDPX>      dpx_spectrum_;
-		std::shared_ptr<spg_core::Spectrogram>      spectrogram_;
+		std::shared_ptr<dpx_core::SpectrumDpx>      dpx_spectrum_;
+		std::shared_ptr<spg_core::StaticSpg>		spectrogram_;
 		std::shared_ptr<aqua_gui::SelectionHolder>  selection_holder_;
 		std::atomic_int64_t							n_fft_{ -1 };
 	};

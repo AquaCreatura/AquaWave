@@ -51,9 +51,9 @@ bool ScopeAnalyzer::SendDove(fluctus::DoveSptr const & sent_dove)
     }
     if(base_thought == fluctus::DoveParrent::DoveThought::kTieSource)
     {
-        //if(target_val->GetArkType() != ArkType::kFileSource) throw std::logic_error("Only signal sources are able to connect!");
-        ////src_info_.ark = target_val;
-        //Reload();
+        if( target_val->GetArkType() == ArkType::kFileSource) 
+			src_info_.ark = target_val;
+        Reload();
     }
     //
     if(base_thought == fluctus::DoveParrent::DoveThought::kReset)
@@ -79,25 +79,62 @@ ArkType ScopeAnalyzer::GetArkType() const
 
 bool ScopeAnalyzer::Reload()
 {
+	auto file_src = src_info_.ark.lock();
 
-    
-    return true;
+	if (!file_src) return true;
+
+	auto req_dove = std::make_shared<DoveParrent>();
+	{
+		auto req_dove = std::make_shared<file_source::FileSrcDove>();
+		req_dove->base_thought = fluctus::DoveParrent::DoveThought::kSpecialThought;
+		req_dove->special_thought = file_source::FileSrcDove::kGetFileInfo;
+		if (!file_src->SendDove(req_dove) || !req_dove->file_info) {
+			return false;
+		}
+		const int max_order = std::min(log2(req_dove->file_info->count_of_samples), 21.);
+		//window_->SetMaxFFtOrder(max_order);
+	}
+	req_dove->base_thought = fluctus::DoveParrent::DoveThought::kReset;
+	spg_->SendDove(req_dove);
+	dpx_spectrum_->SendDove(req_dove);
+	return true;
 }
 
 bool ScopeAnalyzer::Restart(Limits<double> freq_bounds_hz, Limits<double> time_bounds)
 {
+
 	return true;
 }
 
 void ScopeAnalyzer::SetNewFftOrder(int n_fft_order)
 {
+	auto file_src = src_info_.ark.lock();
+	if (!file_src) return true;
 
+	auto req_dove = std::make_shared<file_source::FileSrcDove>();
+	req_dove->base_thought = fluctus::DoveParrent::DoveThought::kSpecialThought;
+	req_dove->special_thought = file_source::FileSrcDove::kInitReaderInfo | file_source::FileSrcDove::kAskChunksInRange;
+	req_dove->target_ark = shared_from_this();
+	req_dove->time_point_start = 0;
+	req_dove->time_point_end = 1.;
+	req_dove->data_size = n_fft_;
+	if (!file_src->SendDove(req_dove))
+	{
+		QMessageBox::warning(
+			nullptr,                        // родительское окно (может быть this)
+			"Cannot Send Data",            // заголовок окна
+			"Do something with DPX or file source, or..."  // сообщение
+		);
+
+
+	}
 }
 
 void ScopeAnalyzer::RequestSelectedData()
 {
     auto arks = GetBehindArks();
     if(arks.empty()) return;
+
     auto file_src_ = arks.front();
     auto req_dove = std::make_shared<file_source::FileSrcDove>();
     req_dove->base_thought      = fluctus::DoveParrent::DoveThought::kSpecialThought;

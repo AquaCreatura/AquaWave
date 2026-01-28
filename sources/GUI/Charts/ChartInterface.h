@@ -60,7 +60,7 @@ public:
 
 	virtual void					SetSelectionHolder(std::shared_ptr<SelectionHolder> selection_holder);
 signals:
-	virtual void					SelectionIsReady();
+	void					SelectionIsReady();
 protected slots:
     /*
         Reaction on mouse clicking. 

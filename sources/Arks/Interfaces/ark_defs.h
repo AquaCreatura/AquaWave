@@ -41,12 +41,12 @@ namespace fluctus
     //Main unit to communicate between arks
     enum ArkType
     {
-        kUnknown = 0,
-        kSpectrumDpx = 1 ,
-        kFileSource  = 2,
-        kFileSpectrogram = 3,
-		kSpectralViewer	 = 4,
-		kScopeAnalyser	 = 5
+        kUnknown		= 0,
+        kSpectrumDpx	= 1,
+        kFileSource		= 2,
+        kStaticSpg		= 3,
+		kSpectralViewer	= 4,
+		kScopeAnalyser	= 5
     };
 
 

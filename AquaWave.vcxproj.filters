@@ -77,12 +77,6 @@
     <Filter Include="ARKS\Spectral Viewer">
       <UniqueIdentifier>{de5b3b9a-9e13-4e31-a63d-caa2082593ba}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ARKS\Spectral Viewer\Spectrogram">
-      <UniqueIdentifier>{acc6b4cc-8e3b-45d0-891f-52c14eea91b1}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="ARKS\Spectral Viewer\DPX Spectrum">
-      <UniqueIdentifier>{2e1b4a36-2f99-46ad-bb5b-940a82fb93a1}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ARKS\Scope Analyzer">
       <UniqueIdentifier>{27318de6-59e9-4417-a4f6-e8a7dda4ea99}</UniqueIdentifier>
     </Filter>
@@ -100,6 +94,15 @@
     </Filter>
     <Filter Include="ARKS\Interfaces\special_defs">
       <UniqueIdentifier>{931e463f-950f-42b6-bccb-6a7c88747747}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ARKS\Elements">
+      <UniqueIdentifier>{155868f0-de7c-4978-a07b-f45d9decfeed}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ARKS\Elements\Static SPG">
+      <UniqueIdentifier>{fe15d71b-325b-4c4f-9bb8-b21fa8b229af}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ARKS\Elements\DPX Spectrum">
+      <UniqueIdentifier>{8ba8eec2-b719-45c8-995e-f73286090da7}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <!-- ClCompile (CPP Files) -->
@@ -206,12 +209,6 @@
     <ClCompile Include="sources\Arks\Spectral Viewer\Window\spectral_viewer_window.cpp">
       <Filter>ARKS\Spectral Viewer\window</Filter>
     </ClCompile>
-    <ClCompile Include="sources\Arks\Spectral Viewer\Spectrogram\Spectrogram.cpp">
-      <Filter>ARKS\Spectral Viewer\Spectrogram</Filter>
-    </ClCompile>
-    <ClCompile Include="sources\Arks\Spectral Viewer\DPX Spectrum\SpectrumDPX.cpp">
-      <Filter>ARKS\Spectral Viewer\DPX Spectrum</Filter>
-    </ClCompile>
     <ClCompile Include="sources\Arks\Interfaces\base_impl\ark_base.cpp">
       <Filter>ARKS\Interfaces\base_impl</Filter>
     </ClCompile>
@@ -220,6 +217,12 @@
     </ClCompile>
     <ClCompile Include="sources\GUI\Drawers\SelectionDrawer.cpp">
       <Filter>GUI\Drawers</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\Arks\Elements\DPX Spectrum\SpectrumDPX.cpp">
+      <Filter>ARKS\Elements\DPX Spectrum</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\Arks\Elements\Static SPG\Spectrogram.cpp">
+      <Filter>ARKS\Elements\Static SPG</Filter>
     </ClCompile>
   </ItemGroup>
   <!-- ClInclude (H Files) -->
@@ -315,9 +318,6 @@
     <ClInclude Include="sources\Arks\File Source\helpers\FileReadCore.h">
       <Filter>ARKS\File Source\helpers</Filter>
     </ClInclude>
-    <ClInclude Include="sources\Arks\Spectral Viewer\Spectrogram\Spectrogram.h">
-      <Filter>ARKS\Spectral Viewer\Spectrogram</Filter>
-    </ClInclude>
     <ClInclude Include="sources\Arks\Interfaces\ark_defs.h">
       <Filter>ARKS\Interfaces</Filter>
     </ClInclude>
@@ -339,6 +339,9 @@
     <ClInclude Include="sources\Arks\Interfaces\special_defs\spectral_viewer_defs.h">
       <Filter>ARKS\Interfaces\special_defs</Filter>
     </ClInclude>
+    <ClInclude Include="sources\Arks\Elements\Static SPG\Spectrogram.h">
+      <Filter>ARKS\Elements\Static SPG</Filter>
+    </ClInclude>
   </ItemGroup>
   <!-- QtMoc (For Headers Requiring Moc) -->
   <ItemGroup>
@@ -353,9 +356,6 @@
     </QtMoc>
     <QtMoc Include="sources\Arks\Spectral Viewer\SpectralViewer.h">
       <Filter>ARKS\Spectral Viewer</Filter>
-    </QtMoc>
-    <QtMoc Include="sources\Arks\Spectral Viewer\DPX Spectrum\SpectrumDPX.h">
-      <Filter>ARKS\Spectral Viewer\DPX Spectrum</Filter>
     </QtMoc>
     <QtMoc Include="sources\Arks\Scope Analyzer\window\scope_analyzer_window.h">
       <Filter>ARKS\Scope Analyzer\window</Filter>
@@ -377,6 +377,9 @@
     </QtMoc>
     <QtMoc Include="sources\GUI\Charts\SPG\SpgChart.h">
       <Filter>GUI\Charts\SPG</Filter>
+    </QtMoc>
+    <QtMoc Include="sources\Arks\Elements\DPX Spectrum\SpectrumDPX.h">
+      <Filter>ARKS\Elements\DPX Spectrum</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>

@@ -2,8 +2,10 @@
 #ifndef AQUA_DEFINES_GUARD
 #define AQUA_DEFINES_GUARD
 
-
+#include <tbb/spin_mutex.h>
+#include <vector>
 #include <stdint.h>
+#include <memory>
 namespace fluctus
 {
     struct freq_params
@@ -50,6 +52,14 @@ namespace fluctus
         W low;
         W high;
     };
+
+	template <typename T>
+	struct mutex_vec : std::vector<T> {
+		tbb::spin_mutex mutex;
+	};
+
+	template <typename T>
+	using shared_vec = std::shared_ptr<mutex_vec<T>>;
 }
 
 #endif // !AQUA_DEFINES_GUARD

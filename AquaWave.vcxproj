@@ -56,7 +56,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>sources;.\GeneratedFiles;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtCore;sources/Arks/Interfaces;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>sources;.\GeneratedFiles;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtCore;sources/Arks/Interfaces;sources/Arks;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -88,7 +88,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>sources;.\GeneratedFiles;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtCore;sources/Arks/Interfaces;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>sources;.\GeneratedFiles;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtCore;sources/Arks/Interfaces;sources/Arks;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -121,6 +121,8 @@
   <ItemGroup>
     <ClCompile Include="AquaWave.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="sources\Arks\Elements\DPX Spectrum\SpectrumDPX.cpp" />
+    <ClCompile Include="sources\Arks\Elements\Static SPG\Spectrogram.cpp" />
     <ClCompile Include="sources\Arks\File Source\FileSource.cpp" />
     <ClCompile Include="sources\Arks\File Source\helpers\FileDataManager.cpp" />
     <ClCompile Include="sources\Arks\File Source\helpers\FileReadCore.cpp" />
@@ -129,9 +131,7 @@
     <ClCompile Include="sources\Arks\Scope Analyzer\ScopeAnalyzer.cpp" />
     <ClCompile Include="sources\Arks\Scope Analyzer\window\scope_analyzer_window.cpp" />
     <ClCompile Include="sources\Arks\ShipBuilder.cpp" />
-    <ClCompile Include="sources\Arks\Spectral Viewer\DPX Spectrum\SpectrumDPX.cpp" />
     <ClCompile Include="sources\Arks\Spectral Viewer\SpectralViewer.cpp" />
-    <ClCompile Include="sources\Arks\Spectral Viewer\Spectrogram\Spectrogram.cpp" />
     <ClCompile Include="sources\Arks\Spectral Viewer\Window\spectral_viewer_window.cpp" />
     <ClCompile Include="sources\DSP Tools\basic\freq_shifter.cpp" />
     <ClCompile Include="sources\DSP Tools\FFT\FFT_Worker.cpp" />
@@ -161,6 +161,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="sources\aqua_defines.h" />
+    <QtMoc Include="sources\Arks\Elements\DPX Spectrum\SpectrumDPX.h" />
+    <ClInclude Include="sources\Arks\Elements\Static SPG\Spectrogram.h" />
     <ClInclude Include="sources\Arks\File Source\FileSource.h" />
     <ClInclude Include="sources\Arks\File Source\helpers\FileDataManager.h" />
     <ClInclude Include="sources\Arks\File Source\helpers\FileReadCore.h" />
@@ -174,9 +176,7 @@
     <ClInclude Include="sources\Arks\Interfaces\special_defs\file_souce_defs.h" />
     <ClInclude Include="sources\Arks\Interfaces\special_defs\spectral_viewer_defs.h" />
     <ClInclude Include="sources\Arks\ShipBuilder.h" />
-    <QtMoc Include="sources\Arks\Spectral Viewer\DPX Spectrum\SpectrumDPX.h" />
     <QtMoc Include="sources\Arks\Spectral Viewer\SpectralViewer.h" />
-    <ClInclude Include="sources\Arks\Spectral Viewer\Spectrogram\Spectrogram.h" />
     <QtMoc Include="sources\Arks\Spectral Viewer\Window\spectral_viewer_window.h" />
     <ClInclude Include="sources\DSP Tools\basic\freq_shifter.h" />
     <ClInclude Include="sources\DSP Tools\FFT\FFT_Worker.h" />

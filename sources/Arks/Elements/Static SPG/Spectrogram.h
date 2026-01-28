@@ -8,12 +8,12 @@
 namespace spg_core
 {
 
-class Spectrogram : public fluctus::ArkBase
+class StaticSpg : public fluctus::ArkBase
 {
 
 public:
-    Spectrogram(QWidget *parrent = nullptr);
-    ~Spectrogram();
+	StaticSpg(QWidget *parrent = nullptr);
+    ~StaticSpg();
     virtual bool SendData(fluctus::DataInfo const& data_info) override;
     virtual bool SendDove(fluctus::DoveSptr const & sent_dove) override;
     ArkType GetArkType() const override;

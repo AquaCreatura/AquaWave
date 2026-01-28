@@ -13,8 +13,8 @@ SpectralViewer::SpectralViewer()
 	selection_holder_ = std::make_shared<aqua_gui::SelectionHolder>();
     window_ = new SpectralViewerWindow;
 	{
-		dpx_spectrum_ = std::make_shared<dpx_core::SpectrumDPX>(); // Создание компонента для спектрального графика.
-		spectrogram_ = std::make_shared<spg_core::Spectrogram>(); // Создание компонента для спектрограммы.
+		dpx_spectrum_ = std::make_shared<dpx_core::SpectrumDpx>(); // Создание компонента для спектрального графика.
+		spectrogram_ = std::make_shared<spg_core::StaticSpg>(); // Создание компонента для спектрограммы.
 
 		std::shared_ptr<spectral_viewer::SpectralDove> req_dove = std::make_shared<spectral_viewer::SpectralDove>();
 		req_dove->special_thought = spectral_viewer::SpectralDove::kSetSelectionHolder;		
@@ -51,7 +51,7 @@ bool SpectralViewer::SendData(fluctus::DataInfo const & data_info)
 {
     // Если входные данные пусты, выходим.
     if(data_info.data_vec.empty()) return true;
-	//spectrogram_->SendData	(data_info);
+	//spg_->SendData	(data_info);
 	dpx_spectrum_->SendData	(data_info);
     return true; // Успех.
 }
@@ -157,9 +157,9 @@ void spectral_viewer::SpectralViewer::OnSelectionIsReady()
 void SpectralViewer::RequestSelectedData()
 {
 	return;
-    auto arks = GetBehindArks();
-    if(arks.empty()) return;
-    auto file_src_ = arks.front();
+	auto file_src = src_info_.ark.lock();
+	if (!file_src) return true;
+
     auto req_dove = std::make_shared<file_source::FileSrcDove>();
     req_dove->base_thought      = fluctus::DoveParrent::DoveThought::kSpecialThought;
     req_dove->special_thought   = file_source::FileSrcDove::kInitReaderInfo |  file_source::FileSrcDove::kAskChunksInRange;
@@ -167,7 +167,7 @@ void SpectralViewer::RequestSelectedData()
     req_dove->time_point_start  = 0;
 	req_dove->time_point_end	= 1.;
     req_dove->data_size         = n_fft_;
-    if (!file_src_->SendDove(req_dove))
+    if (!file_src->SendDove(req_dove))
     {
         QMessageBox::warning(
                             nullptr,                        // родительское окно (может быть this)

@@ -64,7 +64,7 @@ struct ChartScaleInfo
         //size of widget without margin
         HV_Info<int> chart_size_px ;
         //size of margin
-        HV_Info<int> margin_px      {50, 30};
+		HV_Info<int> margin_px{ 0, 0 };
     };
     struct ValueScale
     {

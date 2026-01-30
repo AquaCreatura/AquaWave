@@ -28,7 +28,7 @@ protected:
 	double							freq_divider_ = 1.;
 	int64_t							n_fft_{1024};
 
-	std::shared_ptr<dpx_core::SpectrumDpx>      dpx_spectrum_;
+	std::shared_ptr<dpx_core::SpectrumDpx>      spectrum_;
 	std::shared_ptr<spg_core::StaticSpg>		spg_;
 };
 

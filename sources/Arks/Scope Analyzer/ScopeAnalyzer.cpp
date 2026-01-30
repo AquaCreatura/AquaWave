@@ -1,6 +1,7 @@
 #include "ScopeAnalyzer.h"
 #include "special_defs/file_souce_defs.h"
 #include "special_defs/analyzer_defs.h"
+#include "ShipBuilder.h"
 #include <ippvm.h>
 
 #include <qmessagebox.h>
@@ -9,8 +10,16 @@ using namespace fluctus;
 
 ScopeAnalyzer::ScopeAnalyzer()
 {
-
     window_ = new ScopeAnalyzerWindow;
+	spectrum_ = std::make_shared<dpx_core::SpectrumDpx>(); // Создание компонента для спектрального графика.
+	spg_ = std::make_shared<spg_core::StaticSpg>(); // Создание компонента для спектрограммы.
+
+
+	auto dpx_window = ShipBuilder::GetWindow(spectrum_);
+	auto spg_window = ShipBuilder::GetWindow(spg_);
+
+	window_->SetChartWindow(spg_window, ScopeAnalyzerWindow::chart_type::spg);
+	window_->SetChartWindow(dpx_window, ScopeAnalyzerWindow::chart_type::spectrum);
 }
 
 ScopeAnalyzer::~ScopeAnalyzer()
@@ -96,20 +105,38 @@ bool ScopeAnalyzer::Reload()
 	}
 	req_dove->base_thought = fluctus::DoveParrent::DoveThought::kReset;
 	spg_->SendDove(req_dove);
-	dpx_spectrum_->SendDove(req_dove);
+	spectrum_->SendDove(req_dove);
 	return true;
 }
 
 bool ScopeAnalyzer::Restart(Limits<double> freq_bounds_hz, Limits<double> time_bounds)
 {
+	auto arks = GetBehindArks();
+	if (arks.empty()) return false;
 
+	auto file_src_ = arks.front();
+	auto req_dove = std::make_shared<file_source::FileSrcDove>();
+	req_dove->base_thought = fluctus::DoveParrent::DoveThought::kSpecialThought;
+	req_dove->special_thought = file_source::FileSrcDove::kInitReaderInfo | file_source::FileSrcDove::kAskChunksInRange;
+	req_dove->target_ark = shared_from_this();
+	req_dove->time_point_start = 0;
+	req_dove->time_point_end = 1.;
+	req_dove->data_size = n_fft_;
+	if (!file_src_->SendDove(req_dove))
+	{
+		QMessageBox::warning(
+			nullptr,                        // родительское окно (может быть this)
+			"Cannot Send Data",            // заголовок окна
+			"Do something with DPX or file source, or..."  // сообщение
+		);
+	}
 	return true;
 }
 
 void ScopeAnalyzer::SetNewFftOrder(int n_fft_order)
 {
 	auto file_src = src_info_.ark.lock();
-	if (!file_src) return true;
+	if (!file_src) return;
 
 	auto req_dove = std::make_shared<file_source::FileSrcDove>();
 	req_dove->base_thought = fluctus::DoveParrent::DoveThought::kSpecialThought;

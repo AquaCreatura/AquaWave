@@ -13,17 +13,17 @@ SpectralViewer::SpectralViewer()
 	selection_holder_ = std::make_shared<aqua_gui::SelectionHolder>();
     window_ = new SpectralViewerWindow;
 	{
-		dpx_spectrum_ = std::make_shared<dpx_core::SpectrumDpx>(); // Создание компонента для спектрального графика.
-		spectrogram_ = std::make_shared<spg_core::StaticSpg>(); // Создание компонента для спектрограммы.
+		spectrum_ = std::make_shared<dpx_core::SpectrumDpx>(); // Создание компонента для спектрального графика.
+		spg_ = std::make_shared<spg_core::StaticSpg>(); // Создание компонента для спектрограммы.
 
 		std::shared_ptr<spectral_viewer::SpectralDove> req_dove = std::make_shared<spectral_viewer::SpectralDove>();
 		req_dove->special_thought = spectral_viewer::SpectralDove::kSetSelectionHolder;		
 		req_dove->sel_holder = selection_holder_;
-		dpx_spectrum_->SendDove(req_dove);
-		spectrogram_->SendDove(req_dove);
+		spectrum_->SendDove(req_dove);
+		spg_->SendDove(req_dove);
 
-		auto dpx_window = ShipBuilder::GetWindow(dpx_spectrum_);
-		auto spg_window = ShipBuilder::GetWindow(spectrogram_);
+		auto dpx_window = ShipBuilder::GetWindow(spectrum_);
+		auto spg_window = ShipBuilder::GetWindow(spg_);
 
 		window_->SetDpxSpectrumWindow(dpx_window);
 		window_->SetSpectrogramWindow(spg_window);
@@ -52,7 +52,7 @@ bool SpectralViewer::SendData(fluctus::DataInfo const & data_info)
     // Если входные данные пусты, выходим.
     if(data_info.data_vec.empty()) return true;
 	//spg_->SendData	(data_info);
-	dpx_spectrum_->SendData	(data_info);
+	spectrum_->SendData	(data_info);
     return true; // Успех.
 }
 
@@ -83,8 +83,8 @@ bool SpectralViewer::SendDove(fluctus::DoveSptr const & sent_dove)
 			fluctus::DoveSptr req_dove = std::make_shared<fluctus::DoveParrent>();
 			req_dove->base_thought = fluctus::DoveParrent::kTieSource; // Изменение типа запроса: привязать.
 			req_dove->target_ark = target_val;
-			spectrogram_->SendDove(req_dove);
-			dpx_spectrum_->SendDove(req_dove);
+			spg_->SendDove(req_dove);
+			spectrum_->SendDove(req_dove);
 		}
     }
     //
@@ -123,8 +123,8 @@ bool SpectralViewer::Reload()
 		window_->SetMaxFFtOrder(max_order);
 	}
 	req_dove->base_thought = fluctus::DoveParrent::DoveThought::kReset;
-	spectrogram_->SendDove(req_dove);
-	dpx_spectrum_->SendDove(req_dove);
+	spg_->SendDove(req_dove);
+	spectrum_->SendDove(req_dove);
 	RequestSelectedData();
     return true;
 }
@@ -137,8 +137,8 @@ void SpectralViewer::SetNewFftOrder(int n_fft_order)
 	auto req_dove = std::make_shared<SpectralDove>();
 	req_dove->special_thought = SpectralDove::SpectralThought::kSetFFtOrder;
 	req_dove->fft_order_ = n_fft_order;
-	spectrogram_->SendDove(req_dove);
-	dpx_spectrum_->SendDove(req_dove);
+	spg_->SendDove(req_dove);
+	spectrum_->SendDove(req_dove);
 	RequestSelectedData();
 }
 
@@ -158,7 +158,7 @@ void SpectralViewer::RequestSelectedData()
 {
 	return;
 	auto file_src = src_info_.ark.lock();
-	if (!file_src) return true;
+	if (!file_src) return;
 
     auto req_dove = std::make_shared<file_source::FileSrcDove>();
     req_dove->base_thought      = fluctus::DoveParrent::DoveThought::kSpecialThought;

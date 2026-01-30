@@ -442,37 +442,73 @@ bool aqua_gui::MouseDrawer::Draw(QPainter & painter)
 	painter.drawLine(0, vert_px, chart_size_px.horizontal, vert_px);
 
 	// Лямбда для отрисовки текстовой плашки
-	// Аргументы: текст, базовая координата X, базовая координата Y, центрировать по X или по Y
-	auto drawValueLabel = [&](const QString& text, int x, int y, bool centerHorizontally) {
+	auto drawValueLabel = [&](const QString& text, int ref_x, int ref_y, bool isBottomAxis, bool draw_inside) {
 		QFontMetrics fm = painter.fontMetrics();
 		int padding_h = 6;
 		int padding_v = 2;
+		int margin_offset = 5; // Отступ от линии графика (чтобы не прилипало)
 
 		QRect text_rect = fm.boundingRect(text);
 		int w = text_rect.width() + padding_h * 2;
 		int h = text_rect.height() + padding_v * 2;
 
-		QRect bgRect;
-		if (centerHorizontally) {
-			// Для нижней оси: центрируем по X, верх прижат к краю графика
-			bgRect = QRect(x - w / 2, y, w, h);
+		int final_x = 0;
+		int final_y = 0;
+
+		if (isBottomAxis) {
+			// --- НИЖНЯЯ ОСЬ ---
+			// По X: всегда центрируем относительно засечки (ref_x)
+			final_x = ref_x - w / 2;
+
+			if (draw_inside) {
+				// Рисуем ВНУТРИ: поднимаем плашку вверх над линией (ref_y)
+				final_y = ref_y - h;
+			}
+			else {
+				// Рисуем СНАРУЖИ: опускаем плашку вниз под линию
+				final_y = ref_y + margin_offset;
+			}
 		}
 		else {
-			// Для боковой оси: центрируем по Y, лево прижато к краю графика
-			bgRect = QRect(x, y - h / 2, w, h);
+			// --- БОКОВАЯ ОСЬ ---
+			// По Y: всегда центрируем относительно засечки (ref_y)
+			final_y = ref_y - h / 2;
+
+			if (draw_inside) {
+				// Рисуем ВНУТРИ: сдвигаем влево от края (ref_x)
+				final_x = ref_x - w;
+			}
+			else {
+				// Рисуем СНАРУЖИ: сдвигаем вправо от края
+				final_x = ref_x + margin_offset;
+			}
 		}
 
-		painter.fillRect(bgRect,QColor(0, 0, 125) );
+		QRect bgRect(final_x, final_y, w, h);
+
+		painter.fillRect(bgRect, QColor(0, 0, 125));
 		painter.setPen(Qt::white);
 		painter.drawText(bgRect, Qt::AlignCenter, text);
 	};
 
-	// Отрисовка значений
-	QString vert_text = ValueToString(val_vert, GetPrecission(cur_chart_val.vertical.delta())).c_str();
-	drawValueLabel(vert_text, chart_size_px.horizontal, vert_px, false);
+	// --- ИСПОЛЬЗОВАНИЕ ---
 
+	// 1. Вертикальная ось (сбоку)
+	QString vert_text = ValueToString(val_vert, GetPrecission(cur_chart_val.vertical.delta())).c_str();
+
+	// Если марджина нет (<=0), рисуем внутри
+	bool vert_inside = (scale_info_.pix_info_.margin_px.horizontal <= 0);
+	// Передаем chart_size_px.horizontal как линию границы графика
+	drawValueLabel(vert_text, chart_size_px.horizontal, vert_px, false, vert_inside);
+
+
+	// 2. Горизонтальная ось (снизу)
 	QString hor_text = ValueToString(val_hor, GetPrecission(cur_chart_val.horizontal.delta())).c_str();
-	drawValueLabel(hor_text, hor_px, chart_size_px.vertical + 5, true);
+
+	// Если марджина нет (<=0), рисуем внутри
+	bool hor_inside = (scale_info_.pix_info_.margin_px.vertical <= 0);
+	// Передаем chart_size_px.vertical как линию границы графика
+	drawValueLabel(hor_text, hor_px, chart_size_px.vertical, true, hor_inside);
 
 	return true;
 }

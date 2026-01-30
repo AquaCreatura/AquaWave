@@ -3,16 +3,20 @@
 ScopeAnalyzerWindow::ScopeAnalyzerWindow()
 {
     ui_.setupUi(this);
-	//Определяем Combobox для FFT
-	
 	
 };
 
-void ScopeAnalyzerWindow::SetChartWindow(QWidget * wigdet_ptr)
+void ScopeAnalyzerWindow::SetChartWindow(QWidget * widget_ptr, chart_type type_of_chart)
 {
-    //ui_.DpxChart->layout()->addWidget(wigdet_ptr);
-    
+	charts_[type_of_chart] = widget_ptr;
+
+	if (type_of_chart == chart_type::spg) {
+		ui_.spg_chart->layout()->addWidget(widget_ptr);
+	}
+
+	if (type_of_chart == chart_type::spectrum) {
+		ui_.dpx_spectrum_chart->layout()->addWidget(widget_ptr);
+	}
+	//ui_.DpxChart->layout()->addWidget(widget_ptr);
 }
-
-
 

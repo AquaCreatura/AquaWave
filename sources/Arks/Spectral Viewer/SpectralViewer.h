@@ -25,8 +25,8 @@ namespace spectral_viewer {
 	protected:
 		SourceInfo									src_info_;
 		QPointer<SpectralViewerWindow>				window_;
-		std::shared_ptr<dpx_core::SpectrumDpx>      dpx_spectrum_;
-		std::shared_ptr<spg_core::StaticSpg>		spectrogram_;
+		std::shared_ptr<dpx_core::SpectrumDpx>      spectrum_;
+		std::shared_ptr<spg_core::StaticSpg>		spg_;
 		std::shared_ptr<aqua_gui::SelectionHolder>  selection_holder_;
 		std::atomic_int64_t							n_fft_{ -1 };
 	};

@@ -8,9 +8,8 @@ ChartInterface::ChartInterface(QWidget* parent, std::shared_ptr<SelectionHolder>
 	selection_drawer_.SetSelectionHolder(selection_holder);
     // Our widget params
     this->setMouseTracking(true);
-    this->setMinimumSize(200, 100);
     // Set min max values for our chart
-    SetHorizontalMinMaxBounds({50'000, 200'000});
+    SetHorizontalMinMaxBounds({0, 1});
     SetHorizontalSuffix("counts");
 
     SetVerticalSuffix("power");
@@ -115,6 +114,7 @@ void ChartInterface::wheelEvent(QWheelEvent* wheel_event)
 
 void ChartInterface::resizeEvent(QResizeEvent * resize_event)
 {   
+
     //resize_event->
     //this->setFixedSize(resize_event->size());
 }
@@ -179,6 +179,16 @@ void ChartInterface::UpdateWidgetSizeInfo()
     auto        &pix_info = scale_info_.pix_info_;
     //if data is not changed - go away (don't touch anything)
     if(pix_info.widget_size_px == cur_size) return;
+
+	if(cur_size.horizontal > 0)
+	{
+		static const HV_Info<int> need_margin_px{ 50, 30 };
+		pix_info.margin_px = need_margin_px;
+		if (double(need_margin_px.horizontal) / cur_size.horizontal > 0.1)
+			pix_info.margin_px.horizontal = 0;
+		if (double(need_margin_px.vertical) / cur_size.vertical > 0.2)
+			pix_info.margin_px.vertical = 0;
+	}
 
     pix_info.widget_size_px = cur_size;
     pix_info.chart_size_px  = pix_info.widget_size_px  - pix_info.margin_px;    

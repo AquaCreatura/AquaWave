@@ -52,12 +52,12 @@ file_source::FileSourceDialog::FileSourceDialog()
         connect(ui_.carrier_mhz_spinbox, static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), 
                 [this](const double new_val)
         {
-            edit_file_info_.carrier_hz_ = std::llround(new_val * 1'000'000);  // MHz -> Hz
+            edit_file_info_.carrier_hz = std::llround(new_val * 1'000'000);  // MHz -> Hz
         });
         connect(ui_.samplerate_khz_spinbox, static_cast<void(QDoubleSpinBox::*)(double)>(&QDoubleSpinBox::valueChanged), 
                 [this](const double new_val)
         {
-            edit_file_info_.samplerate_hz_ = std::llround(new_val * 1'000);  // kHz -> Hz
+            edit_file_info_.samplerate_hz = std::llround(new_val * 1'000);  // kHz -> Hz
         });
     }
     
@@ -117,14 +117,14 @@ void file_source::FileSourceDialog::ParseFileName(const QString& file_name)
     // Парсинг параметров из имени файла (формат: "... 869.977996MHz 219.999KHz.pcm")
     bool is_succesfully_parsed = true;
     int64_t samplerate_hz = 0, carrier_hz = 1.e6;
-    if(aqua_parse_tools::get_samplerate_from_filename(file_name.toLocal8Bit().constData(),edit_file_info_.samplerate_hz_))
+    if(aqua_parse_tools::get_samplerate_from_filename(file_name.toLocal8Bit().constData(),edit_file_info_.samplerate_hz))
     {
         is_succesfully_parsed = true;
-        aqua_parse_tools::get_carrier_from_filename(file_name.toLocal8Bit().constData(), edit_file_info_.carrier_hz_);
+        aqua_parse_tools::get_carrier_from_filename(file_name.toLocal8Bit().constData(), edit_file_info_.carrier_hz);
     }
     ui_.signal_settings_groupbox->setChecked(is_succesfully_parsed); //Факт того, что успешно достали ЧД, нас более чем удовлетворяет
-    ui_.carrier_mhz_spinbox     ->setValue(edit_file_info_.carrier_hz_   / 1.e6);
-    ui_.samplerate_khz_spinbox  ->setValue(edit_file_info_.samplerate_hz_/ 1.e3);
+    ui_.carrier_mhz_spinbox     ->setValue(edit_file_info_.carrier_hz   / 1.e6);
+    ui_.samplerate_khz_spinbox  ->setValue(edit_file_info_.samplerate_hz/ 1.e3);
 
 	if (QFileInfo::exists(edit_file_info_.file_name_))
 	{

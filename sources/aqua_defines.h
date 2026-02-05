@@ -10,8 +10,8 @@ namespace fluctus
 {
     struct freq_params
     {
-        int64_t samplerate{ 1'000 };
-        int64_t carrier{ 0 };
+		int64_t carrier_hz{ 0 };
+        int64_t samplerate_hz{ 1'000 };
     };
 
 

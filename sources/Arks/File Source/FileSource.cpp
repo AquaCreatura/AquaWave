@@ -59,8 +59,8 @@ bool file_source::FileSourceArk::SendDove(fluctus::DoveSptr const& sent_dove)
         // Инициализация читателя
         if (file_src_thought & FileSrcDove::FileSrcDoveThought::kInitReaderInfo)
         {
-			const auto carrier_hz		= file_src_dove->carrier_hz		.value_or(file_info_.carrier_hz_	);
-			const auto samplerate_hz	= file_src_dove->samplerate_hz	.value_or(file_info_.samplerate_hz_	);
+			const auto carrier_hz		= file_src_dove->carrier_hz		.value_or(file_info_.carrier_hz	);
+			const auto samplerate_hz	= file_src_dove->samplerate_hz	.value_or(file_info_.samplerate_hz	);
             listener_man_.InitReader(target_ark, carrier_hz, samplerate_hz, *file_src_dove->data_size);
         }
         

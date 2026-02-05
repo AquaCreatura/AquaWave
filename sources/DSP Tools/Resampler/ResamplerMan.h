@@ -2,6 +2,7 @@
 #include <memory>
 #include "ResamplersImpl/ResamperInterface.h"
 #include "../basic/freq_shifter.h"
+#include "ark_defs.h"
 namespace aqua_resampler
 {
 
@@ -28,7 +29,7 @@ public:
     //   target_params- параметры целевого сигнала, частота которого может измениться в процессе ресэмплинга.
     //   precise      - флаг, указывающий на необходимость точного расчёта коэффициентов ресэмплинга.
     // Возвращает true, если инициализация прошла успешно, иначе false.
-    bool Init(const ProcessingParams base_params, ProcessingParams& target_params, bool precise);
+    bool Init(const fluctus::freq_params& base_params, fluctus::freq_params& target_params, bool precise);
 
     // Метод обработки блока входных данных.
     // input_data - указатель на массив входных комплексных данных.
@@ -48,7 +49,7 @@ private:
     std::vector<Ipp32fc>                processed_data_;
     // Указатель на объект интерфейса ресэмплера (например, многоскоростной или точный ресэмплер).
     std::unique_ptr<ResamplerInterface> resampler_;
-
+	double								resample_ratio_;
     // Настройки ресэмплера, включающие параметры фильтра и другие настройки.
     ResamplerSettings                   settings_;
 

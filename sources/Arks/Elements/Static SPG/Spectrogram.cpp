@@ -49,8 +49,8 @@ bool StaticSpg::SendData(fluctus::DataInfo const & data_info)
     ippsMulC_32f_I(10, power_vec.data(), power_vec.size());
     
     // Определяем границы частотного диапазона для отображения.
-    Limits<double> freq_bounds = {freq_info.carrier - freq_info.samplerate / 2.,
-                                   freq_info.carrier + freq_info.samplerate / 2.};
+    Limits<double> freq_bounds = {freq_info.carrier_hz - freq_info.samplerate_hz / 2.,
+                                   freq_info.carrier_hz + freq_info.samplerate_hz / 2.};
     
     // Отправляем вычисленные магнитуды и частотные границы в отрисовщик.
     draw_data draw_data;
@@ -127,8 +127,8 @@ bool spg_core::StaticSpg::Reload()
     if (!file_src->SendDove(req_dove) || !req_dove->file_info) {
         return false;
     }
-    src_info_.info.carrier      = req_dove->file_info->carrier_hz_;
-    src_info_.info.samplerate   = req_dove->file_info->samplerate_hz_;
+    src_info_.info.carrier_hz      = req_dove->file_info->carrier_hz;
+    src_info_.info.samplerate_hz   = req_dove->file_info->samplerate_hz;
 	Limits<double> new_hor_bounds = { 0., std::max(1.,double(req_dove->file_info->count_of_samples)) };
 	if (1) {
 		time_bounds_.source = new_hor_bounds;
@@ -136,8 +136,8 @@ bool spg_core::StaticSpg::Reload()
 		spg_drawer_->SetHorizontalMinMaxBounds(new_hor_bounds);
 		{
 			Limits<double> bounds_hz = {
-				double(src_info_.info.carrier) - src_info_.info.samplerate / 2.,
-				double(src_info_.info.carrier) + src_info_.info.samplerate / 2.
+				double(src_info_.info.carrier_hz) - src_info_.info.samplerate_hz / 2.,
+				double(src_info_.info.carrier_hz) + src_info_.info.samplerate_hz / 2.
 			};
 			freq_divider_ = 1.e6;
 

@@ -35,8 +35,11 @@ bool FrequencyShifter::ProcessBlock(const Ipp32fc* inputData, Ipp32fc* outputDat
 {
     if (!inputData || !outputData || blockSize <= 0)
         return false;
-    if(tone_freq_ == 0)
-        return true;
+	if (tone_freq_ == 0) {
+		ippsCopy_32fc(inputData, outputData, blockSize);
+		return true;
+	}
+        
     // Проверяем и подгоняем размер буфера для тона
     if (tone_vec_.size() != static_cast<size_t>(blockSize)) {
         tone_vec_.resize(blockSize);

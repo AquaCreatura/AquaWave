@@ -72,8 +72,11 @@ void file_source::FileDataListener::SetBaseParams(const int64_t carrier,
                                                 const int64_t samplerate, 
                                                 const int64_t block_size)
 {
-    data_info_.freq_info_.carrier = carrier;      // Установка несущей частоты
-    data_info_.freq_info_.samplerate = samplerate; // Установка частоты дискретизации
+    data_info_.freq_info_.carrier_hz = carrier;      // Установка несущей частоты
+    data_info_.freq_info_.samplerate_hz = samplerate; // Установка частоты дискретизации
+
+	fluctus::freq_params file_params = { params_.carrier_hz, params_.samplerate_hz };
+	resampler_.Init(file_params, data_info_.freq_info_, true);
     block_size_ = block_size;                     // Сохранение размера блока
 }
 
@@ -144,19 +147,39 @@ void file_source::FileDataListener::ReadChunksInRangeProcess(double start_pos, d
 		state_ = kProcessStopped;  // Ошибка чтения
 		return;
 	}
-	reader.InitStartEndRatio(start_pos, end_pos, chunk_size); //Инициализируем в относительно состоянии
-	// Чтение данных вокруг позиции
-	
-	while (state_!= kNeedStop && reader.ReadStream(data_info_.data_vec))
-	{
-		auto out_data_size = data_info_.data_vec.size() / 4;
-		std::vector<Ipp32fc> data_vec(out_data_size);
+	data_info_.time_point = 0.;
+	reader.InitStartEndRatio(start_pos, end_pos, chunk_size);
 
-		ippsConvert_16s32f((Ipp16s*)data_info_.data_vec.data(), (Ipp32f*)data_vec.data(), out_data_size * 2);
-		data_info_.data_vec.swap((std::vector<uint8_t>&)data_vec);
-		data_info_.time_point = 0.;
+	std::vector<Ipp32fc> casted_vec(chunk_size);
+	std::vector<Ipp32fc> chunk_to_send(chunk_size);
+	size_t chunk_pos = 0;
 
-		SendPreparedData();   // Успешное чтение - отправка данных
+	while (state_ != kNeedStop) {
+		if (!reader.ReadStream(data_info_.data_vec)) break;
+
+		ippsConvert_16s32f(reinterpret_cast<Ipp16s*>(data_info_.data_vec.data()),
+			reinterpret_cast<Ipp32f*>(casted_vec.data()),
+			chunk_size * 2);
+
+		resampler_.ProcessBlock(casted_vec.data(), casted_vec.size());
+		auto& processed_data = casted_vec;  //resampler_.GetProcessedData();
+
+		size_t processed_idx = 0;
+		while (processed_idx < processed_data.size()) {
+			size_t remaining = chunk_size - chunk_pos;
+			size_t to_copy = std::min(remaining, processed_data.size() - processed_idx);
+
+			ippsCopy_32fc(processed_data.data() + processed_idx, chunk_to_send.data() + chunk_pos, to_copy);
+			chunk_pos += to_copy;
+			processed_idx += to_copy;
+
+			if (chunk_pos == chunk_size) {
+				data_info_.data_vec.swap(reinterpret_cast<std::vector<uint8_t>&>(chunk_to_send));
+				SendPreparedData();
+				chunk_to_send.resize(chunk_size);
+				chunk_pos = 0;
+			}
+		}
 	}
 	state_ = kNoProcess;  // Сброс состояния
 }

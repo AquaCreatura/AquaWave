@@ -48,6 +48,7 @@ public:
     bool GetDataAround(const double ratio_point, const size_t data_size, std::vector<uint8_t>& read_data);
 
 protected:
+	file_source::file_params last_params_;
     IppDataType   data_type_;          ///< Тип данных (ipp8u, ipp16s, ipp32f и т.д.)
     size_t        file_size_samples_;  ///< Размер файла в сэмплах
     std::ifstream ifstream_;           ///< Поток для чтения файла

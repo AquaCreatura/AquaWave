@@ -20,8 +20,8 @@ private:
     int64_t input_rate_;               // Исходная частота дискретизации
     int64_t output_rate_;              // Требуемая частота дискретизации
     double resample_ratio_;            // Коэффициент ресемплинга
-    IppsFIRSpec_32fc* fir_spec_;       // Спецификация FIR-фильтра
-    Ipp8u* fir_buf_;                   // Временный буфер для фильтрации
+    IppsFIRSpec_32fc* fir_spec_ = nullptr;       // Спецификация FIR-фильтра
+    Ipp8u* fir_buf_ = nullptr;                   // Временный буфер для фильтрации
     std::vector<Ipp32fc> delay_line_;  // Буфер задержки для сохранения состояния фильтра
     bool initialized_;                 // Флаг инициализации
     FarrowInterpolator interpolator_;  // Интерполятор для изменения частоты дискретизации

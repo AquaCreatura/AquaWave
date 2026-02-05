@@ -12,6 +12,8 @@ FileReader::~FileReader() {
 }
 
 bool FileReader::SetFileParams(const file_source::file_params &params) {
+	if (last_params_ == params) 
+		return true;
     // Закрываем любой ранее открытый файл
     if (ifstream_.is_open()) {
         ifstream_.close();
@@ -40,7 +42,7 @@ bool FileReader::SetFileParams(const file_source::file_params &params) {
         std::cerr << "Warning: File size (" << file_size_bytes << " bytes) is not a multiple of sample size (" << sample_size << " bytes). Truncating." << std::endl;
     }
     file_size_samples_ = static_cast<size_t>(file_size_bytes) / sample_size;
-
+	last_params_ = params;
     return true;
 }
 
@@ -148,7 +150,6 @@ void FileReader::CalculateReadInfo(double ratio_point, size_t requested_data_siz
 
 bool FileReader::GetDataAround(const double ratio_point, const size_t data_size, std::vector<uint8_t>& read_data) {
     read_data.clear();
-
     if (data_size == 0) {
         return true; // Nothing to read, success.
     }

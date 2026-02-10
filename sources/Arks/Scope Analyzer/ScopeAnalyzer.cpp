@@ -14,7 +14,6 @@ ScopeAnalyzer::ScopeAnalyzer()
 	spectrum_ = std::make_shared<dpx_core::SpectrumDpx>(); // Создание компонента для спектрального графика.
 	spg_ = std::make_shared<spg_core::StaticSpg>(); // Создание компонента для спектрограммы.
 
-
 	auto dpx_window = ShipBuilder::GetWindow(spectrum_);
 	auto spg_window = ShipBuilder::GetWindow(spg_);
 
@@ -29,16 +28,10 @@ ScopeAnalyzer::~ScopeAnalyzer()
 
 bool ScopeAnalyzer::SendData(fluctus::DataInfo const & data_info)
 {
-	return false;
+	spectrum_->SendData(data_info);
+	return true;
 }
 
-// Отправляет данные для обработки спектра и отображения.
-// data_info: Структура с входными данными и информацией о частоте.
-bool SendData(fluctus::DataInfo const & data_info)
-{
-
-    return true; // Успех.
-}
 
 // Обрабатывает сообщения "Dove".
 // sent_dove: Умный указатель на сообщение Dove.
@@ -61,7 +54,7 @@ bool ScopeAnalyzer::SendDove(fluctus::DoveSptr const & sent_dove)
     if(base_thought == fluctus::DoveParrent::DoveThought::kTieSource)
     {
         if( target_val->GetArkType() == ArkType::kFileSource) 
-			src_info_.ark = target_val;
+			source_info_.ark = target_val;
         Reload();
     }
     //
@@ -69,13 +62,23 @@ bool ScopeAnalyzer::SendDove(fluctus::DoveSptr const & sent_dove)
     {
         return Reload();
     }
+	if (base_thought & fluctus::DoveParrent::DoveThought::kGetDescription)
+	{
+		sent_dove->description = this->source_info_.descr;
+		//Do smth
+	}
 	if (base_thought == fluctus::DoveParrent::DoveThought::kSpecialThought) {
 		const auto special_thought = sent_dove->special_thought;
 		if (auto spectral_dove = std::dynamic_pointer_cast<analyzer::AnalyzeDove>(sent_dove)) {
+
 			if (special_thought & analyzer::AnalyzeDove::kStartFromFileSource) {
 				return Restart(spectral_dove->freq_bounds_hz, spectral_dove->file_bounds_ratio);
 			}
 		};
+		if (auto file_src_dove = std::dynamic_pointer_cast<file_source::FileSrcDove>(sent_dove)) {
+
+		}
+
 	}
     // Передаём сообщение базовому классу для дальнейшей обработки.
     return ArkBase::SendDove(sent_dove);
@@ -88,39 +91,51 @@ ArkType ScopeAnalyzer::GetArkType() const
 
 bool ScopeAnalyzer::Reload()
 {
-	auto file_src = src_info_.ark.lock();
+	auto file_src = source_info_.ark.lock();
 
-	if (!file_src) return true;
-
-	auto req_dove = std::make_shared<DoveParrent>();
+	if (!file_src) return true;	
 	{
-		auto req_dove = std::make_shared<file_source::FileSrcDove>();
-		req_dove->base_thought = fluctus::DoveParrent::DoveThought::kSpecialThought;
-		req_dove->special_thought = file_source::FileSrcDove::kGetFileInfo;
-		if (!file_src->SendDove(req_dove) || !req_dove->file_info) {
+		auto req_dove = std::make_shared<fluctus::DoveParrent>(fluctus::DoveParrent::kGetDescription);
+		if (!file_src->SendDove(req_dove) || !req_dove->description) {
 			return false;
 		}
-		const int max_order = std::min(log2(req_dove->file_info->count_of_samples), 21.);
+		source_info_.descr = *req_dove->description;
+		total_samples_ = req_dove->description->count_of_samples;
+		const int max_order = std::min(log2(total_samples_), 21.);
+		
+
 		//window_->SetMaxFFtOrder(max_order);
 	}
-	req_dove->base_thought = fluctus::DoveParrent::DoveThought::kReset;
-	spg_->SendDove(req_dove);
-	spectrum_->SendDove(req_dove);
 	return true;
 }
 
-bool ScopeAnalyzer::Restart(Limits<double> freq_bounds_hz, Limits<double> time_bounds)
+bool ScopeAnalyzer::Restart(Limits<double> freq_bounds_Mhz, Limits<double> time_bounds)
 {
+	if (GetFrontArks().empty()) {
+		ShipBuilder::Bind_SrcSink(shared_from_this(), spectrum_);
+		ShipBuilder::Bind_SrcSink(shared_from_this(), spg_);
+	}
 	auto arks = GetBehindArks();
 	if (arks.empty()) return false;
+	freq_bounds_MHz_ = freq_bounds_Mhz;
+	time_bounds_ratio_ = time_bounds;
+	{
+		auto req_dove = std::make_shared<DoveParrent>(DoveParrent::kReset);
+		spg_->SendDove(req_dove);
+		spectrum_->SendDove(req_dove);
+	}
+
 
 	auto file_src_ = arks.front();
 	auto req_dove = std::make_shared<file_source::FileSrcDove>();
-	req_dove->base_thought = fluctus::DoveParrent::DoveThought::kSpecialThought;
 	req_dove->special_thought = file_source::FileSrcDove::kInitReaderInfo | file_source::FileSrcDove::kAskChunksInRange;
 	req_dove->target_ark = shared_from_this();
-	req_dove->time_point_start = 0;
-	req_dove->time_point_end = 1.;
+	
+	req_dove->time_point_start	= time_bounds.low;
+	req_dove->time_point_end	= time_bounds.high;
+
+	req_dove->carrier_hz		= freq_bounds_Mhz.mid() * 1.e6;
+	req_dove->samplerate_hz		= freq_bounds_Mhz.delta() * 1.e6;
 	req_dove->data_size = n_fft_;
 	if (!file_src_->SendDove(req_dove))
 	{
@@ -135,7 +150,7 @@ bool ScopeAnalyzer::Restart(Limits<double> freq_bounds_hz, Limits<double> time_b
 
 void ScopeAnalyzer::SetNewFftOrder(int n_fft_order)
 {
-	auto file_src = src_info_.ark.lock();
+	auto file_src = source_info_.ark.lock();
 	if (!file_src) return;
 
 	auto req_dove = std::make_shared<file_source::FileSrcDove>();
@@ -164,7 +179,6 @@ void ScopeAnalyzer::RequestSelectedData()
 
     auto file_src_ = arks.front();
     auto req_dove = std::make_shared<file_source::FileSrcDove>();
-    req_dove->base_thought      = fluctus::DoveParrent::DoveThought::kSpecialThought;
     req_dove->special_thought   = file_source::FileSrcDove::kInitReaderInfo |  file_source::FileSrcDove::kAskChunksInRange;
     req_dove->target_ark        = shared_from_this();
     req_dove->time_point_start  = 0;

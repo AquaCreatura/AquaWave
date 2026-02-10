@@ -3,7 +3,7 @@
 #include "ui_file_settings_dialog.h"
 #include "special_defs/file_souce_defs.h"
 
-
+using namespace fluctus;
 namespace file_source
 {
     // Dialog for file source settings
@@ -14,7 +14,7 @@ namespace file_source
         FileSourceDialog(); // Constructor
         ~FileSourceDialog();
         // Returns selected file parameters
-        const file_params& GetFileInfo() const;
+        const SourceDescription& GetFileInfo() const;
         const bool         SetFileName(const QString& file_name);
     signals:
         // Signal to update the source when parameters change
@@ -37,7 +37,7 @@ namespace file_source
 
     protected:
         Ui::FileSettingsDialog  ui_;			// UI components from .ui file
-        file_params             edit_file_info_;		// Current file parameters
-		file_params				actual_file_info_;	//
+        SourceDescription               edit_file_info_;		// Current file parameters
+		SourceDescription				actual_file_info_;	//
     };
 };

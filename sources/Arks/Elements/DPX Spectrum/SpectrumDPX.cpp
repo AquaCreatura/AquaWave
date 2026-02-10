@@ -82,7 +82,6 @@ bool dpx_core::SpectrumDpx::SendDove(fluctus::DoveSptr const & sent_dove)
     }
     if(base_thought == fluctus::DoveParrent::DoveThought::kTieSource)
     {
-        if(target_val->GetArkType() != ArkType::kFileSource) throw std::logic_error("Only signal sources are able to connect!");
         src_info_.ark = target_val;
 		Reload();
     }
@@ -94,11 +93,13 @@ bool dpx_core::SpectrumDpx::SendDove(fluctus::DoveSptr const & sent_dove)
 	if (base_thought == fluctus::DoveParrent::DoveThought::kSpecialThought) {
 		const auto special_thought = sent_dove->special_thought;
 		if (auto spectral_dove = std::dynamic_pointer_cast<spectral_viewer::SpectralDove>(sent_dove)) {
+
 			if (special_thought & spectral_viewer::SpectralDove::kSetFFtOrder) {
 				n_fft_ = 1 << *spectral_dove->fft_order_;
 				dpx_drawer_->ClearData();
 				RequestSelectedData();
 			}
+
 			if (special_thought & spectral_viewer::SpectralDove::kSetSelectionHolder) {
 				selection_holder_ = *spectral_dove->sel_holder;
 				dpx_drawer_->SetSelectionHolder(selection_holder_);
@@ -121,18 +122,16 @@ bool dpx_core::SpectrumDpx::Reload()
     auto file_src = src_info_.ark.lock();
     if(!file_src) return true;
     
-    auto req_dove = std::make_shared<file_source::FileSrcDove>();
-    req_dove->base_thought      = fluctus::DoveParrent::DoveThought::kSpecialThought;
-    req_dove->special_thought   = file_source::FileSrcDove::kGetFileInfo;
-    if (!file_src->SendDove(req_dove) || !req_dove->file_info )
+	auto req_dove = std::make_shared<fluctus::DoveParrent>(fluctus::DoveParrent::kGetDescription);
+    if (!file_src->SendDove(req_dove) || !req_dove->description)
     {
         return false;
     }
-    src_info_.info.carrier_hz      = req_dove->file_info->carrier_hz;
-    src_info_.info.samplerate_hz   = req_dove->file_info->samplerate_hz;
+    src_info_.descr.carrier_hz      = req_dove->description->carrier_hz;
+    src_info_.descr.samplerate_hz   = req_dove->description->samplerate_hz;
 	Limits<double> bounds_hz = {
-		double(src_info_.info.carrier_hz) - src_info_.info.samplerate_hz / 2.,
-		double(src_info_.info.carrier_hz) + src_info_.info.samplerate_hz / 2.
+		double(src_info_.descr.carrier_hz) - src_info_.descr.samplerate_hz / 2.,
+		double(src_info_.descr.carrier_hz) + src_info_.descr.samplerate_hz / 2.
 	};
 	freq_divider_ = 1.e6;
 

@@ -73,7 +73,7 @@ file_source::FileSourceDialog::~FileSourceDialog()
 }
 
 // Получение текущих параметров файла
-const file_params& file_source::FileSourceDialog::GetFileInfo() const
+const SourceDescription& file_source::FileSourceDialog::GetFileInfo() const
 {
     return edit_file_info_;
 }

@@ -23,7 +23,7 @@ namespace spectral_viewer {
 		virtual void RequestSelectedData();
 
 	protected:
-		SourceInfo									src_info_;
+		SourceArk									src_info_;
 		QPointer<SpectralViewerWindow>				window_;
 		std::shared_ptr<dpx_core::SpectrumDpx>      spectrum_;
 		std::shared_ptr<spg_core::StaticSpg>		spg_;

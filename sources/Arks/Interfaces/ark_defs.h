@@ -50,28 +50,7 @@ namespace fluctus
     };
 
 
-    struct DoveParrent 
-    {
-        //thoughts can be implemented with (|) ~ (OR)
-        typedef int64_t thoughts_list;
 
-        ArkSptr sender; //who sent a dove
-        enum DoveThought : int64_t
-        {
-            kNothing        = 0,                                //Ignore thought
-            kTieSource      = 1 << 0 , kTieSink    = 1 << 1,   //To connect arks
-            kUntieFront     = 1 << 2 , kUntieBehind = 1 << 3,   //To disconnect arks
-            kGetDialog      = 1 << 5 , kReset       = 1 << 6,   //Request dialog and request for reset
-            kSpecialThought = 1 << 31
-        };
-        thoughts_list                                   base_thought  = kSpecialThought ; //Basic 
-        thoughts_list                                   special_thought {0}; //Child
-        ArkSptr                                         target_ark     ; //To operate with another ark
-        QPointer<QWidget>								show_widget; //Pointer to the dialog
-        virtual ~DoveParrent() = default;  // virtual destructor to make polymorphic inheritance
-    };
-
-    using DoveSptr = std::shared_ptr<DoveParrent> ;
 
     struct DataInfo
     {
@@ -88,11 +67,58 @@ namespace fluctus
         Limits<double>  scaled {0.,1.};
     };
 
-    struct SourceInfo
+	struct SourceDescription
+	{
+		int64_t     carrier_hz{ 1'000'000 };
+		int64_t     samplerate_hz{ 100'000 };
+		IppDataType data_type_{ ipp16sc };
+		
+
+		//Актуально для файлового источника
+		QString     file_name_;				
+		bool        is_signal{ true };		
+		int64_t     count_of_samples;		
+	};
+    struct SourceArk
     {
         ArkWptr ark;
-        fluctus::freq_params info;
+		SourceDescription descr;
     };
+
+
+	struct DoveParrent
+	{
+		//thoughts can be implemented with (|) ~ (OR)
+		typedef int64_t thoughts_list;
+
+		ArkSptr sender; //who sent a dove
+		enum DoveThought : int64_t
+		{
+			kNothing = 0,                                //Ignore thought
+			kTieSource = 1 << 0, kTieSink = 1 << 1,   //To connect arks
+			kUntieFront = 1 << 2, kUntieBehind = 1 << 3,   //To disconnect arks
+			kGetDialog = 1 << 5, kReset = 1 << 6,   //Request dialog and request for reset
+			kGetDescription = 1 << 7,
+			kSpecialThought = 1 << 31
+		};
+
+		DoveParrent() {
+			base_thought = kSpecialThought;
+		}
+		DoveParrent(DoveThought thought) {
+			base_thought = thought;
+		}
+
+		thoughts_list                                   base_thought = kSpecialThought; //Basic 
+		thoughts_list                                   special_thought{ 0 }; //Child
+		ArkSptr                                         target_ark; //To operate with another ark
+		QPointer<QWidget>								show_widget; //Pointer to the dialog
+		utility_aqua::aqua_opt<SourceDescription>		description;
+		virtual ~DoveParrent() = default;  // virtual destructor to make polymorphic inheritance
+	};
+
+	using DoveSptr = std::shared_ptr<DoveParrent>;
+
 }
 
 #endif // ARK_DEFINES

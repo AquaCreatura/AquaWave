@@ -26,7 +26,7 @@ namespace file_source
     protected:
         FileDataManager                     listener_man_; // Manages file listeners
         QPointer<FileSourceDialog>			dialog_;        // Settings dialog interface
-        file_params                         file_info_;     // File parameters
+        SourceDescription                         descr_;     // File parameters
 		QWidget *							qmain_window_ = nullptr; //Pointer to main to change tittles
     };
 };

@@ -108,13 +108,14 @@ void aqua_gui::SelectionDrawer::ChangeCurSelection()
 	selection_info sel_info;
 	if (scale_info_.val_info_.domain_type == ChartDomainType::kTimeFrequency) {
 		sel_info.freq_bounds = cur_hv_.vertical;
-		sel_info.time_bounds = cur_hv_.horizontal;
-		sel_info.power_bounds = { 0,0 };
+		sel_info.time_bounds = cur_hv_.horizontal / scale_info_.val_info_.min_max_bounds_.horizontal.delta();
+		sel_info.power_bounds = {0, 1};
 	}
 	else
 	{
 		sel_info.freq_bounds  = cur_hv_.horizontal;
 		sel_info.power_bounds = cur_hv_.vertical;
+		sel_info.time_bounds  = {0, 1.};
 	}
 	sel_holder_->SetCurrentSelection(sel_info);
 }
@@ -123,7 +124,7 @@ HorVerLim<double> aqua_gui::SelectionDrawer::GetHorVert(const selection_info & s
 {
 	HorVerLim<double> hor_ver;
 	if (scale_info_.val_info_.domain_type == ChartDomainType::kTimeFrequency) {
-		hor_ver.horizontal = sel_info.time_bounds;
+		hor_ver.horizontal = sel_info.time_bounds * scale_info_.val_info_.min_max_bounds_.horizontal.delta();
 		hor_ver.vertical = sel_info.freq_bounds;
 	}
 	else

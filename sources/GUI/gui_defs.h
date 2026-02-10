@@ -8,7 +8,7 @@ using namespace fluctus;
 namespace aqua_gui
 {
 typedef uint32_t argb_t;
-//Height / Width info
+//Height / Width descr
 template <typename W, typename H = W>
 struct HV_Info
 {

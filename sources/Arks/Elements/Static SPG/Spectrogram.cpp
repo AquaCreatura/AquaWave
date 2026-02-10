@@ -84,7 +84,6 @@ bool StaticSpg::SendDove(fluctus::DoveSptr const & sent_dove)
     // Передаём сообщение базовому классу для дальнейшей обработки.
     if(base_thought & DoveParrent::DoveThought::kTieSource)
     {
-        if(target_val->GetArkType() != ArkType::kFileSource) throw std::logic_error("Only signal sources are able to connect!");
         src_info_.ark = target_val;
     }
     if (base_thought == fluctus::DoveParrent::DoveThought::kReset)
@@ -121,23 +120,21 @@ bool spg_core::StaticSpg::Reload()
     }
     requester_.Initialise(file_src, this->shared_from_this());
 
-    auto req_dove = std::make_shared<file_source::FileSrcDove>();
-    req_dove->base_thought      = fluctus::DoveParrent::DoveThought::kSpecialThought;
-    req_dove->special_thought   = file_source::FileSrcDove::kGetFileInfo;
-    if (!file_src->SendDove(req_dove) || !req_dove->file_info) {
+	auto req_dove = std::make_shared<fluctus::DoveParrent>(fluctus::DoveParrent::kGetDescription);
+    if (!file_src->SendDove(req_dove) || !req_dove->description) {
         return false;
     }
-    src_info_.info.carrier_hz      = req_dove->file_info->carrier_hz;
-    src_info_.info.samplerate_hz   = req_dove->file_info->samplerate_hz;
-	Limits<double> new_hor_bounds = { 0., std::max(1.,double(req_dove->file_info->count_of_samples)) };
+    src_info_.descr.carrier_hz      = req_dove->description->carrier_hz;
+    src_info_.descr.samplerate_hz   = req_dove->description->samplerate_hz;
+	Limits<double> new_hor_bounds = { 0., std::max(1.,double(req_dove->description->count_of_samples)) };
 	if (1) {
 		time_bounds_.source = new_hor_bounds;
 		spg_drawer_->ClearData();
 		spg_drawer_->SetHorizontalMinMaxBounds(new_hor_bounds);
 		{
 			Limits<double> bounds_hz = {
-				double(src_info_.info.carrier_hz) - src_info_.info.samplerate_hz / 2.,
-				double(src_info_.info.carrier_hz) + src_info_.info.samplerate_hz / 2.
+				double(src_info_.descr.carrier_hz) - src_info_.descr.samplerate_hz / 2.,
+				double(src_info_.descr.carrier_hz) + src_info_.descr.samplerate_hz / 2.
 			};
 			freq_divider_ = 1.e6;
 

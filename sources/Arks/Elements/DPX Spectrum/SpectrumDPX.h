@@ -24,7 +24,7 @@ protected slots:
     virtual void RequestSelectedData();
 
 protected:
-    SourceInfo                  src_info_;
+    SourceArk                  src_info_;
 	std::shared_ptr<aqua_gui::SelectionHolder> selection_holder_;
     QPointer<ChartDPX>          dpx_drawer_;
     FFT_Worker                  fft_worker_;

@@ -5,7 +5,7 @@
 #include <vector>
 
 #include "special_defs/file_souce_defs.h"
-
+using namespace fluctus;
 namespace file_source {
 
 /**
@@ -21,7 +21,7 @@ public:
      * @param params Параметры чтения (тип данных, частота и т.д.).
      * @return true, если файл успешно открыт и параметры корректны.
      */
-    bool SetFileParams(const file_source::file_params &params);
+    bool SetFileParams(const SourceDescription &params);
 
     /**
      * @brief Получить размер файла в сэмплах.
@@ -48,7 +48,7 @@ public:
     bool GetDataAround(const double ratio_point, const size_t data_size, std::vector<uint8_t>& read_data);
 
 protected:
-	file_source::file_params last_params_;
+	fluctus::SourceDescription last_params_;
     IppDataType   data_type_;          ///< Тип данных (ipp8u, ipp16s, ipp32f и т.д.)
     size_t        file_size_samples_;  ///< Размер файла в сэмплах
     std::ifstream ifstream_;           ///< Поток для чтения файла

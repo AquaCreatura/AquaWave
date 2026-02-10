@@ -139,7 +139,6 @@
     <ClCompile Include="sources\DSP Tools\Resampler\ResamplersImpl\Precise Resampler\Interpolator\FarrowInterpolator.cpp" />
     <ClCompile Include="sources\DSP Tools\Resampler\ResamplersImpl\Precise Resampler\PreciseResampler.cpp" />
     <ClCompile Include="sources\DSP Tools\Resampler\ResamplerMan.cpp" />
-    <ClCompile Include="sources\GUI\basic tools\ChartSelection.cpp" />
     <ClCompile Include="sources\GUI\basic tools\gui_conversions.cpp" />
     <ClCompile Include="sources\GUI\basic tools\gui_helper.cpp" />
     <ClCompile Include="sources\GUI\basic tools\gui_worker.cpp" />
@@ -198,7 +197,6 @@
     <ClInclude Include="sources\GUI\Drawers\SelectionDrawer.h" />
     <ClInclude Include="sources\Tools\utility_aqua.h" />
     <ClInclude Include="sources\Tools\parse_tools.h" />
-    <ClInclude Include="sources\GUI\basic tools\ChartSelection.h" />
     <ClInclude Include="sources\GUI\basic tools\gui_conversions.h" />
     <ClInclude Include="sources\GUI\basic tools\gui_helper.h" />
     <ClInclude Include="sources\GUI\gui_defs.h" />

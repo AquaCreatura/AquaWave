@@ -1,14 +1,15 @@
-#ifndef FARROWRESAMPLER_H
-#define FARROWRESAMPLER_H
+// FarrowInterpolator.h
+#ifndef FARROWINTERPOLATOR_H
+#define FARROWINTERPOLATOR_H
 
 #include <ipps.h>
 #include <vector>
 #include <array>
-#include <cmath>
 
 class FarrowInterpolator {
 public:
 	FarrowInterpolator();
+
 	void SetResampleRatio(double resample_ratio);
 	void process(const Ipp32fc* input, size_t input_size, std::vector<Ipp32fc>& output);
 	void reset();
@@ -20,14 +21,15 @@ private:
 		Ipp32fc interpolate(float t) const;
 	};
 
-	void save_prev_samples(const Ipp32fc* input, size_t input_size, int used_samples);
+	bool can_interpolate(int base_index, size_t input_size) const;
+	Ipp32fc get_sample(int index, const Ipp32fc* input, size_t input_size) const;
+	void update_tail(const Ipp32fc* input, size_t input_size);
 
 	double ratio_;
-	double virtual_index_; // Текущая позиция в виртуальных отсчётах
+	double virtual_index_;
 
-						   // Хранит последние 3 отсчёта предыдущего блока
-	std::array<Ipp32fc, 3> prev_samples_;
-	size_t prev_samples_count_ = 0;
+	// Всегда храним 3 последних семпла, даже если это нули
+	std::array<Ipp32fc, 3> tail_;
 };
 
-#endif // FARROWRESAMPLER_H
+#endif // FARROWINTERPOLATOR_H

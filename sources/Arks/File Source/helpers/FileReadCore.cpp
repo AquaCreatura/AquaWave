@@ -11,9 +11,7 @@ FileReader::~FileReader() {
     }
 }
 
-bool FileReader::SetFileParams(const file_source::file_params &params) {
-	if (last_params_ == params) 
-		return true;
+bool FileReader::SetFileParams(const fluctus::SourceDescription &params) {
     // Закрываем любой ранее открытый файл
     if (ifstream_.is_open()) {
         ifstream_.close();

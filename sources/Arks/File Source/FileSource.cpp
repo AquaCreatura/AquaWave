@@ -6,7 +6,7 @@ using namespace fluctus;
 
 
 file_source::FileSourceArk::FileSourceArk(QWidget * main_window) :
-	listener_man_(file_info_),  // Инициализация менеджера с параметрами файла
+	listener_man_(descr_),  // Инициализация менеджера с параметрами файла
 	qmain_window_(main_window)
 {
 	dialog_ = new FileSourceDialog;  // Создание диалогового окна
@@ -46,7 +46,12 @@ bool file_source::FileSourceArk::SendDove(fluctus::DoveSptr const& sent_dove)
         sent_dove->show_widget = dialog_;  // Возвращаем указатель на диалог
     }
     
-
+	if (parrent_type & FileSrcDove::kGetDescription)
+	{
+		if (descr_.file_name_.isEmpty()) return false;
+		sent_dove->description = this->descr_;
+		//Do smth
+	}
     // Обработка специализированных команд для файлового источника
     if (parrent_type & fluctus::DoveParrent::kSpecialThought)
     {
@@ -59,15 +64,15 @@ bool file_source::FileSourceArk::SendDove(fluctus::DoveSptr const& sent_dove)
         // Инициализация читателя
         if (file_src_thought & FileSrcDove::FileSrcDoveThought::kInitReaderInfo)
         {
-			const auto carrier_hz		= file_src_dove->carrier_hz		.value_or(file_info_.carrier_hz	);
-			const auto samplerate_hz	= file_src_dove->samplerate_hz	.value_or(file_info_.samplerate_hz	);
+			const auto carrier_hz		= file_src_dove->carrier_hz		.value_or(descr_.carrier_hz	);
+			const auto samplerate_hz	= file_src_dove->samplerate_hz	.value_or(descr_.samplerate_hz	);
             listener_man_.InitReader(target_ark, carrier_hz, samplerate_hz, *file_src_dove->data_size);
         }
         
         // Запрос данных вокруг точки
         if (file_src_thought & FileSrcDove::FileSrcDoveThought::kAskChunkAround)
         {
-			if (file_info_.file_name_.isEmpty()) return false;
+			if (descr_.file_name_.isEmpty()) return false;
             listener_man_.StartReading(target_ark, *file_src_dove->time_point_start, *file_src_dove->time_point_start, FileDataManager::kReadAround);
         }
         
@@ -84,17 +89,11 @@ bool file_source::FileSourceArk::SendDove(fluctus::DoveSptr const& sent_dove)
         }
         if (file_src_thought & FileSrcDove::FileSrcDoveThought::kSetFileName)
         {
-            const QString file_name = (*file_src_dove->file_info).file_name_;
+            const QString file_name = file_src_dove->description->file_name_;
 			UpdateSource();
             dialog_->SetFileName(file_name);
             //Do smth 
         }//kSetFile
-        if (file_src_thought & FileSrcDove::FileSrcDoveThought::kGetFileInfo)
-        {
-			if (file_info_.file_name_.isEmpty()) return false;
-            file_src_dove->file_info = this->file_info_;
-            //Do smth
-        }
     }
     return ArkBase::SendDove(sent_dove);
 }
@@ -107,8 +106,8 @@ fluctus::ArkType file_source::FileSourceArk::GetArkType() const
 void file_source::FileSourceArk::UpdateSource()
 {
 	listener_man_.StopAllReaders();
-    this->file_info_ = dialog_->GetFileInfo(); //Update info, according ui
-	if (qmain_window_) qmain_window_->setWindowTitle(tr("[AquaWave v.1.0] %1").arg(file_info_.file_name_));
+    this->descr_ = dialog_->GetFileInfo(); //Update descr, according ui
+	if (qmain_window_) qmain_window_->setWindowTitle(tr("[AquaWave v.1.1] %1").arg(descr_.file_name_));
     //Reset out arks
     {
         auto out_fleet   = GetFrontArks();

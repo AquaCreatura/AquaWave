@@ -23,7 +23,12 @@ protected slots:
 
 protected:
 	fluctus::shared_vec<Ipp32fc>	data_;
-	SourceInfo						src_info_;
+	SourceArk						source_info_;
+
+	int64_t							total_samples_;
+	Limits<double>					freq_bounds_MHz_;
+	Limits<double>					time_bounds_ratio_;
+	
 	QPointer<ScopeAnalyzerWindow>	window_;
 	double							freq_divider_ = 1.;
 	int64_t							n_fft_{1024};

@@ -113,13 +113,11 @@ bool SpectralViewer::Reload()
 	
     auto req_dove = std::make_shared<DoveParrent>();
 	{
-		auto req_dove = std::make_shared<file_source::FileSrcDove>();
-		req_dove->base_thought = fluctus::DoveParrent::DoveThought::kSpecialThought;
-		req_dove->special_thought = file_source::FileSrcDove::kGetFileInfo;
-		if (!file_src->SendDove(req_dove) || !req_dove->file_info) {
+		auto req_dove = std::make_shared<fluctus::DoveParrent>(fluctus::DoveParrent::kGetDescription);
+		if (!file_src->SendDove(req_dove) || !req_dove->description) {
 			return false;
 		}
-		const int max_order = std::min(log2(req_dove->file_info->count_of_samples), 21.);
+		const int max_order = std::min(log2(req_dove->description->count_of_samples), 21.);
 		window_->SetMaxFFtOrder(max_order);
 	}
 	req_dove->base_thought = fluctus::DoveParrent::DoveThought::kReset;
@@ -147,9 +145,12 @@ void spectral_viewer::SpectralViewer::OnSelectionIsReady()
 	auto front_arks = GetFrontArks();
 	for (auto front_iter : front_arks) {
 		if (front_iter->GetArkType() == fluctus::kScopeAnalyser) {
-			auto an_dove = std::make_shared<analyzer::AnalyzeDove>();
-			an_dove->special_thought = analyzer::AnalyzeDove::kStartFromFileSource;
-			front_iter->SendDove(an_dove);
+			auto analyze_dove = std::make_shared<analyzer::AnalyzeDove>();
+			analyze_dove->special_thought = analyzer::AnalyzeDove::kStartFromFileSource;
+			auto cur_sel = selection_holder_->GetCurrentSelection();
+			analyze_dove->freq_bounds_hz	= cur_sel.freq_bounds;
+			analyze_dove->file_bounds_ratio = cur_sel.time_bounds;
+			front_iter->SendDove(analyze_dove);
 		}
 	}
 }

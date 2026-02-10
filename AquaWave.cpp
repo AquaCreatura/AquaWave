@@ -24,10 +24,9 @@ AquaWave::AquaWave(QWidget *parent, const QString& file_path)
 
 	if (!file_path.isEmpty()) //Если запускали через файл - инициализируем файловый источник
 	{
-		auto file_dove = std::make_shared<file_source::FileSrcDove>();
-		file_dove->special_thought = file_source::FileSrcDove::kSetFileName;
-		file_dove->file_info = file_source::file_params();
-		(*file_dove->file_info).file_name_ = file_path;
+		auto file_dove = std::make_shared<file_source::FileSrcDove>(file_source::FileSrcDove::kSetFileName);
+		file_dove->description = fluctus::SourceDescription();
+		file_dove->description->file_name_ = file_path;
 		file_src_->SendDove(file_dove);
 	}
 

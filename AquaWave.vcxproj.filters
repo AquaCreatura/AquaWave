@@ -128,9 +128,6 @@
     <ClCompile Include="sources\DSP Tools\Resampler\ResamplerMan.cpp">
       <Filter>DSP Tools\Resampler</Filter>
     </ClCompile>
-    <ClCompile Include="sources\GUI\basic tools\ChartSelection.cpp">
-      <Filter>GUI\basic tools</Filter>
-    </ClCompile>
     <ClCompile Include="sources\GUI\basic tools\gui_conversions.cpp">
       <Filter>GUI\basic tools</Filter>
     </ClCompile>
@@ -247,9 +244,6 @@
     </ClInclude>
     <ClInclude Include="sources\DSP Tools\Resampler\ResamplerMan.h">
       <Filter>DSP Tools\Resampler</Filter>
-    </ClInclude>
-    <ClInclude Include="sources\GUI\basic tools\ChartSelection.h">
-      <Filter>GUI\basic tools</Filter>
     </ClInclude>
     <ClInclude Include="sources\GUI\basic tools\gui_conversions.h">
       <Filter>GUI\basic tools</Filter>

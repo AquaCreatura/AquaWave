@@ -7,6 +7,8 @@
 #include "DSP Tools/Resampler/ResamplerMan.h" // Менеджер ресемплера
 #include "ark_interface.h"
 #include "special_defs\file_souce_defs.h"
+#include "ark_defs.h"
+using namespace fluctus;
 
 namespace file_source
 {
@@ -26,7 +28,7 @@ namespace file_source
 
     public:
         // Конструктор: принимает weak_ptr на ARK и параметры файла
-        FileDataListener(const fluctus::ArkWptr& weak_ptr, const file_params& params);
+        FileDataListener(const fluctus::ArkWptr& weak_ptr, const fluctus::SourceDescription& params);
         
         // Установка базовых параметров (частота, размер блока и т. д.)
         void SetBaseParams(int64_t carrier, int64_t samplerate, int64_t block_size = (1 << 10));
@@ -67,7 +69,7 @@ namespace file_source
         aqua_resampler::ResamplerManager resampler_; // Ресемплер
         const fluctus::ArkWptr target_ark_;       // Ссылка на weak_ptr целевого ARK
         int64_t block_size_;                 // Размер блока данных
-        const file_params& params_;          // Параметры файла (константная ссылка)
+        const SourceDescription& params_;          // Параметры файла (константная ссылка)
 		tbb::spin_mutex init_mutex_;
     };
 
@@ -82,7 +84,7 @@ namespace file_source
 			kReadChunksInRange	= 1 << 1
 		};
         // Конструктор: принимает параметры файла
-        FileDataManager(const file_params& params);
+        FileDataManager(const fluctus::SourceDescription& params);
         
         // Инициализация слушателя для ARK (если его ещё нет)
         void InitReader(
@@ -101,6 +103,6 @@ namespace file_source
     private:
         std::unordered_map<std::weak_ptr<fluctus::ArkInterface>, FileDataListener, 
             fluctus::WeakPtrHash<fluctus::ArkInterface>, fluctus::WeakPtrEqual<fluctus::ArkInterface>> listeners_; // Словарь слушателей
-        const file_params& params_; // Параметры файла
+        const SourceDescription& params_; // Параметры файла
     };
 };

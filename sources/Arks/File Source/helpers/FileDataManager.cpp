@@ -5,7 +5,7 @@ using namespace file_source;
 //=================================== FileDataManager Implementation =============================
 
 // Конструктор: инициализирует параметры файла
-file_source::FileDataManager::FileDataManager(const file_source::file_params& params) : 
+file_source::FileDataManager::FileDataManager(const fluctus::SourceDescription& params) : 
     params_(params)  // Инициализация константной ссылки на параметры
 {
 }
@@ -61,7 +61,7 @@ void file_source::FileDataManager::StopAllReaders()
 //=================================== FileDataListener Implementation ============================
 
 // Конструктор: инициализирует weak_ptr на ARK и параметры файла
-file_source::FileDataListener::FileDataListener(const fluctus::ArkWptr& weak_ptr, const file_params& params):
+file_source::FileDataListener::FileDataListener(const fluctus::ArkWptr& weak_ptr, const SourceDescription& params):
     target_ark_(weak_ptr),  // Инициализация ссылки на weak_ptr
     params_(params)         // Инициализация константной ссылки на параметры
 {
@@ -162,7 +162,7 @@ void file_source::FileDataListener::ReadChunksInRangeProcess(double start_pos, d
 			chunk_size * 2);
 
 		resampler_.ProcessBlock(casted_vec.data(), casted_vec.size());
-		auto& processed_data = casted_vec;  //resampler_.GetProcessedData();
+		auto& processed_data = resampler_.GetProcessedData();
 
 		size_t processed_idx = 0;
 		while (processed_idx < processed_data.size()) {

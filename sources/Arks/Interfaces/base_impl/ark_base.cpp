@@ -95,7 +95,7 @@ fluctus::StrongFleet fluctus::ArkBase::GetBehindArks()
                 return passed_param.expired();
             });
     }
-    //Go through data and update info
+    //Go through data and update descr
     for (auto ark_iter = behind_fleet_.begin(); ark_iter != behind_fleet_.end(); ark_iter++)
     {
         if (auto locked_ptr = ark_iter->lock())
@@ -119,7 +119,7 @@ fluctus::StrongFleet fluctus::ArkBase::GetFrontArks()
                 return passed_param.expired();
             });
     }
-    //Go through data and update info
+    //Go through data and update descr
     for (auto ark_iter = front_fleet_.begin(); ark_iter != front_fleet_.end(); ark_iter++)
     {
         if(auto locked_ptr = ark_iter->lock())

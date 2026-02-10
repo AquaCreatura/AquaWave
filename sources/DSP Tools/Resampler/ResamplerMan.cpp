@@ -76,7 +76,7 @@ bool ResamplerManager::Init(const fluctus::freq_params& base_params, fluctus::fr
 
 			new_target_rate = numerator / pq.second; // Вычисляем новую частоту дискретизации.
 			// Создаем объект ресэмплера для многоскоростного ресэмплинга.
-			resampler_ = std::make_unique<PreciseResampler>(); //MultiRateResampler
+			resampler_ = std::make_unique<MultiRateResampler>(); //MultiRateResampler
 		}
 		else
 		{

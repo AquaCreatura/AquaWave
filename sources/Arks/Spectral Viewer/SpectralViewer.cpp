@@ -148,6 +148,8 @@ void spectral_viewer::SpectralViewer::OnSelectionIsReady()
 			auto analyze_dove = std::make_shared<analyzer::AnalyzeDove>();
 			analyze_dove->special_thought = analyzer::AnalyzeDove::kStartFromFileSource;
 			auto cur_sel = selection_holder_->GetCurrentSelection();
+			if (cur_sel.freq_bounds.delta() < 0) std::swap(cur_sel.freq_bounds.low, cur_sel.freq_bounds.high);
+			if (cur_sel.time_bounds.delta() < 0) std::swap(cur_sel.time_bounds.low, cur_sel.time_bounds.high);
 			analyze_dove->freq_bounds_hz	= cur_sel.freq_bounds;
 			analyze_dove->file_bounds_ratio = cur_sel.time_bounds;
 			front_iter->SendDove(analyze_dove);

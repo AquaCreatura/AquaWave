@@ -51,15 +51,16 @@ bool dpx_core::DpxRenderer::UpdateDpxRgbData()
         const int grid_height = dpx_.size.vertical;
         const int grid_width  = dpx_.size.horizontal;
         argb_t *rgb_iter = dpx_rgb_.data.data();
-        for(int column_iter = 0; column_iter < grid_height; column_iter++)
+        for(int vert_number = 0; vert_number < grid_height; vert_number++)
         {
             const int64_t* column_weight_iter = &dpx_.column_weight[0]; //Reset for every row
-			const auto matrix_idx = grid_height - column_iter - 1;
-            const int64_t* dpx_iter           = dpx_[matrix_idx]; //We have inversed image
-            for(int row_iter = 0; row_iter < grid_width; row_iter++)
+			const auto matrix_idx = grid_height - vert_number - 1; //We have inversed image
+			const int64_t* dpx_iter = &dpx_.data[matrix_idx * grid_width];
+            for(int hor_number = 0; hor_number < grid_width; hor_number++)
             {
                 const double column_weight = *(column_weight_iter++);
-                const double density = column_weight ? *(dpx_iter++) / column_weight : 0;
+                const double density = column_weight ? *dpx_iter / column_weight : 0;
+				dpx_iter++;
                 argb_t color = *GetNormalizedColor(density);
                 *(rgb_iter++) = color;
 				//Собираем статистические данные
@@ -71,7 +72,7 @@ bool dpx_core::DpxRenderer::UpdateDpxRgbData()
 				}
             }
         }
-		const auto new_density = summ_density / density_counter;
+		const auto new_density = density_counter ? summ_density / density_counter : 0.;
 		if (new_density != last_average_density_) {
 			last_average_density_ = new_density;
 			dpx_.need_redraw = true;

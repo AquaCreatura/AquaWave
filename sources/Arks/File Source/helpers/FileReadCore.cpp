@@ -192,25 +192,25 @@ bool StreamReader::Init(const size_t start_sample, const size_t total_samples, c
         return false;
     }
 
-    const size_t file_size_samples = GetFileSize();
+	file_size_samples_ = GetFileSize();
 
     if (block_size == 0) {
         std::cerr << "Error: Block size must be greater than 0." << std::endl;
         return false;
     }
 
-    if (start_sample >= file_size_samples) {
-        std::cerr << "Error: Start position " << start_sample << " is beyond file size " << file_size_samples << "." << std::endl;
+    if (start_sample >= file_size_samples_) {
+        std::cerr << "Error: Start position " << start_sample << " is beyond file size " << file_size_samples_ << "." << std::endl;
         return false;
     }
 
     // Check if the requested total_samples extend beyond the file's end.
     // If so, truncate total_samples to fit within the file.
     size_t effective_total_samples = total_samples;
-    if (start_sample + total_samples > file_size_samples) {
-        effective_total_samples = file_size_samples - start_sample;
+    if (start_sample + total_samples > file_size_samples_) {
+        effective_total_samples = file_size_samples_ - start_sample;
         std::cerr << "Warning: Requested total samples (" << total_samples << ") from start " << start_sample
-                  << " exceed file size (" << file_size_samples << "). Truncating to " << effective_total_samples << " samples." << std::endl;
+                  << " exceed file size (" << file_size_samples_ << "). Truncating to " << effective_total_samples << " samples." << std::endl;
     }
 
     start_sample_     = start_sample;
@@ -246,7 +246,7 @@ bool StreamReader::InitStartEndRatio(const double start_ratio, const double end_
     return Init(start_pos, end_pos - start_pos, block_size);
 }
 
-bool StreamReader::ReadStream(std::vector<uint8_t>& vec) {
+bool StreamReader::ReadStream(std::vector<uint8_t>& vec, double &read_pos) {
     vec.clear();
 
     if (!is_initialized_ || !IsReadStreamAvailable()) {
@@ -271,8 +271,10 @@ bool StreamReader::ReadStream(std::vector<uint8_t>& vec) {
 
     const size_t actual_bytes_read = vec.size();
     const size_t actual_samples_read = actual_bytes_read / sample_size;
-    current_position_ += actual_samples_read;
 
+    current_position_ += actual_samples_read;
+	
+	read_pos = (start_sample_ + current_position_ + actual_samples_read / 2.) / file_size_samples_;
     return actual_samples_read > 0;
 }
 

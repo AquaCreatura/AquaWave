@@ -7,7 +7,7 @@ namespace aqua_resampler
 {
 struct ResamplerSettings
 {
-    size_t filter_length    = 128;  //length of the filter
+    size_t filter_length    = 1024;  //length of the filter
     size_t max_denom        = 100;  //Relevant for MR filter
     bool   need_norm_power  = true; //Should we normalise power after resample
 };

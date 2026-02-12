@@ -153,9 +153,8 @@ void file_source::FileDataListener::ReadChunksInRangeProcess(double start_pos, d
 	std::vector<Ipp32fc> casted_vec(chunk_size);
 	std::vector<Ipp32fc> chunk_to_send(chunk_size);
 	size_t chunk_pos = 0;
-
 	while (state_ != kNeedStop) {
-		if (!reader.ReadStream(data_info_.data_vec)) break;
+		if (!reader.ReadStream(data_info_.data_vec, data_info_.time_point)) break;
 
 		ippsConvert_16s32f(reinterpret_cast<Ipp16s*>(data_info_.data_vec.data()),
 			reinterpret_cast<Ipp32f*>(casted_vec.data()),

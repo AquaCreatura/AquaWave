@@ -16,7 +16,7 @@ void FrequencyShifter::Init(double baseCarrierHz, double targetCarrierHz, double
     double freqShift = targetCarrierHz - baseCarrierHz;
 
     // Вычисляем относительную частоту тона (rFreq) как абсолютное значение
-    tone_freq_ = -1 * static_cast<Ipp32f>(std::abs(freqShift) / sampleRateHz);
+    tone_freq_ = -1 * static_cast<Ipp32f>(freqShift / sampleRateHz);
 	if (tone_freq_ < 0) tone_freq_ += 1;
     // Инициализируем амплитуду (по умолчанию 1.0)
     tone_magn_ = 1.0f; 

@@ -25,7 +25,7 @@ bool DpxDataScaler::UpdateBounds_x(const Limits<double>& new_bounds) {
 
     // Проверка нулевых размеров
     if (height == 0 || old_width == 0) {
-        data_.need_redraw = true;
+        data_.need_redraw = false;
         return true;
     }
 	// Обновляем данные

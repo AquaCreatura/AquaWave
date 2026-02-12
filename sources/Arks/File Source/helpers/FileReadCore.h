@@ -107,7 +107,7 @@ public:
      * @param vec Вектор, в который будут записаны считанные байты.
      * @return true если блок был успешно прочитан, иначе false.
      */
-    bool ReadStream(std::vector<uint8_t>& vec);
+    bool ReadStream(std::vector<uint8_t>& vec, double &read_pos);
 
     /**
      * @brief Проверяет, возможно ли дальнейшее чтение из потока.
@@ -122,6 +122,7 @@ private:
     size_t  total_samples_;            ///< Общее количество сэмплов для чтения в рамках потока.
     size_t  block_size_;               ///< Размер одного блока данных для чтения.
     size_t  current_position_;         ///< Текущая позиция в потоке чтения относительно start_sample_.
+	size_t  file_size_samples_;
 };
 
 } // namespace file_source

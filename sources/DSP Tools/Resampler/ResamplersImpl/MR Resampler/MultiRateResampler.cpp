@@ -24,14 +24,13 @@ if (base_samplerate <= 0 || res_samplerate <= 0)
     const auto up_down= aqua_resampler::FindBestFraction(need_ratio, settings_.max_denom, true);
     up_factor_ = up_down.first;
     down_factor_ = up_down.second;
-    const auto resample_koeff = float(down_factor_) / up_factor_;    
 
     // Корректировка конечной частоты
     res_samplerate = (base_samplerate * up_factor_) / down_factor_;
 
     // Проектирование фильтра с правильной частотой среза
     //В случае для каких целей используется - Если для интерполяции, то подавляем отзеркаливание, если для децимации, то подавляем отзеркаливание
-    const double fc = std::min(1.0/(2*up_factor_), 1.0/(2*down_factor_)); 
+    const double fc = std::min(1.0/(2*up_factor_), 1.0/(2*down_factor_)) * settings_.filter_koeff; 
     std::vector<Ipp32fc> taps;
     if(!GenerateWindowKoeffs(fc, settings_.filter_length, ippWinBlackman, taps))
         return false;
@@ -93,12 +92,6 @@ bool MultiRateResampler::ProcessData(const Ipp32fc* data, const size_t size, std
         delay_line_.data(),          // обновлённое состояние
         work_buffer_.data()          // временный буфер
     );
-
-    /*if(settings_.need_norm_power)
-    {
-        const Ipp32fc norm_koeff = {powf((float(up_factor_) ), 0.5), 0};
-        ippsMulC_32fc_I(norm_koeff , res_vec.data(), res_vec.size());
-    }*/
     
     return (status == ippStsNoErr);
 }

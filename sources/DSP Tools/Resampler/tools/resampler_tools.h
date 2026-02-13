@@ -77,69 +77,35 @@ static std::pair<int, int> FindBestFraction(const double target, const int max_d
 //   window_type    - тип окна, используемого для генерации коэффициентов (например, Hamming, Blackman и т.п.)
 //   coefs_complex  - вектор, куда будут записаны сгенерированные комплексные коэффициенты
 // Возвращает true, если коэффициенты сгенерированы успешно, иначе false.
-static bool GenerateWindowKoeffs( const double          cutoff_freq,
-                           const int             coefs_num,
-                           const IppWinType      window_type,
-                           std::vector<Ipp32fc>& coefs_complex )
-{    
-    // Проверка корректности входных параметров.
-    // Частота среза должна находиться в диапазоне (0, 0.5)
-    // Количество коэффициентов должно быть больше 8 и не превышать 1'000'000.
-    if( cutoff_freq <= 0.0 || cutoff_freq >= 0.5 || coefs_num <= 8 || coefs_num > 1000000 )
-    {
-        //std::cerr << "Неверные входные параметры: cutoff_freq = " << cutoff_freq << ", coefs_num = " << coefs_num << std::endl;
-        return false;
-    }
+static bool GenerateWindowKoeffs(double cutoff_freq,
+	int coefs_num,
+	IppWinType window_type,
+	std::vector<Ipp32fc>& coefs_complex)
+{
+	if (cutoff_freq <= 0.0 || cutoff_freq >= 0.5 || coefs_num <= 8 || coefs_num > 1000000)
+		return false;
 
-    // Определение необходимого размера буфера для генерации коэффициентов
-    int coefs_gen_buf_size = 0;
-    IppStatus status = ippsFIRGenGetBufferSize(coefs_num, &coefs_gen_buf_size);
-    if(status != ippStsNoErr)
-    {
-        //std::cerr << "Ошибка при получении размера буфера для генерации коэффициентов, статус = " << status << std::endl;
-        return false;
-    }
+	int buf_size = 0;
+	if (ippsFIRGenGetBufferSize(coefs_num, &buf_size) != ippStsNoErr)
+		return false;
 
-    // Выделяем буфер для генерации коэффициентов, используя вектор байт.
-    std::vector<uint8_t> coefs_gen_buf(coefs_gen_buf_size);
+	std::vector<uint8_t> buf(buf_size);
+	std::vector<Ipp64f> real64(coefs_num);
+	std::vector<Ipp32f> real32(coefs_num);
+	coefs_complex.resize(coefs_num);
 
-    // Создаем векторы для хранения коэффициентов в формате double и float.
-    std::vector<Ipp64f> coefs_real_double(coefs_num);
-    std::vector<Ipp32f> coefs_real_float(coefs_num);
+	if (ippsFIRGenLowpass_64f(cutoff_freq, real64.data(), coefs_num,
+		window_type, ippTrue, buf.data()) != ippStsNoErr)
+		return false;
 
-    // Резервируем место для комплексных коэффициентов.
-    coefs_complex.resize(coefs_num);
+	if (ippsConvert_64f32f(real64.data(), real32.data(), coefs_num) != ippStsNoErr)
+		return false;
 
-    // Генерация коэффициентов низкочастотного фильтра.
-    // ippTrue указывает на то, что коэффициенты должны быть симметричными.
-    status = ippsFIRGenLowpass_64f(cutoff_freq, coefs_real_double.data(), coefs_num,
-                                   window_type, ippTrue, coefs_gen_buf.data());
-    if(status != ippStsNoErr)
-    {
-        //std::cerr << "Ошибка при генерации коэффициентов низкочастотного фильтра, статус = " << status << std::endl;
-        return false;
-    }
+	if (ippsRealToCplx_32f(real32.data(), nullptr,
+		coefs_complex.data(), coefs_num) != ippStsNoErr)
+		return false;
 
-    // Преобразование коэффициентов из double в float.
-    status = ippsConvert_64f32f(coefs_real_double.data(), coefs_real_float.data(), coefs_num);
-    if(status != ippStsNoErr)
-    {
-        //std::cerr << "Ошибка при конвертации коэффициентов из double в float, статус = " << status << std::endl;
-        return false;
-    }
-
-
-    // Преобразование вещественных коэффициентов в комплексный формат.
-    // Второй параметр (nullptr) указывает, что мнимая часть коэффициентов равна нулю.
-    status = ippsRealToCplx_32f(coefs_real_float.data(), nullptr, coefs_complex.data(), coefs_num);
-    if(status != ippStsNoErr)
-    {
-        //std::cerr << "Ошибка при преобразовании вещественных коэффициентов в комплексный формат, статус = " << status << std::endl;
-        return false;
-    }
-
-    // Если все этапы выполнены успешно, возвращаем true.
-    return true;
+	return true;
 }
 
 

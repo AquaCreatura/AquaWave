@@ -21,6 +21,29 @@ ResamplerManager::~ResamplerManager()
     FreeResources();
 }
 
+int get_fir_power_of_two(double resample_ratio, double util_factor) {
+	if (resample_ratio <= 0 || util_factor >= 1.0 || util_factor <= 0) return 0;
+
+	const double A = 60.0; // Затухание в дБ
+
+						   // 1. Находим ширину полосы пропускания W
+	double W = resample_ratio;
+
+	// 2. Находим ширину переходной полосы Delta_f
+	double delta_f = W * (1.0 - util_factor);
+
+	// 3. Считаем порядок N по формуле Кайзера
+	double N = (A - 8.0) / (14.36 * delta_f);
+
+	// 4. Длина фильтра L = N + 1
+	double L = N + 1.0;
+
+	// 5. Находим следующую степень двойки
+	// log2(L) дает дробную степень, ceil округляет вверх, pow возводит в степень
+	int power_of_two = static_cast<int>(std::pow(2, std::ceil(std::log2(L))));
+
+	return power_of_two;
+}
 // Метод инициализации ресэмплера.
 // base_params  - базовые параметры обработки, содержащие частоту дискретизации исходного сигнала.
 // target_params- параметры целевого сигнала, частота дискретизации которого может быть изменена.
@@ -95,6 +118,11 @@ bool ResamplerManager::Init(const fluctus::freq_params& base_params, fluctus::fr
 		// Обновляем параметры целевого сигнала с новой частотой дискретизации.
 		target_params.samplerate_hz = new_target_rate;
 		// Устанавливаем настройки ресэмплера.
+		{
+			int fir_length = get_fir_power_of_two(double(new_target_rate) / base_params.samplerate_hz, settings_.filter_koeff); //Коэффициент фильтрации
+			fir_length = qBound(16, fir_length, 1024);
+			settings_.filter_length = fir_length;
+		}
 		resampler_->SetSettings(settings_);
 		return true;
 	}

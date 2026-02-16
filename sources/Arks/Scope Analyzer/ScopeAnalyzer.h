@@ -17,20 +17,15 @@ public:
 protected:
     bool Reload();
 	bool Restart(fluctus::Limits<double> freq_bounds_hz, fluctus::Limits<double> time_bounds);
-	void SetNewFftOrder(int n_fft_order);
 protected slots:
     virtual void RequestSelectedData();
 
 protected:
 	fluctus::shared_vec<Ipp32fc>	data_;
 	SourceArk						source_info_;
-
-	int64_t							total_samples_;
-	Limits<double>					freq_bounds_MHz_;
-	Limits<double>					time_bounds_ratio_;
+	SourceDescription				selection_descr_;
 	
 	QPointer<ScopeAnalyzerWindow>	window_;
-	double							freq_divider_ = 1.;
 	int64_t							n_fft_{1024};
 
 	std::shared_ptr<dpx_core::SpectrumDpx>      spectrum_;

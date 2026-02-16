@@ -272,9 +272,12 @@ bool StreamReader::ReadStream(std::vector<uint8_t>& vec, double &read_pos) {
     const size_t actual_bytes_read = vec.size();
     const size_t actual_samples_read = actual_bytes_read / sample_size;
 
+
+	//read_pos = (start_sample_ + current_position_ + actual_samples_read / 2.) / file_size_samples_;
+	read_pos = (current_position_ + actual_samples_read / 2.) / total_samples_;
+
+
     current_position_ += actual_samples_read;
-	
-	read_pos = (start_sample_ + current_position_ + actual_samples_read / 2.) / file_size_samples_;
     return actual_samples_read > 0;
 }
 

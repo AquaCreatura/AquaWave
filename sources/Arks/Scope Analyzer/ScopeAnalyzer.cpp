@@ -29,6 +29,8 @@ ScopeAnalyzer::~ScopeAnalyzer()
 bool ScopeAnalyzer::SendData(fluctus::DataInfo const & data_info)
 {
 	spectrum_->SendData(data_info);
+	spg_->SendData(data_info);
+
 	return true;
 }
 
@@ -64,7 +66,7 @@ bool ScopeAnalyzer::SendDove(fluctus::DoveSptr const & sent_dove)
     }
 	if (base_thought & fluctus::DoveParrent::DoveThought::kGetDescription)
 	{
-		sent_dove->description = this->source_info_.descr;
+		sent_dove->description = selection_descr_;
 		//Do smth
 	}
 	if (base_thought == fluctus::DoveParrent::DoveThought::kSpecialThought) {
@@ -100,11 +102,7 @@ bool ScopeAnalyzer::Reload()
 			return false;
 		}
 		source_info_.descr = *req_dove->description;
-		total_samples_ = req_dove->description->count_of_samples;
-		const int max_order = std::min(log2(total_samples_), 21.);
 		
-
-		//window_->SetMaxFFtOrder(max_order);
 	}
 	return true;
 }
@@ -117,8 +115,12 @@ bool ScopeAnalyzer::Restart(Limits<double> freq_bounds_Mhz, Limits<double> time_
 	}
 	auto arks = GetBehindArks();
 	if (arks.empty()) return false;
-	freq_bounds_MHz_ = freq_bounds_Mhz;
-	time_bounds_ratio_ = time_bounds;
+
+
+	selection_descr_.carrier_hz = freq_bounds_Mhz.mid() * 1.e6;
+	selection_descr_.samplerate_hz = freq_bounds_Mhz.delta() * 1.e6;
+	selection_descr_.count_of_samples = time_bounds.delta() * source_info_.descr.count_of_samples;
+
 	{
 		auto req_dove = std::make_shared<DoveParrent>(DoveParrent::kReset);
 		spg_->SendDove(req_dove);
@@ -146,30 +148,6 @@ bool ScopeAnalyzer::Restart(Limits<double> freq_bounds_Mhz, Limits<double> time_
 		);
 	}
 	return true;
-}
-
-void ScopeAnalyzer::SetNewFftOrder(int n_fft_order)
-{
-	auto file_src = source_info_.ark.lock();
-	if (!file_src) return;
-
-	auto req_dove = std::make_shared<file_source::FileSrcDove>();
-	req_dove->base_thought = fluctus::DoveParrent::DoveThought::kSpecialThought;
-	req_dove->special_thought = file_source::FileSrcDove::kInitReaderInfo | file_source::FileSrcDove::kAskChunksInRange;
-	req_dove->target_ark = shared_from_this();
-	req_dove->time_point_start = 0;
-	req_dove->time_point_end = 1.;
-	req_dove->data_size = n_fft_;
-	if (!file_src->SendDove(req_dove))
-	{
-		QMessageBox::warning(
-			nullptr,                        // родительское окно (может быть this)
-			"Cannot Send Data",            // заголовок окна
-			"Do something with DPX or file source, or..."  // сообщение
-		);
-
-
-	}
 }
 
 void ScopeAnalyzer::RequestSelectedData()

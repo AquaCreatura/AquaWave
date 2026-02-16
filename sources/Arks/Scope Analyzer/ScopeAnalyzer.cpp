@@ -67,7 +67,6 @@ bool ScopeAnalyzer::SendDove(fluctus::DoveSptr const & sent_dove)
 	if (base_thought & fluctus::DoveParrent::DoveThought::kGetDescription)
 	{
 		sent_dove->description = selection_descr_;
-		//Do smth
 	}
 	if (base_thought == fluctus::DoveParrent::DoveThought::kSpecialThought) {
 		const auto special_thought = sent_dove->special_thought;
@@ -122,10 +121,16 @@ bool ScopeAnalyzer::Restart(Limits<double> freq_bounds_Mhz, Limits<double> time_
 	selection_descr_.count_of_samples = time_bounds.delta() * source_info_.descr.count_of_samples;
 
 	{
-		auto req_dove = std::make_shared<DoveParrent>(DoveParrent::kReset);
+		auto req_dove = std::make_shared<spectral_viewer::SpectralDove>();
+		req_dove->base_thought = DoveParrent::kReset | DoveParrent::kSpecialThought;
+		req_dove->special_thought = spectral_viewer::SpectralDove::kSetFFtOrder;
+		req_dove->fft_order_ = log2(n_fft_);
 		spg_->SendDove(req_dove);
 		spectrum_->SendDove(req_dove);
+
 	}
+
+
 
 
 	auto file_src_ = arks.front();
@@ -147,6 +152,8 @@ bool ScopeAnalyzer::Restart(Limits<double> freq_bounds_Mhz, Limits<double> time_
 			"Do something with DPX or file source, or..."  // сообщение
 		);
 	}
+
+
 	return true;
 }
 

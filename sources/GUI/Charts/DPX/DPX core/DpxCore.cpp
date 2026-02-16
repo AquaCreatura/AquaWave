@@ -172,10 +172,10 @@ return true;
 }
 
 bool DpxCore::SlopePassedLoop(const std::vector<float>& passed_data,
-                              const Limits<double>& passed_bounds)
+	const Limits<double>& passed_bounds)
 {
     // Проверка входных данных: необходимо как минимум 2 точки для линейной интерполяции
-    const size_t input_point_count = passed_data.size();
+    const int64_t input_point_count = passed_data.size();
     if (input_point_count < 2) {
         return false;
     }
@@ -187,8 +187,8 @@ bool DpxCore::SlopePassedLoop(const std::vector<float>& passed_data,
     const auto& x_bounds_dpx = dpx_data_.val_bounds.horizontal;
     const auto& y_bounds_dpx = dpx_data_.val_bounds.vertical;
 
-    const size_t grid_width  = static_cast<size_t>(dpx_data_.size.horizontal);  // количество колонок
-    const size_t grid_height = static_cast<size_t>(dpx_data_.size.vertical);    // количество строк
+    const int64_t grid_width  = static_cast<int64_t>(dpx_data_.size.horizontal);  // количество колонок
+    const int64_t grid_height = static_cast<int64_t>(dpx_data_.size.vertical);    // количество строк
 
     const double dpx_x_start = x_bounds_dpx.low;
     const double dpx_x_bin_width = x_bounds_dpx.delta() / static_cast<double>(grid_width);
@@ -198,7 +198,7 @@ bool DpxCore::SlopePassedLoop(const std::vector<float>& passed_data,
     const double inv_dpx_y_step = 1.0 / dpx_y_step;
 
     // Основной проход по сегментам (между каждой парой точек)
-    for (size_t i = 0; i < input_point_count - 1; ++i) {
+    for (int64_t i = 0; i < input_point_count - 1; ++i) {
         const SlopeInterpolator interpolator(passed_data[i], passed_data[i + 1]);
 
         // X-границы текущего сегмента
@@ -214,7 +214,8 @@ bool DpxCore::SlopePassedLoop(const std::vector<float>& passed_data,
                 std::ceil((seg_x1 - dpx_x_start) / dpx_x_bin_width)
             );
         }
-
+		if (grid_x_start_idx > grid_width || grid_x_end_idx < 0) 
+			continue;
         // Ограничение диапазона в пределах сетки DPX
         size_t bin_x_start = static_cast<size_t>(std::max(int64_t(0), grid_x_start_idx));
         size_t bin_x_end   = static_cast<size_t>(std::min(static_cast<int64_t>(grid_width), grid_x_end_idx + 1));

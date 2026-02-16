@@ -86,11 +86,11 @@ bool StaticSpg::SendDove(fluctus::DoveSptr const & sent_dove)
     {
         src_info_.ark = target_val;
     }
-    if (base_thought == fluctus::DoveParrent::DoveThought::kReset)
+    if (base_thought & fluctus::DoveParrent::DoveThought::kReset)
     {
-        return Reload();
+        Reload();
     }
-	if (base_thought == fluctus::DoveParrent::DoveThought::kSpecialThought) {
+	if (base_thought & fluctus::DoveParrent::DoveThought::kSpecialThought) {
 		const auto special_thought = sent_dove->special_thought;
 		if (auto spectral_dove = std::dynamic_pointer_cast<spectral_viewer::SpectralDove>(sent_dove)) {
 			if (special_thought & spectral_viewer::SpectralDove::kSetFFtOrder) {

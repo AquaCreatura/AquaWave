@@ -160,7 +160,7 @@ bool spg_core::SpgRenderer::IsModeSwitched(HorVerLim<double> realtime_size)
 				threshold_value += base_data.relevant_vec[i];
 			}
 		}
-		if (strong_focus) {
+		if (strong_focus && !is_out_of_range) {
 			const double hor_delta_base = rt_data.val_bounds.horizontal.delta();
 			const auto	 relative_start = rt_data.val_bounds.horizontal.low;
 			const double start_pos = (new_size.horizontal.low - relative_start) / hor_delta_base;

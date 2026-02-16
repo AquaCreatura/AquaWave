@@ -80,17 +80,17 @@ bool dpx_core::SpectrumDpx::SendDove(fluctus::DoveSptr const & sent_dove)
         sent_dove->show_widget = dpx_drawer_;
         return true; // Запрос обработан.
     }
-    if(base_thought == fluctus::DoveParrent::DoveThought::kTieSource)
+    if(base_thought & fluctus::DoveParrent::DoveThought::kTieSource)
     {
         src_info_.ark = target_val;
 		Reload();
     }
-    if(base_thought == fluctus::DoveParrent::DoveThought::kReset)
+    if(base_thought & fluctus::DoveParrent::DoveThought::kReset)
     {
 		Reload();
 		RequestSelectedData();
     }
-	if (base_thought == fluctus::DoveParrent::DoveThought::kSpecialThought) {
+	if (base_thought & fluctus::DoveParrent::DoveThought::kSpecialThought) {
 		const auto special_thought = sent_dove->special_thought;
 		if (auto spectral_dove = std::dynamic_pointer_cast<spectral_viewer::SpectralDove>(sent_dove)) {
 
@@ -127,8 +127,8 @@ bool dpx_core::SpectrumDpx::Reload()
     {
         return false;
     }
-    src_info_.descr.carrier_hz      = req_dove->description->carrier_hz;
-    src_info_.descr.samplerate_hz   = req_dove->description->samplerate_hz;
+    src_info_.descr = *req_dove->description;
+
 	Limits<double> bounds_hz = {
 		double(src_info_.descr.carrier_hz) - src_info_.descr.samplerate_hz / 2.,
 		double(src_info_.descr.carrier_hz) + src_info_.descr.samplerate_hz / 2.

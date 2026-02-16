@@ -92,8 +92,7 @@ bool FFT_Worker::Init(int initial_data_size, const bool swap_output_on_forward) 
     );
 
     if (status != ippStsNoErr) {
-        // Возможно, log2(initial_data_size) слишком большой или другие ошибки IPP
-        // В реальном коде можно добавить более детальное логирование статуса IPP.
+		fft_size_ = -1;
         return false;
     }
 
@@ -124,6 +123,7 @@ bool FFT_Worker::Init(int initial_data_size, const bool swap_output_on_forward) 
 
     if (status != ippStsNoErr) {
         pFFTSpec_ = nullptr; // Сбрасываем указатель, если инициализация не удалась
+		fft_size_ = -1;
         return false;
     }
     
@@ -183,7 +183,7 @@ bool FFT_Worker::ForwardFFT(const std::vector<Ipp32fc>& input_data, std::vector<
 
 bool FFT_Worker::ForwardFFT(const Ipp32fc* input_data, int input_data_size, Ipp32fc* output_data, int output_data_size) {
     // Проверки на корректность состояния и размеров
-    if (!pFFTSpec_ || fft_work_buf_.empty() || input_data_size < fft_size_ || output_data_size < fft_size_) {
+    if (!pFFTSpec_ || input_data_size < fft_size_ || output_data_size < fft_size_) {
         // FFT не инициализирован или размеры буферов недостаточны
         return false;
     }
@@ -224,7 +224,7 @@ bool FFT_Worker::InverseFFT(const std::vector<Ipp32fc>& input_data, std::vector<
 
 bool FFT_Worker::InverseFFT(const Ipp32fc* input_data, int input_data_size, Ipp32fc* output_data, int output_data_size) {
     // Проверки на корректность состояния и размеров
-    if (!pFFTSpec_ || fft_work_buf_.empty() || input_data_size < fft_size_ || output_data_size < fft_size_) {
+    if (!pFFTSpec_ || input_data_size < fft_size_ || output_data_size < fft_size_) {
         // FFT не инициализирован или размеры буферов недостаточны
         return false;
     }

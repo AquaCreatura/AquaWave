@@ -184,9 +184,9 @@ void ChartInterface::UpdateWidgetSizeInfo()
 	{
 		static const HV_Info<int> need_margin_px{ 50, 30 };
 		pix_info.margin_px = need_margin_px;
-		if (double(need_margin_px.horizontal) / cur_size.horizontal > 0.1)
+		if (double(need_margin_px.horizontal) / cur_size.horizontal > 0.3)
 			pix_info.margin_px.horizontal = 0;
-		if (double(need_margin_px.vertical) / cur_size.vertical > 0.2)
+		if (double(need_margin_px.vertical) / cur_size.vertical > 0.3)
 			pix_info.margin_px.vertical = 0;
 	}
 

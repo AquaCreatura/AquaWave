@@ -3,7 +3,7 @@
 #include "ResamplerMan.h"
 #include "ResamplersImpl/Precise Resampler/PreciseResampler.h"
 #include "ResamplersImpl/MR Resampler/MultiRateResampler.h"
-constexpr double max_error = 1.e-3;
+constexpr double max_error = 1.e-4;
 using namespace aqua_resampler;
 
 // Конструктор менеджера ресэмплинга.
@@ -70,14 +70,12 @@ bool ResamplerManager::Init(const fluctus::freq_params& base_params, fluctus::fr
 		return true;
 	try
 	{
-		std::pair<int64_t, int64_t> pq; // Пара для представления аппроксимированного отношения в виде дроби.
+		// Пара для представления аппроксимированного отношения в виде дроби.
+		std::pair<int64_t, int64_t> pq = FindBestFraction(target_ratio, settings_.max_denom, true);
 		bool use_multirate = false;      // Флаг, указывающий на необходимость использования многоскоростного ресэмплинга.
-
 		if (precise && (target_ratio < 1.f))  //Интерполяция только с помощью MR, т.к. иначе возникают отзеркаливание спектра
 		{
 			// Если требуется точный ресэмплинг, находим дробь, максимально приближенную к target_ratio,
-			// при этом итоговая дробь не может быть меньше target_ratio.
-			pq = FindBestFraction(target_ratio, settings_.max_denom, true);
 			const double approx_ratio = static_cast<double>(pq.first) / pq.second;
 			// Вычисляем разницу между аппроксимированным и целевым отношением.
 			const double diff = std::abs(approx_ratio - target_ratio);
@@ -87,7 +85,6 @@ bool ResamplerManager::Init(const fluctus::freq_params& base_params, fluctus::fr
 		else
 		{
 			// Если точность не является критичной, аппроксимируем отношение с помощью округления.
-			pq = FindBestFraction(target_ratio, settings_.max_denom, true);
 			use_multirate = true;
 		}
 

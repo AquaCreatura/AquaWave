@@ -26,7 +26,7 @@ protected:
 	SourceDescription				selection_descr_;
 	
 	QPointer<ScopeAnalyzerWindow>	window_;
-	int64_t							n_fft_{16};
+	int64_t							n_fft_{1024};
 
 	std::shared_ptr<dpx_core::SpectrumDpx>      spectrum_;
 	std::shared_ptr<spg_core::StaticSpg>		spg_;

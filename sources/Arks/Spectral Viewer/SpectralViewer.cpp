@@ -16,8 +16,7 @@ SpectralViewer::SpectralViewer()
 		spectrum_ = std::make_shared<dpx_core::SpectrumDpx>(); // Создание компонента для спектрального графика.
 		spg_ = std::make_shared<spg_core::StaticSpg>(); // Создание компонента для спектрограммы.
 
-		std::shared_ptr<spectral_viewer::SpectralDove> req_dove = std::make_shared<spectral_viewer::SpectralDove>();
-		req_dove->special_thought = spectral_viewer::SpectralDove::kSetSelectionHolder;		
+		auto req_dove = std::make_shared<SpectralDove>(SpectralDove::kSetSelectionHolder);
 		req_dove->sel_holder = selection_holder_;
 		spectrum_->SendDove(req_dove);
 		spg_->SendDove(req_dove);

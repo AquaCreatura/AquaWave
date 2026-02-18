@@ -7,7 +7,7 @@
 #include <qmessagebox.h>
 
 using namespace fluctus;
-
+using namespace spectral_viewer;
 ScopeAnalyzer::ScopeAnalyzer()
 {
     window_ = new ScopeAnalyzerWindow;
@@ -16,9 +16,14 @@ ScopeAnalyzer::ScopeAnalyzer()
 
 	auto dpx_window = ShipBuilder::GetWindow(spectrum_);
 	auto spg_window = ShipBuilder::GetWindow(spg_);
-
+	
 	window_->SetChartWindow(spg_window, ScopeAnalyzerWindow::chart_type::spg);
 	window_->SetChartWindow(dpx_window, ScopeAnalyzerWindow::chart_type::spectrum);
+
+	auto req_dove = std::make_shared<SpectralDove>(SpectralDove::kSetSelectionHolder);
+	req_dove->sel_holder = std::make_shared<aqua_gui::SelectionHolder>();
+	spectrum_->SendDove(req_dove);
+	spg_->SendDove(req_dove);
 }
 
 ScopeAnalyzer::~ScopeAnalyzer()
@@ -118,7 +123,10 @@ bool ScopeAnalyzer::Restart(Limits<double> freq_bounds_Mhz, Limits<double> time_
 
 	selection_descr_.carrier_hz = freq_bounds_Mhz.mid() * 1.e6;
 	selection_descr_.samplerate_hz = freq_bounds_Mhz.delta() * 1.e6;
-	selection_descr_.count_of_samples = time_bounds.delta() * source_info_.descr.count_of_samples;
+	selection_descr_.count_of_samples = time_bounds.delta() * source_info_.descr.count_of_samples *
+											selection_descr_.samplerate_hz / source_info_.descr.samplerate_hz;
+	
+	int need_order = qBound(4l, std::lround(log2(selection_descr_.count_of_samples) - 6), 12l);
 
 	{
 		auto req_dove = std::make_shared<spectral_viewer::SpectralDove>();
@@ -141,8 +149,8 @@ bool ScopeAnalyzer::Restart(Limits<double> freq_bounds_Mhz, Limits<double> time_
 	req_dove->time_point_start	= time_bounds.low;
 	req_dove->time_point_end	= time_bounds.high;
 
-	req_dove->carrier_hz		= freq_bounds_Mhz.mid() * 1.e6;
-	req_dove->samplerate_hz		= freq_bounds_Mhz.delta() * 1.e6;
+	req_dove->carrier_hz		= selection_descr_.carrier_hz;
+	req_dove->samplerate_hz		= selection_descr_.samplerate_hz;
 	req_dove->data_size = n_fft_;
 	if (!file_src_->SendDove(req_dove))
 	{

@@ -126,8 +126,8 @@ bool ScopeAnalyzer::Restart(Limits<double> freq_bounds_Mhz, Limits<double> time_
 	selection_descr_.count_of_samples = time_bounds.delta() * source_info_.descr.count_of_samples *
 											selection_descr_.samplerate_hz / source_info_.descr.samplerate_hz;
 	
-	int need_order = qBound(4l, std::lround(log2(selection_descr_.count_of_samples) - 6), 12l);
-
+	int need_order = qBound(5l, std::lround(log2(selection_descr_.count_of_samples)/2), 12l);
+	n_fft_ = 1 << need_order;
 	{
 		auto req_dove = std::make_shared<spectral_viewer::SpectralDove>();
 		req_dove->base_thought = DoveParrent::kReset | DoveParrent::kSpecialThought;

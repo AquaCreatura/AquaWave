@@ -63,7 +63,7 @@ void file_source::FileDataManager::StopAllReaders()
 // Конструктор: инициализирует weak_ptr на ARK и параметры файла
 file_source::FileDataListener::FileDataListener(const fluctus::ArkWptr& weak_ptr, const SourceDescription& params):
     target_ark_(weak_ptr),  // Инициализация ссылки на weak_ptr
-    params_(params)         // Инициализация константной ссылки на параметры
+    file_params_(params)         // Инициализация константной ссылки на параметры
 {
 }
 
@@ -75,7 +75,7 @@ void file_source::FileDataListener::SetBaseParams(const int64_t carrier,
     data_info_.freq_info_.carrier_hz = carrier;      // Установка несущей частоты
     data_info_.freq_info_.samplerate_hz = samplerate; // Установка частоты дискретизации
 
-	fluctus::freq_params file_params = { params_.carrier_hz, params_.samplerate_hz };
+	fluctus::freq_params file_params = { file_params_.carrier_hz, file_params_.samplerate_hz };
 	resampler_.Init(file_params, data_info_.freq_info_, true);
     block_size_ = block_size;                     // Сохранение размера блока
 }
@@ -142,19 +142,24 @@ void file_source::FileDataListener::ReadChunksInRangeProcess(double start_pos, d
 {
 	const auto chunk_size = block_size_;
 	StreamReader reader;
-	if (!reader.SetFileParams(params_))  // Настройка файлового читателя
+	if (!reader.SetFileParams(file_params_))  // Настройка файлового читателя
 	{
 		state_ = kProcessStopped;  // Ошибка чтения
 		return;
 	}
 	data_info_.time_point = 0.;
 	reader.InitStartEndRatio(start_pos, end_pos, chunk_size);
+	const double supposed_samples = (end_pos - start_pos) * file_params_.count_of_samples /
+												file_params_.samplerate_hz * data_info_.freq_info_.samplerate_hz;
+
 
 	std::vector<Ipp32fc> casted_vec(chunk_size);
 	std::vector<Ipp32fc> chunk_to_send(chunk_size);
 	size_t chunk_pos = 0;
+	int64_t samples_processed = 0;
+	double time_point = 0;
 	while (state_ != kNeedStop) {
-		if (!reader.ReadStream(data_info_.data_vec, data_info_.time_point)) break;
+		if (!reader.ReadStream(data_info_.data_vec, time_point)) break;
 
 		ippsConvert_16s32f(reinterpret_cast<Ipp16s*>(data_info_.data_vec.data()),
 			reinterpret_cast<Ipp32f*>(casted_vec.data()),
@@ -162,7 +167,6 @@ void file_source::FileDataListener::ReadChunksInRangeProcess(double start_pos, d
 
 		resampler_.ProcessBlock(casted_vec.data(), casted_vec.size());
 		auto& processed_data = resampler_.GetProcessedData();
-
 		size_t processed_idx = 0;
 		while (processed_idx < processed_data.size()) {
 			size_t remaining = chunk_size - chunk_pos;
@@ -171,8 +175,11 @@ void file_source::FileDataListener::ReadChunksInRangeProcess(double start_pos, d
 			ippsCopy_32fc(processed_data.data() + processed_idx, chunk_to_send.data() + chunk_pos, to_copy);
 			chunk_pos += to_copy;
 			processed_idx += to_copy;
-
+			
+			samples_processed += to_copy;
 			if (chunk_pos == chunk_size) {
+				data_info_.time_point = (samples_processed - chunk_size / 2) / supposed_samples;
+
 				data_info_.data_vec.swap(reinterpret_cast<std::vector<uint8_t>&>(chunk_to_send));
 				SendPreparedData();
 				chunk_to_send.resize(chunk_size);
@@ -187,7 +194,7 @@ void file_source::FileDataListener::ReadChunksInRangeProcess(double start_pos, d
 void file_source::FileDataListener::ReadAroundProcess(double pos_ratio, const int64_t out_data_size)
 {
 	FileReader reader;
-    if(!reader.SetFileParams(params_))  // Настройка файлового читателя
+    if(!reader.SetFileParams(file_params_))  // Настройка файлового читателя
     {
 		state_ = kProcessStopped;  // Ошибка чтения
         return;

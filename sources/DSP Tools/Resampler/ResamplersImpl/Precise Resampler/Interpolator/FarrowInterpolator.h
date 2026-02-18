@@ -28,8 +28,8 @@ private:
 	double ratio_;
 	double virtual_index_;
 
-	// Всегда храним 3 последних семпла, даже если это нули
-	std::array<Ipp32fc, 3> tail_;
+	// Всегда храним 4 последних семпла, даже если это нули
+	std::array<Ipp32fc, 4> tail_;
 };
 
 #endif // FARROWINTERPOLATOR_H

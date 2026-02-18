@@ -87,7 +87,6 @@ bool ResamplerManager::Init(const fluctus::freq_params& base_params, fluctus::fr
 			// Если точность не является критичной, аппроксимируем отношение с помощью округления.
 			use_multirate = true;
 		}
-
 		int64_t new_target_rate; // Новая частота дискретизации, вычисленная на основе аппроксимированного отношения.
 		if (use_multirate)
 		{
@@ -105,6 +104,15 @@ bool ResamplerManager::Init(const fluctus::freq_params& base_params, fluctus::fr
 			resampler_ = std::make_unique<PreciseResampler>(); //PreciseResampler
 		}
 
+		// Устанавливаем настройки ресэмплера.
+		{
+			int fir_length = get_fir_power_of_two(double(new_target_rate) / base_params.samplerate_hz, settings_.filter_koeff); //Коэффициент фильтрации
+			fir_length = qBound(16, fir_length, 1024);
+			settings_.filter_length = fir_length;
+			resampler_->SetSettings(settings_);
+		}
+		
+
 		// Инициализируем ресэмплер с базовой и новой целевой частотой.
 		if (!resampler_->Init(base_rate, new_target_rate))
 		{
@@ -114,13 +122,6 @@ bool ResamplerManager::Init(const fluctus::freq_params& base_params, fluctus::fr
 
 		// Обновляем параметры целевого сигнала с новой частотой дискретизации.
 		target_params.samplerate_hz = new_target_rate;
-		// Устанавливаем настройки ресэмплера.
-		{
-			int fir_length = get_fir_power_of_two(double(new_target_rate) / base_params.samplerate_hz, settings_.filter_koeff); //Коэффициент фильтрации
-			fir_length = qBound(16, fir_length, 1024);
-			settings_.filter_length = fir_length;
-		}
-		resampler_->SetSettings(settings_);
 		return true;
 	}
 	catch (const std::exception& e)

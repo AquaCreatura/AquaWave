@@ -9,7 +9,7 @@ FarrowInterpolator::FarrowInterpolator() : ratio_(1.0), virtual_index_(0.0) {
 }
 
 void FarrowInterpolator::SetResampleRatio(double resample_ratio) {
-	if (resample_ratio <= 0.0 || resample_ratio > 10.0) {
+	if (resample_ratio <= 0.0 || resample_ratio > 200.0) {
 		throw std::invalid_argument("Invalid resample ratio");
 	}
 	ratio_ = resample_ratio;
@@ -19,7 +19,7 @@ bool FarrowInterpolator::can_interpolate(int base_index, size_t input_size) cons
 	// Нужны 4 точки: base-2, base-1, base, base+1
 
 	// base и base+1 должны быть в текущем блоке
-	if (base_index < 0 || base_index + 1 >= static_cast<int>(input_size)) {
+	if (base_index < -2 || base_index + 1 >= static_cast<int>(input_size)) {
 		return false;
 	}
 
@@ -29,7 +29,7 @@ bool FarrowInterpolator::can_interpolate(int base_index, size_t input_size) cons
 Ipp32fc FarrowInterpolator::get_sample(int index, const Ipp32fc* input, size_t input_size) const {
 	if (index < 0) {
 		// Берем из хвоста: индексы -1, -2, -3
-		int tail_idx = 2 + index; // -1 -> 1, -2 -> 0, -3 -> -1
+		int tail_idx = 4 + index; // -1 -> 1, -2 -> 0, -3 -> -1
 		if (tail_idx >= 0) {
 			return tail_[tail_idx];
 		}
@@ -46,7 +46,7 @@ Ipp32fc FarrowInterpolator::get_sample(int index, const Ipp32fc* input, size_t i
 void FarrowInterpolator::update_tail(const Ipp32fc* input, size_t input_size) {
 	// Всегда сохраняем последние 3 семпла текущего блока
 	// Если блок меньше 3 семплов, копируем все что есть
-	size_t copy_count = std::min(input_size, static_cast<size_t>(3));
+	size_t copy_count = std::min(input_size, static_cast<size_t>(4));
 
 	for (size_t i = 0; i < copy_count; ++i) {
 		tail_[i] = input[input_size - copy_count + i];
@@ -65,7 +65,7 @@ void FarrowInterpolator::process(
 	if (input_size == 0) return;
 
 	output.reserve(static_cast<size_t>(input_size / ratio_) + 10);
-
+	double was_virtual = virtual_index_;
 	while (true) {
 		int base = static_cast<int>(floor(virtual_index_));
 		float t = static_cast<float>(virtual_index_ - base);
@@ -88,20 +88,8 @@ void FarrowInterpolator::process(
 
 	// Обновляем хвост для следующего блока
 	update_tail(input, input_size);
-
-	// Сдвигаем виртуальный индекс
-	int used = 0;
-	if (!output.empty()) {
-		int last_base = static_cast<int>(floor(virtual_index_ - ratio_));
-		used = std::min(last_base + 1, static_cast<int>(input_size));
-	}
-
-	virtual_index_ -= used;
-
-	// Корректируем на случай если ничего не использовали
-	if (virtual_index_ < 0.0 && used == 0) {
-		virtual_index_ = 0.0;
-	}
+	
+	virtual_index_ -= input_size;
 }
 
 void FarrowInterpolator::reset() {

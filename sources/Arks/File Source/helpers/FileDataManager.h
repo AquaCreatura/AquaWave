@@ -69,7 +69,7 @@ namespace file_source
         aqua_resampler::ResamplerManager resampler_; // Ресемплер
         const fluctus::ArkWptr target_ark_;       // Ссылка на weak_ptr целевого ARK
         int64_t block_size_;                 // Размер блока данных
-        const SourceDescription& params_;          // Параметры файла (константная ссылка)
+        const SourceDescription& file_params_;          // Параметры файла (константная ссылка)
 		tbb::spin_mutex init_mutex_;
     };
 

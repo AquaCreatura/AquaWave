@@ -104,6 +104,9 @@
     <Filter Include="ARKS\Elements\DPX Spectrum">
       <UniqueIdentifier>{8ba8eec2-b719-45c8-995e-f73286090da7}</UniqueIdentifier>
     </Filter>
+    <Filter Include="DSP Tools\Pipelines">
+      <UniqueIdentifier>{b3d305df-60b9-4ea2-831c-5011d41f85b6}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <!-- ClCompile (CPP Files) -->
   <ItemGroup>
@@ -221,6 +224,15 @@
     <ClCompile Include="sources\Arks\Elements\Static SPG\Spectrogram.cpp">
       <Filter>ARKS\Elements\Static SPG</Filter>
     </ClCompile>
+    <ClCompile Include="sources\DSP Tools\Pipelines\PipeInterface.cpp">
+      <Filter>DSP Tools\Pipelines</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\DSP Tools\Pipelines\BasePipes.cpp">
+      <Filter>DSP Tools\Pipelines</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\DSP Tools\basic\acf_worker.cpp">
+      <Filter>DSP Tools\basic</Filter>
+    </ClCompile>
   </ItemGroup>
   <!-- ClInclude (H Files) -->
   <ItemGroup>
@@ -335,6 +347,15 @@
     </ClInclude>
     <ClInclude Include="sources\Arks\Elements\Static SPG\Spectrogram.h">
       <Filter>ARKS\Elements\Static SPG</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\DSP Tools\Pipelines\PipeInterface.h">
+      <Filter>DSP Tools\Pipelines</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\DSP Tools\Pipelines\BasePipes.h">
+      <Filter>DSP Tools\Pipelines</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\DSP Tools\basic\acf_worker.h">
+      <Filter>DSP Tools\basic</Filter>
     </ClInclude>
   </ItemGroup>
   <!-- QtMoc (For Headers Requiring Moc) -->

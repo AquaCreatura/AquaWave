@@ -133,8 +133,11 @@
     <ClCompile Include="sources\Arks\ShipBuilder.cpp" />
     <ClCompile Include="sources\Arks\Spectral Viewer\SpectralViewer.cpp" />
     <ClCompile Include="sources\Arks\Spectral Viewer\Window\spectral_viewer_window.cpp" />
+    <ClCompile Include="sources\DSP Tools\basic\acf_worker.cpp" />
     <ClCompile Include="sources\DSP Tools\basic\freq_shifter.cpp" />
     <ClCompile Include="sources\DSP Tools\FFT\FFT_Worker.cpp" />
+    <ClCompile Include="sources\DSP Tools\Pipelines\BasePipes.cpp" />
+    <ClCompile Include="sources\DSP Tools\Pipelines\PipeInterface.cpp" />
     <ClCompile Include="sources\DSP Tools\Resampler\ResamplersImpl\MR Resampler\MultiRateResampler.cpp" />
     <ClCompile Include="sources\DSP Tools\Resampler\ResamplersImpl\Precise Resampler\Interpolator\FarrowInterpolator.cpp" />
     <ClCompile Include="sources\DSP Tools\Resampler\ResamplersImpl\Precise Resampler\PreciseResampler.cpp" />
@@ -177,8 +180,11 @@
     <ClInclude Include="sources\Arks\ShipBuilder.h" />
     <QtMoc Include="sources\Arks\Spectral Viewer\SpectralViewer.h" />
     <QtMoc Include="sources\Arks\Spectral Viewer\Window\spectral_viewer_window.h" />
+    <ClInclude Include="sources\DSP Tools\basic\acf_worker.h" />
     <ClInclude Include="sources\DSP Tools\basic\freq_shifter.h" />
     <ClInclude Include="sources\DSP Tools\FFT\FFT_Worker.h" />
+    <ClInclude Include="sources\DSP Tools\Pipelines\BasePipes.h" />
+    <ClInclude Include="sources\DSP Tools\Pipelines\PipeInterface.h" />
     <ClInclude Include="sources\DSP Tools\Resampler\ResamplersImpl\MR Resampler\MultiRateResampler.h" />
     <ClInclude Include="sources\DSP Tools\Resampler\ResamplersImpl\Precise Resampler\Interpolator\FarrowInterpolator.h" />
     <ClInclude Include="sources\DSP Tools\Resampler\ResamplersImpl\Precise Resampler\PreciseResampler.h" />

@@ -13,7 +13,7 @@ SpectralViewer::SpectralViewer()
 	selection_holder_ = std::make_shared<aqua_gui::SelectionHolder>();
     window_ = new SpectralViewerWindow;
 	{
-		spectrum_ = std::make_shared<dpx_core::SpectrumDpx>(); // Создание компонента для спектрального графика.
+		spectrum_ = std::make_shared<dpx_core::SpectrumDpx>(dpx_core::kDpxChartType::kFFT); // Создание компонента для спектрального графика.
 		spg_ = std::make_shared<spg_core::StaticSpg>(); // Создание компонента для спектрограммы.
 
 		auto req_dove = std::make_shared<SpectralDove>(SpectralDove::kSetSelectionHolder);

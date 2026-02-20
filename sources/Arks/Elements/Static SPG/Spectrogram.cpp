@@ -3,16 +3,17 @@
 #include "special_defs/file_souce_defs.h"
 #include "qmessagebox.h"
 using namespace spg_core; // Используем пространство имён dpx_core
-
+using namespace pipes;
 // Конструктор: Инициализирует компонент для отрисовки спектра.
 // parrent: Указатель на родительский QWidget.
 StaticSpg::StaticSpg(QWidget * parrent) : 
     spg_drawer_(new spg_core::ChartSPG()),
     requester_(spg_drawer_->GetSpectrogramInfo(), time_bounds_) 
 {
-    //window_->SetChartWindow(spg_drawer_);
-	//connect(window_, &SpgWindow::FftChangeNeed, spg_drawer_, &ChartSPG::SetFftOrder);
-	
+	{
+		auto fft_pipe = std::make_shared<FFtPipe>();
+		dsp_pipes_.push_back(fft_pipe);
+	}
 }
 
 spg_core::StaticSpg::~StaticSpg()
@@ -31,22 +32,7 @@ bool StaticSpg::SendData(fluctus::DataInfo const & data_info)
     // Ссылки на информацию о частоте и входные комплексные данные.
     auto &freq_info  = data_info.freq_info_;
     auto &passed_data = (std::vector<Ipp32fc>&)data_info.data_vec; // Приведение типа.
-    
-    // Буфер для результата БПФ.
-    std::vector<Ipp32fc> transformed_data(passed_data.size());
-    // Выполняем прямое Быстрое Преобразование Фурье (БПФ).
-    fft_worker_.EnableSwapOnForward(true); 
-    if(!fft_worker_.ForwardFFT(passed_data, transformed_data))
-        return false;
-
-    // Буфер для магнитуд спектра (амплитуд).
-    std::vector<Ipp32f> power_vec(transformed_data.size());
-    
-    // Вычисляем магнитуду (амплитуду) комплексных чисел.
-    ippsPowerSpectr_32fc(transformed_data.data(), power_vec.data(), passed_data.size());
-	ippsAddC_32f_I(0.0001, power_vec.data(), power_vec.size());
-    ippsLog10_32f_A11(power_vec.data(), power_vec.data(), power_vec.size());
-    ippsMulC_32f_I(10, power_vec.data(), power_vec.size());
+	dsp_pipes_.front()->ProcessData(passed_data);
     
     // Определяем границы частотного диапазона для отображения.
     Limits<double> freq_bounds = {freq_info.carrier_hz - freq_info.samplerate_hz / 2.,
@@ -56,7 +42,7 @@ bool StaticSpg::SendData(fluctus::DataInfo const & data_info)
     draw_data draw_data;
     draw_data.freq_bounds = freq_bounds;
     draw_data.time_pos    = data_info.time_point;
-    draw_data.data        = power_vec;
+    draw_data.data        = dsp_pipes_.back()->GetProcessed32f();
     spg_drawer_->PushData(draw_data);
     
     return true; // Успех.

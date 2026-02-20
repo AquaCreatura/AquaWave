@@ -4,15 +4,28 @@
 
 #include <qmessagebox.h>
 using namespace dpx_core; // Используем пространство имён dpx_core
-
+using namespace pipes; 
 // Конструктор: Инициализирует компонент для отрисовки спектра.
 // parrent: Указатель на родительский QWidget.
-dpx_core::SpectrumDpx::SpectrumDpx()
+dpx_core::SpectrumDpx::SpectrumDpx(kDpxChartType chart_type)
 {
-    dpx_drawer_ = new ChartDPX();     // Создаём указатель на объект DpxChart для отрисовки.
+	chart_type_ = chart_type;
+	dpx_drawer_ = new ChartDPX(); // Создаём указатель на объект DpxChart для отрисовки.
+	switch (chart_type)
+	{
+	case dpx_core::kDpxChartType::kFFT: {
+		auto fft_pipe = std::make_shared<FFtPipe>();
+		dsp_pipes_.push_back(fft_pipe);
+		break;
+	}
+	case dpx_core::kDpxChartType::kACF: {
+		auto acf_pipe = std::make_shared<AcfPipe>();
+		dsp_pipes_.push_back(acf_pipe);
+		break;
+	}
+	}
+	
 	dpx_drawer_->SetVerticalSuffix("db");
-	//connect(window_, &DpxWindow::FftChangeNeed, this, &SpectrumDpx::SetNewFftOrder);
-    //connect(window_, &DpxWindow::NeedDoSomething, this, &SpectrumDpx::RequestSelectedData);
 }
 
 dpx_core::SpectrumDpx::~SpectrumDpx()
@@ -24,42 +37,19 @@ dpx_core::SpectrumDpx::~SpectrumDpx()
 // data_info: Структура с входными данными и информацией о частоте.
 bool SpectrumDpx::SendData(fluctus::DataInfo const & data_info)
 {
-    // Если входные данные пусты, выходим.
-    if(data_info.data_vec.empty()) return true;
-    // Ссылки на информацию о частоте и входные комплексные данные.
+    if(data_info.data_vec.empty()) return true; // Если входные данные пусты, выходим.
     auto &freq_info  = data_info.freq_info_;
     auto &passed_data = (std::vector<Ipp32fc>&)data_info.data_vec; // Приведение типа.
-	//if (passed_data.size() != n_fft_) return false;
-
-
-    // Буфер для результата БПФ.
-    std::vector<Ipp32fc> transformed_data(passed_data.size());
-    // Выполняем прямое Быстрое Преобразование Фурье (БПФ).
-    fft_worker_.EnableSwapOnForward(true); 
-    if(!fft_worker_.ForwardFFT(passed_data, transformed_data))
-        return false;
-
-    // Буфер для магнитуд спектра (амплитуд).
-    std::vector<Ipp32f> power_vec(transformed_data.size());
-    
-    // Вычисляем магнитуду (амплитуду) комплексных чисел.
-    ippsPowerSpectr_32fc(transformed_data.data(), power_vec.data(), passed_data.size());
-	ippsAddC_32f_I(0.0001, power_vec.data(), power_vec.size());
-    ippsLog10_32f_A11(power_vec.data(), power_vec.data(), power_vec.size());
-    ippsMulC_32f_I(10, power_vec.data(), power_vec.size());
-    
-    // Определяем границы частотного диапазона для отображения.
+	dsp_pipes_.front()->ProcessData(passed_data);
     Limits<double> freq_bounds = {freq_info.carrier_hz - freq_info.samplerate_hz / 2.,
                                    freq_info.carrier_hz + freq_info.samplerate_hz / 2.};
-    
-    // Отправляем вычисленные магнитуды и частотные границы в отрисовщик.
     draw_data draw_data;
     draw_data.freq_bounds = freq_bounds / freq_divider_;
     draw_data.time_pos    = data_info.time_point;
-    draw_data.data        = power_vec;
+	draw_data.data = dsp_pipes_.back()->GetProcessed32f();
     dpx_drawer_->PushData(draw_data);
     
-    return true; // Успех.
+    return true; 
 }
 
 // Обрабатывает сообщения "Dove".

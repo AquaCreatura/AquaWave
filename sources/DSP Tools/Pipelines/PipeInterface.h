@@ -1,13 +1,12 @@
 #ifndef PipeInterface_DEFINE
 #define PipeInterface_DEFINE
-
-
-
+#pragma once
 #include <memory>
 #include <vector>
 #include <ipps.h>
+namespace pipes {
 
-struct PipeMeta 
+struct PipeMeta
 {
 	int fft;
 
@@ -15,7 +14,7 @@ struct PipeMeta
 };
 
 
-class PipeInterface 
+class PipeInterface
 {
 public:
 	void AddNextPipe(std::shared_ptr<PipeInterface> & next_pipe, std::shared_ptr<PipeMeta> & passed_meta) {
@@ -30,4 +29,6 @@ protected:
 	std::shared_ptr<PipeMeta> meta_data_;
 };
 
+
+}
 #endif // PipeInterface_DEFINE

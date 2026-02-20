@@ -1,9 +1,9 @@
 #pragma once
 #include <qpointer.h>
+#include "DSP Tools/Pipelines/BasePipes.h"
 #include "Arks\Interfaces\base_impl\ark_base.h"
 #include "GUI/Charts/SPG/helpers/SpgRequester.h"
 #include "GUI/Charts/SPG/SpgChart.h"
-#include "DSP Tools/FFT/FFT_Worker.h"
 #include "special_defs\spectral_viewer_defs.h"
 namespace spg_core
 {
@@ -23,10 +23,10 @@ protected:
     QPointer<ChartSPG>          spg_drawer_;
     SourceArk                  src_info_;
 	WorkBounds                  time_bounds_;
-    FFT_Worker                  fft_worker_;
     SpgRequester                requester_;
 	std::shared_ptr<aqua_gui::SelectionHolder> selection_holder_;
 	double						freq_divider_{ 1. };
+	std::vector<std::shared_ptr<pipes::PipeInterface>>  dsp_pipes_;
 };
 
 

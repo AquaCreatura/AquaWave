@@ -1,7 +1,11 @@
+#pragma once
 #include "PipeInterface.h"
 #include "DSP Tools\FFT\FFT_Worker.h"
 #include "DSP Tools\basic\acf_worker.h"
-class FFtPipe: public PipeInterface
+namespace pipes {
+
+
+class FFtPipe : public PipeInterface
 {
 public:
 	void ProcessData(std::vector<Ipp32fc> &data_32fc) override;
@@ -22,3 +26,4 @@ protected:
 	std::vector<Ipp32f>			processed_data_;
 };
 
+}

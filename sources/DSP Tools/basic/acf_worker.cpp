@@ -1,6 +1,6 @@
 #include "acf_worker.h"
 
-bool AcfWorker::EnsureBufferSize(int src_len, int dst_len, IppEnum acf_flags)
+bool AcfWorker::UpdateBufferSize(int src_len, int dst_len, IppEnum acf_flags)
 {
 	int min_buff_size = 0;
 	if (ippsAutoCorrNormGetBufferSize(src_len, dst_len, ipp32fc, acf_flags, &min_buff_size) != ippStsNoErr)
@@ -20,7 +20,7 @@ bool AcfWorker::Process(const Ipp32fc* src, std::size_t size, Ipp32fc* dst, IppE
 		return false;
 
 	const int len = static_cast<int>(size);
-	if (!EnsureBufferSize(len, len, acf_flags))
+	if (!UpdateBufferSize(len, len, acf_flags))
 		return false;
 
 	return ippsAutoCorrNorm_32fc(src, len, dst, len, acf_flags, main_buff_.data()) == ippStsNoErr;

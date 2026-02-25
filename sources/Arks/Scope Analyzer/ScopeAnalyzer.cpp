@@ -4,26 +4,51 @@
 #include "ShipBuilder.h"
 #include <ippvm.h>
 
+
 #include <qmessagebox.h>
 
+#include "Elements/DPX Spectrum/SpectrumDPX.h"
+#include "Elements/Static SPG/Spectrogram.h"
+
 using namespace fluctus;
+using namespace scope_analyzer;
 using namespace spectral_viewer;
+
 ScopeAnalyzer::ScopeAnalyzer()
 {
     window_ = new ScopeAnalyzerWindow;
-	spectrum_ = std::make_shared<dpx_core::SpectrumDpx>(dpx_core::kDpxChartType::kFFT); // Создание компонента для спектрального графика.
-	spg_ = std::make_shared<spg_core::StaticSpg>(); // Создание компонента для спектрограммы.
 
-	auto dpx_window = ShipBuilder::GetWindow(spectrum_);
-	auto spg_window = ShipBuilder::GetWindow(spg_);
-	
-	window_->SetChartWindow(spg_window, ScopeAnalyzerWindow::chart_type::spg);
-	window_->SetChartWindow(dpx_window, ScopeAnalyzerWindow::chart_type::spectrum);
+	//Определяем спектрограмму и спектр выделенной полосы
+	{
+		charts_[kBaseSpectrum] = std::make_shared<dpx_core::SpectrumDpx>(dpx_core::kDpxChartType::kFFT);
+		charts_[kBaseSpg] = std::make_shared<spg_core::StaticSpg>();
 
-	auto req_dove = std::make_shared<SpectralDove>(SpectralDove::kSetSelectionHolder);
-	req_dove->sel_holder = std::make_shared<aqua_gui::SelectionHolder>();
-	spectrum_->SendDove(req_dove);
-	spg_->SendDove(req_dove);
+		auto req_dove = std::make_shared<SpectralDove>(SpectralDove::kSetSelectionHolder);
+		req_dove->sel_holder = std::make_shared<aqua_gui::SelectionHolder>();
+
+		for (auto chart_type : { kBaseSpectrum, kBaseSpg }) {
+			auto chart_window = ShipBuilder::GetWindow(charts_[chart_type]);
+			window_->AddChartWindow(chart_window, chart_type);
+			charts_[chart_type]->SendDove(req_dove);
+		}
+	}
+	//Определяем графики гармонического анализа
+	{
+		charts_[kAcf]			 = std::make_shared<dpx_core::SpectrumDpx>(dpx_core::kDpxChartType::kACF);
+		charts_[kBandwidth]		 = std::make_shared<dpx_core::SpectrumDpx>(dpx_core::kDpxChartType::kFFT);
+
+		charts_[kPhasorSpectrum]	= std::make_shared<dpx_core::SpectrumDpx>(dpx_core::kDpxChartType::kFFT);
+		charts_[kEnvelopeSpectrum]	= std::make_shared<dpx_core::SpectrumDpx>(dpx_core::kDpxChartType::kFFT);
+		charts_[kPowerSpectrum]		= std::make_shared<dpx_core::SpectrumDpx>(dpx_core::kDpxChartType::kFFT);
+
+		for (auto chart_type : { kAcf, kPowerSpectrum , kPhasorSpectrum, kBandwidth, kEnvelopeSpectrum}) {
+			auto chart_window = ShipBuilder::GetWindow(charts_[chart_type]);
+			window_->AddChartWindow(chart_window, chart_type);
+		}
+	}
+	window_->ActivateWindow(kPowerSpectrum);
+
+
 }
 
 ScopeAnalyzer::~ScopeAnalyzer()
@@ -33,9 +58,9 @@ ScopeAnalyzer::~ScopeAnalyzer()
 
 bool ScopeAnalyzer::SendData(fluctus::DataInfo const & data_info)
 {
-	spectrum_->SendData(data_info);
-	spg_->SendData(data_info);
-
+	for (auto chart_iter : charts_) {
+		chart_iter.second->SendData(data_info);
+	}
 	return true;
 }
 
@@ -114,8 +139,9 @@ bool ScopeAnalyzer::Reload()
 bool ScopeAnalyzer::Restart(Limits<double> freq_bounds_Mhz, Limits<double> time_bounds)
 {
 	if (GetFrontArks().empty()) {
-		ShipBuilder::Bind_SrcSink(shared_from_this(), spectrum_);
-		ShipBuilder::Bind_SrcSink(shared_from_this(), spg_);
+		for (auto chart_iter : charts_) 
+			ShipBuilder::Bind_SrcSink(shared_from_this(), chart_iter.second);
+		
 	}
 	auto arks = GetBehindArks();
 	if (arks.empty()) return false;
@@ -133,9 +159,8 @@ bool ScopeAnalyzer::Restart(Limits<double> freq_bounds_Mhz, Limits<double> time_
 		req_dove->base_thought = DoveParrent::kReset | DoveParrent::kSpecialThought;
 		req_dove->special_thought = spectral_viewer::SpectralDove::kSetFFtOrder;
 		req_dove->fft_order_ = log2(n_fft_);
-		spg_->SendDove(req_dove);
-		spectrum_->SendDove(req_dove);
-
+		for (auto chart_iter : charts_) chart_iter.second->SendDove(req_dove);
+		
 	}
 
 

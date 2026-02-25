@@ -11,7 +11,7 @@ fluctus::ArkSptr ShipBuilder::BuildNewShip(fluctus::ArkType ship_type)
 		break;
 	case fluctus::kSpectralViewer:	ark = std::make_shared<spectral_viewer::SpectralViewer>();
 		break;
-	case fluctus::kScopeAnalyser:	ark = std::make_shared<ScopeAnalyzer>();
+	case fluctus::kScopeAnalyser:	ark = std::make_shared<scope_analyzer::ScopeAnalyzer>();
 		break;
 	default:
 		break;

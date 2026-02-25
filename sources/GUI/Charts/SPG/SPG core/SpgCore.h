@@ -21,7 +21,7 @@ public:
     void SetFreqBounds      (const Limits<double>& freq_bounds );
 	void SetNfftOrder		(int fft_order);
     bool AccumulateNewData  (const std::vector<float>& passed_data, const double pos_ratio = 0.5);
-    //Is Used to get pixmap from our spg
+    //Is Used to get pixmap from our kBaseSpg
     QPixmap&         GetRelevantPixmap(const ChartScaleInfo& scale_info);
     spg_data const & GetSpectrogramInfo() const;
 protected:

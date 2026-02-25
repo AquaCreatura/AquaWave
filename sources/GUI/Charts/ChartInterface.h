@@ -54,7 +54,7 @@ public:
     virtual void                    DrawData            (QPainter& painter) = 0;
 
     /*
-        Clear data from the spectrum
+        Clear data from the kBaseSpectrum
     */
     virtual void                    ClearData           () = 0;
 
@@ -121,7 +121,7 @@ protected:
     // Manages power limits for chart
     PowerLimitMan power_man_;
 	
-	// Manages selections ot the spectrum
+	// Manages selections ot the kBaseSpectrum
 	SelectionDrawer selection_drawer_;
 
 	HV_Info<double, double> max_scale_koeff_ = { 2 ,2 };

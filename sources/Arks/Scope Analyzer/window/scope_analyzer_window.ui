@@ -232,6 +232,12 @@
      <layout class="QGridLayout" name="gridLayout_5">
       <item row="0" column="0">
        <widget class="QFrame" name="frame_7">
+        <property name="sizePolicy">
+         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+          <horstretch>0</horstretch>
+          <verstretch>0</verstretch>
+         </sizepolicy>
+        </property>
         <property name="frameShape">
          <enum>QFrame::StyledPanel</enum>
         </property>
@@ -239,60 +245,85 @@
          <enum>QFrame::Raised</enum>
         </property>
         <layout class="QGridLayout" name="gridLayout_7">
-         <item row="3" column="1">
-          <widget class="QLabel" name="label_13">
+         <item row="5" column="0">
+          <widget class="QRadioButton" name="acf_radio_button">
            <property name="text">
-            <string>4.674 sec</string>
+            <string>ACF</string>
            </property>
+           <attribute name="buttonGroup">
+            <string notr="true">radio_group_chart_type</string>
+           </attribute>
           </widget>
          </item>
          <item row="1" column="1">
-          <widget class="QLabel" name="label_11">
+          <widget class="QLabel" name="bandwidth_value_label">
            <property name="text">
-            <string>200 kHz</string>
+            <string>250 kHz</string>
            </property>
           </widget>
          </item>
          <item row="0" column="0">
-          <widget class="QLabel" name="label_7">
+          <widget class="QRadioButton" name="carrier_radio_button">
            <property name="text">
-            <string>Carrier:</string>
+            <string>Carrier</string>
            </property>
+           <attribute name="buttonGroup">
+            <string notr="true">radio_group_chart_type</string>
+           </attribute>
           </widget>
          </item>
+         <item row="1" column="0">
+          <widget class="QRadioButton" name="bandwidth_radio_button">
+           <property name="text">
+            <string>Bandwidth</string>
+           </property>
+           <attribute name="buttonGroup">
+            <string notr="true">radio_group_chart_type</string>
+           </attribute>
+          </widget>
+         </item>
+         <item row="1" column="2">
+          <spacer name="horizontalSpacer">
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>40</width>
+             <height>20</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
          <item row="0" column="1">
-          <widget class="QLabel" name="label_8">
+          <widget class="QLabel" name="carrier_value_label">
            <property name="text">
             <string>15.56 MHz</string>
            </property>
           </widget>
          </item>
-         <item row="3" column="0">
-          <widget class="QLabel" name="label_12">
+         <item row="5" column="1">
+          <widget class="QLabel" name="acf_value_label">
            <property name="text">
-            <string>ACF:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="label_10">
-           <property name="text">
-            <string>Symbol rate:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="label_14">
-           <property name="text">
-            <string>Bandwidth</string>
+            <string>4.674 sec</string>
            </property>
           </widget>
          </item>
          <item row="2" column="1">
-          <widget class="QLabel" name="label_15">
+          <widget class="QLabel" name="symbol_rate_value_label">
            <property name="text">
-            <string>250 kHz</string>
+            <string>200 kHz</string>
            </property>
+          </widget>
+         </item>
+         <item row="2" column="0">
+          <widget class="QRadioButton" name="symbol_rate_radio_button">
+           <property name="text">
+            <string>Symbol rate </string>
+           </property>
+           <attribute name="buttonGroup">
+            <string notr="true">radio_group_chart_type</string>
+           </attribute>
           </widget>
          </item>
         </layout>
@@ -338,11 +369,13 @@
             <number>2</number>
            </property>
            <layout class="QGridLayout" name="gridLayout_11">
-            <item row="0" column="0">
-             <widget class="QLabel" name="label_5">
-              <property name="text">
-               <string>MainChart</string>
+            <item row="1" column="0">
+             <widget class="QStackedWidget" name="harmonic_chart_stacked">
+              <property name="currentIndex">
+               <number>1</number>
               </property>
+              <widget class="QWidget" name="page"/>
+              <widget class="QWidget" name="page_2"/>
              </widget>
             </item>
            </layout>
@@ -457,4 +490,7 @@
  </widget>
  <resources/>
  <connections/>
+ <buttongroups>
+  <buttongroup name="radio_group_chart_type"/>
+ </buttongroups>
 </ui>

@@ -13,18 +13,28 @@ dpx_core::SpectrumDpx::SpectrumDpx(kDpxChartType chart_type)
 	dpx_drawer_ = new ChartDPX(); // Создаём указатель на объект DpxChart для отрисовки.
 	switch (chart_type)
 	{
-	case dpx_core::kDpxChartType::kFFT: {
-		auto fft_pipe = std::make_shared<FFtPipe>();
-		dsp_pipes_.push_back(fft_pipe);
+	case dpx_core::kDpxChartType::kFFT:
+		dsp_pipes_.push_back(std::make_shared<FFtPipe>());
+		break;
+	case dpx_core::kDpxChartType::kACF: 
+		dsp_pipes_.push_back(std::make_shared<AcfPipe>());
+		break;	
+	case dpx_core::kDpxChartType::kEnvelope: 
+		dsp_pipes_.push_back(std::make_shared<EnvelopePipe>());
+		dsp_pipes_.push_back(std::make_shared<FFtPipe>());
+		break;	
+	case dpx_core::kDpxChartType::kPhasor: 
+		dsp_pipes_.push_back(std::make_shared<SamplesDiffPipe>());
+		dsp_pipes_.push_back(std::make_shared<PhasorPipe>());
+		dsp_pipes_.push_back(std::make_shared<FFtPipe>());
+		break;
+	case dpx_core::kDpxChartType::kPowSpectrum: 
+		dsp_pipes_.push_back(std::make_shared<MulByItSelfPipe>());
+		dsp_pipes_.push_back(std::make_shared<FFtPipe>());
 		break;
 	}
-	case dpx_core::kDpxChartType::kACF: {
-		auto acf_pipe = std::make_shared<AcfPipe>();
-		dsp_pipes_.push_back(acf_pipe);
-		break;
-	}
-	}
-	
+	BindPipeLine(dsp_pipes_);
+
 	dpx_drawer_->SetVerticalSuffix("db");
 }
 

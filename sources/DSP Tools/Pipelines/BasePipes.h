@@ -9,21 +9,40 @@ class FFtPipe : public PipeInterface
 {
 public:
 	void ProcessData(std::vector<Ipp32fc> &data_32fc) override;
-	std::vector<Ipp32f> GetProcessed32f() override;
 protected:
 	FFT_Worker                  fft_worker_;
-	std::vector<Ipp32f>			processed_data_;
 };
-
 
 class AcfPipe : public PipeInterface
 {
 public:
 	void ProcessData(std::vector<Ipp32fc> &data_32fc) override;
-	std::vector<Ipp32f> GetProcessed32f() override;
 protected:
-	AcfWorker					acf_worker_;
-	std::vector<Ipp32f>			processed_data_;
+	AcfWorker	acf_worker_;
+};
+
+class SamplesDiffPipe : public PipeInterface
+{
+public:
+	void ProcessData(std::vector<Ipp32fc> &data_32fc) override;
+};
+
+class EnvelopePipe: public PipeInterface
+{
+public:
+	void ProcessData(std::vector<Ipp32fc> &data_32fc) override;
+};
+
+class PhasorPipe: public PipeInterface
+{
+public:
+	void ProcessData(std::vector<Ipp32fc> &data_32fc) override;
+};
+
+class MulByItSelfPipe : public PipeInterface
+{
+public:
+	void ProcessData(std::vector<Ipp32fc> &data_32fc) override;
 };
 
 }

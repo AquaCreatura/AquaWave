@@ -15,7 +15,6 @@ namespace dpx_core
 DpxCore::DpxCore() : dpx_scaler_(dpx_data_), dpx_renderer_(dpx_data_) 
 {
     Emplace();
-    // Default constructor; no init required as Init() is called separately
 }
 
 bool DpxCore::Emplace() {

@@ -9,7 +9,10 @@ namespace dpx_core
 {
 enum class kDpxChartType {
 	kFFT = 0,
-	kACF = 1
+	kACF = 1,
+	kEnvelope = 2,
+	kPhasor   = 3,
+	kPowSpectrum = 4
 };
 class SpectrumDpx : public fluctus::ArkBase
 {

@@ -8,31 +8,31 @@ namespace pipes {
 
 struct PipeSimpleMeta {
 	using sptr = std::shared_ptr<PipeSimpleMeta>;
-
-
-	PipeSimpleMeta(std::vector<Ipp32fc> &passed_32fc) {
-		float_data = passed_32fc;
-	};
-	PipeSimpleMeta(std::vector<Ipp32f> &passed_32f) {
-		complex_float_data = passed_32f;
-	};
-	std::vector<Ipp32fc> float_data;
-	std::vector<Ipp32f>  complex_float_data;
+	std::vector<Ipp32fc> complex_float_data;
+	std::vector<Ipp32f>  float_data;
 };
 
 
 class PipeInterface
 {
 public:
-	void AddNextPipe(std::shared_ptr<PipeInterface> & next_pipe) {
+	using sptr = std::shared_ptr<PipeInterface>;
+	void AddNextPipe(PipeInterface::sptr & next_pipe) {
 		next_ = next_pipe;
 	}
 	virtual void ProcessData(PipeSimpleMeta::sptr meta_data) {};
 protected:
-	std::shared_ptr<PipeInterface> next_;
+	PipeInterface::sptr next_;
 };
 
-void BindPipeLine(std::vector<std::shared_ptr<PipeInterface>> pipe_line);
+struct SimplePipeLine {
+	void AddNextPipe(PipeInterface::sptr new_pipe);
+	void Process(std::vector<Ipp32fc> &passed_data);
+	void Process(std::vector<Ipp32f> &passed_data);
+
+	std::vector<PipeInterface::sptr> pipes;
+	PipeSimpleMeta::sptr meta;
+};
 
 }
 #endif // PipeInterface_DEFINE

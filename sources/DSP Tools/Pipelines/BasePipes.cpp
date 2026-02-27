@@ -5,8 +5,8 @@ using namespace pipes;
 //===================================================== FFt ====================================================
 void FFtPipe::ProcessData(PipeSimpleMeta::sptr meta_data)
 {
-	auto &passed_data = meta_data->float_data;
-	auto &processed_data = meta_data->complex_float_data;
+	auto &passed_data = meta_data->complex_float_data;
+	auto &processed_data = meta_data->float_data;
 	std::vector<Ipp32fc> transformed_data(passed_data.size());
 	fft_worker_.EnableSwapOnForward(true);
 	if (!fft_worker_.ForwardFFT(passed_data, transformed_data))
@@ -24,8 +24,8 @@ void FFtPipe::ProcessData(PipeSimpleMeta::sptr meta_data)
 //========================================================== Acf ===========================================================
 void AcfPipe::ProcessData(PipeSimpleMeta::sptr meta_data)
 {
-	auto &passed_data = meta_data->float_data;
-	auto &processed_data_ = meta_data->complex_float_data;
+	auto &passed_data = meta_data->complex_float_data;
+	auto &processed_data_ = meta_data->float_data;
 
 	if (passed_data.empty())
 	{

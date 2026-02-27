@@ -36,7 +36,7 @@ protected:
 	double						freq_divider_ = 1.;
 	int64_t						n_fft_{1024};
 	kDpxChartType				chart_type_;
-	std::vector<std::shared_ptr<pipes::PipeInterface>>  dsp_pipes_;
+	pipes::SimplePipeLine		pipe_line_;
 };
 
 }

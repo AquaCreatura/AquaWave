@@ -14,27 +14,25 @@ dpx_core::SpectrumDpx::SpectrumDpx(kDpxChartType chart_type)
 	switch (chart_type)
 	{
 	case dpx_core::kDpxChartType::kFFT:
-		dsp_pipes_.push_back(std::make_shared<FFtPipe>());
+		pipe_line_.AddNextPipe(std::make_shared<FFtPipe>());
 		break;
 	case dpx_core::kDpxChartType::kACF: 
-		dsp_pipes_.push_back(std::make_shared<AcfPipe>());
+		pipe_line_.AddNextPipe(std::make_shared<AcfPipe>());
 		break;	
 	case dpx_core::kDpxChartType::kEnvelope: 
-		dsp_pipes_.push_back(std::make_shared<EnvelopePipe>());
-		dsp_pipes_.push_back(std::make_shared<FFtPipe>());
+		pipe_line_.AddNextPipe(std::make_shared<EnvelopePipe>());
+		pipe_line_.AddNextPipe(std::make_shared<FFtPipe>());
 		break;	
 	case dpx_core::kDpxChartType::kPhasor: 
-		dsp_pipes_.push_back(std::make_shared<SamplesDiffPipe>());
-		dsp_pipes_.push_back(std::make_shared<PhasorPipe>());
-		dsp_pipes_.push_back(std::make_shared<FFtPipe>());
+		pipe_line_.AddNextPipe(std::make_shared<SamplesDiffPipe>());
+		pipe_line_.AddNextPipe(std::make_shared<PhasorPipe>());
+		pipe_line_.AddNextPipe(std::make_shared<FFtPipe>());
 		break;
 	case dpx_core::kDpxChartType::kPowSpectrum: 
-		dsp_pipes_.push_back(std::make_shared<MulByItSelfPipe>());
-		dsp_pipes_.push_back(std::make_shared<FFtPipe>());
+		pipe_line_.AddNextPipe(std::make_shared<MulByItSelfPipe>());
+		pipe_line_.AddNextPipe(std::make_shared<FFtPipe>());
 		break;
 	}
-	BindPipeLine(dsp_pipes_);
-
 	dpx_drawer_->SetVerticalSuffix("db");
 }
 
@@ -51,14 +49,14 @@ bool SpectrumDpx::SendData(fluctus::DataInfo const & data_info)
     auto &freq_info  = data_info.freq_info_;
     auto &passed_data = (std::vector<Ipp32fc>&)data_info.data_vec; // Приведение типа.
 
-	PipeSimpleMeta::sptr meta = std::make_shared<PipeSimpleMeta>(passed_data);
-	dsp_pipes_.front()->ProcessData(meta);
+	pipe_line_.Process(passed_data);
+
     Limits<double> freq_bounds = {freq_info.carrier_hz - freq_info.samplerate_hz / 2.,
                                    freq_info.carrier_hz + freq_info.samplerate_hz / 2.};
     draw_data draw_data;
     draw_data.freq_bounds = freq_bounds / freq_divider_;
     draw_data.time_pos    = data_info.time_point;
-	draw_data.data = meta->complex_float_data;
+	draw_data.data = pipe_line_.meta->float_data;
     dpx_drawer_->PushData(draw_data);
     
     return true; 

@@ -11,8 +11,7 @@ StaticSpg::StaticSpg(QWidget * parrent) :
     requester_(spg_drawer_->GetSpectrogramInfo(), time_bounds_) 
 {
 	{
-		auto fft_pipe = std::make_shared<FFtPipe>();
-		dsp_pipes_.push_back(fft_pipe);
+		pipe_line_.AddNextPipe(std::make_shared<FFtPipe>());
 	}
 }
 
@@ -32,8 +31,7 @@ bool StaticSpg::SendData(fluctus::DataInfo const & data_info)
     // Ссылки на информацию о частоте и входные комплексные данные.
     auto &freq_info  = data_info.freq_info_;
     auto &passed_data = (std::vector<Ipp32fc>&)data_info.data_vec; // Приведение типа.
-	PipeSimpleMeta::sptr meta = std::make_shared<PipeSimpleMeta>(passed_data);
-	dsp_pipes_.front()->ProcessData(meta);
+	pipe_line_.Process(passed_data);
     
     // Определяем границы частотного диапазона для отображения.
     Limits<double> freq_bounds = {freq_info.carrier_hz - freq_info.samplerate_hz / 2.,
@@ -43,7 +41,7 @@ bool StaticSpg::SendData(fluctus::DataInfo const & data_info)
     draw_data draw_data;
     draw_data.freq_bounds = freq_bounds;
     draw_data.time_pos    = data_info.time_point;
-    draw_data.data        = meta->complex_float_data;
+	draw_data.data	      = pipe_line_.meta->float_data;
     spg_drawer_->PushData(draw_data);
     
     return true; // Успех.

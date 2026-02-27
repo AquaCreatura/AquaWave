@@ -26,7 +26,7 @@ protected:
     SpgRequester                requester_;
 	std::shared_ptr<aqua_gui::SelectionHolder> selection_holder_;
 	double						freq_divider_{ 1. };
-	std::vector<std::shared_ptr<pipes::PipeInterface>>  dsp_pipes_;
+	pipes::SimplePipeLine		pipe_line_;
 };
 
 

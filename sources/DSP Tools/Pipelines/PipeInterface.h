@@ -6,11 +6,18 @@
 #include <ipps.h>
 namespace pipes {
 
-struct PipeMeta
-{
-	int fft;
+struct PipeSimpleMeta {
+	using sptr = std::shared_ptr<PipeSimpleMeta>;
 
 
+	PipeSimpleMeta(std::vector<Ipp32fc> &passed_32fc) {
+		float_data = passed_32fc;
+	};
+	PipeSimpleMeta(std::vector<Ipp32f> &passed_32f) {
+		complex_float_data = passed_32f;
+	};
+	std::vector<Ipp32fc> float_data;
+	std::vector<Ipp32f>  complex_float_data;
 };
 
 
@@ -20,22 +27,9 @@ public:
 	void AddNextPipe(std::shared_ptr<PipeInterface> & next_pipe) {
 		next_ = next_pipe;
 	}
-	virtual void ProcessData(std::vector<Ipp32fc> &data_32fc) {};
-	virtual void ProcessData(std::vector<Ipp32f>  &data_32f) {};
+	virtual void ProcessData(PipeSimpleMeta::sptr meta_data) {};
 protected:
 	std::shared_ptr<PipeInterface> next_;
-	std::shared_ptr<PipeMeta> meta_data_;
-};
-
-class ResultPipe : public PipeInterface
-{
-public:
-	virtual void		ProcessData(std::vector<Ipp32f>  &data_32f);
-public:
-	std::vector<Ipp32f> GetProcessed32f();
-protected:
-	std::vector<Ipp32f> processed_data_;
-
 };
 
 void BindPipeLine(std::vector<std::shared_ptr<PipeInterface>> pipe_line);

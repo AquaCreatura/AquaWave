@@ -50,13 +50,15 @@ bool SpectrumDpx::SendData(fluctus::DataInfo const & data_info)
     if(data_info.data_vec.empty()) return true; // Если входные данные пусты, выходим.
     auto &freq_info  = data_info.freq_info_;
     auto &passed_data = (std::vector<Ipp32fc>&)data_info.data_vec; // Приведение типа.
-	dsp_pipes_.front()->ProcessData(passed_data);
+
+	PipeSimpleMeta::sptr meta = std::make_shared<PipeSimpleMeta>(passed_data);
+	dsp_pipes_.front()->ProcessData(meta);
     Limits<double> freq_bounds = {freq_info.carrier_hz - freq_info.samplerate_hz / 2.,
                                    freq_info.carrier_hz + freq_info.samplerate_hz / 2.};
     draw_data draw_data;
     draw_data.freq_bounds = freq_bounds / freq_divider_;
     draw_data.time_pos    = data_info.time_point;
-	draw_data.data = dsp_pipes_.back()->GetProcessed32f();
+	draw_data.data = meta->complex_float_data;
     dpx_drawer_->PushData(draw_data);
     
     return true; 

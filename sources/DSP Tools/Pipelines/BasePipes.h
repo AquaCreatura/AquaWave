@@ -8,7 +8,7 @@ namespace pipes {
 class FFtPipe : public PipeInterface
 {
 public:
-	void ProcessData(std::vector<Ipp32fc> &data_32fc) override;
+	void ProcessData(PipeSimpleMeta::sptr meta_data) override;
 protected:
 	FFT_Worker                  fft_worker_;
 };
@@ -16,7 +16,7 @@ protected:
 class AcfPipe : public PipeInterface
 {
 public:
-	void ProcessData(std::vector<Ipp32fc> &data_32fc) override;
+	void ProcessData(PipeSimpleMeta::sptr meta_data) override;
 protected:
 	AcfWorker	acf_worker_;
 };
@@ -24,25 +24,25 @@ protected:
 class SamplesDiffPipe : public PipeInterface
 {
 public:
-	void ProcessData(std::vector<Ipp32fc> &data_32fc) override;
+	void ProcessData(PipeSimpleMeta::sptr meta_data) override;
 };
 
 class EnvelopePipe: public PipeInterface
 {
 public:
-	void ProcessData(std::vector<Ipp32fc> &data_32fc) override;
+	void ProcessData(PipeSimpleMeta::sptr meta_data) override;
 };
 
 class PhasorPipe: public PipeInterface
 {
 public:
-	void ProcessData(std::vector<Ipp32fc> &data_32fc) override;
+	void ProcessData(PipeSimpleMeta::sptr meta_data) override;
 };
 
 class MulByItSelfPipe : public PipeInterface
 {
 public:
-	void ProcessData(std::vector<Ipp32fc> &data_32fc) override;
+	void ProcessData(PipeSimpleMeta::sptr meta_data) override;
 };
 
 }

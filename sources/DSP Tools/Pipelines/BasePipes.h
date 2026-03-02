@@ -8,7 +8,7 @@ namespace pipes {
 class FFtPipe : public PipeInterface
 {
 public:
-	void ProcessData(PipeSimpleMeta::sptr meta_data) override;
+	void ProcessData(PipeHolder::sptr meta_data) override;
 protected:
 	FFT_Worker                  fft_worker_;
 };
@@ -16,7 +16,7 @@ protected:
 class AcfPipe : public PipeInterface
 {
 public:
-	void ProcessData(PipeSimpleMeta::sptr meta_data) override;
+	void ProcessData(PipeHolder::sptr meta_data) override;
 protected:
 	AcfWorker	acf_worker_;
 };
@@ -24,25 +24,31 @@ protected:
 class SamplesDiffPipe : public PipeInterface
 {
 public:
-	void ProcessData(PipeSimpleMeta::sptr meta_data) override;
+	void ProcessData(PipeHolder::sptr meta_data) override;
 };
 
 class EnvelopePipe: public PipeInterface
 {
 public:
-	void ProcessData(PipeSimpleMeta::sptr meta_data) override;
+	void ProcessData(PipeHolder::sptr meta_data) override;
 };
 
 class PhasorPipe: public PipeInterface
 {
 public:
-	void ProcessData(PipeSimpleMeta::sptr meta_data) override;
+	void ProcessData(PipeHolder::sptr meta_data) override;
 };
 
 class MulByItSelfPipe : public PipeInterface
 {
 public:
-	void ProcessData(PipeSimpleMeta::sptr meta_data) override;
+	void ProcessData(PipeHolder::sptr meta_data) override;
+};
+
+class PowerToDbPipe : public PipeInterface
+{
+public:
+	void ProcessData(PipeHolder::sptr meta_data) override;
 };
 
 }

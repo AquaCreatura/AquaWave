@@ -11,7 +11,7 @@ void pipes::SimplePipeLine::AddNextPipe(PipeInterface::sptr new_pipe)
 void pipes::SimplePipeLine::Process(std::vector<Ipp32fc>& passed_data)
 {
 	if (pipes.empty()) return;
-	if (!meta) meta = std::make_shared<PipeSimpleMeta>();
+	if (!meta) meta = std::make_shared<PipeHolder>();
 	meta->complex_float_data = passed_data;
 	pipes.front()->ProcessData(meta);
 }
@@ -19,7 +19,7 @@ void pipes::SimplePipeLine::Process(std::vector<Ipp32fc>& passed_data)
 void pipes::SimplePipeLine::Process(std::vector<Ipp32f>& passed_data)
 {
 	if (pipes.empty()) return;
-	if (!meta) meta = std::make_shared<PipeSimpleMeta>();
+	if (!meta) meta = std::make_shared<PipeHolder>();
 	meta->float_data = passed_data;
 	pipes.front()->ProcessData(meta);
 }

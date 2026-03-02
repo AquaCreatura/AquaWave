@@ -51,7 +51,7 @@ struct LinesInfo
     }; 
     std::vector<LineInfo>       grid_lines_      ; //Set of our lines to draw
     double                      grid_lines_delta_; //Delta between lines
-    //Process to fill grid lines vector, according data
+    //Process_32fc_32fc to fill grid lines vector, according data
     bool FillLineVectors(const int distance_px, const Limits<double>& val_bounds);
     //Return extension of power of 10 to show flaot value
     int  GetFloatStringPower();

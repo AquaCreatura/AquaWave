@@ -15,6 +15,7 @@ dpx_core::SpectrumDpx::SpectrumDpx(kDpxChartType chart_type)
 	{
 	case dpx_core::kDpxChartType::kFFT:
 		pipe_line_.AddNextPipe(std::make_shared<FFtPipe>());
+		pipe_line_.AddNextPipe(std::make_shared<PowerToDbPipe>());
 		break;
 	case dpx_core::kDpxChartType::kACF: 
 		pipe_line_.AddNextPipe(std::make_shared<AcfPipe>());
@@ -22,15 +23,19 @@ dpx_core::SpectrumDpx::SpectrumDpx(kDpxChartType chart_type)
 	case dpx_core::kDpxChartType::kEnvelope: 
 		pipe_line_.AddNextPipe(std::make_shared<EnvelopePipe>());
 		pipe_line_.AddNextPipe(std::make_shared<FFtPipe>());
+		pipe_line_.AddNextPipe(std::make_shared<PowerToDbPipe>());
 		break;	
 	case dpx_core::kDpxChartType::kPhasor: 
 		pipe_line_.AddNextPipe(std::make_shared<SamplesDiffPipe>());
 		pipe_line_.AddNextPipe(std::make_shared<PhasorPipe>());
 		pipe_line_.AddNextPipe(std::make_shared<FFtPipe>());
+		//pipe_line_.AddNextPipe(std::make_shared<PowerToDbPipe>());
 		break;
 	case dpx_core::kDpxChartType::kPowSpectrum: 
-		pipe_line_.AddNextPipe(std::make_shared<MulByItSelfPipe>());
+		pipe_line_.AddNextPipe(std::make_shared<MulByItSelfPipe>()); //2 степень
+		pipe_line_.AddNextPipe(std::make_shared<MulByItSelfPipe>()); //4 степень
 		pipe_line_.AddNextPipe(std::make_shared<FFtPipe>());
+		pipe_line_.AddNextPipe(std::make_shared<PowerToDbPipe>());
 		break;
 	}
 	dpx_drawer_->SetVerticalSuffix("db");

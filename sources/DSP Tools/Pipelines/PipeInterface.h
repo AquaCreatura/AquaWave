@@ -6,10 +6,12 @@
 #include <ipps.h>
 namespace pipes {
 
-struct PipeSimpleMeta {
-	using sptr = std::shared_ptr<PipeSimpleMeta>;
+struct PipeHolder {
+	using sptr = std::shared_ptr<PipeHolder>;
 	std::vector<Ipp32fc> complex_float_data;
 	std::vector<Ipp32f>  float_data;
+
+	std::vector<Ipp32fc> buffer_32fc;
 };
 
 
@@ -20,7 +22,7 @@ public:
 	void AddNextPipe(PipeInterface::sptr & next_pipe) {
 		next_ = next_pipe;
 	}
-	virtual void ProcessData(PipeSimpleMeta::sptr meta_data) {};
+	virtual void ProcessData(PipeHolder::sptr meta_data) {};
 protected:
 	PipeInterface::sptr next_;
 };
@@ -31,7 +33,7 @@ struct SimplePipeLine {
 	void Process(std::vector<Ipp32f> &passed_data);
 
 	std::vector<PipeInterface::sptr> pipes;
-	PipeSimpleMeta::sptr meta;
+	PipeHolder::sptr meta;
 };
 
 }

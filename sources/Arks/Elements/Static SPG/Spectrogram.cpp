@@ -12,6 +12,7 @@ StaticSpg::StaticSpg(QWidget * parrent) :
 {
 	{
 		pipe_line_.AddNextPipe(std::make_shared<FFtPipe>());
+		pipe_line_.AddNextPipe(std::make_shared<PowerToDbPipe>());
 	}
 }
 

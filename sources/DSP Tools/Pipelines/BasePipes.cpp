@@ -64,7 +64,7 @@ void pipes::PhasorPipe::ProcessData(PipeHolder::sptr meta_data)
 	complex_data.clear();
 
 	//ippsAbs_32f_I(float_data.data(), float_data.size()); 
-	//ippsMulC_32f_I(1000, float_data.data(), float_data.size());
+	//ippsMulC_32f_I(1, float_data.data(), float_data.size());
 	if (next_) next_->ProcessData(meta_data);
 }
 

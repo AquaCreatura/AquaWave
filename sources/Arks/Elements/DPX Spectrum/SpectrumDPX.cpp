@@ -29,7 +29,7 @@ dpx_core::SpectrumDpx::SpectrumDpx(kDpxChartType chart_type)
 		pipe_line_.AddNextPipe(std::make_shared<SamplesDiffPipe>());
 		pipe_line_.AddNextPipe(std::make_shared<PhasorPipe>());
 		pipe_line_.AddNextPipe(std::make_shared<FFtPipe>());
-		//pipe_line_.AddNextPipe(std::make_shared<PowerToDbPipe>());
+		pipe_line_.AddNextPipe(std::make_shared<PowerToDbPipe>());
 		break;
 	case dpx_core::kDpxChartType::kPowSpectrum: 
 		pipe_line_.AddNextPipe(std::make_shared<MulByItSelfPipe>()); //2 степень

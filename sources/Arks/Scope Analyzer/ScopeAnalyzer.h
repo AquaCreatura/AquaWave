@@ -3,10 +3,10 @@
 #include "ark_defs.h"
 #include "Arks\Interfaces\base_impl\ark_base.h"
 #include "window\scope_analyzer_window.h"
+#include "Tools/file_helpers.h"
 using namespace fluctus;
 namespace scope_analyzer
 {
-
 class ScopeAnalyzer : public fluctus::ArkBase
 {
 	Q_OBJECT
@@ -23,14 +23,13 @@ protected:
 	virtual void RequestSelectedData();
 
 protected:
-	fluctus::shared_vec<Ipp32fc>	data_;
 	SourceArk						source_info_;
 	SourceDescription				selection_descr_;
 
 	QPointer<ScopeAnalyzerWindow>	window_;
-	int64_t							n_fft_{ 1024 };
-
+	int64_t							n_fft_{ 1024 * 2 };
 	std::map<scope_chart_type, ArkInterface::sptr> charts_;
+	FileWriter						cur_writer_;
 };
 
 

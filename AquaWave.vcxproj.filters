@@ -233,6 +233,9 @@
     <ClCompile Include="sources\DSP Tools\basic\acf_worker.cpp">
       <Filter>DSP Tools\basic</Filter>
     </ClCompile>
+    <ClCompile Include="sources\Tools\file_helpers.cpp">
+      <Filter>Tools</Filter>
+    </ClCompile>
   </ItemGroup>
   <!-- ClInclude (H Files) -->
   <ItemGroup>
@@ -356,6 +359,9 @@
     </ClInclude>
     <ClInclude Include="sources\DSP Tools\basic\acf_worker.h">
       <Filter>DSP Tools\basic</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\Tools\file_helpers.h">
+      <Filter>Tools</Filter>
     </ClInclude>
   </ItemGroup>
   <!-- QtMoc (For Headers Requiring Moc) -->

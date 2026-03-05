@@ -6,7 +6,7 @@
 
 static const char* TEMP_PREFIX = "tmp";
 
-std::string FilesystemHelper::CreateTempFile(std::string ext) {
+std::string FsHelper::CreateTempFile(std::string ext) {
 	char tempPath[MAX_PATH + 1];
 	if (!GetTempPathA(MAX_PATH, tempPath))
 		return "";
@@ -25,11 +25,11 @@ std::string FilesystemHelper::CreateTempFile(std::string ext) {
 	return newPath;
 }
 
-bool FilesystemHelper::ErasePrecisedFile(std::string file_path) {
+bool FsHelper::ErasePrecisedFile(std::string file_path) {
 	return DeleteFileA(file_path.c_str()) != 0;
 }
 
-void FilesystemHelper::ClearTempFiles() {
+void FsHelper::ClearTempFiles() {
 	char tempPath[MAX_PATH + 1];
 	if (!GetTempPathA(MAX_PATH, tempPath))
 		return;
@@ -50,14 +50,14 @@ void FilesystemHelper::ClearTempFiles() {
 	FindClose(hFind);
 }
 
-std::string FilesystemHelper::GetTempFileDirectory() {
+std::string FsHelper::GetTempFileDirectory() {
 	char tempPath[MAX_PATH + 1];
 	if (GetTempPathA(MAX_PATH, tempPath))
 		return std::string(tempPath);
 	return "";
 }
 
-bool FilesystemHelper::CreateDirectories(const std::string & dirPath)
+bool FsHelper::CreateDirectories(const std::string & dirPath)
 {
 
 	
@@ -93,7 +93,7 @@ bool FilesystemHelper::CreateDirectories(const std::string & dirPath)
 	
 }
 
-int64_t FilesystemHelper::GetFileSize(const std::string & file_path)
+int64_t FsHelper::GetFileSize(const std::string & file_path)
 {
 	struct _stat64 st;
 	if (_stat64(file_path.c_str(), &st) == 0)
@@ -101,7 +101,7 @@ int64_t FilesystemHelper::GetFileSize(const std::string & file_path)
 	return -1; // ошибка
 }
 
-bool FilesystemHelper::CopyPrecisedFile(const std::string & from, const std::string & to)
+bool FsHelper::CopyPrecisedFile(const std::string & from, const std::string & to)
 
 {
 	// Получаем путь к директории назначения
@@ -131,7 +131,7 @@ bool FileWriter::CaptureFile(const std::string& file_path, bool do_rewrite)
 	if (pos != std::string::npos)
 	{
 		std::string dir_path = file_path.substr(0, pos);
-		if (!FilesystemHelper::CreateDirectories(dir_path))
+		if (!FsHelper::CreateDirectories(dir_path))
 			return false;
 	}
 

@@ -5,7 +5,7 @@
 #include <string>
 
 
-class FilesystemHelper {
+class FsHelper {
 public:
 	static std::string CreateTempFile(std::string ext = ".pcm");
 	static bool		   ErasePrecisedFile(std::string file_path);

@@ -107,6 +107,9 @@
     <Filter Include="DSP Tools\Pipelines">
       <UniqueIdentifier>{b3d305df-60b9-4ea2-831c-5011d41f85b6}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GUI\Charts\Constel">
+      <UniqueIdentifier>{2b21a3b8-5777-44b7-8389-2a31541de0bd}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <!-- ClCompile (CPP Files) -->
   <ItemGroup>
@@ -236,6 +239,9 @@
     <ClCompile Include="sources\Tools\file_helpers.cpp">
       <Filter>Tools</Filter>
     </ClCompile>
+    <ClCompile Include="sources\GUI\Charts\Constel\ConstelChart.cpp">
+      <Filter>GUI\Charts\Constel</Filter>
+    </ClCompile>
   </ItemGroup>
   <!-- ClInclude (H Files) -->
   <ItemGroup>
@@ -362,6 +368,9 @@
     </ClInclude>
     <ClInclude Include="sources\Tools\file_helpers.h">
       <Filter>Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\GUI\Charts\Constel\ConstelChart.h">
+      <Filter>GUI\Charts\Constel</Filter>
     </ClInclude>
   </ItemGroup>
   <!-- QtMoc (For Headers Requiring Moc) -->

@@ -110,6 +110,9 @@
     <Filter Include="GUI\Charts\Constel">
       <UniqueIdentifier>{2b21a3b8-5777-44b7-8389-2a31541de0bd}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GUI\Charts\Constel\core">
+      <UniqueIdentifier>{89c1da7e-8b64-408a-bde0-d2b5d67bfc5c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <!-- ClCompile (CPP Files) -->
   <ItemGroup>
@@ -242,6 +245,12 @@
     <ClCompile Include="sources\GUI\Charts\Constel\ConstelChart.cpp">
       <Filter>GUI\Charts\Constel</Filter>
     </ClCompile>
+    <ClCompile Include="sources\GUI\Charts\Constel\Core\ConstelCore.cpp">
+      <Filter>GUI\Charts\Constel\core</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\GUI\Charts\Constel\Core\ConstelRenderer.cpp">
+      <Filter>GUI\Charts\Constel\core</Filter>
+    </ClCompile>
   </ItemGroup>
   <!-- ClInclude (H Files) -->
   <ItemGroup>
@@ -371,6 +380,15 @@
     </ClInclude>
     <ClInclude Include="sources\GUI\Charts\Constel\ConstelChart.h">
       <Filter>GUI\Charts\Constel</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\GUI\Charts\Constel\Core\constel_defs.h">
+      <Filter>GUI\Charts\Constel\core</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\GUI\Charts\Constel\Core\ConstelCore.h">
+      <Filter>GUI\Charts\Constel\core</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\GUI\Charts\Constel\Core\ConstelRenderer.h">
+      <Filter>GUI\Charts\Constel\core</Filter>
     </ClInclude>
   </ItemGroup>
   <!-- QtMoc (For Headers Requiring Moc) -->

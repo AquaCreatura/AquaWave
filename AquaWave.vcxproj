@@ -147,6 +147,8 @@
     <ClCompile Include="sources\GUI\basic tools\gui_worker.cpp" />
     <ClCompile Include="sources\GUI\basic tools\PowerManager.cpp" />
     <ClCompile Include="sources\GUI\Charts\Constel\ConstelChart.cpp" />
+    <ClCompile Include="sources\GUI\Charts\Constel\Core\ConstelCore.cpp" />
+    <ClCompile Include="sources\GUI\Charts\Constel\Core\ConstelRenderer.cpp" />
     <ClCompile Include="sources\GUI\Charts\DPX\DPX core\DpxCore.cpp" />
     <ClCompile Include="sources\GUI\Charts\DPX\DPX core\DpxRenderer.cpp" />
     <ClCompile Include="sources\GUI\Charts\DPX\DPX core\DpxScaler.cpp" />
@@ -196,6 +198,9 @@
     <ClInclude Include="sources\GUI\basic tools\gui_worker.h" />
     <ClInclude Include="sources\GUI\basic tools\PowerManager.h" />
     <ClInclude Include="sources\GUI\Charts\Constel\ConstelChart.h" />
+    <ClInclude Include="sources\GUI\Charts\Constel\Core\ConstelCore.h" />
+    <ClInclude Include="sources\GUI\Charts\Constel\Core\ConstelRenderer.h" />
+    <ClInclude Include="sources\GUI\Charts\Constel\Core\constel_defs.h" />
     <ClInclude Include="sources\GUI\Charts\DPX\DPX core\DpxScaler.h" />
     <QtMoc Include="sources\GUI\Charts\SPG\helpers\SpgRequester.h" />
     <QtMoc Include="sources\GUI\Charts\SPG\SPG core\SpgCore.h" />

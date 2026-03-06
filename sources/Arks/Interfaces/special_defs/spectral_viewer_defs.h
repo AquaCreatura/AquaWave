@@ -3,6 +3,7 @@
 #include <stdint.h>
 #include <qstring.h>
 #include "Arks\Interfaces\ark_interface.h"
+#include "GUI/Drawers/SelectionDrawer.h"
 using namespace utility_aqua;
 namespace spectral_viewer
 {

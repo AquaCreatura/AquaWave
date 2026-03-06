@@ -35,6 +35,9 @@ void ScopeAnalyzerWindow::AddChartWindow(QWidget * widget_ptr, scope_chart_type 
 	case scope_chart_type::kBaseSpectrum:
 		ui_.dpx_spectrum_chart->layout()->addWidget(widget_ptr);
 		break;
+	case scope_chart_type::kConstellation:
+		ui_.constell_chart->layout()->addWidget(widget_ptr);
+		break;
 	default:
 		ui_.harmonic_chart_stacked->addWidget(widget_ptr);
 		break;

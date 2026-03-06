@@ -7,7 +7,7 @@
 #include "GUI/Drawers/AxisPainter.h"
 #include "GUI/Drawers/ImageBackGround.h"
 #include "GUI/basic tools/PowerManager.h"
-#include "GUI\Drawers\SelectionDrawer.h"
+#include "GUI/Drawers/SelectionDrawer.h"
 #include <qlayout.h>
 using namespace aqua_gui;
 class ChartInterface : public QWidget

@@ -17,6 +17,8 @@ enum scope_chart_type {
 	kPowerSpectrum  = 32, //Спектр степени (Отстройка несущей)
 	
 	kBandwidth      = 64, //Ширина полосы
+	
+	kConstellation  = 128
 };
 
 

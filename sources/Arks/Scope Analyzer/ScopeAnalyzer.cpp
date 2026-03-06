@@ -9,6 +9,7 @@
 
 #include "Elements/DPX Spectrum/SpectrumDPX.h"
 #include "Elements/Static SPG/Spectrogram.h"
+#include "Elements/Constellation/Constellation.h"
 
 using namespace fluctus;
 using namespace scope_analyzer;
@@ -40,8 +41,8 @@ ScopeAnalyzer::ScopeAnalyzer()
 		charts_[kPhasorSpectrum]	= std::make_shared<dpx_core::SpectrumDpx>(dpx_core::kDpxChartType::kPhasor);
 		charts_[kEnvelopeSpectrum]	= std::make_shared<dpx_core::SpectrumDpx>(dpx_core::kDpxChartType::kEnvelope);
 		charts_[kPowerSpectrum]		= std::make_shared<dpx_core::SpectrumDpx>(dpx_core::kDpxChartType::kPowSpectrum);
-
-		for (auto chart_type : { kAcf, kPowerSpectrum , kPhasorSpectrum, kBandwidth, kEnvelopeSpectrum}) {
+		charts_[kConstellation]		= std::make_shared<constel::Constellation>();
+		for (auto chart_type : { kAcf, kPowerSpectrum , kPhasorSpectrum, kBandwidth, kEnvelopeSpectrum, kConstellation }) {
 			auto chart_window = ShipBuilder::GetWindow(charts_[chart_type]);
 			window_->AddChartWindow(chart_window, chart_type);
 		}

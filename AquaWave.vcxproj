@@ -121,6 +121,7 @@
   <ItemGroup>
     <ClCompile Include="AquaWave.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="sources\Arks\Elements\Constellation\Constellation.cpp" />
     <ClCompile Include="sources\Arks\Elements\DPX Spectrum\SpectrumDPX.cpp" />
     <ClCompile Include="sources\Arks\Elements\Static SPG\Spectrogram.cpp" />
     <ClCompile Include="sources\Arks\File Source\FileSource.cpp" />
@@ -168,6 +169,7 @@
   <ItemGroup>
     <ClInclude Include="sources\aqua_defines.h" />
     <QtMoc Include="sources\Arks\Elements\DPX Spectrum\SpectrumDPX.h" />
+    <ClInclude Include="sources\Arks\Elements\Constellation\Constellation.h" />
     <ClInclude Include="sources\Arks\Elements\Static SPG\Spectrogram.h" />
     <ClInclude Include="sources\Arks\File Source\FileSource.h" />
     <ClInclude Include="sources\Arks\File Source\helpers\FileDataManager.h" />
@@ -197,7 +199,7 @@
     <ClInclude Include="sources\DSP Tools\Resampler\ResamplerMan.h" />
     <ClInclude Include="sources\GUI\basic tools\gui_worker.h" />
     <ClInclude Include="sources\GUI\basic tools\PowerManager.h" />
-    <ClInclude Include="sources\GUI\Charts\Constel\ConstelChart.h" />
+    <QtMoc Include="sources\GUI\Charts\Constel\ConstelChart.h" />
     <ClInclude Include="sources\GUI\Charts\Constel\Core\ConstelCore.h" />
     <ClInclude Include="sources\GUI\Charts\Constel\Core\ConstelRenderer.h" />
     <ClInclude Include="sources\GUI\Charts\Constel\Core\constel_defs.h" />

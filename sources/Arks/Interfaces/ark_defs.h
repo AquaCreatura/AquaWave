@@ -46,7 +46,8 @@ namespace fluctus
         kFileSource		= 2,
         kStaticSpg		= 3,
 		kSpectralViewer	= 4,
-		kScopeAnalyser	= 5
+		kScopeAnalyser	= 5,
+		kConstellation  = 6
     };
 
 

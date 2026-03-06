@@ -113,6 +113,9 @@
     <Filter Include="GUI\Charts\Constel\core">
       <UniqueIdentifier>{89c1da7e-8b64-408a-bde0-d2b5d67bfc5c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ARKS\Elements\Constellation">
+      <UniqueIdentifier>{090844cb-e36d-46ee-8e5a-4c654974ec6c}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <!-- ClCompile (CPP Files) -->
   <ItemGroup>
@@ -242,14 +245,17 @@
     <ClCompile Include="sources\Tools\file_helpers.cpp">
       <Filter>Tools</Filter>
     </ClCompile>
-    <ClCompile Include="sources\GUI\Charts\Constel\ConstelChart.cpp">
-      <Filter>GUI\Charts\Constel</Filter>
-    </ClCompile>
     <ClCompile Include="sources\GUI\Charts\Constel\Core\ConstelCore.cpp">
       <Filter>GUI\Charts\Constel\core</Filter>
     </ClCompile>
     <ClCompile Include="sources\GUI\Charts\Constel\Core\ConstelRenderer.cpp">
       <Filter>GUI\Charts\Constel\core</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\Arks\Elements\Constellation\Constellation.cpp">
+      <Filter>ARKS\Elements\Constellation</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\GUI\Charts\Constel\ConstelChart.cpp">
+      <Filter>GUI\Charts\Constel</Filter>
     </ClCompile>
   </ItemGroup>
   <!-- ClInclude (H Files) -->
@@ -378,9 +384,6 @@
     <ClInclude Include="sources\Tools\file_helpers.h">
       <Filter>Tools</Filter>
     </ClInclude>
-    <ClInclude Include="sources\GUI\Charts\Constel\ConstelChart.h">
-      <Filter>GUI\Charts\Constel</Filter>
-    </ClInclude>
     <ClInclude Include="sources\GUI\Charts\Constel\Core\constel_defs.h">
       <Filter>GUI\Charts\Constel\core</Filter>
     </ClInclude>
@@ -389,6 +392,9 @@
     </ClInclude>
     <ClInclude Include="sources\GUI\Charts\Constel\Core\ConstelRenderer.h">
       <Filter>GUI\Charts\Constel\core</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\Arks\Elements\Constellation\Constellation.h">
+      <Filter>ARKS\Elements\Constellation</Filter>
     </ClInclude>
   </ItemGroup>
   <!-- QtMoc (For Headers Requiring Moc) -->
@@ -428,6 +434,9 @@
     </QtMoc>
     <QtMoc Include="sources\Arks\Elements\DPX Spectrum\SpectrumDPX.h">
       <Filter>ARKS\Elements\DPX Spectrum</Filter>
+    </QtMoc>
+    <QtMoc Include="sources\GUI\Charts\Constel\ConstelChart.h">
+      <Filter>GUI\Charts\Constel</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>

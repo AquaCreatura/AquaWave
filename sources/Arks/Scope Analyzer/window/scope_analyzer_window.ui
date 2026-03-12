@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>811</width>
-    <height>517</height>
+    <height>659</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -56,213 +56,186 @@
       <property name="bottomMargin">
        <number>0</number>
       </property>
-      <item row="0" column="2">
-       <widget class="QFrame" name="frame_7">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-          <horstretch>1</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
+      <item row="2" column="1" colspan="2">
+       <widget class="QFrame" name="frame_3">
         <property name="frameShape">
          <enum>QFrame::StyledPanel</enum>
         </property>
         <property name="frameShadow">
          <enum>QFrame::Raised</enum>
         </property>
-        <layout class="QGridLayout" name="gridLayout_7">
-         <item row="4" column="2" rowspan="2">
-          <layout class="QGridLayout" name="constell_chart">
-           <property name="sizeConstraint">
-            <enum>QLayout::SetDefaultConstraint</enum>
+        <layout class="QGridLayout" name="gridLayout_6">
+         <item row="0" column="0">
+          <widget class="QSplitter" name="splitter_2">
+           <property name="frameShape">
+            <enum>QFrame::NoFrame</enum>
            </property>
-           <property name="horizontalSpacing">
-            <number>0</number>
+           <property name="lineWidth">
+            <number>1</number>
            </property>
-          </layout>
-         </item>
-         <item row="4" column="0">
-          <layout class="QFormLayout" name="formLayout">
-           <item row="0" column="0">
-            <widget class="QRadioButton" name="carrier_radio_button">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text">
-              <string>Carrier</string>
-             </property>
-             <attribute name="buttonGroup">
-              <string notr="true">radio_group_chart_type</string>
-             </attribute>
-            </widget>
-           </item>
-           <item row="0" column="1">
-            <widget class="QLabel" name="carrier_value_label">
-             <property name="text">
-              <string>15.56 MHz</string>
-             </property>
-            </widget>
-           </item>
-           <item row="1" column="0">
-            <widget class="QRadioButton" name="bandwidth_radio_button">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text">
-              <string>Bandwidth</string>
-             </property>
-             <attribute name="buttonGroup">
-              <string notr="true">radio_group_chart_type</string>
-             </attribute>
-            </widget>
-           </item>
-           <item row="1" column="1">
-            <widget class="QLabel" name="bandwidth_value_label">
-             <property name="text">
-              <string>250 kHz</string>
-             </property>
-            </widget>
-           </item>
-           <item row="2" column="0">
-            <widget class="QRadioButton" name="symbol_rate_radio_button">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text">
-              <string>Symbol rate </string>
-             </property>
-             <attribute name="buttonGroup">
-              <string notr="true">radio_group_chart_type</string>
-             </attribute>
-            </widget>
-           </item>
-           <item row="2" column="1">
-            <widget class="QLabel" name="symbol_rate_value_label">
-             <property name="text">
-              <string>200 kHz</string>
-             </property>
-            </widget>
-           </item>
-           <item row="3" column="0">
-            <widget class="QRadioButton" name="acf_radio_button">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="focusPolicy">
-              <enum>Qt::StrongFocus</enum>
-             </property>
-             <property name="text">
-              <string>ACF</string>
-             </property>
-             <attribute name="buttonGroup">
-              <string notr="true">radio_group_chart_type</string>
-             </attribute>
-            </widget>
-           </item>
-           <item row="3" column="1">
-            <widget class="QLabel" name="acf_value_label">
-             <property name="text">
-              <string>4.674 sec</string>
-             </property>
-            </widget>
-           </item>
-           <item row="4" column="0">
-            <widget class="QLabel" name="label">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="text">
-              <string>Modualtion:</string>
-             </property>
-             <property name="textFormat">
-              <enum>Qt::PlainText</enum>
-             </property>
-            </widget>
-           </item>
-           <item row="4" column="1">
-            <widget class="QLabel" name="label_2">
-             <property name="text">
-              <string>APSK 64</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
+           <property name="orientation">
+            <enum>Qt::Horizontal</enum>
+           </property>
+           <property name="opaqueResize">
+            <bool>true</bool>
+           </property>
+           <property name="handleWidth">
+            <number>7</number>
+           </property>
+           <widget class="QWidget" name="layoutWidget">
+            <layout class="QGridLayout" name="gridLayout_8">
+             <item row="0" column="0">
+              <widget class="QRadioButton" name="carrier_radio_button">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string>Carrier</string>
+               </property>
+               <attribute name="buttonGroup">
+                <string notr="true">radio_group_chart_type</string>
+               </attribute>
+              </widget>
+             </item>
+             <item row="0" column="2" rowspan="4">
+              <widget class="Line" name="line">
+               <property name="orientation">
+                <enum>Qt::Vertical</enum>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="6">
+              <spacer name="horizontalSpacer">
+               <property name="orientation">
+                <enum>Qt::Horizontal</enum>
+               </property>
+               <property name="sizeHint" stdset="0">
+                <size>
+                 <width>40</width>
+                 <height>20</height>
+                </size>
+               </property>
+              </spacer>
+             </item>
+             <item row="0" column="1">
+              <widget class="QLabel" name="carrier_value_label">
+               <property name="text">
+                <string>15.56 MHz</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="4">
+              <widget class="QLabel" name="label">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Maximum">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string>Modulation:</string>
+               </property>
+               <property name="textFormat">
+                <enum>Qt::PlainText</enum>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="5">
+              <widget class="QLabel" name="label_2">
+               <property name="text">
+                <string>APSK 64</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="5">
+              <widget class="QLabel" name="bandwidth_value_label">
+               <property name="text">
+                <string>250 kHz</string>
+               </property>
+              </widget>
+             </item>
+             <item row="1" column="0">
+              <widget class="QRadioButton" name="symbol_rate_radio_button">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="text">
+                <string>Symbol rate </string>
+               </property>
+               <attribute name="buttonGroup">
+                <string notr="true">radio_group_chart_type</string>
+               </attribute>
+              </widget>
+             </item>
+             <item row="1" column="1">
+              <widget class="QLabel" name="symbol_rate_value_label">
+               <property name="text">
+                <string>200 kHz</string>
+               </property>
+              </widget>
+             </item>
+             <item row="2" column="0">
+              <widget class="QRadioButton" name="acf_radio_button">
+               <property name="sizePolicy">
+                <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                 <horstretch>0</horstretch>
+                 <verstretch>0</verstretch>
+                </sizepolicy>
+               </property>
+               <property name="focusPolicy">
+                <enum>Qt::StrongFocus</enum>
+               </property>
+               <property name="text">
+                <string>ACF</string>
+               </property>
+               <attribute name="buttonGroup">
+                <string notr="true">radio_group_chart_type</string>
+               </attribute>
+              </widget>
+             </item>
+             <item row="2" column="1">
+              <widget class="QLabel" name="acf_value_label">
+               <property name="text">
+                <string>4.674 sec</string>
+               </property>
+              </widget>
+             </item>
+             <item row="0" column="4">
+              <widget class="QLabel" name="label_3">
+               <property name="text">
+                <string>Bandwidth:</string>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+           <widget class="QFrame" name="constell_chart">
+            <property name="minimumSize">
+             <size>
+              <width>100</width>
+              <height>100</height>
+             </size>
+            </property>
+            <property name="frameShape">
+             <enum>QFrame::Box</enum>
+            </property>
+            <property name="frameShadow">
+             <enum>QFrame::Raised</enum>
+            </property>
+            <layout class="QGridLayout" name="gridLayout_7"/>
+           </widget>
+          </widget>
          </item>
         </layout>
        </widget>
       </item>
-      <item row="0" column="1">
-       <widget class="QScrollArea" name="scrollArea">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
-          <horstretch>4</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="minimumSize">
-         <size>
-          <width>30</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="maximumSize">
-         <size>
-          <width>100000</width>
-          <height>16777215</height>
-         </size>
-        </property>
-        <property name="baseSize">
-         <size>
-          <width>0</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="widgetResizable">
-         <bool>true</bool>
-        </property>
-        <widget class="QWidget" name="scrollAreaWidgetContents">
-         <property name="geometry">
-          <rect>
-           <x>0</x>
-           <y>0</y>
-           <width>443</width>
-           <height>125</height>
-          </rect>
-         </property>
-         <layout class="QGridLayout" name="gridLayout_8">
-          <item row="0" column="0">
-           <widget class="QLabel" name="label_9">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="text">
-             <string>Found Sigs</string>
-            </property>
-           </widget>
-          </item>
-         </layout>
-        </widget>
-       </widget>
-      </item>
-      <item row="1" column="1" colspan="2">
+      <item row="3" column="1" colspan="2">
        <widget class="QFrame" name="main_chart">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -298,7 +271,7 @@
         </layout>
        </widget>
       </item>
-      <item row="0" column="0" rowspan="2">
+      <item row="0" column="0" rowspan="4">
        <widget class="QFrame" name="frame_2">
         <property name="sizePolicy">
          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
@@ -391,86 +364,42 @@
      <property name="frameShadow">
       <enum>QFrame::Raised</enum>
      </property>
-     <layout class="QHBoxLayout" name="horizontalLayout_2">
-      <property name="spacing">
-       <number>0</number>
-      </property>
-      <property name="leftMargin">
-       <number>0</number>
-      </property>
-      <property name="topMargin">
-       <number>0</number>
-      </property>
-      <property name="rightMargin">
-       <number>0</number>
-      </property>
-      <property name="bottomMargin">
-       <number>0</number>
-      </property>
+     <layout class="QHBoxLayout" name="horizontalLayout">
       <item>
-       <widget class="QFrame" name="spg_chart">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-          <horstretch>3</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
+       <widget class="QSplitter" name="base_charts_splitter">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
         </property>
-        <property name="frameShape">
-         <enum>QFrame::Box</enum>
-        </property>
-        <property name="frameShadow">
-         <enum>QFrame::Raised</enum>
-        </property>
-        <layout class="QGridLayout" name="gridLayout_9">
-         <property name="leftMargin">
-          <number>0</number>
+        <widget class="QFrame" name="spg_chart">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>3</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
          </property>
-         <property name="topMargin">
-          <number>0</number>
+         <property name="frameShape">
+          <enum>QFrame::Box</enum>
          </property>
-         <property name="rightMargin">
-          <number>0</number>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
          </property>
-         <property name="bottomMargin">
-          <number>0</number>
+         <layout class="QGridLayout" name="gridLayout_3"/>
+        </widget>
+        <widget class="QFrame" name="dpx_spectrum_chart">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+           <horstretch>2</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
          </property>
-         <property name="spacing">
-          <number>0</number>
+         <property name="frameShape">
+          <enum>QFrame::Box</enum>
          </property>
-        </layout>
-       </widget>
-      </item>
-      <item>
-       <widget class="QFrame" name="dpx_spectrum_chart">
-        <property name="sizePolicy">
-         <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-          <horstretch>2</horstretch>
-          <verstretch>0</verstretch>
-         </sizepolicy>
-        </property>
-        <property name="frameShape">
-         <enum>QFrame::Box</enum>
-        </property>
-        <property name="frameShadow">
-         <enum>QFrame::Raised</enum>
-        </property>
-        <layout class="QGridLayout" name="gridLayout_10">
-         <property name="leftMargin">
-          <number>0</number>
+         <property name="frameShadow">
+          <enum>QFrame::Raised</enum>
          </property>
-         <property name="topMargin">
-          <number>0</number>
-         </property>
-         <property name="rightMargin">
-          <number>0</number>
-         </property>
-         <property name="bottomMargin">
-          <number>0</number>
-         </property>
-         <property name="spacing">
-          <number>0</number>
-         </property>
-        </layout>
+         <layout class="QGridLayout" name="gridLayout_4"/>
+        </widget>
        </widget>
       </item>
      </layout>

@@ -5,7 +5,7 @@ ChartConstel::ChartConstel(QWidget * parrent):
 	QWidget(parrent), bg_image_(scale_info_)
 {
 	bg_image_.InitImage(":/AquaWave/third_party/background/black_mountain.jpg");
-	setMaximumWidth(257);
+	setMaximumWidth(257 * 5);
 	setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 	scale_info_.pix_info_.margin_px = { 0,0 };
 
@@ -43,15 +43,24 @@ void ChartConstel::paintEvent(QPaintEvent * paint_event)
 
 void ChartConstel::resizeEvent(QResizeEvent * event)
 {
-	if (width() < height())
-		setMinimumWidth(height());		
 	aqua_gui::HV_Info<int> cur_size = { this->width(), this->height() };
 	auto        &pix_info = scale_info_.pix_info_;
 	if (pix_info.widget_size_px == cur_size) return;
 	pix_info.widget_size_px = cur_size;
 	pix_info.chart_size_px = pix_info.widget_size_px - pix_info.margin_px;
 	
+
 	
+	if (cur_size.vertical < cur_size.horizontal) {
+		setMinimumHeight(cur_size.horizontal);
+	}
+	else if (cur_size.horizontal < cur_size.vertical) {
+		setMinimumHeight(cur_size.horizontal);		
+		const auto min_size = std::min(cur_size.horizontal, cur_size.vertical);
+		//resize(min_size, min_size);
+	}
+	
+		
 
 
 }

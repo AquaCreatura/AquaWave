@@ -8,7 +8,7 @@ ScopeAnalyzerWindow::ScopeAnalyzerWindow()
 
 	ui_.radio_group_chart_type->setId(ui_.carrier_radio_button, scope_chart_type::kPowerSpectrum);
 	ui_.radio_group_chart_type->setId(ui_.symbol_rate_radio_button, scope_chart_type::kPhasorSpectrum);
-	ui_.radio_group_chart_type->setId(ui_.bandwidth_radio_button, scope_chart_type::kBandwidth);
+	//ui_.radio_group_chart_type->setId(ui_.bandwidth_radio_button, scope_chart_type::kBandwidth);
 	ui_.radio_group_chart_type->setId(ui_.acf_radio_button, scope_chart_type::kAcf);
 
 	connect(ui_.radio_group_chart_type,
@@ -18,6 +18,7 @@ ScopeAnalyzerWindow::ScopeAnalyzerWindow()
 	{
 		ActivateWindow(static_cast<scope_chart_type>(id));
 	});
+	ui_.base_charts_splitter->setSizes({ 0,1 });
 	
 };
 

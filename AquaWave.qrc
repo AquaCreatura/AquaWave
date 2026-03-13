@@ -3,5 +3,6 @@
         <file>wave.png</file>
         <file>third_party/background/black_forest.jpg</file>
         <file>third_party/background/black_mountain.jpg</file>
+        <file>third_party/background/sym_sky.jpg</file>
     </qresource>
 </RCC>

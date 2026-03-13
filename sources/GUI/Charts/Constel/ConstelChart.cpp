@@ -4,7 +4,7 @@ using namespace constel;
 ChartConstel::ChartConstel(QWidget * parrent): 
 	QWidget(parrent), bg_image_(scale_info_)
 {
-	bg_image_.InitImage(":/AquaWave/third_party/background/black_mountain.jpg");
+	bg_image_.InitImage(":/AquaWave/third_party/background/sym_sky.jpg");
 	setMaximumWidth(257 * 5);
 	setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 	scale_info_.pix_info_.margin_px = { 0,0 };
@@ -25,8 +25,9 @@ void ChartConstel::DrawData(QPainter & painter)
 {
 }
 
-void ChartConstel::PushData(const draw_data & draw_data)
+void ChartConstel::PushData(std::vector<Ipp32fc> & draw_data)
 {
+	core_.AddData(draw_data);
 }
 
 void ChartConstel::ClearData()

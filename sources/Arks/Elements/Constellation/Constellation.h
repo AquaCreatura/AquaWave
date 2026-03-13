@@ -20,7 +20,7 @@ namespace constel
 		bool Reload();
 	protected:
 		QPointer<ChartConstel>		constel_drawer_;
-		SourceArk                  src_info_;
+		SourceArk					src_info_;
 		pipes::SimplePipeLine		pipe_line_;
 	};
 

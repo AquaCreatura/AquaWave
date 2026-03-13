@@ -13,6 +13,8 @@ constel::Constellation::~Constellation()
 
 bool constel::Constellation::SendData(fluctus::DataInfo const & data_info)
 {
+	auto casted_vec = (std::vector<Ipp32fc> &)data_info.data_vec;
+	constel_drawer_->PushData(casted_vec);
 	return false;
 }
 

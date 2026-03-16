@@ -29,7 +29,7 @@ protected:
 
 
     // ѕреобразует относительную плотность в цвет из палитры
-    const argb_t* GetNormalizedColor( double relative_density) const;
+    const argb_t GetNormalizedColor( double relative_density) const;
 
 private:
     dpx_data    &dpx_;                  // Reference to the underlying data structure

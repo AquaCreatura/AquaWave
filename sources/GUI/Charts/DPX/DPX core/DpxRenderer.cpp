@@ -61,7 +61,7 @@ bool dpx_core::DpxRenderer::UpdateDpxRgbData()
                 const double column_weight = *(column_weight_iter++);
                 const double density = column_weight ? *dpx_iter / column_weight : 0;
 				dpx_iter++;
-                argb_t color = *GetNormalizedColor(density);
+                argb_t color = GetNormalizedColor(density);
                 *(rgb_iter++) = color;
 				//Собираем статистические данные
 				if(density > 0.)
@@ -85,20 +85,7 @@ bool dpx_core::DpxRenderer::UpdateDpxRgbData()
     return true;
 }
 // Maps relative density to a color from the palette
-const argb_t* dpx_core::DpxRenderer::GetNormalizedColor(double relative_density) const {
+const argb_t dpx_core::DpxRenderer::GetNormalizedColor(double relative_density) const {
     const double normalized_density = clamp_value_helper(relative_density / (last_average_density_ * 3), 0.0, 1.0);
-    // Validate palette size
-    if ((relative_density == 0)) 
-    {
-        static const uint8_t default_color[4] = {0, 0, 0, 0}; // Default to black (little-endian)
-        return (uint32_t*)(default_color);
-    }
-
-    argb_t* color_palette = LUT_HSV_Instance::get_table_ptr();
-    // Calculate palette index and clamp within valid range
-    int color_index = static_cast<int>(normalized_density * (hsv_table_size_c - 1));
-    color_index = clamp_value_helper(color_index, 0, hsv_table_size_c - 1);
-
-    // Return RGBA color from palette 
-    return color_palette + color_index;
+	return LUT_HSV_Instance::DensityToRGB(normalized_density);
 }

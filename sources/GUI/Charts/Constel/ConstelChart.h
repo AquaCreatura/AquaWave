@@ -3,6 +3,7 @@
 #include "GUI/gui_defs.h"
 #include "GUI/Drawers/ImageBackGround.h"
 #include "Core/ConstelCore.h"
+#include <qtimer.h>
 using namespace aqua_gui;
 namespace constel {
 
@@ -26,7 +27,8 @@ protected:
 	QPixmap             cached_pixmap_;
 	ConstelCore			core_;
 	aqua_gui::ChartScaleInfo scale_info_; // Chart scaling information
-
+										  // Timer for periodic redraws
+	QTimer redraw_timer_;
 	aqua_gui::ImageBG bg_image_; // Background image for chart
 };
 

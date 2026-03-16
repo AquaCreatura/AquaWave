@@ -7,6 +7,7 @@ constel::ConstelCore::ConstelCore():
 }
 void constel::ConstelCore::AddData(const std::vector<Ipp32fc> &passed_data)
 {
+	Emplace();
 	if (constel_.data.empty()) Emplace();
 	CheckPassedMaximum(passed_data);
 	StoreData(passed_data);
@@ -56,12 +57,13 @@ void constel::ConstelCore::SetNewMaximum(const Ipp32f max_value)
 	std::vector<int> new_data(constel_.data.size(), 0);
 
 	tbb::spin_mutex::scoped_lock lock(constel_.redraw_mutex);
+	constel_.count_of_points = 0;
 
 	const auto& old_data = constel_.data;
-
-	tbb::parallel_for(-A, A + 1, [&](int nx)
+#if 1
+	tbb::parallel_for(-A, A + 1, [&](int ny)
 	{
-		for (int ny = -A; ny <= A; ++ny)
+		for (int nx = -A; nx <= A; ++nx)
 		{
 			float ox = nx * inv_scale;
 			float oy = ny * inv_scale;
@@ -72,12 +74,14 @@ void constel::ConstelCore::SetNewMaximum(const Ipp32f max_value)
 			if (abs(ix) > A || abs(iy) > A)
 				continue;
 
-			int new_index = (nx + A) * size + (ny + A);
-			int old_index = (ix + A) * size + (iy + A);
-
-			new_data[new_index] = old_data[old_index];
+			int new_index = (ny + A) * size + (nx + A);
+			int old_index = (iy + A) * size + (ix + A);
+			const auto new_sample = old_data[old_index];
+			constel_.count_of_points += new_sample;
+			new_data[new_index] = new_sample;
 		}
 	});
+#endif
 
 	constel_.data.swap(new_data);
 	constel_.max_power = max_value;
@@ -92,7 +96,7 @@ void constel::ConstelCore::StoreData(const std::vector<Ipp32fc>& data)
 	auto& hist = constel_.data;
 
 	tbb::spin_mutex::scoped_lock lock(constel_.redraw_mutex);
-
+	int64_t success_points = 0;
 	for (const auto& sample : data)
 	{
 		int x = std::lround(sample.re * scale);
@@ -100,9 +104,9 @@ void constel::ConstelCore::StoreData(const std::vector<Ipp32fc>& data)
 
 		if (std::abs(x) > A || std::abs(y) > A)
 			continue;
-
-		hist[(x + A) * size + (y + A)]++;
+		success_points++;
+		hist[(y + A) * size + (x + A)]++;
 	}
 
-	constel_.count_of_points += data.size();
+	constel_.count_of_points += success_points;
 }

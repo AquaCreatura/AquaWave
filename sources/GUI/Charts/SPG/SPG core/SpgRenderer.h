@@ -28,7 +28,7 @@ protected:
     bool    UpdateSpectrogramData();
 
     // ѕреобразует относительную плотность в цвет из палитры
-    const argb_t* GetNormalizedColor( double relative_density) const;
+    const argb_t GetNormalizedColor( double relative_density) const;
 protected: 
 	bool IsModeSwitched(HorVerLim<double> realtime_size);
 private:

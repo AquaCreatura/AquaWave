@@ -61,7 +61,7 @@ bool spg_core::SpgRenderer::UpdateSpectrogramData()
                 double density = (idx_power - spg_.power_bounds.low) / spg_.power_bounds.delta();
 				if (holder_to_draw.relevant_vec[x]) last_good_density = density;
 				else density = last_good_density;
-                argb_t color = *GetNormalizedColor(density);
+                argb_t color = GetNormalizedColor(density);
                 *(rgb_iter++) = color;
 
 				//Собираем статистические данные
@@ -88,24 +88,11 @@ bool spg_core::SpgRenderer::UpdateSpectrogramData()
 }
 
 
-const argb_t * spg_core::SpgRenderer::GetNormalizedColor(double relative_density) const
+const argb_t  spg_core::SpgRenderer::GetNormalizedColor(double relative_density) const
 {
 	double delta = (last_max_density_[realtime_mode_] - last_average_density_[realtime_mode_]) * 0.7;
 	double normalized_density = (relative_density - last_average_density_[realtime_mode_]) / delta;
-    // Validate palette size
-    if ((normalized_density <= 0)) 
-    {
-        static const uint8_t default_color[4] = {0, 0, 0, 0}; // Default to black (little-endian)
-        return (uint32_t*)(default_color);
-    }
-	normalized_density = qBound(0.0, normalized_density * normalized_density, 1.0);
-    argb_t* color_palette = LUT_HSV_Instance::get_table_ptr();
-    // Calculate palette index and clamp within valid range
-    int color_index = static_cast<int>(normalized_density * (hsv_table_size_c - 1));
-    color_index = qBound(0, color_index, hsv_table_size_c - 1);
-
-    // Return RGBA color from palette 
-    return color_palette + color_index;
+	return LUT_HSV_Instance::DensityToRGB(normalized_density);
 }
 
 bool spg_core::SpgRenderer::IsModeSwitched(HorVerLim<double> realtime_size)

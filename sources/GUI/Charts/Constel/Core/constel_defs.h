@@ -20,7 +20,7 @@ struct constellation_data
 		const int mid_column = side_amplitude;
 		return &data[mid_row * side_size + mid_column];
 	}
-	int64_t count_of_points;
+	int64_t count_of_points{0i64};
 	tbb::spin_mutex redraw_mutex;
 	float max_power {0.f}; //Реальная амплитуды, соответствущее амплитуде стороны.
 };

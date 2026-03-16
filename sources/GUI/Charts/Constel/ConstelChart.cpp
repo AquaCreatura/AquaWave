@@ -21,9 +21,6 @@ ChartConstel::~ChartConstel()
 {
 }
 
-void ChartConstel::DrawData(QPainter & painter)
-{
-}
 
 void ChartConstel::PushData(std::vector<Ipp32fc> & draw_data)
 {
@@ -32,14 +29,21 @@ void ChartConstel::PushData(std::vector<Ipp32fc> & draw_data)
 
 void ChartConstel::ClearData()
 {
+	core_.Emplace();
 }
 
 void ChartConstel::paintEvent(QPaintEvent * paint_event)
 {
 	QPainter new_frame_painter(this);
+	bg_image_.DrawImage(new_frame_painter);
 	{
-		bg_image_.DrawImage(new_frame_painter);
+		auto data_pixmap = core_.GetRelevantPixmap(scale_info_.pix_info_.chart_size_px.horizontal);
+		new_frame_painter.drawPixmap(0,0, data_pixmap);
 	}
+	
+	
+	
+
 }
 
 void ChartConstel::resizeEvent(QResizeEvent * event)

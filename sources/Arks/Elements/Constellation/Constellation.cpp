@@ -15,7 +15,7 @@ bool constel::Constellation::SendData(fluctus::DataInfo const & data_info)
 {
 	auto casted_vec = (std::vector<Ipp32fc> &)data_info.data_vec;
 	constel_drawer_->PushData(casted_vec);
-	return false;
+	return true;
 }
 
 bool constel::Constellation::SendDove(fluctus::DoveSptr const & sent_dove)
@@ -64,5 +64,6 @@ ArkType constel::Constellation::GetArkType() const
 
 bool constel::Constellation::Reload()
 {
-	return false;
+	constel_drawer_->ClearData();
+	return true;
 }

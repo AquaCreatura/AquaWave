@@ -12,7 +12,6 @@ class ChartConstel : public QWidget
 public:
 	ChartConstel(QWidget* parrent = nullptr);
 	~ChartConstel();
-	void DrawData(QPainter& painter);
 	void PushData(std::vector<Ipp32fc>& draw_data);
 	void ClearData();
 	bool hasHeightForWidth() const override { return true; }

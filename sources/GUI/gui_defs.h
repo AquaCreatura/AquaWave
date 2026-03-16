@@ -85,7 +85,8 @@ struct dynamic_qimage
 {   
     QImage                  qimage;
     std::vector<argb_t>     data;
-    HV_Info<size_t>         size;
+	HV_Info<size_t>         size;
+	int						side_size_px;
 };
 
 struct draw_data

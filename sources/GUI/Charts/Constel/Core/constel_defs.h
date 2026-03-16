@@ -11,18 +11,18 @@ namespace constel {
 struct constellation_data
 {
 	typedef int DataType;
-	int amplitude; //Амплитуда в одну из сторону 2A + 1 = width = height
-	int side_size; //Длина одной стороны = 2 * amplitude + 1
+	int side_amplitude; //Амплитуда в одну из сторону 2A + 1 = width = height
+	int side_size; //Длина одной стороны = 2 * side_amplitude + 1
 	std::vector<DataType>   data;            // (Плотность) Хранилище данных (size = высота * ширина) (values can not be negative)
 	// Доступ к строкам данных
 	DataType* operator[](size_t row) {
-		const int mid_row = amplitude + row;
-		const int mid_column = amplitude;
+		const int mid_row = side_amplitude + row;
+		const int mid_column = side_amplitude;
 		return &data[mid_row * side_size + mid_column];
 	}
 	int64_t count_of_points;
 	tbb::spin_mutex redraw_mutex;
-
+	float max_power {0.f}; //Реальная амплитуды, соответствущее амплитуде стороны.
 };
 
 }

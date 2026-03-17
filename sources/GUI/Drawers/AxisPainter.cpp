@@ -222,86 +222,110 @@ bool IsInBound(const W left_val, const W passed_val, const W right_val)
 
 bool AxisManager::LinesInfo::FillLineVectors(const int distance_px_, const Limits<double>& val_bounds)
 {
-    grid_lines_.clear();
-    // Если значения инвертированы
-    const bool is_inverted = val_bounds.high < val_bounds.low;
-    // Разница между началом и концом
-    const double delta_val = is_inverted ? val_bounds.low - val_bounds.high : val_bounds.high - val_bounds.low;
-    // Максимальное количество меток
-    const int max_marks_count = (distance_px_ / range_between_lines_px_) + (distance_px_ % range_between_lines_px_ > 0);
-    // Минимальная разница значений на метку
-    double values_in_mark_min = delta_val / max_marks_count;        
+	grid_lines_.clear();
 
-    // Предполагаемый порядок 10 (значение должно быть больше минимального)
-    const int adapted_ext = int(log10(values_in_mark_min)) + (values_in_mark_min >= 1.0);
-    // Шаг между значениями
-    double adapted_step = pow(10, adapted_ext);
-    if (!adapted_step) return false;
-    // Получили адаптированный шаг
-    
-    int denominator = 1;
-    // Находим наиболее подходящий делитель
-    if (adapted_step / 2 >= values_in_mark_min)
-    {   
-        if (adapted_step / 4 >= values_in_mark_min)
-        {
-            denominator = 4;
-        }
-        else
-        {
-            denominator = 2;
-        }   
-    }
+	// ---------------------------------------------------------------------
+	// 1. Подготовительные вычисления
+	// ---------------------------------------------------------------------
+	const bool is_inverted = val_bounds.high < val_bounds.low;
+	const double low = is_inverted ? val_bounds.high : val_bounds.low;
+	const double high = is_inverted ? val_bounds.low : val_bounds.high;
+	const double delta_val = high - low;
+	if (delta_val <= 0.0 || distance_px_ <= 0)
+		return false;                       // некорректные данные
 
-    adapted_step /= denominator; 
-    const double res_count_of_lines = delta_val / adapted_step;
-    // Если линий недостаточно — увеличиваем количество текстовых меток
-    const int lines_per_text = (res_count_of_lines >= 5) ? 2 : 1;
-    const double string_step = adapted_step * lines_per_text;
+											// Максимально допустимое количество линий, исходя из пиксельного шага
+	const int max_lines_count = distance_px_ / range_between_lines_px_ + 1;
 
-    grid_lines_delta_ = string_step;
+	// ---------------------------------------------------------------------
+	// 2. Выбор оптимального шага между линиями (step)
+	// ---------------------------------------------------------------------
+	// Желаемое количество линий (обычно 5-10, но не больше max_lines_count)
+	const int desired_lines_count = std::min(10, max_lines_count);
+	const double rough_step = delta_val / desired_lines_count;
 
-    // Получаем начальное значение, с которого начинаем рисовать
-    double start_shift = fmod(val_bounds.low, adapted_step);
-    // Если есть остаток — переходим к ближайшему значению
-    if (start_shift) start_shift = is_inverted ? -start_shift : adapted_step - start_shift;
-    double start_value = val_bounds.low + start_shift;
+	// Функция подбирает "красивый" шаг, кратный 1,2,5 * 10^n
+	auto nice_step = [](double x) -> double {
+		if (x <= 0.0) return 1.0;
+		double exponent = floor(log10(x));
+		double mantissa = x / pow(10, exponent);
+		// выбираем ближайшее из набора {1, 2, 5}
+		if (mantissa < 1.5)      mantissa = 1.0;
+		else if (mantissa < 3.0) mantissa = 2.0;
+		else if (mantissa < 7.0) mantissa = 5.0;
+		else                     mantissa = 10.0;
+		return mantissa * pow(10, exponent);
+	};
 
-    // Из значений в пиксели
-    const double x_scale_koeff = distance_px_ / delta_val; 
-    
-    // Правая граница для текста
-    const int right_text_margin_pos = distance_px_ > empty_margin_.second ? distance_px_ - empty_margin_.second : 0;
-    // Проходим по всем значениям
-    double end_value = is_inverted ? val_bounds.high : val_bounds.high;
-    double step_direction = is_inverted ? -adapted_step : adapted_step;
-    for (double value_iterator = start_value; 
-         is_inverted ? value_iterator > end_value : value_iterator < end_value; 
-         value_iterator += step_direction)
-    {
-        // Получаем пиксельное значение
-        const int cur_pixel = static_cast<int>((value_iterator - val_bounds.low) * x_scale_koeff);
-        // Если линия на границе — пропускаем
-        if (!IsInBound(5, cur_pixel, distance_px_ - 5))
-            continue;
-        // Является ли текущая линия текстовой
-        LineInfo cur_line_info;
-        cur_line_info.is_text_line_ = 
-        (
-            (std::min(fmod(value_iterator, string_step), string_step - fmod(value_iterator, string_step)) < (string_step / 10)) &&
-            IsInBound(empty_margin_.first, cur_pixel, right_text_margin_pos)
-        );
+	double step = nice_step(rough_step);
 
-        cur_line_info.pixel_number_ = cur_pixel;
-        // Инициализируем поле значения
-        if (cur_line_info.is_text_line_)
-            cur_line_info.value_ = value_iterator;
-        // Добавляем в вектор
-        grid_lines_.push_back(cur_line_info);
-    }
-    return true;
+	// Убедимся, что при этом шаге количество линий не превышает максимум
+	int lines_count = static_cast<int>(delta_val / step) + 1;
+	if (lines_count > max_lines_count) {
+		// Если линий слишком много, увеличиваем шаг до следующего "красивого"
+		step = nice_step(step * 1.1);   // небольшое смещение, чтобы гарантированно перейти на следующий уровень
+		lines_count = static_cast<int>(delta_val / step) + 1;
+	}
+
+	// ---------------------------------------------------------------------
+	// 3. Определение шага для текстовых подписей (text_step)
+	// ---------------------------------------------------------------------
+	const int lines_per_text = (lines_count >= 5) ? 2 : 1;
+	const double text_step = step * lines_per_text;
+
+	grid_lines_delta_ = text_step;   // сохраняем для внешнего использования
+
+									 // ---------------------------------------------------------------------
+									 // 4. Генерация линий
+									 // ---------------------------------------------------------------------
+	const double x_scale = distance_px_ / delta_val;
+	const int right_text_limit = (distance_px_ > empty_margin_.second)
+		? distance_px_ - empty_margin_.second
+		: 0;
+
+	// Находим первую линию, не меньшую low и кратную step
+	double first_line = low;
+	double remainder = fmod(low, step);
+	if (std::abs(remainder) > 1e-12) {               // учитываем погрешность
+		if (remainder < 0)
+			first_line = low - remainder;            // для отрицательных: low - (-rem) = low + |rem|
+		else
+			first_line = low + (step - remainder);
+	}
+
+	// Проходим по всем линиям от first_line до high включительно
+	for (double value = first_line; value <= high + 1e-12; value += step) {
+		// Контроль выхода за границы из-за погрешностей
+		if (value < low - 1e-12 || value > high + 1e-12)
+			continue;
+
+		// Пиксельная координата
+		int pixel = static_cast<int>((value - low) * x_scale);
+		if (!IsInBound(5, pixel, distance_px_ - 5))
+			continue;   // слишком близко к краям
+
+		LineInfo info;
+		info.pixel_number_ = pixel;
+
+		// Проверка, должна ли линия иметь текстовую подпись
+		// Линия считается текстовой, если она близка к целому кратному text_step
+		double rem = fmod(value, text_step);
+		// Приводим остаток к положительному значению в [0, text_step)
+		if (rem < 0) rem += text_step;
+		double dist_to_multiple = std::min(rem, text_step - rem);
+		if (dist_to_multiple < text_step * 0.1) {   // допуск 10% от шага
+													// Дополнительно проверяем, попадает ли подпись в область без отступов
+			if (IsInBound(empty_margin_.first, pixel, right_text_limit)) {
+				info.is_text_line_ = true;
+				info.value_ = value;                 // сохраняем значение для подписи
+			}
+		}
+
+		grid_lines_.push_back(info);
+	}
+
+	return true;
 }
-
 int AxisManager::LinesInfo::GetFloatStringPower()
 {
     return std::max(0., -1 * log10(grid_lines_delta_) + 1);

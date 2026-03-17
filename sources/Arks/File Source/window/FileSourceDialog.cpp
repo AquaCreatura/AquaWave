@@ -80,6 +80,7 @@ const SourceDescription& file_source::FileSourceDialog::GetFileInfo() const
 
 const bool file_source::FileSourceDialog::SetFileName(const QString & file_name)
 {
+	edit_file_info_ = SourceDescription();
     ParseFileName(file_name);
 	if (file_name.endsWith(".wav", Qt::CaseInsensitive))
 	{
@@ -109,10 +110,6 @@ void file_source::FileSourceDialog::OnChooseFilePath()
 		current_file_name = QFileDialog::getOpenFileName(this, tr("Choose file"),
 			QFileInfo(current_file_name).absolutePath(), set_of_filters, &cur_filter);
 		if (current_file_name.isEmpty()) return;
-
-		// Сброс информации о файле
-		edit_file_info_ = SourceDescription();
-
 		
 		SetFileName(current_file_name);
 	}
@@ -127,6 +124,7 @@ void file_source::FileSourceDialog::ParseWavHeader(const QString & file_name)
 		{
 			edit_file_info_.samplerate_hz = info.sample_rate.value();
 			edit_file_info_.first_sample_offset = info.data_offset.value();
+			edit_file_info_.count_of_samples = (QFile(edit_file_info_.file_name_).size() - edit_file_info_.first_sample_offset) / GetSampleSize(edit_file_info_.data_type_);
 			// Несущая частота не меняется (берётся из имени файла)
 
 			ui_.samplerate_khz_spinbox->setValue(edit_file_info_.samplerate_hz / 1e3);
@@ -156,7 +154,7 @@ bool file_source::FileSourceDialog::ParseFileName(const QString& file_name)
     ui_.carrier_mhz_spinbox     ->setValue(edit_file_info_.carrier_hz   / 1.e6);
     ui_.samplerate_khz_spinbox  ->setValue(edit_file_info_.samplerate_hz/ 1.e3);
 
-	if (QFileInfo::exists(edit_file_info_.file_name_))
+	if (QFileInfo::exists(edit_file_info_.file_name_) && (edit_file_info_.count_of_samples <= 0))
 	{
 		edit_file_info_.count_of_samples = QFile(edit_file_info_.file_name_).size() / GetSampleSize(edit_file_info_.data_type_);
 	}
@@ -216,7 +214,9 @@ void file_source::FileSourceDialog::OnOkButton()
 			tr("Can not find specified file!\n\"%1\"").arg(edit_file_info_.file_name_));
 		return;
 	}
-	edit_file_info_.count_of_samples = QFile(edit_file_info_.file_name_).size() / GetSampleSize(edit_file_info_.data_type_);
+	aqua_parse_tools::WavInfo info;
+
+	edit_file_info_.count_of_samples = (QFile(edit_file_info_.file_name_).size() - edit_file_info_.first_sample_offset) / GetSampleSize(edit_file_info_.data_type_);
 
 	RememberFilePath();
     UpdateSourceNeed();

@@ -33,7 +33,7 @@ bool FileReader::SetFileParams(const fluctus::SourceDescription &params) {
     }
 
     std::streampos file_size_bytes = ifstream_.tellg();
-    ifstream_.seekg(0, std::ios::beg); // Вернуться в начало файла
+    ifstream_.seekg(params.first_sample_offset, std::ios::beg); // Вернуться в начало файла
 
     // Проверяем, чтобы размер файла был кратен размеру сэмпла
     if (file_size_bytes % sample_size != 0) {
@@ -83,7 +83,7 @@ bool FileReader::ReadDataFrom(const size_t start_sample, const size_t count_of_s
     size_t bytes_to_read = actual_read_samples * sample_size;
     read_data.resize(bytes_to_read);
 
-    ifstream_.seekg(start_sample * sample_size, std::ios::beg);
+    ifstream_.seekg(start_sample * sample_size + last_params_.first_sample_offset, std::ios::beg);
     if (ifstream_.fail()) {
         std::cerr << "Error: Failed to seek to position " << start_sample * sample_size << " bytes." << std::endl;
         read_data.clear();

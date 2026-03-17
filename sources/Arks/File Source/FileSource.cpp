@@ -92,6 +92,7 @@ bool file_source::FileSourceArk::SendDove(fluctus::DoveSptr const& sent_dove)
             const QString file_name = file_src_dove->description->file_name_;
 			UpdateSource();
             dialog_->SetFileName(file_name);
+			dialog_->exec();
             //Do smth 
         }//kSetFile
     }

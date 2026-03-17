@@ -7,7 +7,7 @@ constel::ConstelCore::ConstelCore():
 }
 void constel::ConstelCore::AddData(const std::vector<Ipp32fc> &passed_data)
 {
-	Emplace();
+	//Emplace();
 	if (constel_.data.empty()) Emplace();
 	CheckPassedMaximum(passed_data);
 	StoreData(passed_data);

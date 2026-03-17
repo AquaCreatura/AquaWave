@@ -70,7 +70,7 @@ namespace fluctus
 
 	struct SourceDescription
 	{
-		int64_t     carrier_hz{ 1'000'000 };
+		int64_t     carrier_hz{ 0 };
 		int64_t     samplerate_hz{ 100'000 };
 		IppDataType data_type_{ ipp16sc };
 		
@@ -79,6 +79,7 @@ namespace fluctus
 		QString     file_name_;				
 		bool        is_signal{ true };		
 		int64_t     count_of_samples;		
+		int			first_sample_offset{0};
 	};
     struct SourceArk
     {

@@ -1,7 +1,18 @@
 #pragma once
+
+#include <fstream>
+#include <cstdint>
+
+#include <string>
+#include <ctime>
+#include <cstdio>
+
 #include <sstream>
 #include <iomanip>
 #include <regex>
+
+#include "utility_aqua.h"
+
 namespace aqua_parse_tools
 {
 //AMOS 5_17E_LinkWay-S2_1137.01MHz 23312.5KHz.pcm - Why can not parse this string?
@@ -64,9 +75,7 @@ inline std::string generate_filename(const int64_t carrier_hz,
     return oss.str();
 }
 
-#include <string>
-#include <ctime>
-#include <cstdio>
+
 
 // Функция генерирует имя файла с датой, временем и комментариями
 // Формат: "dd.mm.yyyy hh_mm_ss comment"
@@ -124,5 +133,130 @@ inline std::string ValueToString(double v, int precision, const char* divider = 
 	if (neg) s.insert(0, "-");
 	return s;
 }
+
+
+
+using namespace utility_aqua;
+struct WavInfo
+{
+	aqua_opt<uint16_t> audio_format;
+	aqua_opt<uint16_t> num_channels;
+	aqua_opt<uint32_t> sample_rate;
+	aqua_opt<uint32_t> byte_rate;
+	aqua_opt<uint16_t> block_align;
+	aqua_opt<uint16_t> bits_per_sample;
+
+	aqua_opt<uint32_t> data_offset;
+	aqua_opt<uint32_t> data_size;
+};
+
+
+
+inline bool get_wav_info(const std::string& filename, WavInfo& out)
+{
+	std::ifstream file(filename, std::ios::binary);
+	if (!file)
+		return false;
+
+	auto read_u16 = [&](uint16_t& v) -> bool {
+		return static_cast<bool>(file.read(reinterpret_cast<char*>(&v), 2));
+	};
+	auto read_u32 = [&](uint32_t& v) -> bool {
+		return static_cast<bool>(file.read(reinterpret_cast<char*>(&v), 4));
+	};
+	auto tell = [&]() -> uint64_t {
+		return static_cast<uint64_t>(file.tellg());
+	};
+	auto seek = [&](uint64_t pos) -> bool {
+		file.seekg(static_cast<std::streamoff>(pos), std::ios::beg);
+		return static_cast<bool>(file);
+	};
+
+	// --- RIFF header ---
+	char riff[12];
+	if (!file.read(riff, 12))
+		return false;
+	if (std::memcmp(riff, "RIFF", 4) != 0 || std::memcmp(riff + 8, "WAVE", 4) != 0)
+		return false;
+
+	// Размер файла (для проверок)
+	file.seekg(0, std::ios::end);
+	uint64_t file_size = static_cast<uint64_t>(file.tellg());
+	file.seekg(12, std::ios::beg);
+
+	bool fmt_found = false;
+	bool data_found = false;
+
+	while (file)
+	{
+		char chunk_id[4];
+		uint32_t chunk_size;
+
+		if (!file.read(chunk_id, 4))
+			break;
+		if (!read_u32(chunk_size))
+			break;
+
+		uint64_t chunk_data_pos = tell();
+
+		// Защита от выхода за пределы файла
+		if (chunk_data_pos > file_size || chunk_size > file_size - chunk_data_pos)
+			return false;
+
+		if (std::memcmp(chunk_id, "fmt ", 4) == 0)
+		{
+			if (chunk_size < 16)
+			{
+				seek(chunk_data_pos + chunk_size + (chunk_size & 1));
+				continue;
+			}
+
+			uint16_t audio_format, num_channels;
+			uint32_t sample_rate, byte_rate;
+			uint16_t block_align, bits_per_sample;
+
+			if (!read_u16(audio_format)) break;
+			if (!read_u16(num_channels)) break;
+			if (!read_u32(sample_rate)) break;
+			if (!read_u32(byte_rate)) break;
+			if (!read_u16(block_align)) break;
+			if (!read_u16(bits_per_sample)) break;
+
+			out.audio_format = audio_format;
+			out.num_channels = num_channels;
+			out.sample_rate = sample_rate;
+			out.byte_rate = byte_rate;
+			out.block_align = block_align;
+			out.bits_per_sample = bits_per_sample;
+
+			fmt_found = true;
+			seek(chunk_data_pos + chunk_size);
+		}
+		else if (std::memcmp(chunk_id, "data", 4) == 0)
+		{
+			out.data_offset = static_cast<uint32_t>(chunk_data_pos);  // или сохранить uint64_t, если нужно
+			out.data_size = chunk_size;
+			data_found = true;
+			seek(chunk_data_pos + chunk_size);
+		}
+		else
+		{
+			seek(chunk_data_pos + chunk_size);
+		}
+
+		// RIFF padding (чётное выравнивание)
+		if (chunk_size & 1)
+		{
+			if (!seek(tell() + 1))
+				break;
+		}
+
+		if (fmt_found && data_found)
+			break;
+	}
+
+	return fmt_found && data_found;  // только если есть и частота, и данные
+}
+
 
 }

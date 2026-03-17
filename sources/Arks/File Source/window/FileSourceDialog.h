@@ -23,8 +23,8 @@ namespace file_source
     protected:
         // Slot to handle file path selection
         void OnChooseFilePath();
-
-        void ParseFileName(const QString& file_name);
+		void ParseWavHeader(const QString& file_name);
+        bool ParseFileName(const QString& file_name);
 		void RememberFilePath();
         // Slot to update data type options in UI
         void UpdateDataTypes();

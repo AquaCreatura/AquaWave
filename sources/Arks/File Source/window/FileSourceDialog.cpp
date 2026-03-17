@@ -32,7 +32,7 @@ file_source::FileSourceDialog::FileSourceDialog()
                 QTextStream in(&file);
                 current_file_name = in.readLine(); // читаем первую строку
                 file.close();
-                ParseFileName(current_file_name);
+				SetFileName(current_file_name);
             }
         }
 		
@@ -81,41 +81,71 @@ const SourceDescription& file_source::FileSourceDialog::GetFileInfo() const
 const bool file_source::FileSourceDialog::SetFileName(const QString & file_name)
 {
     ParseFileName(file_name);
-    this->exec();
+	if (file_name.endsWith(".wav", Qt::CaseInsensitive))
+	{
+		ParseWavHeader(file_name);
+	}
     return true;
 }
 
 // Обработчик выбора файла
 void file_source::FileSourceDialog::OnChooseFilePath()
 {
-    QString current_file_name = ui_.choose_path_line_edit->text();  
-    
-    // Диалог выбора файла
-    {
-        QString pcm_filter = tr("Signals (*.pcm)");
-        QString no_filter = tr("All files (*.*)");
-        const QString set_of_filters = QString("%1;;%2").arg(pcm_filter).arg(no_filter);
-        const bool is_pcm_file = ((current_file_name.size() > 5) && current_file_name.endsWith(".pcm"));
-        QString& cur_filter = (is_pcm_file || current_file_name.isEmpty()) ? pcm_filter : no_filter;
+	QString current_file_name = ui_.choose_path_line_edit->text();
 
+	// Диалог выбора файла
+	{
+		// Изменён фильтр: теперь включает и .pcm, и .wav
+		QString signal_filter = tr("Signals (*.pcm *.wav)");
+		QString no_filter = tr("All files (*.*)");
+		const QString set_of_filters = QString("%1;;%2").arg(signal_filter).arg(no_filter);
 
-        current_file_name = QFileDialog::getOpenFileName(this, tr("Choose file"),
-                        QFileInfo(current_file_name).absolutePath(), set_of_filters, &cur_filter/*, QFileDialog::*/);
-        if(current_file_name.isEmpty()) return;
-        ParseFileName(current_file_name);    
-    } 
+		// Проверка, является ли текущее имя файла сигнальным (pcm или wav)
+		const bool is_signal_file = (current_file_name.size() > 5) &&
+			(current_file_name.endsWith(".pcm", Qt::CaseInsensitive) ||
+				current_file_name.endsWith(".wav", Qt::CaseInsensitive));
+		QString& cur_filter = (is_signal_file || current_file_name.isEmpty()) ? signal_filter : no_filter;
+
+		current_file_name = QFileDialog::getOpenFileName(this, tr("Choose file"),
+			QFileInfo(current_file_name).absolutePath(), set_of_filters, &cur_filter);
+		if (current_file_name.isEmpty()) return;
+
+		// Сброс информации о файле
+		edit_file_info_ = SourceDescription();
+
+		
+		SetFileName(current_file_name);
+	}
 }
 
-void file_source::FileSourceDialog::ParseFileName(const QString& file_name)
+void file_source::FileSourceDialog::ParseWavHeader(const QString & file_name)
+{
+	aqua_parse_tools::WavInfo info;
+	if (get_wav_info(file_name.toLocal8Bit().constData(), info))
+	{
+		if (info.sample_rate && info.data_offset)
+		{
+			edit_file_info_.samplerate_hz = info.sample_rate.value();
+			edit_file_info_.first_sample_offset = info.data_offset.value();
+			// Несущая частота не меняется (берётся из имени файла)
+
+			ui_.samplerate_khz_spinbox->setValue(edit_file_info_.samplerate_hz / 1e3);
+			ui_.carrier_mhz_spinbox->setValue(edit_file_info_.carrier_hz / 1e6);
+			ui_.signal_settings_groupbox->setChecked(true);
+		}
+	}
+}
+
+bool file_source::FileSourceDialog::ParseFileName(const QString& file_name)
 {
     // Обновление пути в интерфейсе
     {
         ui_.choose_path_line_edit->setText(file_name);
+
         edit_file_info_.file_name_ = file_name;
     }
-    
     // Парсинг параметров из имени файла (формат: "... 869.977996MHz 219.999KHz.pcm")
-    bool is_succesfully_parsed = true;
+    bool is_succesfully_parsed = false;
     int64_t samplerate_hz = 0, carrier_hz = 1.e6;
     if(aqua_parse_tools::get_samplerate_from_filename(file_name.toLocal8Bit().constData(),edit_file_info_.samplerate_hz))
     {
@@ -130,6 +160,7 @@ void file_source::FileSourceDialog::ParseFileName(const QString& file_name)
 	{
 		edit_file_info_.count_of_samples = QFile(edit_file_info_.file_name_).size() / GetSampleSize(edit_file_info_.data_type_);
 	}
+	return is_succesfully_parsed;
 	
 
 }

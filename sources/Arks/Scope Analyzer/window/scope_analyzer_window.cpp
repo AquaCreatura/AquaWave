@@ -43,6 +43,7 @@ void ScopeAnalyzerWindow::AddChartWindow(QWidget * widget_ptr, scope_chart_type 
 		ui_.harmonic_chart_stacked->addWidget(widget_ptr);
 		break;
 	}
+	update();
 
 }
 

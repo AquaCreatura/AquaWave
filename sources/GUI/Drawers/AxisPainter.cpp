@@ -270,7 +270,7 @@ bool AxisManager::LinesInfo::FillLineVectors(const int distance_px_, const Limit
 	// ---------------------------------------------------------------------
 	// 3. Определение шага для текстовых подписей (text_step)
 	// ---------------------------------------------------------------------
-	const int lines_per_text = (lines_count >= 5) ? 2 : 1;
+	const int lines_per_text = (lines_count >= 5) ? 2 : 1; 
 	const double text_step = step * lines_per_text;
 
 	grid_lines_delta_ = text_step;   // сохраняем для внешнего использования

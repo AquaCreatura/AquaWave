@@ -29,10 +29,13 @@ void file_source::FileDataManager::StartReading(const fluctus::ArkWptr & reader,
 	switch (read_type)
 	{
 	case file_source::FileDataManager::kReadAround: // Запуск чтения вокруг позиции 
-		listener.StartReadAround(start_pos);  
+		listener.StartSingleAround(start_pos);  
 		break;
 	case file_source::FileDataManager::kReadChunksInRange:
-		listener.StartReadChunksInRange(start_pos, end_pos);
+		listener.StartSingleInRange(start_pos, end_pos);
+		break;
+	case file_source::FileDataManager::kLoopReadInRange:
+		listener.StartLoopInRange(start_pos, end_pos);
 		break;
 	default:
 		break;
@@ -96,7 +99,7 @@ void file_source::FileDataListener::WaitProcessLocked()
 }
 
 // Асинхронный запуск чтения вокруг позиции
-bool file_source::FileDataListener::StartReadAround(const double pos_ratio)
+bool file_source::FileDataListener::StartSingleAround(const double pos_ratio)
 {  
 	tbb::spin_mutex::scoped_lock scoped_locker(init_mutex_);
     WaitProcess();
@@ -110,14 +113,27 @@ bool file_source::FileDataListener::StartReadAround(const double pos_ratio)
     return true;
 }
 
-bool file_source::FileDataListener::StartReadChunksInRange(double start_pos, double end_pos)
+bool file_source::FileDataListener::StartSingleInRange(double start_pos, double end_pos)
 {
 	tbb::spin_mutex::scoped_lock scoped_locker(init_mutex_);
 	WaitProcess();
-	state_ = kReadChunksInRange;  // Установка состояния "в процессе чтения"
+	state_ = kSingleReadInRange;  // Установка состояния "в процессе чтения"
 	// Запуск ReadAroundProcess в отдельном потоке
 	process_anchor_ = std::async(std::launch::async,
 		&FileDataListener::ReadChunksInRangeProcess,
+		this,
+		start_pos, end_pos);
+	return true;
+}
+
+bool file_source::FileDataListener::StartLoopInRange(double start_pos, double end_pos)
+{
+	tbb::spin_mutex::scoped_lock scoped_locker(init_mutex_);
+	WaitProcess();
+	state_ = kLoopReadInRange;  // Установка состояния "в процессе чтения"
+								  // Запуск ReadAroundProcess в отдельном потоке
+	process_anchor_ = std::async(std::launch::async,
+		&FileDataListener::LoopReadInRangeProcess,
 		this,
 		start_pos, end_pos);
 	return true;
@@ -159,8 +175,10 @@ void file_source::FileDataListener::ReadChunksInRangeProcess(double start_pos, d
 	int64_t samples_processed = 0;
 	double time_point = 0;
 	while (state_ != kNeedStop) {
-		if (!reader.ReadStream(data_info_.data_vec, time_point)) break;
-
+		if (!reader.ReadStream(data_info_.data_vec, time_point)) 
+			break;
+		if (data_info_.data_vec.size() != 1 << int(log2(data_info_.data_vec.size())))
+			break;
 		ippsConvert_16s32f(reinterpret_cast<Ipp16s*>(data_info_.data_vec.data()),
 			reinterpret_cast<Ipp32f*>(casted_vec.data()),
 			chunk_size * 2);
@@ -188,6 +206,97 @@ void file_source::FileDataListener::ReadChunksInRangeProcess(double start_pos, d
 		}
 	}
 	state_ = kNoProcess;  // Сброс состояния
+}
+
+void file_source::FileDataListener::LoopReadInRangeProcess(double start_pos, double end_pos)
+{
+	// Проверка на пустой диапазон
+	if (start_pos >= end_pos)
+	{
+		state_ = kProcessStopped;
+		return;
+	}
+
+	const auto chunk_size = block_size_;
+	StreamReader reader;
+
+	// Однократная настройка файлового читателя
+	if (!reader.SetFileParams(file_params_))
+	{
+		state_ = kProcessStopped;
+		return;
+	}
+	reader.InitStartEndRatio(start_pos, end_pos, chunk_size);
+
+	// Ожидаемое количество выходных отсчётов за один проход диапазона
+	const double supposed_samples = (end_pos - start_pos) *
+		file_params_.count_of_samples /
+		file_params_.samplerate_hz *
+		data_info_.freq_info_.samplerate_hz;
+
+	std::vector<Ipp32fc> casted_vec(chunk_size);
+	std::vector<Ipp32fc> chunk_to_send(chunk_size);
+	size_t chunk_pos = 0;               // текущая позиция в выходном чанке
+	int64_t samples_processed = 0;      // общее число обработанных выходных отсчётов
+	double time_point = 0;
+
+	while (state_ != kNeedStop)
+	{
+		// Пытаемся прочитать очередной блок из файла
+		if (!reader.ReadStream(data_info_.data_vec, time_point))
+		{
+			// Достигнут конец диапазона — переинициализируем читатель для нового прохода
+			reader.InitStartEndRatio(start_pos, end_pos, chunk_size);
+			// Пробуем прочитать снова; если опять неудача — фатальная ошибка
+			if (!reader.ReadStream(data_info_.data_vec, time_point))
+			{
+				state_ = kProcessStopped;
+				return;
+			}
+		}
+
+		// Преобразование int16 -> float (комплексные отсчёты)
+		ippsConvert_16s32f(reinterpret_cast<Ipp16s*>(data_info_.data_vec.data()),
+			reinterpret_cast<Ipp32f*>(casted_vec.data()),
+			chunk_size * 2);
+
+		// Ресемплинг блока
+		resampler_.ProcessBlock(casted_vec.data(), casted_vec.size());
+		const auto& processed_data = resampler_.GetProcessedData();
+
+		// Копируем обработанные отсчёты в выходной чанк
+		size_t processed_idx = 0;
+		while (processed_idx < processed_data.size())
+		{
+			size_t remaining = chunk_size - chunk_pos;
+			size_t to_copy = std::min(remaining, processed_data.size() - processed_idx);
+
+			ippsCopy_32fc(processed_data.data() + processed_idx,
+				chunk_to_send.data() + chunk_pos,
+				to_copy);
+
+			chunk_pos += to_copy;
+			processed_idx += to_copy;
+			samples_processed += to_copy;
+
+			// Если выходной чанк заполнен — отправляем
+			if (chunk_pos == chunk_size)
+			{
+				// Вычисляем временную метку для отправляемого блока
+				data_info_.time_point = (samples_processed - chunk_size / 2) / supposed_samples;
+
+				// Передаём данные через Swap (ожидается vector<uint8_t>)
+				data_info_.data_vec.swap(reinterpret_cast<std::vector<uint8_t>&>(chunk_to_send));
+				SendPreparedData();
+
+				// Подготавливаем новый чанк
+				chunk_to_send.resize(chunk_size);
+				chunk_pos = 0;
+			}
+		}
+	}
+
+	state_ = kNoProcess;
 }
 
 // Основной процесс чтения данных вокруг позиции

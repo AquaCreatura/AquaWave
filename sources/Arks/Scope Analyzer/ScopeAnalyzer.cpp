@@ -170,7 +170,7 @@ bool ScopeAnalyzer::Restart(Limits<double> freq_bounds_Mhz, Limits<double> time_
 
 	auto file_src_ = arks.front();
 	auto req_dove = std::make_shared<file_source::FileSrcDove>();
-	req_dove->special_thought = file_source::FileSrcDove::kInitReaderInfo | file_source::FileSrcDove::kAskChunksInRange;
+	req_dove->special_thought = file_source::FileSrcDove::kInitReaderInfo | file_source::FileSrcDove::kAskLoopInRange;
 	req_dove->target_ark = shared_from_this();
 	
 	req_dove->time_point_start	= time_bounds.low;

@@ -18,7 +18,9 @@ namespace file_source
             kAskChunkAround		  = 1 << 1, //To get chunk around passed point
             kAskChunksInRange     = 1 << 2, //To get chunks in range
             kAskWholeInRange	  = 1 << 3, //To get data, which is included inside passed points
-            kSetFileName          = 1 << 4, //To set file from command line
+			kAskLoopInRange		  = 1 << 4, //To start cyclic sending in specified range
+
+            kSetFileName          = 1 << 16, //To set file from command line
         };
 		FileSrcDove() { };
 		FileSrcDove(FileSrcDoveThought passed_thought) { special_thought = passed_thought; };

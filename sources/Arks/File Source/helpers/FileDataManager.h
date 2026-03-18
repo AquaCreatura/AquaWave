@@ -22,8 +22,9 @@ namespace file_source
             kProcessStopped = 1 << 0,     // Процесс остановлен
             kReadAround     = 1 << 1,     // Режим чтения вокруг позиции 
             kReadCyclic     = 1 << 2,     // Циклическое чтение 
-			kReadChunksInRange = 1 << 3,  // Чтение блоков в указанном диапазоне
-			kNeedStop		   = 1 << 4,  //Запрос на остановку чтения
+			kSingleReadInRange = 1 << 3,  // Чтение блоков в указанном диапазоне
+			kLoopReadInRange   = 1 << 4,  // Циклическое чтение блоков в указанном диапазоне
+			kNeedStop		   = 1 << 20,  //Запрос на остановку чтения
         };
 
     public:
@@ -38,9 +39,12 @@ namespace file_source
 		void WaitProcessLocked();
         
         // Асинхронный запуск чтения вокруг позиции (pos_ratio — относительная позиция в файле)
-        bool StartReadAround(double pos_ratio);
+        bool StartSingleAround(double pos_ratio);
 		// Асинхронный запуск чтения чанками в указанных пределах (start_pos, end_pos - относительная позиция в файле)
-		bool StartReadChunksInRange(double start_pos, double end_pos);
+		bool StartSingleInRange(double start_pos, double end_pos);
+
+		// Асинхронный запуск циклического чтения чанками в указанных пределах (start_pos, end_pos - относительная позиция в файле)
+		bool StartLoopInRange(double start_pos, double end_pos);
 
         // Получение текущего состояния слушателя
         const ListenerState GetState() const;
@@ -52,6 +56,14 @@ namespace file_source
 		* - out_data_size — требуемый размер данных после ресемплера
 		*/
 		void ReadChunksInRangeProcess(double start_pos, double end_pos);
+
+		/*
+		* Чтение данных в
+		* - pos_ratio — относительная позиция (0.0–1.0)
+		* - out_data_size — требуемый размер данных после ресемплера
+		*/
+		void LoopReadInRangeProcess(double start_pos, double end_pos);
+		
         /*
          * Чтение данных вокруг указанной позиции:
          * - pos_ratio — относительная позиция (0.0–1.0)
@@ -81,7 +93,8 @@ namespace file_source
 		{
 			kDoNothing			= 0, //Заглушка
 			kReadAround			= 1 << 0,
-			kReadChunksInRange	= 1 << 1
+			kReadChunksInRange	= 1 << 1,
+			kLoopReadInRange	= 1 << 2
 		};
         // Конструктор: принимает параметры файла
         FileDataManager(const fluctus::SourceDescription& params);

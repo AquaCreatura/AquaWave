@@ -81,6 +81,11 @@ bool file_source::FileSourceArk::SendDove(fluctus::DoveSptr const& sent_dove)
         {
 			listener_man_.StartReading(target_ark, *file_src_dove->time_point_start, *file_src_dove->time_point_end, FileDataManager::kReadChunksInRange);
         }
+
+		if (file_src_thought & FileSrcDove::FileSrcDoveThought::kAskLoopInRange)
+		{
+			listener_man_.StartReading(target_ark, *file_src_dove->time_point_start, *file_src_dove->time_point_end, FileDataManager::kLoopReadInRange);
+		}
         
         // Запрос данных в диапазоне (не реализовано)
         if (file_src_thought & FileSrcDove::FileSrcDoveThought::kAskWholeInRange)

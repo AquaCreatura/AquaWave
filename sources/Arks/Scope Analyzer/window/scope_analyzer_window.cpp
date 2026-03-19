@@ -19,7 +19,7 @@ ScopeAnalyzerWindow::ScopeAnalyzerWindow()
 		ActivateWindow(static_cast<scope_chart_type>(id));
 	});
 	ui_.base_charts_splitter->setSizes({ 0,1 });
-	
+	UpdateFFtCombobox(21, 15);
 };
 
 void ScopeAnalyzerWindow::AddChartWindow(QWidget * widget_ptr, scope_chart_type type_of_chart)
@@ -58,5 +58,31 @@ void ScopeAnalyzerWindow::ActivateWindow(scope_chart_type type_of_chart)
 		button->blockSignals(false);	
 	}
 	ui_.harmonic_chart_stacked->setCurrentWidget(charts_[type_of_chart]);
+}
+
+void scope_analyzer::ScopeAnalyzerWindow::SetMaxFFtOrder(int max_fft_order)
+{
+	const auto cur_fft = ui_.fft_order_combobox->currentData().toInt();
+	UpdateFFtCombobox(max_fft_order, cur_fft);
+}
+
+void scope_analyzer::ScopeAnalyzerWindow::UpdateFFtCombobox(const int max_order, const int cur_fft_order)
+{
+	{
+		QSignalBlocker blocker(ui_.fft_order_combobox);
+		ui_.fft_order_combobox->clear();
+		const int min_counter = qBound(4, max_order - 2, 8);
+		for (int fft_counter = 8; fft_counter <= max_order; fft_counter++) {
+			QString item_text = QString("%1").arg(aqua_parse_tools::ValueToString(1 << fft_counter, 0, " ").c_str());
+			ui_.fft_order_combobox->addItem(item_text, fft_counter);
+		}
+	}
+	{
+		int target_fft = cur_fft_order;
+		int index = ui_.fft_order_combobox->findData(target_fft);
+		if (index != -1) {
+			ui_.fft_order_combobox->setCurrentIndex(index);  // גûחמגוע emit currentIndexChanged
+		}
+	}
 }
 

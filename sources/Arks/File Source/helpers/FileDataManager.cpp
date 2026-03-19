@@ -75,6 +75,7 @@ void file_source::FileDataListener::SetBaseParams(const int64_t carrier,
                                                 const int64_t samplerate, 
                                                 const int64_t block_size)
 {
+	tbb::spin_mutex::scoped_lock scoped_locker(init_mutex_);
     data_info_.freq_info_.carrier_hz = carrier;      // Установка несущей частоты
     data_info_.freq_info_.samplerate_hz = samplerate; // Установка частоты дискретизации
 
@@ -171,15 +172,16 @@ void file_source::FileDataListener::ReadChunksInRangeProcess(double start_pos, d
 
 	std::vector<Ipp32fc> casted_vec(chunk_size);
 	std::vector<Ipp32fc> chunk_to_send(chunk_size);
+	std::vector<uint8_t> read_data;
 	size_t chunk_pos = 0;
 	int64_t samples_processed = 0;
 	double time_point = 0;
 	while (state_ != kNeedStop) {
-		if (!reader.ReadStream(data_info_.data_vec, time_point)) 
+		if (!reader.ReadStream(read_data, time_point))
 			break;
-		if (data_info_.data_vec.size() != 1 << int(log2(data_info_.data_vec.size())))
+		if (read_data.size() != 1 << int(log2(read_data.size())))
 			break;
-		ippsConvert_16s32f(reinterpret_cast<Ipp16s*>(data_info_.data_vec.data()),
+		ippsConvert_16s32f(reinterpret_cast<Ipp16s*>(read_data.data()),
 			reinterpret_cast<Ipp32f*>(casted_vec.data()),
 			chunk_size * 2);
 
@@ -236,6 +238,7 @@ void file_source::FileDataListener::LoopReadInRangeProcess(double start_pos, dou
 
 	std::vector<Ipp32fc> casted_vec(chunk_size);
 	std::vector<Ipp32fc> chunk_to_send(chunk_size);
+	std::vector<uint8_t> read_data;
 	size_t chunk_pos = 0;               // текущая позиция в выходном чанке
 	int64_t samples_processed = 0;      // общее число обработанных выходных отсчётов
 	double time_point = 0;
@@ -243,12 +246,12 @@ void file_source::FileDataListener::LoopReadInRangeProcess(double start_pos, dou
 	while (state_ != kNeedStop)
 	{
 		// Пытаемся прочитать очередной блок из файла
-		if (!reader.ReadStream(data_info_.data_vec, time_point))
+		if (!reader.ReadStream(read_data, time_point))
 		{
 			// Достигнут конец диапазона — переинициализируем читатель для нового прохода
 			reader.InitStartEndRatio(start_pos, end_pos, chunk_size);
 			// Пробуем прочитать снова; если опять неудача — фатальная ошибка
-			if (!reader.ReadStream(data_info_.data_vec, time_point))
+			if (!reader.ReadStream(read_data, time_point))
 			{
 				state_ = kProcessStopped;
 				return;
@@ -256,7 +259,7 @@ void file_source::FileDataListener::LoopReadInRangeProcess(double start_pos, dou
 		}
 
 		// Преобразование int16 -> float (комплексные отсчёты)
-		ippsConvert_16s32f(reinterpret_cast<Ipp16s*>(data_info_.data_vec.data()),
+		ippsConvert_16s32f(reinterpret_cast<Ipp16s*>(read_data.data()),
 			reinterpret_cast<Ipp32f*>(casted_vec.data()),
 			chunk_size * 2);
 
@@ -285,8 +288,7 @@ void file_source::FileDataListener::LoopReadInRangeProcess(double start_pos, dou
 				// Вычисляем временную метку для отправляемого блока
 				data_info_.time_point = (samples_processed - chunk_size / 2) / supposed_samples;
 
-				// Передаём данные через Swap (ожидается vector<uint8_t>)
-				data_info_.data_vec.swap(reinterpret_cast<std::vector<uint8_t>&>(chunk_to_send));
+				data_info_.data_vec.swap((std::vector<uint8_t>&)(chunk_to_send));
 				SendPreparedData();
 
 				// Подготавливаем новый чанк

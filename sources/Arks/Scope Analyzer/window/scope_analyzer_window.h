@@ -31,6 +31,11 @@ public:
 
 	void AddChartWindow(QWidget* wigdet_ptr, scope_chart_type type_of_chart);
 	void ActivateWindow(scope_chart_type type_of_chart);
+	void SetMaxFFtOrder(int max_fft_order);
+signals:
+	void FftChangeNeed(int new_fft);
+protected:
+	void UpdateFFtCombobox(const int max_order, const int cur_fft_order);
 protected:
 	Ui::ScopeAnalyzerWindow ui_;
 	std::map<scope_chart_type, QWidget*> charts_;

@@ -93,9 +93,8 @@ void constel::ConstelCore::StoreData(const std::vector<Ipp32fc>& data)
 	const int A = constel_.side_amplitude;
 	const int size = constel_.side_size;
 
-	auto& hist = constel_.data;
-
 	tbb::spin_mutex::scoped_lock lock(constel_.redraw_mutex);
+	auto& hist = constel_.data;
 	int64_t success_points = 0;
 	for (const auto& sample : data)
 	{

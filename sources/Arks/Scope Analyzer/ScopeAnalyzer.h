@@ -19,11 +19,10 @@ public:
 protected:
 	bool Reload();
 	bool Restart(fluctus::Limits<double> freq_bounds_hz, fluctus::Limits<double> time_bounds);
-	protected slots:
-	virtual void RequestSelectedData();
-
+	void SetNewFftOrder(int n_fft_order);
 protected:
 	SourceArk						source_info_;
+	Limits<double>					time_bounds_;
 	SourceDescription				selection_descr_;
 
 	QPointer<ScopeAnalyzerWindow>	window_;

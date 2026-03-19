@@ -19,7 +19,15 @@ ScopeAnalyzerWindow::ScopeAnalyzerWindow()
 		ActivateWindow(static_cast<scope_chart_type>(id));
 	});
 	ui_.base_charts_splitter->setSizes({ 0,1 });
-	UpdateFFtCombobox(21, 15);
+	//Определяем Combobox для FFT
+	{
+		connect(ui_.fft_order_combobox, QOverload<int>::of(&QComboBox::currentIndexChanged), [this](int index) {
+			int fft_id = ui_.fft_order_combobox->itemData(index).toInt();
+			emit FftChangeNeed(fft_id);
+		});
+		UpdateFFtCombobox(21, 15);
+	}
+	
 };
 
 void ScopeAnalyzerWindow::AddChartWindow(QWidget * widget_ptr, scope_chart_type type_of_chart)

@@ -49,7 +49,7 @@ ScopeAnalyzer::ScopeAnalyzer()
 	}
 	window_->ActivateWindow(kPowerSpectrum);
 
-
+	connect(window_, &ScopeAnalyzerWindow::FftChangeNeed, this, &ScopeAnalyzer::SetNewFftOrder);
 }
 
 ScopeAnalyzer::~ScopeAnalyzer()
@@ -59,6 +59,8 @@ ScopeAnalyzer::~ScopeAnalyzer()
 
 bool ScopeAnalyzer::SendData(fluctus::DataInfo const & data_info)
 {
+	if (data_info.data_vec.size() != n_fft_ * 8)
+		return false;
 	for (auto chart_iter : charts_) {
 		chart_iter.second->SendData(data_info);
 	}
@@ -141,9 +143,9 @@ bool ScopeAnalyzer::Restart(Limits<double> freq_bounds_Mhz, Limits<double> time_
 {
 	if (GetFrontArks().empty()) {
 		for (auto chart_iter : charts_) 
-			ShipBuilder::Bind_SrcSink(shared_from_this(), chart_iter.second);
-		
+			ShipBuilder::Bind_SrcSink(shared_from_this(), chart_iter.second);	
 	}
+	time_bounds_ = time_bounds;
 	auto arks = GetBehindArks();
 	if (arks.empty()) return false;
 
@@ -154,9 +156,18 @@ bool ScopeAnalyzer::Restart(Limits<double> freq_bounds_Mhz, Limits<double> time_
 											selection_descr_.samplerate_hz / source_info_.descr.samplerate_hz;
 	
 	const int max_order = std::min(log2(selection_descr_.count_of_samples), 21.);
-	window_->SetMaxFFtOrder(max_order);
+	int need_order = qBound(5l, std::lround(log2(selection_descr_.count_of_samples) / 2), long(max_order));
+	window_->UpdateFFtCombobox(max_order, need_order);
 
-	int need_order = qBound(5l, std::lround(log2(selection_descr_.count_of_samples)/2), 12l);
+	
+	return true;
+}
+
+void scope_analyzer::ScopeAnalyzer::SetNewFftOrder(int need_order)
+{
+	auto arks = GetBehindArks();
+	if (arks.empty()) return;
+
 	n_fft_ = 1 << need_order;
 	{
 		auto req_dove = std::make_shared<spectral_viewer::SpectralDove>();
@@ -164,22 +175,19 @@ bool ScopeAnalyzer::Restart(Limits<double> freq_bounds_Mhz, Limits<double> time_
 		req_dove->special_thought = spectral_viewer::SpectralDove::kSetFFtOrder;
 		req_dove->fft_order_ = log2(n_fft_);
 		for (auto chart_iter : charts_) chart_iter.second->SendDove(req_dove);
-		
+
 	}
-
-
-
 
 	auto file_src_ = arks.front();
 	auto req_dove = std::make_shared<file_source::FileSrcDove>();
 	req_dove->special_thought = file_source::FileSrcDove::kInitReaderInfo | file_source::FileSrcDove::kAskLoopInRange;
 	req_dove->target_ark = shared_from_this();
-	
-	req_dove->time_point_start	= time_bounds.low;
-	req_dove->time_point_end	= time_bounds.high;
 
-	req_dove->carrier_hz		= selection_descr_.carrier_hz;
-	req_dove->samplerate_hz		= selection_descr_.samplerate_hz;
+	req_dove->time_point_start = time_bounds_.low;
+	req_dove->time_point_end = time_bounds_.high;
+
+	req_dove->carrier_hz = selection_descr_.carrier_hz;
+	req_dove->samplerate_hz = selection_descr_.samplerate_hz;
 	req_dove->data_size = n_fft_;
 	if (!file_src_->SendDove(req_dove))
 	{
@@ -191,28 +199,6 @@ bool ScopeAnalyzer::Restart(Limits<double> freq_bounds_Mhz, Limits<double> time_
 	}
 
 
-	return true;
+	return;
 }
 
-void ScopeAnalyzer::RequestSelectedData()
-{
-    auto arks = GetBehindArks();
-    if(arks.empty()) return;
-
-    auto file_src_ = arks.front();
-    auto req_dove = std::make_shared<file_source::FileSrcDove>();
-    req_dove->special_thought   = file_source::FileSrcDove::kInitReaderInfo |  file_source::FileSrcDove::kAskChunksInRange;
-    req_dove->target_ark        = shared_from_this();
-    req_dove->time_point_start  = 0;
-	req_dove->time_point_end	= 1.;
-    req_dove->data_size         = n_fft_;
-    if (!file_src_->SendDove(req_dove))
-    {
-        QMessageBox::warning(
-                            nullptr,                        // родительское окно (может быть this)
-                            "Cannot Send Data",            // заголовок окна
-                            "Do something with DPX or file source, or..."  // сообщение
-                        );
-    }
-
-}

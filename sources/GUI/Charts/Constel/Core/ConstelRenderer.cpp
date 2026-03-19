@@ -61,7 +61,7 @@ void constel::ConstellRenderer::ConstelToRGB()
 			continue;
 		}
 
-		double normalized = double(density) / max_density;  std::log1p(static_cast<double>(density)) * inv_log_max;
+		double normalized = double(density) / max_density * 4;  std::log1p(static_cast<double>(density)) * inv_log_max;
 		dst[i] = GetRgbFromDensity(normalized);
 	}
 }

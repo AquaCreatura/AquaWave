@@ -104,8 +104,8 @@ bool file_source::FileDataListener::StartSingleAround(const double pos_ratio)
 {  
 	tbb::spin_mutex::scoped_lock scoped_locker(init_mutex_);
     WaitProcess();
-	state_ = ListenerState::kReadAround;  // Установка состояния "в процессе чтения"
-    // Запуск ReadAroundProcess в отдельном потоке
+	state_ = ListenerState::kReadAround;  
+
     process_anchor_ = std::async(std::launch::async, 
                                 &FileDataListener::ReadAroundProcess, 
                                 this, 
@@ -118,8 +118,7 @@ bool file_source::FileDataListener::StartSingleInRange(double start_pos, double 
 {
 	tbb::spin_mutex::scoped_lock scoped_locker(init_mutex_);
 	WaitProcess();
-	state_ = kSingleReadInRange;  // Установка состояния "в процессе чтения"
-	// Запуск ReadAroundProcess в отдельном потоке
+	state_ = kSingleReadInRange; 
 	process_anchor_ = std::async(std::launch::async,
 		&FileDataListener::ReadChunksInRangeProcess,
 		this,
@@ -131,8 +130,7 @@ bool file_source::FileDataListener::StartLoopInRange(double start_pos, double en
 {
 	tbb::spin_mutex::scoped_lock scoped_locker(init_mutex_);
 	WaitProcess();
-	state_ = kLoopReadInRange;  // Установка состояния "в процессе чтения"
-								  // Запуск ReadAroundProcess в отдельном потоке
+	state_ = kLoopReadInRange;  
 	process_anchor_ = std::async(std::launch::async,
 		&FileDataListener::LoopReadInRangeProcess,
 		this,
@@ -259,9 +257,17 @@ void file_source::FileDataListener::LoopReadInRangeProcess(double start_pos, dou
 		}
 
 		// Преобразование int16 -> float (комплексные отсчёты)
-		ippsConvert_16s32f(reinterpret_cast<Ipp16s*>(read_data.data()),
-			reinterpret_cast<Ipp32f*>(casted_vec.data()),
-			chunk_size * 2);
+		switch (file_params_.data_type_)
+		{
+		case IppDataType::ipp16sc: {
+			ippsConvert_16s32f((Ipp16s*)(read_data.data()), (Ipp32f*)(casted_vec.data()), chunk_size * 2);
+			break;
+		}
+		default:
+			casted_vec.swap((std::vector<Ipp32fc>&)read_data);
+			break;
+		}
+		
 
 		// Ресемплинг блока
 		resampler_.ProcessBlock(casted_vec.data(), casted_vec.size());
@@ -302,7 +308,7 @@ void file_source::FileDataListener::LoopReadInRangeProcess(double start_pos, dou
 }
 
 // Основной процесс чтения данных вокруг позиции
-void file_source::FileDataListener::ReadAroundProcess(double pos_ratio, const int64_t out_data_size)
+void file_source::FileDataListener::ReadAroundProcess(double pos_ratio, const int64_t chunk_size)
 {
 	FileReader reader;
     if(!reader.SetFileParams(file_params_))  // Настройка файлового читателя
@@ -311,17 +317,28 @@ void file_source::FileDataListener::ReadAroundProcess(double pos_ratio, const in
         return;
     }
     // Чтение данных вокруг позиции
-    if(!reader.GetDataAround(pos_ratio, out_data_size, data_info_.data_vec) ||
-		(data_info_.data_vec.size() != out_data_size * 4))
+    if(!reader.GetDataAround(pos_ratio, chunk_size, data_info_.data_vec) ||
+		(data_info_.data_vec.size() != chunk_size * GetSampleSize(file_params_.data_type_) ))
     {
         state_ = kProcessStopped;  // Ошибка чтения
         return;
     }
     
-    std::vector<Ipp32fc> data_vec(out_data_size);
-	
-    ippsConvert_16s32f((Ipp16s*)data_info_.data_vec.data(), (Ipp32f*)data_vec.data(), out_data_size * 2);
-    data_info_.data_vec.swap((std::vector<uint8_t>&)data_vec);
+	std::vector<Ipp32fc> casted_vec(chunk_size);
+
+	switch (file_params_.data_type_)
+	{
+	case IppDataType::ipp16sc: {
+		ippsConvert_16s32f((Ipp16s*)(data_info_.data_vec.data()), (Ipp32f*)(casted_vec.data()), chunk_size * 2);
+		break;
+	}
+	default:
+		casted_vec.swap((std::vector<Ipp32fc>&)data_info_.data_vec);
+		break;
+	}
+
+
+    data_info_.data_vec.swap((std::vector<uint8_t>&)casted_vec);
     data_info_.time_point = pos_ratio;
 
     SendPreparedData();   // Успешное чтение - отправка данных

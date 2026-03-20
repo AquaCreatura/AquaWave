@@ -53,6 +53,7 @@ bool SpectrumDpx::SendData(fluctus::DataInfo const & data_info)
     if(data_info.data_vec.empty()) return true; // Если входные данные пусты, выходим.
     auto &freq_info  = data_info.freq_info_;
     auto &passed_data = (std::vector<Ipp32fc>&)data_info.data_vec; // Приведение типа.
+	if (n_fft_ != passed_data.size()) return false;
 
 	pipe_line_.Process(passed_data);
 

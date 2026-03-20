@@ -1,5 +1,6 @@
 #pragma once
 #include "ui_scope_analyzer_window.h"
+#include "Tools/qt_utility.h"
 #include <qdialog.h>
 #include <map>
 namespace scope_analyzer {
@@ -39,6 +40,7 @@ signals:
 
 protected:
 	Ui::ScopeAnalyzerWindow ui_;
+	std::unique_ptr<utility_aqua::DelayedCaller> fft_delayed_;
 	std::map<scope_chart_type, QWidget*> charts_;
 };
 

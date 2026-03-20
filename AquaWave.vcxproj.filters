@@ -257,6 +257,9 @@
     <ClCompile Include="sources\GUI\Charts\Constel\ConstelChart.cpp">
       <Filter>GUI\Charts\Constel</Filter>
     </ClCompile>
+    <ClCompile Include="sources\Tools\qt_utility.cpp">
+      <Filter>Tools</Filter>
+    </ClCompile>
   </ItemGroup>
   <!-- ClInclude (H Files) -->
   <ItemGroup>
@@ -395,6 +398,9 @@
     </ClInclude>
     <ClInclude Include="sources\Arks\Elements\Constellation\Constellation.h">
       <Filter>ARKS\Elements\Constellation</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\Tools\qt_utility.h">
+      <Filter>Tools</Filter>
     </ClInclude>
   </ItemGroup>
   <!-- QtMoc (For Headers Requiring Moc) -->

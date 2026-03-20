@@ -48,7 +48,7 @@ bool constel::Constellation::SendDove(fluctus::DoveSptr const & sent_dove)
 		if (auto spectral_dove = std::dynamic_pointer_cast<spectral_viewer::SpectralDove>(sent_dove)) {
 
 			if (special_thought & spectral_viewer::SpectralDove::kSetFFtOrder) {
-				
+				Reload();
 			}
 		};
 	}

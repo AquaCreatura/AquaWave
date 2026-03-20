@@ -32,6 +32,7 @@ bool StaticSpg::SendData(fluctus::DataInfo const & data_info)
     // Ссылки на информацию о частоте и входные комплексные данные.
     auto &freq_info  = data_info.freq_info_;
     auto &passed_data = (std::vector<Ipp32fc>&)data_info.data_vec; // Приведение типа.
+
 	pipe_line_.Process(passed_data);
     
     // Определяем границы частотного диапазона для отображения.

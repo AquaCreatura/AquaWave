@@ -157,7 +157,13 @@ bool ScopeAnalyzer::Restart(Limits<double> freq_bounds_Mhz, Limits<double> time_
 	
 	const int max_order = std::min(log2(selection_descr_.count_of_samples), 21.);
 	int need_order = qBound(5l, std::lround(log2(selection_descr_.count_of_samples) / 2), long(max_order));
-	window_->UpdateFFtCombobox(max_order, need_order);
+
+	auto req_dove = std::make_shared<spectral_viewer::SpectralDove>();
+	req_dove->base_thought = DoveParrent::kReset;
+	for (auto chart_iter : charts_)
+		chart_iter.second->SendDove(req_dove);
+
+	window_->SetMaxFFtOrder(max_order);
 
 	
 	return true;
@@ -171,10 +177,11 @@ void scope_analyzer::ScopeAnalyzer::SetNewFftOrder(int need_order)
 	n_fft_ = 1 << need_order;
 	{
 		auto req_dove = std::make_shared<spectral_viewer::SpectralDove>();
-		req_dove->base_thought = DoveParrent::kReset | DoveParrent::kSpecialThought;
+		req_dove->base_thought = DoveParrent::kSpecialThought;
 		req_dove->special_thought = spectral_viewer::SpectralDove::kSetFFtOrder;
 		req_dove->fft_order_ = log2(n_fft_);
-		for (auto chart_iter : charts_) chart_iter.second->SendDove(req_dove);
+		for (auto chart_iter : charts_) 
+			chart_iter.second->SendDove(req_dove);
 
 	}
 

@@ -1,6 +1,5 @@
 #include "scope_analyzer_window.h"
-#include "Tools\parse_tools.h"
-
+#include "Tools/parse_tools.h"
 using namespace scope_analyzer;
 ScopeAnalyzerWindow::ScopeAnalyzerWindow()
 {
@@ -19,11 +18,16 @@ ScopeAnalyzerWindow::ScopeAnalyzerWindow()
 		ActivateWindow(static_cast<scope_chart_type>(id));
 	});
 	ui_.base_charts_splitter->setSizes({ 0,1 });
+	fft_delayed_ = std::make_unique<utility_aqua::DelayedCaller>(500);
 	//Определяем Combobox для FFT
 	{
 		connect(ui_.fft_order_combobox, QOverload<int>::of(&QComboBox::currentIndexChanged), [this](int index) {
-			int fft_id = ui_.fft_order_combobox->itemData(index).toInt();
-			emit FftChangeNeed(fft_id);
+			fft_delayed_->Call([&]() {
+					int fft_id = ui_.fft_order_combobox->currentData().toInt();
+					emit FftChangeNeed(fft_id);
+				}
+			);
+			
 		});
 		UpdateFFtCombobox(21, 15);
 	}

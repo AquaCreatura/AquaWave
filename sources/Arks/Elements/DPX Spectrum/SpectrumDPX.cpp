@@ -23,15 +23,17 @@ dpx_core::SpectrumDpx::SpectrumDpx(kDpxChartType chart_type)
 	case dpx_core::kDpxChartType::kEnvelope: 
 		pipe_line_.AddNextPipe(std::make_shared<EnvelopePipe>());
 		pipe_line_.AddNextPipe(std::make_shared<FFtPipe>());
+		pipe_line_.AddNextPipe(std::make_shared<GetFirstHalf>());
 		pipe_line_.AddNextPipe(std::make_shared<PowerToDbPipe>());
 		break;	
 	case dpx_core::kDpxChartType::kPhasor: 
 		pipe_line_.AddNextPipe(std::make_shared<SamplesDiffPipe>());
 		pipe_line_.AddNextPipe(std::make_shared<PhasorPipe>());
 		pipe_line_.AddNextPipe(std::make_shared<FFtPipe>());
-		pipe_line_.AddNextPipe(std::make_shared<PowerToDbPipe>());
+		pipe_line_.AddNextPipe(std::make_shared<GetFirstHalf>());
+		//pipe_line_.AddNextPipe(std::make_shared<PowerToDbPipe>());
 		break;
-	case dpx_core::kDpxChartType::kPowSpectrum: 
+	case dpx_core::kDpxChartType::kPower4x: 
 		pipe_line_.AddNextPipe(std::make_shared<MulByItSelfPipe>()); //2 степень
 		pipe_line_.AddNextPipe(std::make_shared<MulByItSelfPipe>()); //4 степень
 		pipe_line_.AddNextPipe(std::make_shared<FFtPipe>());
@@ -56,11 +58,17 @@ bool SpectrumDpx::SendData(fluctus::DataInfo const & data_info)
 	if (n_fft_ != passed_data.size()) return false;
 
 	pipe_line_.Process(passed_data);
-
-    Limits<double> freq_bounds = {freq_info.carrier_hz - freq_info.samplerate_hz / 2.,
-                                   freq_info.carrier_hz + freq_info.samplerate_hz / 2.};
-    draw_data draw_data;
-    draw_data.freq_bounds = freq_bounds / freq_divider_;
+	draw_data draw_data;
+	if (chart_type_ == kDpxChartType::kFFT) {
+		Limits<double> freq_bounds = { freq_info.carrier_hz - freq_info.samplerate_hz / 2.,
+									   freq_info.carrier_hz + freq_info.samplerate_hz / 2. };
+		draw_data.freq_bounds = freq_bounds / freq_divider_;
+	}
+	else
+	{
+		draw_data.freq_bounds = {0,0};
+	}
+    
     draw_data.time_pos    = data_info.time_point;
 	draw_data.data = pipe_line_.meta->float_data;
     dpx_drawer_->PushData(draw_data);
@@ -101,9 +109,7 @@ bool dpx_core::SpectrumDpx::SendDove(fluctus::DoveSptr const & sent_dove)
 		if (auto spectral_dove = std::dynamic_pointer_cast<spectral_viewer::SpectralDove>(sent_dove)) {
 
 			if (special_thought & spectral_viewer::SpectralDove::kSetFFtOrder) {
-				n_fft_ = 1 << *spectral_dove->fft_order_;
-				dpx_drawer_->ClearData();
-				RequestSelectedData();
+				SetNewFftOrder(*spectral_dove->fft_order_);
 			}
 
 			if (special_thought & spectral_viewer::SpectralDove::kSetSelectionHolder) {
@@ -135,25 +141,77 @@ bool dpx_core::SpectrumDpx::Reload()
     }
     src_info_.descr = *req_dove->description;
 
-	Limits<double> bounds_hz = {
-		double(src_info_.descr.carrier_hz) - src_info_.descr.samplerate_hz / 2.,
-		double(src_info_.descr.carrier_hz) + src_info_.descr.samplerate_hz / 2.
-	};
-	freq_divider_ = 1.e6;
 
-	bounds_hz = bounds_hz / freq_divider_;
-	dpx_drawer_->SetHorizontalMinMaxBounds(bounds_hz);
-	dpx_drawer_->SetHorizontalSuffix("MHz");
+
+	UpdateAxisBounds();
+	
     return true;
 }
 
 void dpx_core::SpectrumDpx::SetNewFftOrder(int n_fft_order)
 {
 	n_fft_ = 1 << n_fft_order;
+	UpdateAxisBounds();
+
 	dpx_drawer_->ClearData();
 	RequestSelectedData();
 }
 
+void dpx_core::SpectrumDpx::UpdateAxisBounds()
+{
+	const auto& d = src_info_.descr;
+
+	const double Fs = d.samplerate_hz;
+	const double Fc = d.carrier_hz;
+
+	Limits<double> bounds{};
+	std::string suffix;
+	double divider = 1.0;
+
+	switch (chart_type_)
+	{
+	case dpx_core::kDpxChartType::kACF:
+	{
+		double duration_sec = n_fft_ / Fs;
+		bounds = { 0.0, duration_sec * 1e3 };
+		suffix = "ms";
+		break;
+	}
+
+	case dpx_core::kDpxChartType::kEnvelope:
+	case dpx_core::kDpxChartType::kPhasor:
+	{
+		double max_freq_hz = Fs / 2.0;
+		bounds = { 0.0, max_freq_hz };
+		divider = 1e3;
+		suffix = "kHz";
+		break;
+	}
+
+	case dpx_core::kDpxChartType::kPower4x:
+	{
+		double half_band_hz = Fs / 4.0;
+		bounds = { -half_band_hz, half_band_hz };
+		divider = 1e3;
+		suffix = "kHz";
+		break;
+	}
+
+	default:
+	{
+		bounds = { Fc - Fs / 2.0, Fc + Fs / 2.0 };
+		divider = 1e6;
+		suffix = "MHz";
+		break;
+	}
+	}
+
+	freq_divider_ = divider;
+	bounds = bounds / freq_divider_;
+
+	dpx_drawer_->SetHorizontalMinMaxBounds(bounds);
+	dpx_drawer_->SetHorizontalSuffix(suffix.c_str());
+}
 void SpectrumDpx::RequestSelectedData()
 {
     auto arks = GetBehindArks();

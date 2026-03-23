@@ -12,7 +12,7 @@ enum class kDpxChartType {
 	kACF = 1,
 	kEnvelope = 2,
 	kPhasor   = 3,
-	kPowSpectrum = 4
+	kPower4x = 4
 };
 class SpectrumDpx : public fluctus::ArkBase
 {
@@ -26,7 +26,8 @@ public:
 protected:
     bool Reload();
 	void SetNewFftOrder(int n_fft_order);
-protected slots:
+	void UpdateAxisBounds();
+protected:
     virtual void RequestSelectedData();
 
 protected:

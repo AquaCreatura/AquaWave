@@ -40,7 +40,7 @@ ScopeAnalyzer::ScopeAnalyzer()
 
 		charts_[kPhasorSpectrum]	= std::make_shared<dpx_core::SpectrumDpx>(dpx_core::kDpxChartType::kPhasor);
 		charts_[kEnvelopeSpectrum]	= std::make_shared<dpx_core::SpectrumDpx>(dpx_core::kDpxChartType::kEnvelope);
-		charts_[kPowerSpectrum]		= std::make_shared<dpx_core::SpectrumDpx>(dpx_core::kDpxChartType::kPowSpectrum);
+		charts_[kPowerSpectrum]		= std::make_shared<dpx_core::SpectrumDpx>(dpx_core::kDpxChartType::kPower4x);
 		charts_[kConstellation]		= std::make_shared<constel::Constellation>();
 		for (auto chart_type : { kAcf, kPowerSpectrum , kPhasorSpectrum, kBandwidth, kEnvelopeSpectrum, kConstellation }) {
 			auto chart_window = ShipBuilder::GetWindow(charts_[chart_type]);

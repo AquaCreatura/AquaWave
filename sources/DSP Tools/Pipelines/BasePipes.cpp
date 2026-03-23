@@ -100,3 +100,9 @@ void pipes::PowerToDbPipe::ProcessData(PipeHolder::sptr meta_data)
 
 	if (next_) next_->ProcessData(meta_data);
 }
+
+void pipes::GetFirstHalf::ProcessData(PipeHolder::sptr meta_data)
+{
+	meta_data->float_data.resize(meta_data->float_data.size() / 2);
+	meta_data->complex_float_data.resize(meta_data->complex_float_data.size() / 2);
+}

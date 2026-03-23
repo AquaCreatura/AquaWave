@@ -51,4 +51,10 @@ public:
 	void ProcessData(PipeHolder::sptr meta_data) override;
 };
 
+class GetFirstHalf: public PipeInterface
+{
+public:
+	void ProcessData(PipeHolder::sptr meta_data) override;
+};
+
 }

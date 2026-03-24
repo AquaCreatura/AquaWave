@@ -46,8 +46,9 @@ AquaWave::AquaWave(QWidget *parent, const QString& file_path)
 	this->ui.main_stacked->setCurrentWidget(ShipBuilder::GetWindow(spectral_viewer));
 
 
-
-	QFile file(":/AquaWave/sources/GUI/CSS_Themes/default_theme.qss");
+	//default_theme
+	//red_scheme
+	QFile file(":/AquaWave/sources/GUI/CSS_Themes/red_scheme.qss"); 
 	if (file.open(QFile::ReadOnly)) {
 		QString style = file.readAll();
 		setStyleSheet(style);

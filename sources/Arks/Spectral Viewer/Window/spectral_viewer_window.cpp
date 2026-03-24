@@ -47,6 +47,7 @@ void SpectralViewerWindow::UpdateFFtCombobox(const int max_order, const int cur_
 			ui_.fft_combobox->setCurrentIndex(index);  // גûחמגוע emit currentIndexChanged
 		}
 	}
+		
 
 }
 

@@ -116,6 +116,9 @@
     <Filter Include="ARKS\Elements\Constellation">
       <UniqueIdentifier>{090844cb-e36d-46ee-8e5a-4c654974ec6c}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GUI\QSS_themes">
+      <UniqueIdentifier>{3eced2d3-ca09-4078-b73a-0c3294adf820}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <!-- ClCompile (CPP Files) -->
   <ItemGroup>
@@ -399,9 +402,6 @@
     <ClInclude Include="sources\Arks\Elements\Constellation\Constellation.h">
       <Filter>ARKS\Elements\Constellation</Filter>
     </ClInclude>
-    <ClInclude Include="sources\Tools\qt_utility.h">
-      <Filter>Tools</Filter>
-    </ClInclude>
   </ItemGroup>
   <!-- QtMoc (For Headers Requiring Moc) -->
   <ItemGroup>
@@ -444,6 +444,9 @@
     <QtMoc Include="sources\GUI\Charts\Constel\ConstelChart.h">
       <Filter>GUI\Charts\Constel</Filter>
     </QtMoc>
+    <QtMoc Include="sources\Tools\qt_utility.h">
+      <Filter>Tools</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="AquaWave.qrc" />
@@ -462,5 +465,10 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="AquaWave.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="sources\GUI\CSS_Themes\default_theme.qss">
+      <Filter>GUI\QSS_themes</Filter>
+    </None>
   </ItemGroup>
 </Project>

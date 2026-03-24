@@ -4,5 +4,6 @@
         <file>third_party/background/black_forest.jpg</file>
         <file>third_party/background/black_mountain.jpg</file>
         <file>third_party/background/sym_sky.jpg</file>
+        <file>sources/GUI/CSS_Themes/default_theme.qss</file>
     </qresource>
 </RCC>

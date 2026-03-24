@@ -1,0 +1,317 @@
+﻿/* ============================================
+   Аква-тема "Стекло и вода" (Aqua Glass)
+   Для Qt 5.14.2 | Полупрозрачная, свежая, плавная
+   ============================================ */
+
+/* ---------- Глобальный фон: градиент глубины ---------- */
+QWidget {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+        stop:0 #0A2F3A,
+        stop:0.5 #124F5C,
+        stop:1 #0A2F3A);
+    color: #E0F2FE;
+    font-family: "Segoe UI", "Roboto", "Microsoft YaHei", sans-serif;
+    font-size: 13px;
+    selection-background-color: #4ECDC4;
+    selection-color: #0A2F3A;
+}
+
+/* ---------- Окна и панели ---------- */
+QMainWindow, QDialog, QFrame {
+    background: transparent;
+}
+
+/* Стеклянная карточка (можно применить через class="glassCard") */
+QFrame[class="glassCard"], QGroupBox {
+    background: rgba(30, 55, 65, 0.65);
+    border: 1px solid rgba(78, 205, 196, 0.3);
+    border-radius: 12px;
+    margin: 4px;
+}
+
+/* ---------- Кнопки (компактные, без навязывания ширины) ---------- */
+QPushButton {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 rgba(78, 205, 196, 0.7),
+        stop:1 rgba(40, 120, 115, 0.8));
+    border: 1px solid rgba(78, 205, 196, 0.5);
+    border-radius: 16px;
+    padding: 6px 12px;
+    color: #FFFFFF;
+    font-weight: 500;
+    /* min-width не задаём — уважаем размеры, установленные в коде */
+}
+
+QPushButton:hover {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 rgba(110, 235, 225, 0.85),
+        stop:1 rgba(78, 205, 196, 0.95));
+    border-color: #4ECDC4;
+}
+
+QPushButton:pressed {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 rgba(40, 120, 115, 0.9),
+        stop:1 rgba(30, 90, 85, 0.9));
+}
+
+/* Основная кнопка (акцент) */
+QPushButton[class="primary"] {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 #4ECDC4,
+        stop:1 #2A9D8F);
+    border: none;
+    color: #0A2F3A;
+    font-weight: bold;
+}
+
+QPushButton[class="primary"]:hover {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 #6EE5DD,
+        stop:1 #4ECDC4);
+}
+
+/* ---------- Поля ввода ---------- */
+QLineEdit, QTextEdit, QPlainTextEdit, QSpinBox, QDoubleSpinBox, QComboBox {
+    background: rgba(20, 45, 55, 0.7);
+    border: 1px solid rgba(78, 205, 196, 0.4);
+    border-radius: 12px;
+    padding: 6px 10px;
+    color: #E0F2FE;
+    selection-background-color: #4ECDC4;
+    selection-color: #0A2F3A;
+}
+
+QLineEdit:focus, QTextEdit:focus, QPlainTextEdit:focus, QSpinBox:focus, QDoubleSpinBox:focus, QComboBox:focus {
+    border-color: #4ECDC4;
+    background: rgba(30, 65, 75, 0.8);
+}
+
+QComboBox::drop-down {
+    border: none;
+    width: 22px;
+}
+
+QComboBox::down-arrow {
+    image: none;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 6px solid #4ECDC4;
+    width: 0;
+    height: 0;
+}
+
+QComboBox QAbstractItemView {
+    background: rgba(20, 45, 55, 0.95);
+    border: 1px solid #4ECDC4;
+    border-radius: 10px;
+    selection-background-color: #4ECDC4;
+    selection-color: #0A2F3A;
+}
+
+/* ---------- Вкладки ---------- */
+QTabWidget::pane {
+    background: rgba(30, 55, 65, 0.5);
+    border: 1px solid rgba(78, 205, 196, 0.3);
+    border-radius: 16px;
+    top: -1px;
+}
+
+QTabBar::tab {
+    background: rgba(30, 55, 65, 0.6);
+    border: 1px solid rgba(78, 205, 196, 0.3);
+    border-bottom: none;
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    padding: 6px 16px;
+    margin-right: 3px;
+    color: #A0C4CF;
+}
+
+QTabBar::tab:selected {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 rgba(78, 205, 196, 0.3),
+        stop:1 rgba(30, 55, 65, 0.8));
+    border-bottom-color: transparent;
+    color: #4ECDC4;
+}
+
+QTabBar::tab:hover:!selected {
+    background: rgba(78, 205, 196, 0.2);
+    border-color: rgba(78, 205, 196, 0.5);
+}
+
+/* ---------- Чекбоксы и радио-кнопки ---------- */
+QCheckBox::indicator, QRadioButton::indicator {
+    width: 18px;
+    height: 18px;
+    border-radius: 5px;
+    background: rgba(20, 45, 55, 0.8);
+    border: 1px solid #4ECDC4;
+}
+
+QCheckBox::indicator:checked {
+    background: #4ECDC4;
+    border-color: #4ECDC4;
+}
+
+QRadioButton::indicator {
+    border-radius: 9px;
+}
+
+QRadioButton::indicator:checked {
+    background: #4ECDC4;
+    border-color: #4ECDC4;
+}
+
+/* ---------- Скроллбары ---------- */
+QScrollBar:vertical {
+    background: rgba(30, 55, 65, 0.5);
+    width: 10px;
+    border-radius: 5px;
+    margin: 0px;
+}
+
+QScrollBar::handle:vertical {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop:0 #4ECDC4,
+        stop:1 #2A9D8F);
+    border-radius: 5px;
+    min-height: 30px;
+}
+
+QScrollBar::handle:vertical:hover {
+    background: #6EE5DD;
+}
+
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+    height: 0px;
+}
+
+QScrollBar:horizontal {
+    background: rgba(30, 55, 65, 0.5);
+    height: 10px;
+    border-radius: 5px;
+    margin: 0px;
+}
+
+QScrollBar::handle:horizontal {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 #4ECDC4,
+        stop:1 #2A9D8F);
+    border-radius: 5px;
+    min-width: 30px;
+}
+
+/* ---------- Меню ---------- */
+QMenuBar {
+    background: rgba(10, 47, 58, 0.7);
+    border-bottom: 1px solid rgba(78, 205, 196, 0.3);
+}
+
+QMenuBar::item:selected {
+    background: rgba(78, 205, 196, 0.3);
+    border-radius: 8px;
+}
+
+QMenu {
+    background: rgba(20, 45, 55, 0.95);
+    border: 1px solid #4ECDC4;
+    border-radius: 12px;
+    padding: 5px;
+}
+
+QMenu::item:selected {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop:0 #4ECDC4,
+        stop:1 #2A9D8F);
+    color: #0A2F3A;
+    border-radius: 8px;
+}
+
+/* ---------- Таблицы, списки, деревья ---------- */
+QTableView, QListWidget, QTreeView {
+    background: rgba(20, 45, 55, 0.6);
+    border: 1px solid rgba(78, 205, 196, 0.3);
+    border-radius: 12px;
+    alternate-background-color: rgba(30, 65, 75, 0.4);
+    gridline-color: rgba(78, 205, 196, 0.2);
+}
+
+QHeaderView::section {
+    background: rgba(10, 47, 58, 0.8);
+    padding: 6px;
+    border: none;
+    border-right: 1px solid rgba(78, 205, 196, 0.3);
+    border-bottom: 1px solid rgba(78, 205, 196, 0.3);
+    font-weight: bold;
+    color: #4ECDC4;
+}
+
+QTableView::item:selected, QListWidget::item:selected, QTreeView::item:selected {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop:0 #4ECDC4,
+        stop:1 #2A9D8F);
+    color: #0A2F3A;
+}
+
+/* ---------- Прогресс-бар ---------- */
+QProgressBar {
+    background: rgba(30, 55, 65, 0.6);
+    border-radius: 10px;
+    text-align: center;
+    height: 12px;
+}
+
+QProgressBar::chunk {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop:0 #4ECDC4,
+        stop:0.5 #6EE5DD,
+        stop:1 #4ECDC4);
+    border-radius: 10px;
+}
+
+/* ---------- Слайдер ---------- */
+QSlider::groove:horizontal {
+    height: 6px;
+    background: rgba(30, 55, 65, 0.8);
+    border-radius: 3px;
+}
+
+QSlider::handle:horizontal {
+    background: qradialgradient(cx:0.5, cy:0.5, radius: 0.5,
+        stop:0 #FFFFFF,
+        stop:0.7 #4ECDC4,
+        stop:1 #2A9D8F);
+    width: 16px;
+    height: 16px;
+    margin: -5px 0;
+    border-radius: 8px;
+}
+
+QSlider::handle:horizontal:hover {
+    background: #FFFFFF;
+}
+
+/* ---------- Группировка ---------- */
+QGroupBox {
+    background: rgba(30, 55, 65, 0.5);
+    border: 1px solid rgba(78, 205, 196, 0.4);
+    border-radius: 12px;
+    margin-top: 12px;
+    padding-top: 10px;
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    left: 12px;
+    padding: 0 8px;
+    color: #4ECDC4;
+}
+
+/* ---------- Строка состояния ---------- */
+QStatusBar {
+    background: rgba(10, 47, 58, 0.7);
+    border-top: 1px solid rgba(78, 205, 196, 0.3);
+    color: #A0C4CF;
+}

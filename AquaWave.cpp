@@ -1,4 +1,7 @@
 #include <qmessagebox.h>
+#include <QFile>
+#include <QApplication>
+
 #include "AquaWave.h"
 #include "special_defs/file_souce_defs.h"
 
@@ -41,6 +44,14 @@ AquaWave::AquaWave(QWidget *parent, const QString& file_path)
 	
 	//connect
 	this->ui.main_stacked->setCurrentWidget(ShipBuilder::GetWindow(spectral_viewer));
+
+
+
+	QFile file(":/AquaWave/sources/GUI/CSS_Themes/default_theme.qss");
+	if (file.open(QFile::ReadOnly)) {
+		QString style = file.readAll();
+		setStyleSheet(style);
+	}
 }
 
 AquaWave::~AquaWave()

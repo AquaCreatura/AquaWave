@@ -243,6 +243,9 @@
   <ItemGroup>
     <ResourceCompile Include="AquaWave.rc" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="sources\GUI\CSS_Themes\default_theme.qss" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">
     <Import Project="$(QtMsBuild)\qt.targets" />

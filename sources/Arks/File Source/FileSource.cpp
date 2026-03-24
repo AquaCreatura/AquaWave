@@ -113,7 +113,7 @@ void file_source::FileSourceArk::UpdateSource()
 {
 	listener_man_.StopAllReaders();
     this->descr_ = dialog_->GetFileInfo(); //Update descr, according ui
-	if (qmain_window_) qmain_window_->setWindowTitle(tr("[AquaWave v.1.1] %1").arg(descr_.file_name_));
+	if (qmain_window_) qmain_window_->setWindowTitle(tr("[AquaWave v.2.0]   %1").arg(descr_.file_name_));
     //Reset out arks
     {
         auto out_fleet   = GetFrontArks();

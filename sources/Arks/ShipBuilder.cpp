@@ -2,12 +2,12 @@
 #include "Arks\Spectral Viewer\SpectralViewer.h"
 #include "Arks\File Source\FileSource.h"
 #include "Arks\Scope Analyzer\ScopeAnalyzer.h"
-fluctus::ArkSptr ShipBuilder::BuildNewShip(fluctus::ArkType ship_type)
+fluctus::ArkSptr ShipBuilder::BuildNewShip(fluctus::ArkType ship_type, QWidget* main)
 {
 	fluctus::ArkSptr ark;
 	switch (ship_type)
 	{
-	case fluctus::kFileSource:		ark = std::make_shared<file_source::FileSourceArk>();
+	case fluctus::kFileSource:		ark = std::make_shared<file_source::FileSourceArk>(main);
 		break;
 	case fluctus::kSpectralViewer:	ark = std::make_shared<spectral_viewer::SpectralViewer>();
 		break;

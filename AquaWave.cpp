@@ -10,7 +10,7 @@ AquaWave::AquaWave(QWidget *parent, const QString& file_path)
 {
 	//(QString&)file_path = "D:\\signals\\17.10.2025 16_41_59 1875.300000MHz 12800.000KHz.pcm";
     ui.setupUi(this); 
-	file_src_				= ship_builder_.BuildNewShip(fluctus::kFileSource);
+	file_src_				= ship_builder_.BuildNewShip(fluctus::kFileSource, this);
 	spectral_viewer	= ship_builder_.BuildNewShip(fluctus::kSpectralViewer);
 	scope_analyser		= ship_builder_.BuildNewShip(fluctus::kScopeAnalyser);
 

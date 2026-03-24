@@ -3,7 +3,7 @@
 class ShipBuilder {
 
 public:
-	fluctus::ArkSptr BuildNewShip(fluctus::ArkType ship_type);
+	fluctus::ArkSptr BuildNewShip(fluctus::ArkType ship_type, QWidget* main = nullptr);
 	static bool Bind_SrcSink(fluctus::ArkSptr from, fluctus::ArkSptr to);
 	static QPointer<QWidget> GetWindow(fluctus::ArkSptr ship);
 protected:

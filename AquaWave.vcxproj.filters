@@ -450,6 +450,9 @@
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="AquaWave.qrc" />
+    <QtRcc Include="sources\GUI\buttons.qrc">
+      <Filter>GUI</Filter>
+    </QtRcc>
   </ItemGroup>
   <ItemGroup>
     <QtUic Include="AquaWave.ui" />

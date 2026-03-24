@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/buttons">
+        <file>button_images/analyze_icon.png</file>
+        <file>button_images/spectrum.png</file>
+    </qresource>
+</RCC>

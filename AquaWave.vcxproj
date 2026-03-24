@@ -239,6 +239,7 @@
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="AquaWave.qrc" />
+    <QtRcc Include="sources\GUI\buttons.qrc" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="AquaWave.rc" />

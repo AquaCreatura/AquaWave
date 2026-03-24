@@ -53,6 +53,12 @@
        </property>
        <item>
         <widget class="QPushButton" name="spectral_viewer_navigate_button">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="minimumSize">
           <size>
            <width>32</width>
@@ -66,12 +72,21 @@
           </size>
          </property>
          <property name="text">
-          <string>SPG</string>
+          <string/>
+         </property>
+         <property name="checkable">
+          <bool>false</bool>
          </property>
         </widget>
        </item>
        <item>
         <widget class="QPushButton" name="analyze_navigate_button">
+         <property name="sizePolicy">
+          <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+           <horstretch>0</horstretch>
+           <verstretch>0</verstretch>
+          </sizepolicy>
+         </property>
          <property name="minimumSize">
           <size>
            <width>32</width>
@@ -85,7 +100,7 @@
           </size>
          </property>
          <property name="text">
-          <string>ANZ</string>
+          <string/>
          </property>
         </widget>
        </item>

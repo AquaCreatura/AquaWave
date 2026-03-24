@@ -4,7 +4,7 @@
 
 #include "AquaWave.h"
 #include "special_defs/file_souce_defs.h"
-
+#include "Tools/qt_utility.h"
 AquaWave::AquaWave(QWidget *parent, const QString& file_path)
     : QMainWindow(parent)
 {
@@ -53,6 +53,31 @@ AquaWave::AquaWave(QWidget *parent, const QString& file_path)
 		QString style = file.readAll();
 		setStyleSheet(style);
 	}
+
+
+	QIcon analyzeIcon = buildButtonIcon(
+		":/buttons/button_images/analyze_icon.png",
+		":/buttons/button_images/analyze_icon.png",
+		":/buttons/button_images/analyze_icon.png",
+		":/buttons/button_images/analyze_icon.png",
+		":/buttons/button_images/analyze_icon.png"
+	);
+
+	ui.analyze_navigate_button->setIcon(analyzeIcon);
+	ui.analyze_navigate_button->setIconSize(QSize(32, 32));
+
+
+	QIcon spectrumIcon = buildButtonIcon(
+		":/buttons/button_images/spectrum.png",
+		":/buttons/button_images/spectrum.png",
+		":/buttons/button_images/spectrum.png",
+		":/buttons/button_images/spectrum.png",
+		":/buttons/button_images/spectrum.png"
+	);
+
+	ui.spectral_viewer_navigate_button->setIcon(spectrumIcon);
+	ui.spectral_viewer_navigate_button->setIconSize(QSize(32, 32));
+
 }
 
 AquaWave::~AquaWave()

@@ -23,3 +23,13 @@ namespace utility_aqua
 		bool m_update_timer;
 	};
 };
+
+QIcon buildButtonIcon(
+	const QString& imgChecked,
+	const QString& imgCheckedHover,
+	const QString& imgUnchecked,
+	const QString& imgUncheckedHover,
+	const QString& imgDisabled
+);
+QString buildButtonStyleSheet( int , const QString& imgChecked, const QString& imgCheckedHover,
+									const QString& imgUnchecked, const QString& imgUncheckedHover, const QString& imgDisabled);

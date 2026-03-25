@@ -38,7 +38,7 @@ ScopeAnalyzer::ScopeAnalyzer()
 		charts_[kAcf]			 = std::make_shared<dpx_core::SpectrumDpx>(dpx_core::kDpxChartType::kACF);
 		charts_[kBandwidth]		 = std::make_shared<dpx_core::SpectrumDpx>(dpx_core::kDpxChartType::kFFT);
 
-		charts_[kPhasorSpectrum]	= std::make_shared<dpx_core::SpectrumDpx>(dpx_core::kDpxChartType::kPhasor);
+		charts_[kPhasorSpectrum]	= std::make_shared<dpx_core::SpectrumDpx>(dpx_core::kDpxChartType::kFFT);
 		charts_[kEnvelopeSpectrum]	= std::make_shared<dpx_core::SpectrumDpx>(dpx_core::kDpxChartType::kEnvelope);
 		charts_[kPowerSpectrum]		= std::make_shared<dpx_core::SpectrumDpx>(dpx_core::kDpxChartType::kPower4x);
 		charts_[kConstellation]		= std::make_shared<constel::Constellation>();
@@ -184,7 +184,7 @@ void scope_analyzer::ScopeAnalyzer::SetNewFftOrder(int need_order)
 			chart_iter.second->SendDove(req_dove);
 
 	}
-
+	if (time_bounds_.delta() == 0) return;
 	auto file_src_ = arks.front();
 	auto req_dove = std::make_shared<file_source::FileSrcDove>();
 	req_dove->special_thought = file_source::FileSrcDove::kInitReaderInfo | file_source::FileSrcDove::kAskLoopInRange;

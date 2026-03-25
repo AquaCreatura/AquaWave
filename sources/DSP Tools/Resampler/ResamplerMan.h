@@ -3,59 +3,41 @@
 #include "ResamplersImpl/ResamperInterface.h"
 #include "../basic/freq_shifter.h"
 #include "ark_defs.h"
+
 namespace aqua_resampler
 {
 
-// Структура ProcessingParams содержит параметры обработки сигнала.
-struct ProcessingParams 
-{
-    int64_t samplerate_hz; // Базовая частота дискретизации сигнала в герцах.
-    double  carrier_hz;    // Частота несущего сигнала в герцах.
-};
+	class ResamplerManager
+	{
+	public:
+		ResamplerManager();
+		~ResamplerManager();
 
-// Класс ResamplerManager управляет процессом ресэмплинга (изменения частоты дискретизации) сигнала.
-class ResamplerManager 
-{
-public:
-    // Конструктор: инициализирует объект менеджера ресэмплинга.
-    ResamplerManager();
+		// Единственный метод инициализации
+		bool Init(const fluctus::freq_params& base_params,
+			fluctus::freq_params& target_params,
+			bool precise);
 
-    // Деструктор: освобождает все используемые ресурсы.
-    ~ResamplerManager();
+		bool ProcessBlock(const Ipp32fc* input_data, size_t size);
+		std::vector<Ipp32fc>& GetProcessedData();
+		void FreeResources();
 
-    // Метод инициализации ресэмплера.
-    // Параметры:
-    //   base_params  - исходные параметры обработки (например, базовая частота дискретизации).
-    //   target_params- параметры целевого сигнала, частота которого может измениться в процессе ресэмплинга.
-    //   precise      - флаг, указывающий на необходимость точного расчёта коэффициентов ресэмплинга.
-    // Возвращает true, если инициализация прошла успешно, иначе false.
-    bool Init(const fluctus::freq_params& base_params, fluctus::freq_params& target_params, bool precise);
+	private:
+		// Вспомогательные методы инициализации ресемплеров
+		bool initMRResampler(int64_t base_rate, int64_t approx_target_rate, double mr_ratio);
+		bool initPreciseResampler(int64_t approx_target_rate, int64_t target_rate);
 
-    // Метод обработки блока входных данных.
-    // input_data - указатель на массив входных комплексных данных.
-    // size       - количество элементов входного массива.
-    // Возвращает true, если данные обработаны успешно, иначе false.
-    bool ProcessBlock(const Ipp32fc* input_data, size_t size);
+		std::vector<Ipp32fc>                processed_data_;
+		std::unique_ptr<ResamplerInterface> mr_resampler_;
+		std::unique_ptr<ResamplerInterface> precise_resampler_;
+		double                              resample_ratio_;
 
-    // Метод для получения обработанных данных.
-    // Возвращает ссылку на вектор, содержащий комплексные данные после ресэмплинга.
-    std::vector<Ipp32fc>& GetProcessedData();
+		// Раздельные настройки для MR и Precise (внутренние, не настраиваются извне)
+		ResamplerSettings                   mr_settings_;
+		ResamplerSettings                   precise_settings_;
 
-    // Метод для освобождения всех ресурсов, используемых ресэмплером и внутренними буферами.
-    void FreeResources();
-
-private:
-    // Вектор, содержащий обработанные (ресэмплированные) данные.
-    std::vector<Ipp32fc>                processed_data_;
-    // Указатель на объект интерфейса ресэмплера (например, многоскоростной или точный ресэмплер).
-    std::unique_ptr<ResamplerInterface> resampler_;
-	double								resample_ratio_;
-    // Настройки ресэмплера, включающие параметры фильтра и другие настройки.
-    ResamplerSettings                   settings_;
-
-    // Класс, обеспечивающий свдиг данных
-    aqua_dsp_tools::FrequencyShifter    freq_shifter_;
-    std::vector<Ipp32fc>                shifted_data_;
-};
+		aqua_dsp_tools::FrequencyShifter    freq_shifter_;
+		std::vector<Ipp32fc>                shifted_data_;
+	};
 
 }

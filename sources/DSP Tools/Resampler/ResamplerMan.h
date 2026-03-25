@@ -24,8 +24,8 @@ namespace aqua_resampler
 
 	private:
 		// Вспомогательные методы инициализации ресемплеров
-		bool initMRResampler(int64_t base_rate, int64_t approx_target_rate, double mr_ratio);
-		bool initPreciseResampler(int64_t approx_target_rate, int64_t target_rate);
+		bool initMRResampler(int64_t base_rate, int64_t &approx_target_rate);
+		bool initPreciseResampler(int64_t approx_target_rate, int64_t &target_rate);
 
 		std::vector<Ipp32fc>                processed_data_;
 		std::unique_ptr<ResamplerInterface> mr_resampler_;

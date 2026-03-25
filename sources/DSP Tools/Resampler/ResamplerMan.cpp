@@ -32,15 +32,15 @@ ResamplerManager::~ResamplerManager() {
 	FreeResources();
 }
 
-bool ResamplerManager::initMRResampler(int64_t base_rate, int64_t approx_target_rate, double mr_ratio) {
+bool ResamplerManager::initMRResampler(int64_t base_rate, int64_t& approx_target_rate) {
+	double mr_ratio = static_cast<double>(approx_target_rate) / base_rate;
 	// Корректируем длину фильтра в зависимости от коэффициента использования
-	ResamplerSettings adjusted = mr_settings_;
-	int fir_len = get_fir_power_of_two(mr_ratio, adjusted.filter_koeff);
+	int fir_len = get_fir_power_of_two(mr_ratio, mr_settings_.filter_koeff);
 	fir_len = qBound(16, fir_len, 1024);
-	adjusted.filter_length = fir_len;
+	mr_settings_.filter_length = fir_len;
 
 	mr_resampler_ = std::make_unique<MultiRateResampler>();
-	mr_resampler_->SetSettings(adjusted);
+	mr_resampler_->SetSettings(mr_settings_);
 	if (!mr_resampler_->Init(base_rate, approx_target_rate)) {
 		mr_resampler_.reset();
 		return false;
@@ -48,10 +48,18 @@ bool ResamplerManager::initMRResampler(int64_t base_rate, int64_t approx_target_
 	return true;
 }
 
-bool ResamplerManager::initPreciseResampler(int64_t approx_target_rate, int64_t target_rate) {
+bool ResamplerManager::initPreciseResampler(int64_t base_rate, int64_t& target_rate) {
+
+	double mr_ratio = static_cast<double>(target_rate) / base_rate;
+	// Корректируем длину фильтра в зависимости от коэффициента использования
+	int fir_len = get_fir_power_of_two(mr_ratio, precise_settings_.filter_koeff);
+	fir_len = qBound(16, fir_len, 1024);
+	precise_settings_.filter_length = fir_len;
+
 	precise_resampler_ = std::make_unique<PreciseResampler>();
+
 	precise_resampler_->SetSettings(precise_settings_);
-	if (!precise_resampler_->Init(approx_target_rate, target_rate)) {
+	if (!precise_resampler_->Init(base_rate, target_rate)) {
 		precise_resampler_.reset();
 		return false;
 	}
@@ -70,20 +78,22 @@ bool ResamplerManager::Init(const fluctus::freq_params& base_params,
 
 	freq_shifter_.Init(base_params.carrier_hz, target_params.carrier_hz, base_rate);
 	resample_ratio_ = static_cast<double>(target_rate) / base_rate;
-	const int max_nom_denom = std::max(resample_ratio_, 1 / resample_ratio_) + 1;
+	int max_nom_denom = std::max(resample_ratio_, 1 / resample_ratio_) + 1;
 	if (resample_ratio_ == 1.0) {
 		target_params.samplerate_hz = base_rate;
 		return true;
 	}
-
+	if(precise)
+		mr_settings_.max_denom = 4 * max_nom_denom;
+	else
+		mr_settings_.max_denom = 5 * max_nom_denom;
 	try {
 		// 1. Подбираем рациональную дробь для MR ресемплера
-		auto pq = FindBestFraction(resample_ratio_, mr_settings_.max_denom * max_nom_denom, true);
+		auto pq = FindBestFraction(resample_ratio_, mr_settings_.max_denom, true);
 		int64_t approx_target_rate = base_rate * pq.first / pq.second;
-		double mr_ratio = static_cast<double>(approx_target_rate) / base_rate;
 
 		// 2. Инициализируем MR ресемплер
-		if (!initMRResampler(base_rate, approx_target_rate, mr_ratio))
+		if (!initMRResampler(base_rate, approx_target_rate))
 			return false;
 
 		// 3. Решаем, нужен ли Precise ресемплер

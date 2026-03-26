@@ -51,7 +51,7 @@ enum ChartDomainType
 	kFreqDomain,    // Default АЧХ
 	kTimeFrequency, // Частотно временная область
 	kTimeDomain,    // Амплитудно временная область
-	kCountsDomain,  // Ось X - это отсчёты
+	kAnalyzeDomain, // График для анализа
 };
 
 

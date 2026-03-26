@@ -10,7 +10,13 @@ using namespace pipes;
 dpx_core::SpectrumDpx::SpectrumDpx(kDpxChartType chart_type)
 {
 	chart_type_ = chart_type;
-	dpx_drawer_ = new ChartDPX(); // Создаём указатель на объект DpxChart для отрисовки.
+	
+	{
+		const bool is_analyze_chart = (chart_type != kDpxChartType::kFFT);
+		const auto chart_type = is_analyze_chart ? aqua_gui::ChartDomainType::kAnalyzeDomain : aqua_gui::ChartDomainType::kFreqDomain;
+		dpx_drawer_ = new ChartDPX(nullptr, chart_type); // Создаём указатель на объект DpxChart для отрисовки.
+	}
+	
 	switch (chart_type)
 	{
 	case dpx_core::kDpxChartType::kFFT:

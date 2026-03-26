@@ -7,7 +7,7 @@ ScopeAnalyzerWindow::ScopeAnalyzerWindow()
 
 	ui_.radio_group_chart_type->setId(ui_.carrier_radio_button, scope_chart_type::kPowerSpectrum);
 	ui_.radio_group_chart_type->setId(ui_.symbol_rate_radio_button, scope_chart_type::kPhasorSpectrum);
-	//ui_.radio_group_chart_type->setId(ui_.bandwidth_radio_button, scope_chart_type::kBandwidth);
+	ui_.radio_group_chart_type->setId(ui_.bandwidth_radio_button, scope_chart_type::kBandwidth);
 	ui_.radio_group_chart_type->setId(ui_.acf_radio_button, scope_chart_type::kAcf);
 
 	connect(ui_.radio_group_chart_type,
@@ -87,6 +87,10 @@ void scope_analyzer::ScopeAnalyzerWindow::UpdateFFtCombobox(const int max_order,
 		int index = ui_.fft_order_combobox->findData(target_fft);
 		if (index != -1) {
 			ui_.fft_order_combobox->setCurrentIndex(index);  // גûחמגוע emit currentIndexChanged
+		}
+		else
+		{
+			ui_.fft_order_combobox->setCurrentIndex(ui_.fft_order_combobox->count() / 2);
 		}
 	}
 }

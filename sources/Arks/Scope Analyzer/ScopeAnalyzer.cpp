@@ -38,7 +38,7 @@ ScopeAnalyzer::ScopeAnalyzer()
 		charts_[kAcf]			 = std::make_shared<dpx_core::SpectrumDpx>(dpx_core::kDpxChartType::kACF);
 		charts_[kBandwidth]		 = std::make_shared<dpx_core::SpectrumDpx>(dpx_core::kDpxChartType::kFFT);
 
-		charts_[kPhasorSpectrum]	= std::make_shared<dpx_core::SpectrumDpx>(dpx_core::kDpxChartType::kFFT);
+		charts_[kPhasorSpectrum]	= std::make_shared<dpx_core::SpectrumDpx>(dpx_core::kDpxChartType::kPhasor);
 		charts_[kEnvelopeSpectrum]	= std::make_shared<dpx_core::SpectrumDpx>(dpx_core::kDpxChartType::kEnvelope);
 		charts_[kPowerSpectrum]		= std::make_shared<dpx_core::SpectrumDpx>(dpx_core::kDpxChartType::kPower4x);
 		charts_[kConstellation]		= std::make_shared<constel::Constellation>();
@@ -156,14 +156,14 @@ bool ScopeAnalyzer::Restart(Limits<double> freq_bounds_Mhz, Limits<double> time_
 											selection_descr_.samplerate_hz / source_info_.descr.samplerate_hz;
 	
 	const int max_order = std::min(log2(selection_descr_.count_of_samples), 21.);
-	int need_order = qBound(5l, std::lround(log2(selection_descr_.count_of_samples) / 2), long(max_order));
 
 	auto req_dove = std::make_shared<spectral_viewer::SpectralDove>();
 	req_dove->base_thought = DoveParrent::kReset;
 	for (auto chart_iter : charts_)
 		chart_iter.second->SendDove(req_dove);
 
-	window_->SetMaxFFtOrder(max_order);
+	if(max_order > 0)
+		window_->SetMaxFFtOrder(max_order);
 
 	
 	return true;

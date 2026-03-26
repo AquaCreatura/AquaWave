@@ -1,15 +1,15 @@
 #include "DpxChart.h"
 
-ChartDPX::ChartDPX(QWidget * parrent, std::shared_ptr<SelectionHolder> selection_holder):
+ChartDPX::ChartDPX(QWidget * parrent, ChartDomainType domain, std::shared_ptr<SelectionHolder> selection_holder):
     ChartInterface(parrent, selection_holder)
 {
-    Limits<double> random_bounds = {50'000, 200'000};
+    Limits<double> random_bounds = {0, 100};
     SetHorizontalMinMaxBounds(random_bounds);
     dpx_painter_.SetMinMax_X(random_bounds);
     SetHorizontalSuffix("counts");
 
     SetVerticalSuffix("power");
-	scale_info_.val_info_.domain_type = kFreqDomain;
+	scale_info_.val_info_.domain_type = domain;
 	//SetBackgroundImage(":/AquaWave/third_party/background/dark_sky.jpg");
 }
 

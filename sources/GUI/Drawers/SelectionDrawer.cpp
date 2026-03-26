@@ -40,13 +40,16 @@ bool aqua_gui::SelectionDrawer::DrawSelections(QPainter & painter)
 	auto &cur_chart_val = scale_info_.val_info_.cur_bounds;
 	auto &base_chart_val = scale_info_.val_info_.min_max_bounds_;
 	auto &chart_size_px = scale_info_.pix_info_.chart_size_px;
-	
+	auto domain = scale_info_.val_info_.domain_type;
 	
 	
 	//painter
 	{
 		auto val_hv = GetHorVert(sel_holder_->GetCurrentSelection());
 		auto &vert_sel = val_hv.vertical;
+		if (domain == ChartDomainType::kAnalyzeDomain) //Ќе отрисовываем вертикальный selection при анализе
+			vert_sel.high = vert_sel.low;
+
 		auto &hor_sel = val_hv.horizontal;
 
 		if (vert_sel.high < vert_sel.low) std::swap(vert_sel.low, vert_sel.high);
@@ -175,7 +178,7 @@ bool aqua_gui::SelectionDrawer::DrawRectangles(QPainter & painter, const HorVerL
 			painter.drawLine(0, pixel_rect.top(), chart_size_px.horizontal, pixel_rect.top()); //√оризонтальные линии
 			painter.drawLine(0, pixel_rect.bottom() + 1, chart_size_px.horizontal, pixel_rect.bottom() + 1);
 
-			if (scale_info_.val_info_.domain_type != ChartDomainType::kFreqDomain) {
+			if (scale_info_.val_info_.domain_type == ChartDomainType::kTimeFrequency) {
 				QRect fillrect(QPoint(0, pixel_rect.top()), QPoint({ chart_size_px.horizontal, pixel_rect.bottom() }));
 				painter.fillRect(fillrect, fillColor);
 			}
@@ -362,7 +365,7 @@ bool aqua_gui::SelectionDrawer::DrawMarks(QPainter & painter, const HorVerLim<in
 		painter.drawText(bg, Qt::AlignCenter, text);
 	};
 
-	// 3. √лавна€ логика обработки оси (всего 1 параметр!)
+	// 3. √лавна€ логика обработки оси
 	auto processAxis = [&](bool isHor) {
 		const auto& v = isHor ? hv_val.horizontal : hv_val.vertical;
 		const auto& p = isHor ? user_rect.horizontal : user_rect.vertical;
@@ -373,7 +376,7 @@ bool aqua_gui::SelectionDrawer::DrawMarks(QPainter & painter, const HorVerLim<in
 		int precision = GetPrecission(total_delta);
 
 		// –исуем центральную линию и метку, если совпадает тип домена
-		bool needLine = isHor ? (domain == ChartDomainType::kFreqDomain)
+		bool needLine = isHor ? (domain == ChartDomainType::kFreqDomain || domain == ChartDomainType::kAnalyzeDomain)
 			: (domain == ChartDomainType::kTimeFrequency);
 
 		if (needLine) {

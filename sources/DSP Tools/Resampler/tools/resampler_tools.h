@@ -20,10 +20,10 @@ namespace aqua_resampler
 // Параметры:
 //   a            - числитель исходного отношения (целое число)
 //   b            - знаменатель исходного отношения (целое число)
-//   max_denom    - максимальное допустимое значение знаменателя искомой дроби (по умолчанию 100)
+//   max_num_denom    - максимальное допустимое значение знаменателя искомой дроби 
 //   not_less_than- булевский флаг: если true, итоговая дробь не может быть меньше (a / b)
 // Возвращает пару <p, q>, представляющую дробь p/q, максимально приближенную к значению (a / b).
-static std::pair<int, int> FindBestFraction(const double target, const int max_denom = 100, const bool not_less_than = true) 
+static std::pair<int, int> FindBestFraction(const double target, const int max_num_denom = 20, const bool not_less_than = true) 
 {   
     // Инициализируем переменные для хранения наилучшей найденной дроби и её ошибки.
     // best_num и best_denom - числитель и знаменатель лучшей найденной дроби.
@@ -31,8 +31,8 @@ static std::pair<int, int> FindBestFraction(const double target, const int max_d
     // Изначально устанавливаем ошибку как максимально возможное значение, чтобы любая реальная дробь имела меньшую ошибку.
     double best_error = std::numeric_limits<double>::max();
 
-    // Перебираем все допустимые значения знаменателя от 1 до max_denom.
-    for (int cur_denom = 1; cur_denom <= max_denom; ++cur_denom) {
+    // Перебираем все допустимые значения знаменателя от 1 до max_num_denom.
+    for (int cur_denom = 1; cur_denom <= max_num_denom; ++cur_denom) {
         int cur_num;
         // Для каждого знаменателя вычисляем подходящий числитель.
         // Если установлен флаг not_less_than, выбираем числитель таким образом, чтобы дробь cur_num/cur_denom не была меньше целевого отношения.
@@ -49,7 +49,8 @@ static std::pair<int, int> FindBestFraction(const double target, const int max_d
         // Вычисляем значение дроби для текущего cur_num и cur_denom.
         double fraction = static_cast<double>(cur_num) / cur_denom;
         // Если установлен флаг not_less_than и дробь оказывается меньше целевого, пропускаем её.
-        if (not_less_than && fraction < target) 
+		////По факту (not_less_than && fraction < target) всегда false, т.к. округляем вверх
+        if ((cur_num > max_num_denom) || (not_less_than && fraction < target)) 
         {
             continue;
         }

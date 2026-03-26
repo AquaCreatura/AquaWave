@@ -18,13 +18,11 @@ static int get_fir_power_of_two(double resample_ratio, double util_factor) {
 }
 
 ResamplerManager::ResamplerManager() {
-	// Настройки по умолчанию для MR ресемплера
-	mr_settings_.filter_length = 512;
-	mr_settings_.max_denom = 4;
+	// Настройки по умолчанию для MR 
+	mr_settings_.denom_quality = 10;
 	mr_settings_.filter_koeff = 0.95;
 
 	// Настройки по умолчанию для Precise ресемплера
-	precise_settings_.filter_length = 512;
 	precise_settings_.filter_koeff = 0.95;
 }
 
@@ -78,15 +76,15 @@ bool ResamplerManager::Init(const fluctus::freq_params& base_params,
 
 	freq_shifter_.Init(base_params.carrier_hz, target_params.carrier_hz, base_rate);
 	resample_ratio_ = static_cast<double>(target_rate) / base_rate;
-	int max_nom_denom = std::max(resample_ratio_, 1 / resample_ratio_) + 1;
 	if (resample_ratio_ == 1.0) {
 		target_params.samplerate_hz = base_rate;
 		return true;
 	}
-	if(precise)
-		mr_settings_.max_denom = 4 * max_nom_denom;
-	else
-		mr_settings_.max_denom = 5 * max_nom_denom;
+	//Ограничиваем максимальные значения дроби
+	{
+		int max_nom_denom = std::max(resample_ratio_, 1 / resample_ratio_) + 1;
+		mr_settings_.max_denom = std::max(mr_settings_.denom_quality, max_nom_denom);
+	}
 	try {
 		// 1. Подбираем рациональную дробь для MR ресемплера
 		auto pq = FindBestFraction(resample_ratio_, mr_settings_.max_denom, true);

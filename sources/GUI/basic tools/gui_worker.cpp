@@ -12,7 +12,7 @@ bool aqua_gui::ZoomFromWheelDelta(ChartScaleInfo & scale_info, const int wheel_d
     bool is_x_scale = !is_y_scale;
     
     // Изменён коэффициент масштабирования для более плавного изменения
-    const double scale_koeff = std::abs(wheel_delta) / 5000.0; // Уменьшен коэффициент для более плавного масштабирования
+    const double scale_koeff = std::abs(wheel_delta) / 2000.0; // Уменьшен коэффициент для более плавного масштабирования
     const double direction = wheel_delta > 0 ? 1.0 : -1.0;
 
     // Вычисление коэффициентов масштабирования

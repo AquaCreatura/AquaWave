@@ -36,7 +36,7 @@ public:
     QPixmap& GetPrecisedPart(const HorVerLim<double>& full_image_value_bounds, 
                              const HorVerLim<double>& target_display_value_bounds,
                              const HV_Info<int>& target_output_size);
-
+	static QImage HorMaxPoolingScale(QImage &base_qimage, int target_horizontal, int target_vertical);
 protected:
     /**
      * @brief Checks if a redraw of the cached QPixmap is needed.

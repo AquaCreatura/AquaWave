@@ -1,7 +1,7 @@
 #include "QimageZoomer.h"
 #include <algorithm> // For std::min and std::max
 #include <QDebug> // ƒл€ отладочных сообщений, можно удалить в релизе
-
+#include "GUI/basic tools/gui_conversions.h"
 namespace aqua_gui
 {
 
@@ -83,6 +83,61 @@ QPixmap& QimageZoomer::GetPrecisedPart(const HorVerLim<double>& full_image_value
     }
 	
     return cached_pixmap_;
+}
+
+QImage QimageZoomer::HorMaxPoolingScale(QImage & base_qimage, int target_horizontal, int target_vertical)
+{
+	// Ќекорректные размеры Ц возвращаем пустое изображение
+	if (base_qimage.isNull() || target_horizontal <= 0 || target_vertical <= 0)
+		return QImage();
+
+	// ѕриводим исходное изображение к формату ARGB32 дл€ единообразного доступа к пиксел€м
+	QImage src = base_qimage; //convertToFormat(QImage::Format_ARGB32);
+	int src_w = src.width();
+	int src_h = src.height();
+
+	// ≈сли размеры не изменились, возвращаем копию
+	if (src_w == target_horizontal && src_h == target_vertical)
+		return src.copy();
+
+	// –езультирующее изображение (ARGB32)
+	QImage result(target_horizontal, target_vertical, QImage::Format_ARGB32);
+	if (result.isNull())
+		return QImage();
+
+	// ѕредварительно вычисл€ем шаги дл€ вертикального отображени€ (целочисленное деление)
+	// ƒл€ каждого y вычисл€ем исходную строку src_y = (y * src_h) / target_vertical
+
+	for (int y = 0; y < target_vertical; ++y) {
+		int src_y = (y * src_h) / target_vertical;               // децимаци€ / дублирование
+		const QRgb* src_line = reinterpret_cast<const QRgb*>(src.constScanLine(src_y));
+		QRgb* dst_line = reinterpret_cast<QRgb*>(result.scanLine(y));
+
+		// ќбработка горизонтали: max pooling
+		for (int x = 0; x < target_horizontal; ++x) {
+			int left = (x * src_w) / target_horizontal;
+			int right = ((x + 1) * src_w) / target_horizontal;
+
+			// √арантируем, что в диапазоне есть хот€ бы один пиксель
+			if (right <= left)
+				right = left + 1;
+
+			int max_brightness = -1;
+			QRgb best_pixel = 0;
+
+			for (int i = left; i < right; ++i) {
+				QRgb pixel = src_line[i];
+				int brightness = LUT_HSV_Instance::RgbToDensityFast(pixel);
+				if (brightness > max_brightness) {
+					max_brightness = brightness;
+					best_pixel = pixel;
+				}
+			}
+			dst_line[x] = best_pixel;
+		}
+	}
+
+	return result;
 }
 
 /**
@@ -172,12 +227,13 @@ bool QimageZoomer::UpdateQPixmap()
     Qt::TransformationMode mode = need_high_quality_ ? Qt::SmoothTransformation : Qt::FastTransformation;
 
     // Scale to the desired size and convert to QPixmap
-    cached_pixmap_ = QPixmap::fromImage(cropped_image.scaled(
-        last_target_output_size_.horizontal,
-        last_target_output_size_.vertical,
-        Qt::IgnoreAspectRatio, 
-        mode
-    ));
+
+	auto scaled_qimage = cropped_image.scaled( last_target_output_size_.horizontal, last_target_output_size_.vertical,
+													Qt::IgnoreAspectRatio, mode );
+
+	//scaled_qimage = HorMaxPoolingScale(cropped_image, last_target_output_size_.horizontal, last_target_output_size_.vertical);
+
+    cached_pixmap_ = QPixmap::fromImage(scaled_qimage);
 
     // Store parameters used for this successful render
     rendered_min_max_value_bounds_ = last_min_max_value_bounds_;

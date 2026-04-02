@@ -28,11 +28,6 @@ LUT_HSV_Instance::LUT_HSV_Core::LUT_HSV_Core()
         opacity = (i == 0) ? 0 : 255;
         HSV_2_RGB(hue, saturation, value, 
                     red, green, blue);
-        //opacity = 255;
-        //palette[i + 0] = 255;
-        //palette[i + 1] = 255;
-        //palette[i + 2] = 255;
-        //palette[i + 3] = 255;
     }
 }
 
@@ -75,4 +70,11 @@ argb_t aqua_gui::LUT_HSV_Instance::DensityToRGB(const double density)
 
 	// Return RGBA color from palette 
 	return color_palette[color_index];
+}
+
+int aqua_gui::LUT_HSV_Instance::RgbToDensityFast(const argb_t rgb_color)
+{
+	uint8_t* rgb_array = (uint8_t*)&rgb_color;
+	const uint8_t max_val = std::max({ rgb_array[0], std::max(rgb_array[2], rgb_array[1]) });
+	return max_val;
 }

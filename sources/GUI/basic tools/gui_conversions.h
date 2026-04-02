@@ -12,6 +12,7 @@ class LUT_HSV_Instance
 public:
     static argb_t*   get_table_ptr   ();
 	static argb_t	 DensityToRGB	 (const double density);
+	static int		 RgbToDensityFast(const argb_t rgb_color);
 protected:
 
 class LUT_HSV_Core

@@ -57,6 +57,8 @@ enum ChartDomainType
 
 struct ChartScaleInfo
 {   
+	ChartScaleInfo(ChartDomainType passed_domain) { val_info_.domain_type = passed_domain; }
+	ChartScaleInfo() = default;
     struct PixelScale
     {
         //size of widget

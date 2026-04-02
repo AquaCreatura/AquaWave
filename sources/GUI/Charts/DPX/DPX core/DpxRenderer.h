@@ -17,9 +17,9 @@ public:
 
 
     //Bнициализаци¤ палитры
-    DpxRenderer(dpx_data &init_val);
+    DpxRenderer(dpx_data &init_val, const ChartScaleInfo& scale_info);
     //
-    QPixmap& GetRelevantPixmap(const ChartScaleInfo& scale_info);
+    QPixmap& GetRelevantPixmap();
 
 protected:
     /*
@@ -33,6 +33,7 @@ protected:
 
 private:
     dpx_data    &dpx_;                  // Reference to the underlying data structure
+	const ChartScaleInfo& scale_info_;
     size_t      data_memory_ = 1'024;   // Cколько последних значений учитываем при отрисовке
 
     dynamic_qimage        dpx_rgb_;      // Структура для работы с QImage в качестве обёркти

@@ -2,8 +2,19 @@
 #include <algorithm> // For std::min and std::max
 #include <QDebug> // ƒл€ отладочных сообщений, можно удалить в релизе
 #include "GUI/basic tools/gui_conversions.h"
-namespace aqua_gui
+using namespace aqua_gui;
+
+
+
+
+
+
+
+
+void QimageZoomer::EnableMaxPoolingMode(bool do_enable)
 {
+	need_max_pooling_ = do_enable;
+}
 
 /**
  * @brief Sets a new base QImage. Does not take ownership.
@@ -227,11 +238,18 @@ bool QimageZoomer::UpdateQPixmap()
     Qt::TransformationMode mode = need_high_quality_ ? Qt::SmoothTransformation : Qt::FastTransformation;
 
     // Scale to the desired size and convert to QPixmap
+	QImage scaled_qimage;
+	if (need_max_pooling_ && (double(last_target_output_size_.horizontal) / cropped_image.width() < 1.2 )) {
 
-	auto scaled_qimage = cropped_image.scaled( last_target_output_size_.horizontal, last_target_output_size_.vertical,
-													Qt::IgnoreAspectRatio, mode );
+		scaled_qimage = HorMaxPoolingScale(cropped_image, last_target_output_size_.horizontal, last_target_output_size_.vertical);
+	}
+	else
+	{
+		scaled_qimage = cropped_image.scaled(last_target_output_size_.horizontal, last_target_output_size_.vertical,
+			Qt::IgnoreAspectRatio, mode);
+	}
+	
 
-	//scaled_qimage = HorMaxPoolingScale(cropped_image, last_target_output_size_.horizontal, last_target_output_size_.vertical);
 
     cached_pixmap_ = QPixmap::fromImage(scaled_qimage);
 
@@ -307,4 +325,3 @@ HV_Info<Limits<int>> QimageZoomer::CalculatePixelCropBounds(
 }
 
 
-} // namespace aqua_gui

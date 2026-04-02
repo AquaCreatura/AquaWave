@@ -16,7 +16,7 @@ namespace dpx_core
 class DpxCore
 {
 public:
-    DpxCore();
+    DpxCore(const ChartScaleInfo& scale_info);
     /**
      * @brief Initializes the internal data structures and states.
      * @return true if initialization succeeded.
@@ -48,7 +48,7 @@ public:
     void           SetPowerBounds   (const Limits<double>& x_bounds);
 
     //Is Used to get pixmap from our dpx
-    QPixmap&       GetRelevantPixmap(const ChartScaleInfo& scale_info);
+    QPixmap&       GetRelevantPixmap();
 private:
     /**
      * @brief Processes the input data directly, assuming passed_data size is greater than or equal to dpx_data_.size.horizontal.
@@ -68,9 +68,10 @@ private:
     bool SlopePassedLoop(const std::vector<Ipp32f> &passed_data, const Limits<double>& x_bounds);
 
 protected:
-    DpxDataScaler dpx_scaler_; // Responsible for Limits and dimension control
-    dpx_data      dpx_data_;   // Main data structure
-    DpxRenderer   dpx_renderer_;
+    DpxDataScaler			dpx_scaler_; // Responsible for Limits and dimension control
+    dpx_data				dpx_data_;   // Main data structure
+    DpxRenderer				dpx_renderer_;
+	const ChartScaleInfo&	scale_info_;
 };
 
 } // namespace dpx_core

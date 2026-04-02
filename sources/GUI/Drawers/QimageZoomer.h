@@ -11,6 +11,8 @@ namespace aqua_gui
 class QimageZoomer
 {
 public:
+	//To avoid skiping th
+	void EnableMaxPoolingMode(bool do_enable);
     /**
      * @brief Sets a new base QImage. Does not take ownership.
      * @param base_qimage Pointer to the new base QImage.
@@ -79,6 +81,7 @@ private:
     bool need_update_           = false;
 	mutable bool need_high_quality_ = false;
 	mutable QElapsedTimer good_quality_timer_; //
+	bool need_max_pooling_ = false;
 };
 
 } // namespace aqua_guií

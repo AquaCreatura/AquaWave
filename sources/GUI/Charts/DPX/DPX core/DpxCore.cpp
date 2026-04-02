@@ -12,9 +12,11 @@ namespace dpx_core
 
 //============================================================================== DpxCore ===========================================================
 
-DpxCore::DpxCore() : dpx_scaler_(dpx_data_), dpx_renderer_(dpx_data_) 
+
+
+DpxCore::DpxCore(const ChartScaleInfo & scale_info) : scale_info_(scale_info), dpx_scaler_(dpx_data_), dpx_renderer_(dpx_data_, scale_info)
 {
-    Emplace();
+
 }
 
 bool DpxCore::Emplace() {
@@ -81,12 +83,12 @@ void DpxCore::SetPowerBounds(const Limits<double>& x_bounds)
 }
 
 
-QPixmap & DpxCore::GetRelevantPixmap(const ChartScaleInfo & scale_info)
+QPixmap & DpxCore::GetRelevantPixmap()
 {
-    auto &min_max = scale_info.val_info_.min_max_bounds_;
+    auto &min_max = scale_info_.val_info_.min_max_bounds_;
     SetPowerBounds(min_max.vertical); //Обновляем границы мощности
     SetMinMax_X   (min_max.horizontal); //Обновляем диапазон значений
-    return dpx_renderer_.GetRelevantPixmap(scale_info);
+    return dpx_renderer_.GetRelevantPixmap();
 }
 
 

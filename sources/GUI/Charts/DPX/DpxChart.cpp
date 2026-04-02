@@ -1,7 +1,7 @@
 #include "DpxChart.h"
 
 ChartDPX::ChartDPX(QWidget * parrent, ChartDomainType domain, std::shared_ptr<SelectionHolder> selection_holder):
-    ChartInterface(parrent, selection_holder)
+    ChartInterface(parrent, selection_holder, domain), dpx_painter_(scale_info_)
 {
     Limits<double> random_bounds = {0, 100};
     SetHorizontalMinMaxBounds(random_bounds);
@@ -9,7 +9,6 @@ ChartDPX::ChartDPX(QWidget * parrent, ChartDomainType domain, std::shared_ptr<Se
     SetHorizontalSuffix("counts");
 
     SetVerticalSuffix("power");
-	scale_info_.val_info_.domain_type = domain;
 	//SetBackgroundImage(":/AquaWave/third_party/background/dark_sky.jpg");
 }
 
@@ -22,7 +21,7 @@ void ChartDPX::DrawData(QPainter & passed_painter)
 {
     if(ShouldRedraw()) 
     {
-        cached_pixmap_ = dpx_painter_.GetRelevantPixmap(scale_info_);
+        cached_pixmap_ = dpx_painter_.GetRelevantPixmap();
     }
     if(cached_pixmap_.isNull()) 
         return;

@@ -15,7 +15,7 @@ class ChartInterface : public QWidget
     Q_OBJECT
 public: 
     //We pass 
-    ChartInterface(QWidget* parrent, std::shared_ptr<SelectionHolder> selection_holder);
+    ChartInterface(QWidget* parrent, std::shared_ptr<SelectionHolder> selection_holder, ChartDomainType passed_domain = ChartDomainType::kFreqDomain);
     ~ChartInterface();
     /*
         Set an image from the precised path on background

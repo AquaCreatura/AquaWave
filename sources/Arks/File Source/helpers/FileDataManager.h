@@ -32,7 +32,7 @@ namespace file_source
         FileDataListener(const fluctus::ArkWptr& weak_ptr, const fluctus::SourceDescription& params);
         
         // Установка базовых параметров (частота, размер блока и т. д.)
-        void SetBaseParams(int64_t carrier, int64_t samplerate, int64_t block_size = (1 << 10));
+        void SetBaseParams(InitParams &setup);
         
         // Остановка процесса чтения
         void WaitProcess();
@@ -41,10 +41,10 @@ namespace file_source
         // Асинхронный запуск чтения вокруг позиции (pos_ratio — относительная позиция в файле)
         bool StartSingleAround(double pos_ratio);
 		// Асинхронный запуск чтения чанками в указанных пределах (start_pos, end_pos - относительная позиция в файле)
-		bool StartSingleInRange(double start_pos, double end_pos);
+		bool StartSingleInRange(const Limits<double>& time_bounds);
 
 		// Асинхронный запуск циклического чтения чанками в указанных пределах (start_pos, end_pos - относительная позиция в файле)
-		bool StartLoopInRange(double start_pos, double end_pos);
+		bool StartLoopInRange(const Limits<double>& time_bounds);
 
         // Получение текущего состояния слушателя
         const ListenerState GetState() const;
@@ -55,14 +55,14 @@ namespace file_source
 		* - pos_ratio — относительная позиция (0.0–1.0)
 		* - out_data_size — требуемый размер данных после ресемплера
 		*/
-		void ReadChunksInRangeProcess(double start_pos, double end_pos);
+		void ReadChunksInRangeProcess(const Limits<double>& time_bounds);
 
 		/*
 		* Чтение данных в
 		* - pos_ratio — относительная позиция (0.0–1.0)
 		* - out_data_size — требуемый размер данных после ресемплера
 		*/
-		void LoopReadInRangeProcess(double start_pos, double end_pos);
+		void LoopReadInRangeProcess(const Limits<double>& time_bounds);
 		
         /*
          * Чтение данных вокруг указанной позиции:
@@ -89,26 +89,14 @@ namespace file_source
     class FileDataManager
     {
     public:
-		enum SortOfReading : int
-		{
-			kDoNothing			= 0, //Заглушка
-			kReadAround			= 1 << 0,
-			kReadChunksInRange	= 1 << 1,
-			kLoopReadInRange	= 1 << 2
-		};
         // Конструктор: принимает параметры файла
         FileDataManager(const fluctus::SourceDescription& params);
         
         // Инициализация слушателя для ARK (если его ещё нет)
-        void InitReader(
-            const fluctus::ArkWptr& reader,
-            int64_t carrier = 0,
-            int64_t samplerate = 0,
-            int64_t block_size = (1 << 10)
-        );
+        void InitReader(const fluctus::ArkWptr& reader, InitParams &setup);
         
         // Запуск чтения вокруг позиции для указанного ARK
-        void StartReading(const fluctus::ArkWptr& reader, const double start_pos, const double end_pos, const SortOfReading read_type);
+        void StartReading(const fluctus::ArkWptr& reader, Limits<double> time_bounds, const FileSrcDove::FileSrcDoveThought read_type);
 
         // Удаление слушателя для указанного ARK
         void DeleteReader(const fluctus::ArkWptr& reader);

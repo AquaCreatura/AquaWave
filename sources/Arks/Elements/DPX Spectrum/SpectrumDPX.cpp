@@ -227,9 +227,10 @@ void SpectrumDpx::RequestSelectedData()
     req_dove->base_thought      = fluctus::DoveParrent::DoveThought::kSpecialThought;
     req_dove->special_thought   = file_source::FileSrcDove::kInitReaderInfo |  file_source::FileSrcDove::kAskLoopInRange;
     req_dove->target_ark        = shared_from_this();
-    req_dove->time_point_start  = 0;
-	req_dove->time_point_end	= 1.;
-    req_dove->data_size         = n_fft_;
+	auto &setup = req_dove->setup;
+	setup.emplace();
+	setup->time_bounds = { 0., 1. };
+	setup->chunk_size = n_fft_;
     if (!file_src_->SendDove(req_dove))
     {
         QMessageBox::warning(

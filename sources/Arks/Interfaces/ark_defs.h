@@ -86,7 +86,13 @@ namespace fluctus
         ArkWptr ark;
 		SourceDescription descr;
     };
-
+	struct InitParams
+	{
+		int64_t     carrier_hz		{ 0 };
+		int64_t     samplerate_hz	{ 1'000 };
+		int64_t		banwidth_hz		{ 1'000 };
+		int			chunk_size		{ 1024 };
+	};
 
 	struct DoveParrent
 	{

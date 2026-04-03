@@ -25,11 +25,9 @@ namespace file_source
 		FileSrcDove() { };
 		FileSrcDove(FileSrcDoveThought passed_thought) { special_thought = passed_thought; };
 
-        aqua_opt<int64_t>       data_size;
-        aqua_opt<double>        time_point_start;   //Base point of the data, we are trying to read
-        aqua_opt<double>        time_point_end;     //End point of the 
-        aqua_opt<int64_t>       samplerate_hz;      //samplerate_hz need
-        aqua_opt<int64_t>       carrier_hz;         //carrier_hz need
+		fluctus::Limits<double> time_bounds{ 0., 1. }; //For file source
+		aqua_opt<fluctus::InitParams>	setup;
+		
     };
     inline size_t GetSampleSize(IppDataType type)
     {

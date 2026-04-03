@@ -73,8 +73,10 @@ bool spg_core::SpgRequester::SendRequestDove(const request_params & req_info)
     req_dove->base_thought      = fluctus::DoveParrent::DoveThought::kSpecialThought;
     req_dove->special_thought   = file_source::FileSrcDove::kInitReaderInfo |  file_source::FileSrcDove::kAskChunkAround;
     req_dove->target_ark        = base_ark;
-    req_dove->time_point_start  = req_dove->time_point_end = req_info.time_point;
-    req_dove->data_size         = req_info.data_size;
+	auto &setup = req_dove->setup;
+	setup.emplace();
+	setup->time_bounds = { req_info.time_point, req_info.time_point };
+	setup->chunk_size = req_info.data_size;
 
     if (!file_src->SendDove(req_dove))
     {

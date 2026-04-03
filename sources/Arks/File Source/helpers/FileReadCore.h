@@ -99,7 +99,7 @@ public:
      * @param block_size Размер одного блока для чтения.
      * @return true если инициализация прошла успешно, иначе false.
      */
-    bool InitStartEndRatio(const double start_ratio, const double end_ratio, const size_t block_size);
+    bool InitStartEndRatio(const Limits<double>& time_bounds, const size_t block_size);
 
     /**
      * @brief Считывает следующий блок данных в поток.

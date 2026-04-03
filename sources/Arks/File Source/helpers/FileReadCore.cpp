@@ -222,20 +222,19 @@ bool StreamReader::Init(const size_t start_sample, const size_t total_samples, c
     return true;
 }
 
-bool StreamReader::InitStartEndRatio(const double start_ratio, const double end_ratio, const size_t block_size) {
+bool StreamReader::InitStartEndRatio(const Limits<double>& time_bounds, const size_t block_size) {
     if (!ifstream_.is_open()) {
-        std::cerr << "Error: File not open. Call FileReader::SetFileParams() first." << std::endl;
+        std::cerr << "Error: File not open"<< std::endl;
         return false;
     }
 
-    if (start_ratio < 0.0 || start_ratio > 1.0 || end_ratio < 0.0 || end_ratio > 1.0 || start_ratio > end_ratio) {
-        std::cerr << "Error: Invalid ratio values: start_ratio=" << start_ratio << ", end_ratio=" << end_ratio << std::endl;
+    if (time_bounds.low < 0.0 || time_bounds.high > 1.0 || time_bounds.delta() <= 0) {
         return false;
     }
 
     const size_t file_size_samples = GetFileSize();
-    size_t start_pos = static_cast<size_t>(start_ratio * file_size_samples);
-    size_t end_pos   = static_cast<size_t>(end_ratio * file_size_samples);
+    size_t start_pos = static_cast<size_t>(time_bounds.low  * file_size_samples);
+    size_t end_pos   = static_cast<size_t>(time_bounds.high * file_size_samples);
 
     // Adjust positions due to float precision or clamping
     if (start_pos > file_size_samples) start_pos = file_size_samples;

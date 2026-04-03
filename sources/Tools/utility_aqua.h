@@ -7,6 +7,15 @@ namespace utility_aqua
     struct aqua_opt
     {
     public:
+		~aqua_opt() {
+			if (val) delete val;
+		}
+		const void emplace() { 
+			if (val)
+				(*val) = W();
+			else
+				val = new W();
+		}
         const    W value() { return (val ? *val: W());  };
 		const    W value_or(const W or_passed) { return (val ? *val : or_passed); };
         operator W* () { return val; };

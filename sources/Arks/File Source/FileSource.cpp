@@ -64,27 +64,25 @@ bool file_source::FileSourceArk::SendDove(fluctus::DoveSptr const& sent_dove)
         // Инициализация читателя
         if (file_src_thought & FileSrcDove::FileSrcDoveThought::kInitReaderInfo)
         {
-			const auto carrier_hz		= file_src_dove->carrier_hz		.value_or(descr_.carrier_hz	);
-			const auto samplerate_hz	= file_src_dove->samplerate_hz	.value_or(descr_.samplerate_hz	);
-            listener_man_.InitReader(target_ark, carrier_hz, samplerate_hz, *file_src_dove->data_size);
+            listener_man_.InitReader(target_ark, *file_src_dove->setup);
         }
         
         // Запрос данных вокруг точки
         if (file_src_thought & FileSrcDove::FileSrcDoveThought::kAskChunkAround)
         {
 			if (descr_.file_name_.isEmpty()) return false;
-            listener_man_.StartReading(target_ark, *file_src_dove->time_point_start, *file_src_dove->time_point_start, FileDataManager::kReadAround);
+            listener_man_.StartReading(target_ark, *file_src_dove->time_bounds, FileDataManager::kReadAround);
         }
         
         // Запрос данных чанками в диапазоне (единожды)
         if (file_src_thought & FileSrcDove::FileSrcDoveThought::kAskChunksInRange)
         {
-			listener_man_.StartReading(target_ark, *file_src_dove->time_point_start, *file_src_dove->time_point_end, FileDataManager::kReadChunksInRange);
+			listener_man_.StartReading(target_ark, *file_src_dove->time_bounds, FileDataManager::kReadChunksInRange);
         }
 
 		if (file_src_thought & FileSrcDove::FileSrcDoveThought::kAskLoopInRange)
 		{
-			listener_man_.StartReading(target_ark, *file_src_dove->time_point_start, *file_src_dove->time_point_end, FileDataManager::kLoopReadInRange);
+			listener_man_.StartReading(target_ark, file_src_dove->time_bounds, FileDataManager::kLoopReadInRange);
 		}
         
         // Запрос данных в диапазоне (не реализовано)

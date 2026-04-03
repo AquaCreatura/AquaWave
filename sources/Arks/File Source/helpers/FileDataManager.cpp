@@ -11,31 +11,28 @@ file_source::FileDataManager::FileDataManager(const fluctus::SourceDescription& 
 }
 
 // Инициализация слушателя для конкретного ARK
-void file_source::FileDataManager::InitReader(const fluctus::ArkWptr& reader, 
-                                            const int64_t carrier, 
-                                            const int64_t samplerate,  
-                                            const int64_t block_size)
+void file_source::FileDataManager::InitReader(const fluctus::ArkWptr& reader, InitParams &setup)
 {
     auto& listener = listeners_.try_emplace(reader, reader, params_).first->second; // Создает или получает существующий listener
     
     listener.WaitProcess();              // Останавливает текущий процесс (если работает)
-    listener.SetBaseParams(carrier, samplerate, block_size);  // Настраивает базовые параметры
+    listener.SetBaseParams(setup);  // Настраивает базовые параметры
 }
 
-void file_source::FileDataManager::StartReading(const fluctus::ArkWptr & reader, const double start_pos, const double end_pos, const SortOfReading read_type)
+void file_source::FileDataManager::StartReading(const fluctus::ArkWptr & reader, Limits<double> time_bounds, const FileSrcDove::FileSrcDoveThought read_type)
 {
 	auto& listener = listeners_.try_emplace(reader, reader, params_).first->second;  // Получает listener (должен быть инициализирован)
 	// Асинхронный запуск чтения
 	switch (read_type)
 	{
-	case file_source::FileDataManager::kReadAround: // Запуск чтения вокруг позиции 
-		listener.StartSingleAround(start_pos);  
+	case FileSrcDove::FileSrcDoveThought::kAskChunkAround: // Запуск чтения вокруг позиции 
+		listener.StartSingleAround(time_bounds.low);
 		break;
-	case file_source::FileDataManager::kReadChunksInRange:
-		listener.StartSingleInRange(start_pos, end_pos);
+	case FileSrcDove::FileSrcDoveThought::kAskChunksInRange:
+		listener.StartSingleInRange(time_bounds);
 		break;
-	case file_source::FileDataManager::kLoopReadInRange:
-		listener.StartLoopInRange(start_pos, end_pos);
+	case FileSrcDove::FileSrcDoveThought::kAskLoopInRange:
+		listener.StartLoopInRange(time_bounds);
 		break;
 	default:
 		break;
@@ -71,17 +68,15 @@ file_source::FileDataListener::FileDataListener(const fluctus::ArkWptr& weak_ptr
 }
 
 // Установка базовых параметров (частота, sample rate)
-void file_source::FileDataListener::SetBaseParams(const int64_t carrier, 
-                                                const int64_t samplerate, 
-                                                const int64_t block_size)
+void file_source::FileDataListener::SetBaseParams(InitParams &setup)
 {
 	tbb::spin_mutex::scoped_lock scoped_locker(init_mutex_);
-    data_info_.freq_info_.carrier_hz = carrier;      // Установка несущей частоты
-    data_info_.freq_info_.samplerate_hz = samplerate; // Установка частоты дискретизации
+    data_info_.freq_info_.carrier_hz = setup.carrier_hz;      // Установка несущей частоты
+    data_info_.freq_info_.samplerate_hz = setup.samplerate_hz; // Установка частоты дискретизации
 
 	fluctus::freq_params file_params = { file_params_.carrier_hz, file_params_.samplerate_hz };
 	resampler_.Init(file_params, data_info_.freq_info_, true);
-    block_size_ = block_size;                     // Сохранение размера блока
+    block_size_ = setup.chunk_size;                     // Сохранение размера блока
 }
 
 // Остановка текущего асинхронного процесса
@@ -114,27 +109,21 @@ bool file_source::FileDataListener::StartSingleAround(const double pos_ratio)
     return true;
 }
 
-bool file_source::FileDataListener::StartSingleInRange(double start_pos, double end_pos)
+bool file_source::FileDataListener::StartSingleInRange(const Limits<double>& time_bounds)
 {
 	tbb::spin_mutex::scoped_lock scoped_locker(init_mutex_);
 	WaitProcess();
 	state_ = kSingleReadInRange; 
-	process_anchor_ = std::async(std::launch::async,
-		&FileDataListener::ReadChunksInRangeProcess,
-		this,
-		start_pos, end_pos);
+	process_anchor_ = std::async(std::launch::async, &FileDataListener::ReadChunksInRangeProcess, this, time_bounds);
 	return true;
 }
 
-bool file_source::FileDataListener::StartLoopInRange(double start_pos, double end_pos)
+bool file_source::FileDataListener::StartLoopInRange(const Limits<double>& time_bounds)
 {
 	tbb::spin_mutex::scoped_lock scoped_locker(init_mutex_);
 	WaitProcess();
 	state_ = kLoopReadInRange;  
-	process_anchor_ = std::async(std::launch::async,
-		&FileDataListener::LoopReadInRangeProcess,
-		this,
-		start_pos, end_pos);
+	process_anchor_ = std::async(std::launch::async, &FileDataListener::LoopReadInRangeProcess, this, time_bounds);
 	return true;
 }
 
@@ -153,7 +142,7 @@ const file_source::FileDataListener::ListenerState file_source::FileDataListener
     return state_;
 }
 
-void file_source::FileDataListener::ReadChunksInRangeProcess(double start_pos, double end_pos)
+void file_source::FileDataListener::ReadChunksInRangeProcess(const Limits<double>& time_bounds)
 {
 	const auto chunk_size = block_size_;
 	StreamReader reader;
@@ -163,8 +152,8 @@ void file_source::FileDataListener::ReadChunksInRangeProcess(double start_pos, d
 		return;
 	}
 	data_info_.time_point = 0.;
-	reader.InitStartEndRatio(start_pos, end_pos, chunk_size);
-	const double supposed_samples = (end_pos - start_pos) * file_params_.count_of_samples /
+	reader.InitStartEndRatio(time_bounds, chunk_size);
+	const double supposed_samples = (time_bounds.delta()) * file_params_.count_of_samples /
 												file_params_.samplerate_hz * data_info_.freq_info_.samplerate_hz;
 
 
@@ -208,10 +197,10 @@ void file_source::FileDataListener::ReadChunksInRangeProcess(double start_pos, d
 	state_ = kNoProcess;  // Сброс состояния
 }
 
-void file_source::FileDataListener::LoopReadInRangeProcess(double start_pos, double end_pos)
+void file_source::FileDataListener::LoopReadInRangeProcess(const Limits<double>& time_bounds)
 {
 	// Проверка на пустой диапазон
-	if (start_pos >= end_pos)
+	if (time_bounds.delta() <= 0)
 	{
 		state_ = kProcessStopped;
 		return;
@@ -226,10 +215,10 @@ void file_source::FileDataListener::LoopReadInRangeProcess(double start_pos, dou
 		state_ = kProcessStopped;
 		return;
 	}
-	reader.InitStartEndRatio(start_pos, end_pos, chunk_size);
+	reader.InitStartEndRatio(time_bounds, chunk_size);
 
 	// Ожидаемое количество выходных отсчётов за один проход диапазона
-	const double supposed_samples = (end_pos - start_pos) *
+	const double supposed_samples = (time_bounds.delta()) *
 		file_params_.count_of_samples /
 		file_params_.samplerate_hz *
 		data_info_.freq_info_.samplerate_hz;
@@ -247,7 +236,7 @@ void file_source::FileDataListener::LoopReadInRangeProcess(double start_pos, dou
 		if (!reader.ReadStream(read_data, time_point))
 		{
 			// Достигнут конец диапазона — переинициализируем читатель для нового прохода
-			reader.InitStartEndRatio(start_pos, end_pos, chunk_size);
+			reader.InitStartEndRatio(time_bounds, chunk_size);
 			// Пробуем прочитать снова; если опять неудача — фатальная ошибка
 			if (!reader.ReadStream(read_data, time_point))
 			{

@@ -73,7 +73,7 @@ namespace fluctus
 		int64_t     carrier_hz{ 0 };
 		int64_t     samplerate_hz{ 100'000 };
 		IppDataType data_type_{ ipp16sc };
-		
+		double		bw_ratio_;
 
 		//Актуально для файлового источника
 		QString     file_name_;				

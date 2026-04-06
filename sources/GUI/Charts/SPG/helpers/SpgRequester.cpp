@@ -74,7 +74,7 @@ bool spg_core::SpgRequester::SendRequestDove(const request_params & req_info)
     req_dove->special_thought   = file_source::FileSrcDove::kInitReaderInfo |  file_source::FileSrcDove::kAskChunkAround;
     req_dove->target_ark        = base_ark;
 	req_dove->time_bounds = { req_info.time_point, req_info.time_point };
-	auto &freq_bounds = spg_.base_data.val_bounds.vertical;
+	auto &freq_bounds = spg_.base_data.val_bounds.vertical * 1.e6;
 	auto &setup = req_dove->setup;
 	setup.emplace();
 	setup->chunk_size = req_info.data_size;

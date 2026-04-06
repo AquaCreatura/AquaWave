@@ -12,7 +12,7 @@ class SpgRequester : public QObject
 {
     Q_OBJECT
 public:
-    SpgRequester(const spg_data& spg, const WorkBounds& time_bounds);
+    SpgRequester(const spg_data& spg);
 	~SpgRequester();
     void Initialise	 (const ArkWptr& file_source, const ArkWptr& ark_spg);
 	void StartProcess(bool do_start);
@@ -30,7 +30,6 @@ protected:
     ArkWptr                     ark_spg_;
     ArkWptr                     ark_file_src_;
     const spg_data&             spg_;
-    const WorkBounds&           src_time_bounds_;
     std::vector<int>            base_draw_locations_;
     std::vector<int>            spec_draw_locations_;
 

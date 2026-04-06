@@ -67,29 +67,13 @@ bool file_source::FileSourceArk::SendDove(fluctus::DoveSptr const& sent_dove)
             listener_man_.InitReader(target_ark, *file_src_dove->setup);
         }
         
-        // Запрос данных вокруг точки
-        if (file_src_thought & FileSrcDove::FileSrcDoveThought::kAskChunkAround)
-        {
-			if (descr_.file_name_.isEmpty()) return false;
-            listener_man_.StartReading(target_ark, *file_src_dove->time_bounds, FileDataManager::kReadAround);
-        }
-        
-        // Запрос данных чанками в диапазоне (единожды)
-        if (file_src_thought & FileSrcDove::FileSrcDoveThought::kAskChunksInRange)
-        {
-			listener_man_.StartReading(target_ark, *file_src_dove->time_bounds, FileDataManager::kReadChunksInRange);
-        }
-
-		if (file_src_thought & FileSrcDove::FileSrcDoveThought::kAskLoopInRange)
-		{
-			listener_man_.StartReading(target_ark, file_src_dove->time_bounds, FileDataManager::kLoopReadInRange);
+        // 
+		for (auto read_type : { FileSrcDove::kAskChunkAround, FileSrcDove::kAskChunksInRange, FileSrcDove::kAskLoopInRange }) {
+			if (file_src_thought & read_type){
+				listener_man_.StartReading(target_ark, file_src_dove->time_bounds, read_type);
+			}
 		}
-        
-        // Запрос данных в диапазоне (не реализовано)
-        if (file_src_thought & FileSrcDove::FileSrcDoveThought::kAskWholeInRange)
-        {
-            //Do smth
-        }
+
         if (file_src_thought & FileSrcDove::FileSrcDoveThought::kSetFileName)
         {
             const QString file_name = file_src_dove->description->file_name_;

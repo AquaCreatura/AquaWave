@@ -190,12 +190,12 @@ void scope_analyzer::ScopeAnalyzer::SetNewFftOrder(int need_order)
 	req_dove->special_thought = file_source::FileSrcDove::kInitReaderInfo | file_source::FileSrcDove::kAskLoopInRange;
 	req_dove->target_ark = shared_from_this();
 
-	req_dove->time_point_start = time_bounds_.low;
-	req_dove->time_point_end = time_bounds_.high;
-
-	req_dove->carrier_hz = selection_descr_.carrier_hz;
-	req_dove->samplerate_hz = selection_descr_.samplerate_hz;
-	req_dove->data_size = n_fft_;
+	req_dove->time_bounds = time_bounds_;
+	
+	req_dove->setup.emplace();
+	req_dove->setup->carrier_hz		= selection_descr_.carrier_hz;
+	req_dove->setup->samplerate_hz	= selection_descr_.samplerate_hz;
+	req_dove->setup->chunk_size	    = n_fft_;
 	if (!file_src_->SendDove(req_dove))
 	{
 		QMessageBox::warning(

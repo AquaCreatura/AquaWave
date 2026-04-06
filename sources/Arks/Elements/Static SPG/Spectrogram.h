@@ -22,7 +22,6 @@ protected:
 protected:
     QPointer<ChartSPG>          spg_drawer_;
     SourceArk                  src_info_;
-	WorkBounds                  time_bounds_;
     SpgRequester                requester_;
 	std::shared_ptr<aqua_gui::SelectionHolder> selection_holder_;
 	double						freq_divider_{ 1. };

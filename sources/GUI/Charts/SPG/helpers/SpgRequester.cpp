@@ -6,8 +6,8 @@
 #include <thread>
 using namespace spg_core; // Используем пространство имён dpx_core
 
-spg_core::SpgRequester::SpgRequester(const spg_data & spg, const WorkBounds& time_bounds) : 
-    spg_(spg), src_time_bounds_(time_bounds)
+spg_core::SpgRequester::SpgRequester(const spg_data & spg) : 
+    spg_(spg)
 {
 }
 
@@ -73,11 +73,13 @@ bool spg_core::SpgRequester::SendRequestDove(const request_params & req_info)
     req_dove->base_thought      = fluctus::DoveParrent::DoveThought::kSpecialThought;
     req_dove->special_thought   = file_source::FileSrcDove::kInitReaderInfo |  file_source::FileSrcDove::kAskChunkAround;
     req_dove->target_ark        = base_ark;
+	req_dove->time_bounds = { req_info.time_point, req_info.time_point };
+	auto &freq_bounds = spg_.base_data.val_bounds.vertical;
 	auto &setup = req_dove->setup;
 	setup.emplace();
-	setup->time_bounds = { req_info.time_point, req_info.time_point };
 	setup->chunk_size = req_info.data_size;
-
+	setup->carrier_hz = freq_bounds.mid();
+	setup->samplerate_hz = freq_bounds.delta();
     if (!file_src->SendDove(req_dove))
     {
         return false;
@@ -115,7 +117,7 @@ SpgRequester::request_params SpgRequester::GetRequestParams() {
 
 	
     const auto &hor_bounds = holder_to_request.val_bounds.horizontal; // Horizontal value bounds
-    const auto &src_bounds = src_time_bounds_.source; // Source time bounds
+    const auto &src_bounds = spg_.base_data.val_bounds.horizontal; // Source time bounds
 
     // Calculate normalized request bounds relative to source time bounds
     const Limits<double> req_bounds = {

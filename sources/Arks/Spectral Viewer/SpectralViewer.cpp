@@ -166,9 +166,9 @@ void SpectralViewer::RequestSelectedData()
     req_dove->base_thought      = fluctus::DoveParrent::DoveThought::kSpecialThought;
     req_dove->special_thought   = file_source::FileSrcDove::kInitReaderInfo |  file_source::FileSrcDove::kAskChunksInRange;
     req_dove->target_ark        = shared_from_this();
-    req_dove->time_point_start  = 0;
-	req_dove->time_point_end	= 1.;
-    req_dove->data_size         = n_fft_;
+	req_dove->time_bounds		= { 0., 1. };
+	req_dove->setup.emplace();
+	req_dove->setup->chunk_size = n_fft_;
     if (!file_src->SendDove(req_dove))
     {
         QMessageBox::warning(

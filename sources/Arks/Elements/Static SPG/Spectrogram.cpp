@@ -8,7 +8,7 @@ using namespace pipes;
 // parrent: ”казатель на родительский QWidget.
 StaticSpg::StaticSpg(QWidget * parrent) : 
     spg_drawer_(new spg_core::ChartSPG()),
-    requester_(spg_drawer_->GetSpectrogramInfo(), time_bounds_) 
+    requester_(spg_drawer_->GetSpectrogramInfo()) 
 {
 	{
 		pipe_line_.AddNextPipe(std::make_shared<FFtPipe>());
@@ -111,11 +111,9 @@ bool spg_core::StaticSpg::Reload()
     if (!file_src->SendDove(req_dove) || !req_dove->description) {
         return false;
     }
-    src_info_.descr.carrier_hz      = req_dove->description->carrier_hz;
-    src_info_.descr.samplerate_hz   = req_dove->description->samplerate_hz;
+    src_info_.descr = (*req_dove->description);
 	Limits<double> new_hor_bounds = { 0., std::max(1.,double(req_dove->description->count_of_samples)) };
 	if (1) {
-		time_bounds_.source = new_hor_bounds;
 		spg_drawer_->ClearData();
 		spg_drawer_->SetHorizontalMinMaxBounds(new_hor_bounds);
 		{

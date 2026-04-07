@@ -12,7 +12,23 @@ PreciseResampler::~PreciseResampler()
 
 void aqua_resampler::PreciseResampler::SetSettings(const ResamplerSettings settings)
 {
+	if (settings_.filter_length == s.filter_length &&
+		settings_.need_norm_power == s.need_norm_power &&
+		settings_.filter_koeff == s.filter_koeff &&
+		settings_.max_denom == s.max_denom &&
+		settings_.denom_quality == s.denom_quality)
+	{
+		return;
+	}
+	settings_ = s;
+	need_reset_ = true;
+
     settings_ = settings;
+}
+
+bool aqua_resampler::PreciseResampler::Init(const int64_t base_fs_hz, int64_t & target_fs_hz, const int64_t bw_hz)
+{
+	return false;
 }
 
 bool PreciseResampler::Init(int64_t base_samplerate, int64_t& res_samplerate) 
@@ -112,4 +128,9 @@ void PreciseResampler::Clear() {
     }
     delay_line_.clear();
     initialized_ = false;
+}
+
+const bool aqua_resampler::PreciseResampler::NeedFir()
+{
+	return false;
 }

@@ -7,11 +7,7 @@ namespace aqua_resampler
 {
 struct ResamplerSettings
 {
-    size_t filter_length    = 128;  //length of the filter
     bool   need_norm_power  = true; //Should we normalise power after resample
-	double filter_koeff     = 0.95;
-
-	size_t max_denom = 10;  //Relevant for MR filter
 	int	   denom_quality = 10;
 };
 
@@ -20,7 +16,7 @@ class ResamplerInterface
 public:
     virtual ~ResamplerInterface() = default;
     virtual void SetSettings    (const ResamplerSettings settings                                                  ) = 0;
-    virtual bool Init           (const int64_t base_samplerate   , int64_t& res_samplerate                         ) = 0;
+    virtual bool Init           (const int64_t base_fs_hz, int64_t& target_fs_hz, const int64_t bw_hz			   ) = 0;
     virtual bool ProcessData    (const Ipp32fc* passed_data, const size_t data_size, std::vector<Ipp32fc> &res_data) = 0;
     virtual void Clear          ()                                                                                   = 0;
 };

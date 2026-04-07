@@ -233,6 +233,7 @@ void SpectrumDpx::RequestSelectedData()
 	setup->chunk_size = n_fft_;
 	setup->carrier_hz = src_info_.descr.carrier_hz;
 	setup->samplerate_hz = src_info_.descr.samplerate_hz;
+	setup->banwidth_hz = setup->samplerate_hz * src_info_.descr.bw_ratio_;
     if (!file_src_->SendDove(req_dove))
     {
         QMessageBox::warning(

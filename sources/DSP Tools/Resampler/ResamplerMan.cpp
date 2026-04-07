@@ -20,10 +20,7 @@ static int get_fir_power_of_two(double resample_ratio, double util_factor) {
 ResamplerManager::ResamplerManager() {
 	// Настройки по умолчанию для MR 
 	mr_settings_.denom_quality = 10;
-	mr_settings_.filter_koeff = 0.95;
-
-	// Настройки по умолчанию для Precise ресемплера
-	precise_settings_.filter_koeff = 0.95;
+	SetBwRatio(0.95);
 }
 
 ResamplerManager::~ResamplerManager() {
@@ -64,8 +61,7 @@ bool ResamplerManager::initPreciseResampler(int64_t base_rate, int64_t& target_r
 	return true;
 }
 
-bool ResamplerManager::Init(const fluctus::freq_params& base_params,
-	fluctus::freq_params& target_params,
+bool ResamplerManager::Init(const fluctus::freq_params& base_params, fluctus::freq_params& target_params,
 	bool precise) {
 	FreeResources();
 
@@ -73,8 +69,11 @@ bool ResamplerManager::Init(const fluctus::freq_params& base_params,
 	int64_t target_rate = target_params.samplerate_hz;
 
 	if (base_rate <= 0 || target_rate <= 0) return false;
+	
 
 	freq_shifter_.Init(base_params.carrier_hz, target_params.carrier_hz, base_rate);
+
+	
 	resample_ratio_ = static_cast<double>(target_rate) / base_rate;
 	if (resample_ratio_ == 1.0) {
 		target_params.samplerate_hz = base_rate;
@@ -91,7 +90,7 @@ bool ResamplerManager::Init(const fluctus::freq_params& base_params,
 		int64_t approx_target_rate = base_rate * pq.first / pq.second;
 
 		// 2. Инициализируем MR ресемплер
-		if (!initMRResampler(base_rate, approx_target_rate))
+		if (!initMRResampler(base_rate, approx_target_rate)) //Always use...
 			return false;
 
 		// 3. Решаем, нужен ли Precise ресемплер
@@ -99,7 +98,7 @@ bool ResamplerManager::Init(const fluctus::freq_params& base_params,
 			(std::abs(static_cast<double>(pq.first) / pq.second - resample_ratio_) > max_error);
 
 		if (need_precise) {
-			if (!initPreciseResampler(approx_target_rate, target_rate))
+			if (!initPreciseResampler(approx_target_rate, target_rate)) //Don't use FIR, when no need
 				return false;
 			target_params.samplerate_hz = target_rate; // финальная частота
 		}
@@ -112,6 +111,19 @@ bool ResamplerManager::Init(const fluctus::freq_params& base_params,
 	catch (const std::exception&) {
 		return false;
 	}
+}
+
+bool aqua_resampler::ResamplerManager::SetBaseParams(const int64_t carrier_hz, const int64_t samplerate_hz)
+{
+	if (samplerate_hz < 0) return false;
+	base_params_.carrier_hz		= carrier_hz;
+	base_params_.samplerate_hz	= samplerate_hz;
+	return true;
+}
+
+bool aqua_resampler::ResamplerManager::SetTargetParams(const int64_t carrier_hz, const int64_t samplerate_hz, const int64_t bandwidth_hz, bool need_precise)
+{
+	return false;
 }
 
 bool ResamplerManager::ProcessBlock(const Ipp32fc* input_data, size_t size) {
@@ -140,6 +152,12 @@ bool ResamplerManager::ProcessBlock(const Ipp32fc* input_data, size_t size) {
 	}
 
 	return true;
+}
+
+void aqua_resampler::ResamplerManager::SetBwRatio(double ratio)
+{
+	mr_settings_.filter_koeff = ratio;
+	precise_settings_.filter_koeff = 0.95;
 }
 
 std::vector<Ipp32fc>& ResamplerManager::GetProcessedData() {

@@ -10,23 +10,34 @@ MultiRateResampler::~MultiRateResampler()
     Clear();
 }
 
-void aqua_resampler::MultiRateResampler::SetSettings(const ResamplerSettings settings)
+void aqua_resampler::MultiRateResampler::SetSettings(const ResamplerSettings s)
 {
-    settings_ = settings;
+	if (settings_.filter_length == s.filter_length &&
+		settings_.need_norm_power == s.need_norm_power &&
+		settings_.filter_koeff == s.filter_koeff &&
+		settings_.max_denom == s.max_denom &&
+		settings_.denom_quality == s.denom_quality)
+	{
+		return;
+	}
+    settings_ = s;
+	need_reset_ = true;
 }
 
-bool MultiRateResampler::Init(const int64_t base_samplerate, int64_t& res_samplerate) {
-if (base_samplerate <= 0 || res_samplerate <= 0) 
+bool MultiRateResampler::Init(const int64_t base_fs_hz, int64_t& target_fs_hz, const int64_t bw_hz) {
+if (base_fs_hz <= 0 || target_fs_hz <= 0)
         return false;
 
-      // Расчёт коэффициентов ресэмплинга
-    const double need_ratio = static_cast<double>(res_samplerate) / base_samplerate;
-    const auto up_down= aqua_resampler::FindBestFraction(need_ratio, settings_.max_denom, true);
+	// Расчёт коэффициентов ресэмплинга
+    const double need_ratio = static_cast<double>(target_fs_hz) / base_fs_hz;
+    const auto up_down = aqua_resampler::FindBestFraction(need_ratio, settings_.max_denom, true);
+	if (!need_reset_ && up_down.first == up_factor_ && up_down.first == down_factor_) //Нет необходимости переинициализировать
+		return true;
     up_factor_ = up_down.first;
     down_factor_ = up_down.second;
 
     // Корректировка конечной частоты
-    res_samplerate = (base_samplerate * up_factor_) / down_factor_;
+	target_fs_hz = (base_fs_hz * up_factor_) / down_factor_;
 
     // Проектирование фильтра с правильной частотой среза
     //В случае для каких целей используется - Если для интерполяции, то подавляем отзеркаливание, если для децимации, то подавляем отзеркаливание
@@ -67,7 +78,7 @@ if (base_samplerate <= 0 || res_samplerate <= 0)
     );
     // Инициализация линии задержки
     delay_line_.resize(settings_.filter_length + up_factor_ - 1, {0,0});
-    
+	need_reset_ = false;
     return (status == ippStsNoErr);
 }
 

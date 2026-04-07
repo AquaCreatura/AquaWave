@@ -3,7 +3,7 @@
 using namespace file_source;
 using namespace fluctus;
 // ========================================== FileSourceArk =================================
-
+constexpr double bw_filter_koeff_c_expr = 0.9;
 
 file_source::FileSourceArk::FileSourceArk(QWidget * main_window) :
 	listener_man_(descr_),  // Инициализация менеджера с параметрами файла
@@ -80,7 +80,6 @@ bool file_source::FileSourceArk::SendDove(fluctus::DoveSptr const& sent_dove)
 			UpdateSource();
             dialog_->SetFileName(file_name);
 			dialog_->exec();
-            //Do smth 
         }//kSetFile
     }
     return ArkBase::SendDove(sent_dove);
@@ -95,7 +94,7 @@ void file_source::FileSourceArk::UpdateSource()
 {
 	listener_man_.StopAllReaders();
     this->descr_ = dialog_->GetFileInfo(); //Update descr, according ui
-	descr_.bw_ratio_ = 0.9;
+	descr_.bw_ratio_ = bw_filter_koeff_c_expr;
 	if (qmain_window_) qmain_window_->setWindowTitle(tr("[AquaWave v.2.0]   %1").arg(descr_.file_name_));
     //Reset out arks
     {

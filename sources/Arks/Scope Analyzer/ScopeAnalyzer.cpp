@@ -149,9 +149,9 @@ bool ScopeAnalyzer::Restart(Limits<double> freq_bounds_Mhz, Limits<double> time_
 	auto arks = GetBehindArks();
 	if (arks.empty()) return false;
 
-
+	selection_descr_.bw_ratio_ = source_info_.descr.bw_ratio_;
 	selection_descr_.carrier_hz = freq_bounds_Mhz.mid() * 1.e6;
-	selection_descr_.samplerate_hz = freq_bounds_Mhz.delta() * 1.e6;
+	selection_descr_.samplerate_hz = freq_bounds_Mhz.delta() * 1.e6 / source_info_.descr.bw_ratio_;
 	selection_descr_.count_of_samples = time_bounds.delta() * source_info_.descr.count_of_samples *
 											selection_descr_.samplerate_hz / source_info_.descr.samplerate_hz;
 	
@@ -193,9 +193,11 @@ void scope_analyzer::ScopeAnalyzer::SetNewFftOrder(int need_order)
 	req_dove->time_bounds = time_bounds_;
 	
 	req_dove->setup.emplace();
-	req_dove->setup->carrier_hz		= selection_descr_.carrier_hz;
-	req_dove->setup->samplerate_hz	= selection_descr_.samplerate_hz;
-	req_dove->setup->chunk_size	    = n_fft_;
+	auto &setup = req_dove->setup;
+	setup->carrier_hz		= selection_descr_.carrier_hz;
+	setup->samplerate_hz	= selection_descr_.samplerate_hz;
+	setup->chunk_size	    = n_fft_;
+	setup->banwidth_hz		= setup->samplerate_hz * source_info_.descr.bw_ratio_;
 	if (!file_src_->SendDove(req_dove))
 	{
 		QMessageBox::warning(

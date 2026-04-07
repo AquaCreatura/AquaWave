@@ -17,8 +17,12 @@ namespace aqua_resampler
 		bool Init(const fluctus::freq_params& base_params,
 			fluctus::freq_params& target_params,
 			bool precise);
+		bool SetBaseParams(const int64_t carrier_hz, const int64_t samplerate_hz);
+		bool SetTargetParams(const int64_t carrier_hz, const int64_t samplerate_hz, const int64_t bandwidth_hz, bool need_precise = true);
+
 
 		bool ProcessBlock(const Ipp32fc* input_data, size_t size);
+		void SetBwRatio(double ratio);
 		std::vector<Ipp32fc>& GetProcessedData();
 		void FreeResources();
 
@@ -38,6 +42,8 @@ namespace aqua_resampler
 
 		aqua_dsp_tools::FrequencyShifter    freq_shifter_;
 		std::vector<Ipp32fc>                shifted_data_;
+
+		fluctus::freq_params				base_params_;
 	};
 
 }

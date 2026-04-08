@@ -73,7 +73,7 @@ static std::pair<int, int> FindBestFraction(const double target, const int max_n
 
 // Функция GenerateWindowKoeffs генерирует коэффициенты для окна фильтра низких частот.
 // Параметры:
-//   cutoff_freq    - частота среза фильтра (должна быть в интервале (0, 0.5))
+//   cutoff_ratio    - частота среза фильтра (должна быть в интервале (0, 0.5))
 //   coefs_num      - количество коэффициентов (должно быть > 8 и <= 1'000'000)
 //   window_type    - тип окна, используемого для генерации коэффициентов (например, Hamming, Blackman и т.п.)
 //   coefs_complex  - вектор, куда будут записаны сгенерированные комплексные коэффициенты
@@ -111,7 +111,19 @@ static bool GenerateWindowKoeffs(double cutoff_freq,
 
 
 
+// Оценка длины FIR-фильтра (степень 2) для ресемплинга
+static int GetFirPow2(double ratio, double passband_fraction) {
+	// ratio = Fs_out / Fs_in, passband_fraction = полоса пропускания / полоса Найквиста (0..1)
+	if (ratio <= 0 || passband_fraction <= 0 || passband_fraction >= 1.0)
+		return 0;
 
+	const double A = 60.0;                      // подавление, дБ
+	double min_ratio = (ratio < 1.0) ? ratio : 1.0;
+	double delta_f = min_ratio * (1.0 - passband_fraction); // ширина переходной полосы
+	double N = (A - 8.0) / (14.36 * delta_f);   // порядок фильтра
+	double L = N + 1.0;                         // длина
+	return static_cast<int>(std::pow(2, std::ceil(std::log2(L))));
+}
 
 
 }

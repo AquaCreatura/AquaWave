@@ -8,7 +8,8 @@ namespace aqua_resampler
 struct ResamplerSettings
 {
     bool   need_norm_power  = true; //Should we normalise power after resample
-	int	   denom_quality = 10;
+	int	   denom_quality	= 10;
+	bool   need_precise		= true;
 };
 
 class ResamplerInterface

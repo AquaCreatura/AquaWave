@@ -65,7 +65,7 @@ file_source::FileDataListener::FileDataListener(const fluctus::ArkWptr& weak_ptr
     target_ark_(weak_ptr),  // Инициализация ссылки на weak_ptr
     file_params_(params)         // Инициализация константной ссылки на параметры
 {
-	resampler_.SetBwRatio(0.95);
+	
 }
 
 // Установка базовых параметров (частота, sample rate)
@@ -75,8 +75,8 @@ void file_source::FileDataListener::SetBaseParams(InitParams &setup)
     data_info_.freq_info_.carrier_hz = setup.carrier_hz;      // Установка несущей частоты
     data_info_.freq_info_.samplerate_hz = setup.samplerate_hz; // Установка частоты дискретизации
 
-	fluctus::freq_params base_params = { file_params_.carrier_hz, file_params_.samplerate_hz };
-	resampler_.Init(base_params, data_info_.freq_info_, true);
+	resampler_.SetBaseParams(file_params_.carrier_hz, file_params_.samplerate_hz);
+	resampler_.SetTargetParams(setup.carrier_hz, setup.samplerate_hz, setup.banwidth_hz);
     block_size_ = setup.chunk_size;                     // Сохранение размера блока
 }
 

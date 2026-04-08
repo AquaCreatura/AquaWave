@@ -75,3 +75,9 @@ bool FrequencyShifter::ProcessBlockInPlace(Ipp32fc* data, int blockSize)
     status = ippsMul_32fc_I(tone.data(), data, blockSize);
     return (status == ippStsNoErr);
 }
+
+void aqua_dsp_tools::FrequencyShifter::Clear()
+{
+	tone_vec_.clear();
+	tone_vec_.shrink_to_fit();
+}

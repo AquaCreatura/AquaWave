@@ -10,12 +10,10 @@ MultiRateResampler::~MultiRateResampler()
     Clear();
 }
 
+
 void aqua_resampler::MultiRateResampler::SetSettings(const ResamplerSettings s)
 {
-	if (settings_.filter_length == s.filter_length &&
-		settings_.need_norm_power == s.need_norm_power &&
-		settings_.filter_koeff == s.filter_koeff &&
-		settings_.max_denom == s.max_denom &&
+	if (settings_.need_norm_power == s.need_norm_power &&
 		settings_.denom_quality == s.denom_quality)
 	{
 		return;
@@ -24,26 +22,32 @@ void aqua_resampler::MultiRateResampler::SetSettings(const ResamplerSettings s)
 	need_reset_ = true;
 }
 
-bool MultiRateResampler::Init(const int64_t base_fs_hz, int64_t& target_fs_hz, const int64_t bw_hz) {
-if (base_fs_hz <= 0 || target_fs_hz <= 0)
+bool MultiRateResampler::Init(const int64_t base_fs_hz, int64_t& tgt_sr_hz, const int64_t bw_hz) 
+{
+	if (base_fs_hz <= 0 || tgt_sr_hz <= 0 || bw_hz > tgt_sr_hz)
         return false;
-
 	// Расчёт коэффициентов ресэмплинга
-    const double need_ratio = static_cast<double>(target_fs_hz) / base_fs_hz;
-    const auto up_down = aqua_resampler::FindBestFraction(need_ratio, settings_.max_denom, true);
-	if (!need_reset_ && up_down.first == up_factor_ && up_down.first == down_factor_) //Нет необходимости переинициализировать
+    const double need_ratio = static_cast<double>(tgt_sr_hz) / base_fs_hz;
+
+	int max_nom_denom = int(std::ceil(std::max(need_ratio, 1 / need_ratio)));
+    const auto up_down = aqua_resampler::FindBestFraction(need_ratio, max_nom_denom, true);
+	if (!need_reset_ && up_down.first == up_factor_ && up_down.second == down_factor_) //Нет необходимости переинициализировать
 		return true;
     up_factor_ = up_down.first;
     down_factor_ = up_down.second;
 
     // Корректировка конечной частоты
-	target_fs_hz = (base_fs_hz * up_factor_) / down_factor_;
-
+	tgt_sr_hz = (base_fs_hz * up_factor_) / down_factor_;
+	const double bw_ratio = double(bw_hz) / tgt_sr_hz;
+	double fir_coeff_after_interp = bw_ratio / down_factor_; 	//Делим на down_factor_ т.к. FIR после интерполяции. 
     // Проектирование фильтра с правильной частотой среза
-    //В случае для каких целей используется - Если для интерполяции, то подавляем отзеркаливание, если для децимации, то подавляем отзеркаливание
-    const double fc = std::min(1.0/(2*up_factor_), 1.0/(2*down_factor_)) * settings_.filter_koeff; 
+    const double cutoff_after_interp = std::min(0.5 * fir_coeff_after_interp,  0.5 / std::max(up_factor_, down_factor_));
+
+	int fir_len = GetFirPow2(1. / down_factor_, bw_ratio);
+	fir_len = std::min(std::max(16, fir_len), 1024);
+	
     std::vector<Ipp32fc> taps;
-    if(!GenerateWindowKoeffs(fc, settings_.filter_length, ippWinBlackman, taps))
+    if(!GenerateWindowKoeffs(cutoff_after_interp, fir_len, ippWinBlackman, taps))
         return false;
     if(settings_.need_norm_power)
     {
@@ -53,7 +57,7 @@ if (base_fs_hz <= 0 || target_fs_hz <= 0)
     // Получение размеров буферов
     int specSize = 0, bufSize = 0;
     IppStatus status = ippsFIRMRGetSize(
-        settings_.filter_length, 
+		fir_len,
         up_factor_, 
         down_factor_, 
         ipp32fc, 
@@ -70,14 +74,14 @@ if (base_fs_hz <= 0 || target_fs_hz <= 0)
     // Инициализация спецификации с правильными фазами
     status = ippsFIRMRInit_32fc(
         taps.data(),                  // коэффициенты фильтра
-        settings_.filter_length,     // длина фильтра
+		fir_len,     // длина фильтра
         up_factor_,                  0,  // upPhase
         down_factor_,                0,               // downPhase 
         pSpec_// выравнивание 
         
     );
     // Инициализация линии задержки
-    delay_line_.resize(settings_.filter_length + up_factor_ - 1, {0,0});
+    delay_line_.resize(fir_len + up_factor_ - 1, {0,0});
 	need_reset_ = false;
     return (status == ippStsNoErr);
 }
@@ -88,8 +92,6 @@ bool MultiRateResampler::ProcessData(const Ipp32fc* data, const size_t size, std
         return false;
     if(size < down_factor_)
         return true;
-    // Расчёт размера выходного буфера согласно документации:
-    // out_size = floor((in_size * up + phase)/down)
     const int numIters = static_cast<int>(size) / down_factor_;
     const int outSize = numIters * up_factor_;
     res_vec.resize(outSize);

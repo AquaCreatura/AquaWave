@@ -11,7 +11,7 @@
 #include <vector>
 #include <cstdint>
 #include <ipps.h> // Предполагается, что здесь находятся объявления функций IPP
-
+#include <algorithm>
 
 namespace aqua_resampler
 {
@@ -112,14 +112,14 @@ static bool GenerateWindowKoeffs(double cutoff_freq,
 
 
 // Оценка длины FIR-фильтра (степень 2) для ресемплинга
-static int GetFirPow2(double ratio, double passband_fraction) {
+static int GetFirLenPow2(double ratio, double passband_fraction = 0.9) {
 	// ratio = Fs_out / Fs_in, passband_fraction = полоса пропускания / полоса Найквиста (0..1)
 	if (ratio <= 0 || passband_fraction <= 0 || passband_fraction >= 1.0)
 		return 0;
-
-	const double A = 60.0;                      // подавление, дБ
-	double min_ratio = (ratio < 1.0) ? ratio : 1.0;
-	double delta_f = min_ratio * (1.0 - passband_fraction); // ширина переходной полосы
+	passband_fraction = std::max(0.85, passband_fraction); //Меньшая частота среза - это странно...
+	const double A = 100.0;                      // подавление, дБ
+	double nyq_ratio = (ratio < 1.0) ? ratio * 0.5 : 0.5;
+	double delta_f = nyq_ratio * (1.0 - passband_fraction); // ширина переходной полосы
 	double N = (A - 8.0) / (14.36 * delta_f);   // порядок фильтра
 	double L = N + 1.0;                         // длина
 	return static_cast<int>(std::pow(2, std::ceil(std::log2(L))));

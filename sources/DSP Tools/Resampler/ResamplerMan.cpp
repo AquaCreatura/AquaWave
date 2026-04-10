@@ -9,8 +9,11 @@ using namespace aqua_resampler;
 
 ResamplerManager::ResamplerManager() {
 	settings_.denom_quality = 10; // Настройки по умолчанию для MR
+	settings_.need_precise = true;
+	settings_.skip_precise_fir = true;
 	mr_resampler_		= std::make_unique<MultiRateResampler>();
 	precise_resampler_	= std::make_unique<PreciseResampler>();
+	SetSettings(settings_);
 }
 
 ResamplerManager::~ResamplerManager() {
@@ -44,7 +47,6 @@ bool aqua_resampler::ResamplerManager::SetTargetParams(const int64_t fc_tgt_hz, 
 	if (!mr_resampler_->Init(base_params_.samplerate_hz, sr_after_mr, target_bw_hz)) 
 		return false;
 
-	//settings_.need_precise = false;
 	if (settings_.need_precise) {
 		if (!precise_resampler_->Init(sr_after_mr, sr_tgt_hz, target_bw_hz))
 			return false;

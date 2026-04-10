@@ -12,9 +12,9 @@ PreciseResampler::~PreciseResampler()
 
 void aqua_resampler::PreciseResampler::SetSettings(const ResamplerSettings s)
 {
-	if (settings_.need_norm_power == s.need_norm_power)
+	if (settings_.need_norm_power == s.need_norm_power )
 	{
-		return;
+		
 	}
 
     settings_ = s;
@@ -32,10 +32,18 @@ bool aqua_resampler::PreciseResampler::Init(const int64_t base_sr_hz, int64_t & 
 	output_rate_ = target_sr_hz;
 	// Любовно вычисляем соотношение для пересчёта
 	resample_ratio_ = static_cast<double>(output_rate_) / input_rate_;
+
+	if (settings_.skip_precise_fir) {
+		initialized_ = true;
+		interpolator_.SetResampleRatio(1 / resample_ratio_);
+		return true;
+	}
+
+
 	const double filter_koeff = double(bw_hz) / base_sr_hz;
 
 	// Бережно берём длину фильтра из настроек
-	int filter_len = GetFirPow2(1., filter_koeff);
+	int filter_len = GetFirLenPow2(1., std::max(0.95, filter_koeff));
 	filter_len = std::min(std::max(16, filter_len), 1024);
 
 	// Создаём уютный вектор для коэффициентов фильтра
@@ -66,7 +74,7 @@ bool aqua_resampler::PreciseResampler::Init(const int64_t base_sr_hz, int64_t & 
 	fir_buf_ = ippsMalloc_8u(buf_size);
 
 	// Нежно инициализируем FIR-фильтр с нашими милыми коэффициентами
-	status = ippsFIRSRInit_32fc(taps.data(), filter_len, ippAlgDirect, fir_spec_);
+	status = ippsFIRSRInit_32fc(taps.data(), filter_len, ippAlgAuto, fir_spec_);
 	// Если что-то не получилось, заботливо очищаем и уходим
 	if (status != ippStsNoErr)
 	{
@@ -91,8 +99,10 @@ bool PreciseResampler::ProcessData(const Ipp32fc* passed_data, size_t data_size,
     if (!initialized_ || !passed_data || data_size == 0)
         return false;
 
-    // Вычисление ожидаемого размера выходных данных
-    size_t output_size = static_cast<size_t>(data_size * resample_ratio_ + 0.5);
+	if (settings_.skip_precise_fir) { 
+		interpolator_.process(passed_data, data_size, res_data);
+		return true;
+	}
 
     // Ресайз вектора для хранения отфильтрованных данных
     filtered_vec_.resize(data_size);
@@ -104,7 +114,6 @@ bool PreciseResampler::ProcessData(const Ipp32fc* passed_data, size_t data_size,
         res_data.clear();
         return false;
     }
-
     // Интерполяция отфильтрованных данных для достижения требуемой частоты дискретизации
     interpolator_.process(filtered_vec_.data(), filtered_vec_.size(), res_data);
     return true;

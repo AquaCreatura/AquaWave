@@ -10,6 +10,7 @@ struct ResamplerSettings
     bool   need_norm_power  = true; //Should we normalise power after resample
 	int	   denom_quality	= 10;
 	bool   need_precise		= true;
+	bool   skip_precise_fir	= false;
 };
 
 class ResamplerInterface

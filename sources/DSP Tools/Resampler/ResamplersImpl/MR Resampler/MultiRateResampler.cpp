@@ -30,6 +30,7 @@ bool MultiRateResampler::Init(const int64_t base_fs_hz, int64_t& tgt_sr_hz, cons
     const double need_ratio = static_cast<double>(tgt_sr_hz) / base_fs_hz;
 
 	int max_nom_denom = int(std::ceil(std::max(need_ratio, 1 / need_ratio)));
+	max_nom_denom = std::max(settings_.denom_quality, max_nom_denom);
     const auto up_down = aqua_resampler::FindBestFraction(need_ratio, max_nom_denom, true);
 	if (!need_reset_ && up_down.first == up_factor_ && up_down.second == down_factor_) //Нет необходимости переинициализировать
 		return true;
@@ -43,7 +44,7 @@ bool MultiRateResampler::Init(const int64_t base_fs_hz, int64_t& tgt_sr_hz, cons
     // Проектирование фильтра с правильной частотой среза
     const double cutoff_after_interp = std::min(0.5 * fir_coeff_after_interp,  0.5 / std::max(up_factor_, down_factor_));
 
-	int fir_len = GetFirPow2(1. / down_factor_, bw_ratio);
+	int fir_len = GetFirLenPow2(1. / down_factor_, std::max(0.95, bw_ratio));
 	fir_len = std::min(std::max(16, fir_len), 1024);
 	
     std::vector<Ipp32fc> taps;

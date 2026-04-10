@@ -134,27 +134,52 @@ bool ScopeAnalyzer::Reload()
 			return false;
 		}
 		source_info_.descr = *req_dove->description;
-		
 	}
 	return true;
 }
 
 bool ScopeAnalyzer::Restart(Limits<double> freq_bounds_Mhz, Limits<double> time_bounds)
 {
-	if (GetFrontArks().empty()) {
-		for (auto chart_iter : charts_) 
-			ShipBuilder::Bind_SrcSink(shared_from_this(), chart_iter.second);	
-	}
 	time_bounds_ = time_bounds;
+	if (time_bounds_.delta() == 0) return false;
 	auto arks = GetBehindArks();
 	if (arks.empty()) return false;
 
 	selection_descr_.bw_ratio_ = source_info_.descr.bw_ratio_;
 	selection_descr_.carrier_hz = freq_bounds_Mhz.mid() * 1.e6;
-	selection_descr_.samplerate_hz = freq_bounds_Mhz.delta() * 1.e6 / source_info_.descr.bw_ratio_;
+
+
+	{
+		auto file_src_ = arks.front();
+		auto req_dove = std::make_shared<file_source::FileSrcDove>();
+		req_dove->special_thought = file_source::FileSrcDove::kInitReaderInfo;
+		req_dove->target_ark = shared_from_this();
+
+		req_dove->time_bounds = time_bounds_;
+
+		req_dove->setup.emplace();
+		auto &setup = req_dove->setup;
+		setup->carrier_hz = selection_descr_.carrier_hz;
+		setup->chunk_size = n_fft_;		
+		setup->banwidth_hz	 = freq_bounds_Mhz.delta() * 1.e6;
+		setup->samplerate_hz = setup->banwidth_hz / source_info_.descr.bw_ratio_;
+
+		if (!file_src_->SendDove(req_dove))
+		{
+			QMessageBox::warning( nullptr, "Cannot Send Data", "Do something with DPX or file source, or...");
+			return false;
+		}
+		selection_descr_.samplerate_hz = setup->samplerate_hz; //Выставляем ЧД
+	}
 	selection_descr_.count_of_samples = time_bounds.delta() * source_info_.descr.count_of_samples *
 											selection_descr_.samplerate_hz / source_info_.descr.samplerate_hz;
+
+	if (GetFrontArks().empty()) {
+		for (auto chart_iter : charts_)
+			ShipBuilder::Bind_SrcSink(shared_from_this(), chart_iter.second);
+	}
 	
+
 	const int max_order = std::min(log2(selection_descr_.count_of_samples), 21.);
 
 	auto req_dove = std::make_shared<spectral_viewer::SpectralDove>();
@@ -200,11 +225,8 @@ void scope_analyzer::ScopeAnalyzer::SetNewFftOrder(int need_order)
 	setup->banwidth_hz		= setup->samplerate_hz * source_info_.descr.bw_ratio_;
 	if (!file_src_->SendDove(req_dove))
 	{
-		QMessageBox::warning(
-			nullptr,                        // родительское окно (может быть this)
-			"Cannot Send Data",            // заголовок окна
-			"Do something with DPX or file source, or..."  // сообщение
-		);
+		QMessageBox::warning(nullptr, "Cannot Send Data", "Do something with DPX or file source, or...");
+		return;
 	}
 
 

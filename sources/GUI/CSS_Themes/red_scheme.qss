@@ -39,7 +39,7 @@ QPushButton {
         stop:1 #2C1C0F);
     border: 0px solid #B87C4A;
     border-radius: 3px;
-    padding: 6px 14px;
+    padding: 5px 3px;
     color: #F5E6D3;
     font-weight: bold;
     font-family: "Courier New", monospace;

@@ -72,12 +72,12 @@ bool ResamplerManager::ProcessBlock(const Ipp32fc* input_data, size_t size) {
 		return true;
 	}
 
-	if (!mr_resampler_->ProcessData(shifted_data_.data(), shifted_data_.size(), mr_output_))
+	if (!mr_resampler_->ProcessData(shifted_data_, mr_output_))
 		return false;
 
 	if(settings_.need_precise)
 	{
-		if (!precise_resampler_->ProcessData(mr_output_.data(), mr_output_.size(), processed_data_))
+		if (!precise_resampler_->ProcessData(mr_output_, processed_data_))
 			return false;
 	}
 	else

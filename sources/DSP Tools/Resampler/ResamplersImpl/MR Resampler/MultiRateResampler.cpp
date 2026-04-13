@@ -10,6 +10,12 @@ MultiRateResampler::~MultiRateResampler()
     Clear();
 }
 
+void aqua_resampler::MultiRateResampler::SetPrecision(const int quality)
+{
+	settings_.denom_quality = std::max(1,std::min(20, quality));
+}
+
+
 
 void aqua_resampler::MultiRateResampler::SetSettings(const ResamplerSettings s)
 {
@@ -32,7 +38,8 @@ bool MultiRateResampler::Init(const int64_t base_fs_hz, int64_t& tgt_sr_hz, cons
 	int max_nom_denom = int(std::ceil(std::max(need_ratio, 1 / need_ratio)));
 	max_nom_denom = std::max(settings_.denom_quality, max_nom_denom);
     const auto up_down = aqua_resampler::FindBestFraction(need_ratio, max_nom_denom, true);
-	if (!need_reset_ && up_down.first == up_factor_ && up_down.second == down_factor_) //Нет необходимости переинициализировать
+	//Нет необходимости переинициализировать
+	if (!need_reset_ && up_down.first == up_factor_ && up_down.second == down_factor_) 
 		return true;
     up_factor_ = up_down.first;
     down_factor_ = up_down.second;
@@ -87,18 +94,24 @@ bool MultiRateResampler::Init(const int64_t base_fs_hz, int64_t& tgt_sr_hz, cons
     return (status == ippStsNoErr);
 }
 
-bool MultiRateResampler::ProcessData(const Ipp32fc* data, const size_t size, std::vector<Ipp32fc>& res_vec) 
+bool MultiRateResampler::ProcessData(const Ipp32fc* passed_data, const size_t passed_size, std::vector<Ipp32fc>& res_vec) 
 {
-    if (!pSpec_ || !data || size == 0) 
+    if (!passed_data || passed_size < down_factor_) 
         return false;
-    if(size < down_factor_)
-        return true;
-    const int numIters = static_cast<int>(size) / down_factor_;
+
+	if (up_factor_ == down_factor_ && down_factor_ == 1) {
+		res_vec.resize(passed_size);
+		ippsCopy_32fc(passed_data, res_vec.data(), passed_size);
+		return true;
+	}
+	if (!pSpec_)
+		return false;
+    const int numIters = static_cast<int>(passed_size) / down_factor_;
     const int outSize = numIters * up_factor_;
     res_vec.resize(outSize);
 
     IppStatus status = ippsFIRMR_32fc(
-        data,                        // входные данные
+        passed_data,                        // входные данные
         res_vec.data(),              // выходной буфер
         numIters,                    // количество входных блоков
         pSpec_, // спецификация
@@ -108,6 +121,11 @@ bool MultiRateResampler::ProcessData(const Ipp32fc* data, const size_t size, std
     );
     
     return (status == ippStsNoErr);
+}
+
+bool aqua_resampler::MultiRateResampler::ProcessData(const std::vector<Ipp32fc>& passed_data, std::vector<Ipp32fc>& res_data)
+{
+	return ProcessData(passed_data.data(), passed_data.size(), res_data);
 }
 
 void MultiRateResampler::Clear() 

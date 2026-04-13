@@ -36,7 +36,7 @@ file_source::FileSourceDialog::FileSourceDialog()
             }
         }
 		
-        connect(ui_.choose_path_tool_button, &QToolButton::clicked, this, &FileSourceDialog::OnChooseFilePath);
+		connect(ui_.choose_path_tool_button, &QPushButton::clicked, this, &FileSourceDialog::OnChooseFilePath);
         connect(ui_.choose_path_line_edit, &QLineEdit::textChanged, [this](const QString& new_file_path)
         {   
             edit_file_info_.file_name_ = new_file_path;

@@ -19,36 +19,29 @@ ScopeAnalyzer::ScopeAnalyzer()
 {
     window_ = new ScopeAnalyzerWindow;
 
-	//Определяем спектрограмму и спектр выделенной полосы
-	{
-		charts_[kBaseSpectrum] = std::make_shared<dpx_core::SpectrumDpx>(dpx_core::kDpxChartType::kFFT);
-		charts_[kBaseSpg] = std::make_shared<spg_core::StaticSpg>();
-
-		auto req_dove = std::make_shared<SpectralDove>(SpectralDove::kSetSelectionHolder);
-		req_dove->sel_holder = std::make_shared<aqua_gui::SelectionHolder>();
-
-		for (auto chart_type : { kBaseSpectrum, kBaseSpg }) {
-			auto chart_window = ShipBuilder::GetWindow(charts_[chart_type]);
-			window_->AddChartWindow(chart_window, chart_type);
-			charts_[chart_type]->SendDove(req_dove);
-		}
-	}
 	//Определяем графики гармонического анализа
 	{
 		charts_[kAcf]			 = std::make_shared<dpx_core::SpectrumDpx>(dpx_core::kDpxChartType::kACF);
+		charts_[kAcf].need_resampler = false;
+
 		charts_[kBandwidth]		 = std::make_shared<dpx_core::SpectrumDpx>(dpx_core::kDpxChartType::kFFT);
+		charts_[kBandwidth].need_resampler = true;
+
+		charts_[kConstellation] = std::make_shared<constel::Constellation>();
+		charts_[kConstellation].need_resampler = false;
+
 
 		charts_[kPhasorSpectrum]	= std::make_shared<dpx_core::SpectrumDpx>(dpx_core::kDpxChartType::kPhasor);
 		charts_[kEnvelopeSpectrum]	= std::make_shared<dpx_core::SpectrumDpx>(dpx_core::kDpxChartType::kEnvelope);
 		charts_[kPowerSpectrum]		= std::make_shared<dpx_core::SpectrumDpx>(dpx_core::kDpxChartType::kPower4x);
-		charts_[kConstellation]		= std::make_shared<constel::Constellation>();
+		
 		for (auto chart_type : { kAcf, kPowerSpectrum , kPhasorSpectrum, kBandwidth, kEnvelopeSpectrum, kConstellation }) {
 			auto chart_window = ShipBuilder::GetWindow(charts_[chart_type]);
 			window_->AddChartWindow(chart_window, chart_type);
 		}
 	}
 	window_->ActivateWindow(kPowerSpectrum);
-
+	resampler_.SetPrecision(0);
 	connect(window_, &ScopeAnalyzerWindow::FftChangeNeed, this, &ScopeAnalyzer::SetNewFftOrder);
 }
 
@@ -57,13 +50,31 @@ ScopeAnalyzer::~ScopeAnalyzer()
 	
 }
 
-bool ScopeAnalyzer::SendData(fluctus::DataInfo const & data_info)
+bool ScopeAnalyzer::SendData(fluctus::DataInfo const & passed_unit)
 {
-	if (data_info.data_vec.size() != n_fft_ * 8)
+	if (passed_unit.data_vec.size() != n_fft_ * sizeof(Ipp32fc))
 		return false;
+
 	for (auto chart_iter : charts_) {
-		chart_iter.second->SendData(data_info);
+		if(!chart_iter.second.need_resampler)
+			chart_iter.second->SendData(passed_unit);
 	}
+
+	//Обработка с повышением ЧД
+	{
+		auto &resampled = (std::vector<Ipp32fc>&)resampled_unit_.data_vec;
+		resampler_.ProcessData((std::vector<Ipp32fc>&)passed_unit.data_vec, resampled_buff_);
+		resampled_unit_.freq_info_.carrier_hz = passed_unit.freq_info_.carrier_hz;
+		const int count_of_parts = resampled_buff_.size() / n_fft_;
+		for (int part_counter = 0; part_counter < count_of_parts; part_counter++) {
+			resampled.assign(resampled_buff_.data() + n_fft_ * part_counter, resampled_buff_.data() + n_fft_ * (part_counter + 1));
+			for (auto chart_iter : charts_) {
+				if (chart_iter.second.need_resampler)
+					chart_iter.second->SendData(resampled_unit_);
+			}
+		}
+	}
+
 	return true;
 }
 
@@ -100,6 +111,12 @@ bool ScopeAnalyzer::SendDove(fluctus::DoveSptr const & sent_dove)
 	if (base_thought & fluctus::DoveParrent::DoveThought::kGetDescription)
 	{
 		sent_dove->description = selection_descr_;
+		for (auto chart_iter : charts_) {
+			if ((chart_iter.second == sent_dove->sender) && (chart_iter.second.need_resampler)) {
+				sent_dove->description->samplerate_hz = resampled_samplerate_;
+			}
+		}
+		
 	}
 	if (base_thought == fluctus::DoveParrent::DoveThought::kSpecialThought) {
 		const auto special_thought = sent_dove->special_thought;
@@ -170,6 +187,9 @@ bool ScopeAnalyzer::Restart(Limits<double> freq_bounds_Mhz, Limits<double> time_
 			return false;
 		}
 		selection_descr_.samplerate_hz = setup->samplerate_hz; //Выставляем ЧД
+		resampled_samplerate_ = setup->banwidth_hz * 2;
+		resampler_.Init(setup->samplerate_hz, resampled_samplerate_, setup->samplerate_hz);
+		resampled_unit_.freq_info_.samplerate_hz = resampled_samplerate_;
 	}
 	selection_descr_.count_of_samples = time_bounds.delta() * source_info_.descr.count_of_samples *
 											selection_descr_.samplerate_hz / source_info_.descr.samplerate_hz;

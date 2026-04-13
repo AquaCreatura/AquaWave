@@ -22,6 +22,7 @@ AquaWave::AquaWave(QWidget *parent, const QString& file_path)
 	connect(ui.new_file_menu_action, &QAction::triggered, [this]()
 	{
 		auto file_window = ShipBuilder::GetWindow(file_src_);
+		file_window->setStyleSheet(styleSheet());
 		file_window->show();
 	});
 

@@ -12,10 +12,11 @@ class MultiRateResampler : public ResamplerInterface {
 public:
     MultiRateResampler();
     virtual ~MultiRateResampler() override;
-
-    virtual void SetSettings    (const ResamplerSettings settings                                                  ) override;
-    virtual bool Init           (const int64_t base_fs_hz, int64_t& tgt_sr_hz, const int64_t bw_hz			   ) override;
-    virtual bool ProcessData    (const Ipp32fc* passed_data, const size_t data_size, std::vector<Ipp32fc>& res_data) override;
+	void	SetPrecision(const int quality); //Выше точность - ниже скорость. Определяет максимальный числитель
+    virtual void SetSettings    (const ResamplerSettings settings													) override;
+    virtual bool Init           (const int64_t base_fs_hz, int64_t& tgt_sr_hz, const int64_t bw_hz					) override;
+    virtual bool ProcessData    (const Ipp32fc* passed_data, const size_t data_size, std::vector<Ipp32fc>& res_data	) override;
+	virtual bool ProcessData	(const std::vector<Ipp32fc>& passed_data, std::vector<Ipp32fc>& res_data			) override;
     virtual void Clear          () override;
 
 private:

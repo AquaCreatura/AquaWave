@@ -141,6 +141,7 @@ bool dpx_core::SpectrumDpx::Reload()
     if(!file_src) return true;
     
 	auto req_dove = std::make_shared<fluctus::DoveParrent>(fluctus::DoveParrent::kGetDescription);
+	req_dove->sender = shared_from_this();
     if (!file_src->SendDove(req_dove) || !req_dove->description)
     {
         return false;

@@ -119,6 +119,11 @@ bool PreciseResampler::ProcessData(const Ipp32fc* passed_data, size_t data_size,
     return true;
 }
 
+bool aqua_resampler::PreciseResampler::ProcessData(const std::vector<Ipp32fc>& passed_data, std::vector<Ipp32fc>& res_data)
+{
+	return ProcessData(passed_data.data(), passed_data.size(), res_data);
+}
+
 void PreciseResampler::Clear() {
     if (fir_spec_) {
         ippsFree(fir_spec_);

@@ -24,11 +24,12 @@ ScopeAnalyzer::ScopeAnalyzer()
 		charts_[kAcf]			 = std::make_shared<dpx_core::SpectrumDpx>(dpx_core::kDpxChartType::kACF);
 		charts_[kAcf].need_resampler = false;
 
-		charts_[kBandwidth]		 = std::make_shared<dpx_core::SpectrumDpx>(dpx_core::kDpxChartType::kFFT);
-		charts_[kBandwidth].need_resampler = true;
-
 		charts_[kConstellation] = std::make_shared<constel::Constellation>();
 		charts_[kConstellation].need_resampler = false;
+
+		charts_[kBandwidth]		 = std::make_shared<dpx_core::SpectrumDpx>(dpx_core::kDpxChartType::kFFT);
+
+		
 
 
 		charts_[kPhasorSpectrum]	= std::make_shared<dpx_core::SpectrumDpx>(dpx_core::kDpxChartType::kPhasor);
@@ -158,12 +159,13 @@ bool ScopeAnalyzer::Reload()
 bool ScopeAnalyzer::Restart(Limits<double> freq_bounds_Mhz, Limits<double> time_bounds)
 {
 	time_bounds_ = time_bounds;
+	selection_bounds_ = freq_bounds_Mhz * 1.e6;
 	if (time_bounds_.delta() == 0) return false;
 	auto arks = GetBehindArks();
 	if (arks.empty()) return false;
 
 	selection_descr_.bw_ratio_ = source_info_.descr.bw_ratio_;
-	selection_descr_.carrier_hz = freq_bounds_Mhz.mid() * 1.e6;
+	selection_descr_.carrier_hz = selection_bounds_.mid();
 
 
 	{
@@ -178,7 +180,7 @@ bool ScopeAnalyzer::Restart(Limits<double> freq_bounds_Mhz, Limits<double> time_
 		auto &setup = req_dove->setup;
 		setup->carrier_hz = selection_descr_.carrier_hz;
 		setup->chunk_size = n_fft_;		
-		setup->banwidth_hz	 = freq_bounds_Mhz.delta() * 1.e6;
+		setup->banwidth_hz	 = selection_bounds_.delta();
 		setup->samplerate_hz = setup->banwidth_hz / source_info_.descr.bw_ratio_;
 
 		if (!file_src_->SendDove(req_dove))
@@ -187,7 +189,7 @@ bool ScopeAnalyzer::Restart(Limits<double> freq_bounds_Mhz, Limits<double> time_
 			return false;
 		}
 		selection_descr_.samplerate_hz = setup->samplerate_hz; //Выставляем ЧД
-		resampled_samplerate_ = setup->banwidth_hz * 2;
+		resampled_samplerate_ = setup->banwidth_hz * 4;
 		resampler_.Init(setup->samplerate_hz, resampled_samplerate_, setup->samplerate_hz);
 		resampled_unit_.freq_info_.samplerate_hz = resampled_samplerate_;
 	}
@@ -242,7 +244,7 @@ void scope_analyzer::ScopeAnalyzer::SetNewFftOrder(int need_order)
 	setup->carrier_hz		= selection_descr_.carrier_hz;
 	setup->samplerate_hz	= selection_descr_.samplerate_hz;
 	setup->chunk_size	    = n_fft_;
-	setup->banwidth_hz		= setup->samplerate_hz * source_info_.descr.bw_ratio_;
+	setup->banwidth_hz		= selection_bounds_.delta();
 	if (!file_src_->SendDove(req_dove))
 	{
 		QMessageBox::warning(nullptr, "Cannot Send Data", "Do something with DPX or file source, or...");

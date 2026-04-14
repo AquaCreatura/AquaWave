@@ -29,7 +29,7 @@ bool QimageZoomer::SetNewBase(QImage *base_qimage)
     }
 
     base_image_ = base_qimage;
-    // Force redraw on next GetPrecisedPart call
+    // Force redraw on next PrecisedPartSaver call
     cached_pixmap_ = QPixmap(); 
     last_min_max_value_bounds_ = {{0.0, 0.0}, {0.0, 0.0}}; // Reset
     last_target_value_bounds_ = {{0.0, 0.0}, {0.0, 0.0}}; // Reset

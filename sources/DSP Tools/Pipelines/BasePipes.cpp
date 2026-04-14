@@ -63,7 +63,7 @@ void pipes::PhasorPipe::ProcessData(PipeHolder::sptr meta_data)
 	ippsPhase_32fc(complex_data.data(), float_data.data(), float_data.size());
 	complex_data.clear();
 
-	//ippsAbs_32f_I(float_data.data(), float_data.size()); 
+	ippsAbs_32f_I(float_data.data(), float_data.size()); 
 	//ippsMulC_32f_I(1, float_data.data(), float_data.size());
 	if (next_) next_->ProcessData(meta_data);
 }
@@ -83,10 +83,20 @@ void pipes::SamplesDiffPipe::ProcessData(PipeHolder::sptr meta_data)
 {
 	auto &base = meta_data->complex_float_data;
 
-	if (base.size() < 2) return;
+	const int N = static_cast<int>(base.size());
+	if (N < 2) return;
+	auto &res = meta_data->buffer_32fc;
+	res.resize(N);
 
-	ippsSub_32fc_I(base.data(), base.data() + 1, base.size() - 1);
-	base[0] = { 0.f,0.f };
+	ippsMulByConj_32fc_A11(
+		base.data() + 1, // src1: x[i]
+		base.data(),     // src2: x[i-1]
+		res.data() + 1, // dst
+		N - 1
+	);
+	res.swap(base);
+	base[0] = { 0.f, 0.f };
+
 	if (next_) next_->ProcessData(meta_data);
 }
 
@@ -101,8 +111,50 @@ void pipes::PowerToDbPipe::ProcessData(PipeHolder::sptr meta_data)
 	if (next_) next_->ProcessData(meta_data);
 }
 
-void pipes::GetFirstHalf::ProcessData(PipeHolder::sptr meta_data)
+pipes::PrecisedPartSaver::PrecisedPartSaver(const int parts_count, const int need_part): parts_count_(parts_count), need_part_(need_part)
 {
-	meta_data->float_data.resize(meta_data->float_data.size() / 2);
-	meta_data->complex_float_data.resize(meta_data->complex_float_data.size() / 2);
+}
+
+void pipes::PrecisedPartSaver::ProcessData(PipeHolder::sptr meta_data)
+{
+	auto process = [this](auto& vec)
+	{
+		const size_t total = vec.size();
+		if (total == 0 || parts_count_ <= 0) return;
+
+		const size_t part_size = total / parts_count_;
+		const size_t start = part_size * need_part_;
+
+		// защита от выхода за границы
+		if (start >= total) {
+			vec.clear();
+			return;
+		}
+
+		const size_t actual_size = std::min(part_size, total - start);
+
+		// если это не первая часть — сдвигаем
+		if (start > 0) {
+			std::move(vec.begin() + start,
+				vec.begin() + start + actual_size,
+				vec.begin());
+		}
+
+		vec.resize(actual_size);
+	};
+
+	process(meta_data->float_data);
+	process(meta_data->complex_float_data);
+	if (next_) next_->ProcessData(meta_data);
+}
+
+pipes::ZeroFirstSamples::ZeroFirstSamples(const double zero_ratio) : zero_ratio_(zero_ratio)
+{
+}
+
+void pipes::ZeroFirstSamples::ProcessData(PipeHolder::sptr meta_data)
+{
+	ippsZero_32f(meta_data->float_data.data(), meta_data->float_data.size() * zero_ratio_);
+	ippsZero_32fc(meta_data->complex_float_data.data(), meta_data->complex_float_data.size() * zero_ratio_);
+	if (next_) next_->ProcessData(meta_data);
 }

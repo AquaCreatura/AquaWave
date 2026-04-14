@@ -51,10 +51,23 @@ public:
 	void ProcessData(PipeHolder::sptr meta_data) override;
 };
 
-class GetFirstHalf: public PipeInterface
+class PrecisedPartSaver: public PipeInterface
 {
 public:
+	PrecisedPartSaver(const int parts_count, const int need_part_);
 	void ProcessData(PipeHolder::sptr meta_data) override;
+protected:
+	const int parts_count_;
+	const int need_part_;
+};
+
+class ZeroFirstSamples: public PipeInterface
+{
+public:
+	ZeroFirstSamples(const double zero_ratio);
+	void ProcessData(PipeHolder::sptr meta_data) override;
+protected:
+	const double zero_ratio_;
 };
 
 }

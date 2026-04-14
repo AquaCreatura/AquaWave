@@ -68,7 +68,7 @@ private:
     QImage *base_image_ = nullptr;      // Pointer to the base image (not owned)
     QPixmap cached_pixmap_;             // The cached result QPixmap
     
-    // Parameters from the last GetPrecisedPart call, for redraw checks
+    // Parameters from the last PrecisedPartSaver call, for redraw checks
     HV_Info<Limits<double>> last_min_max_value_bounds_ = {{0.0, 0.0}, {0.0, 0.0}};
     HV_Info<Limits<double>> last_target_value_bounds_ = {{0.0, 0.0}, {0.0, 0.0}};
     HV_Info<int> last_target_output_size_ = {0, 0};

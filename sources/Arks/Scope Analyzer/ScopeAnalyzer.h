@@ -32,8 +32,10 @@ protected:
 	};
 	SourceArk						source_info_;
 	Limits<double>					time_bounds_;
+	Limits<double>					selection_bounds_;
 	SourceDescription				selection_descr_;
 	int64_t							resampled_samplerate_;
+
 
 	QPointer<ScopeAnalyzerWindow>	window_;
 	int64_t							n_fft_{ 1024 * 2 };

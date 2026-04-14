@@ -5,10 +5,11 @@ ScopeAnalyzerWindow::ScopeAnalyzerWindow()
 {
     ui_.setupUi(this);
 
-	ui_.radio_group_chart_type->setId(ui_.carrier_radio_button, scope_chart_type::kPowerSpectrum);
-	ui_.radio_group_chart_type->setId(ui_.symbol_rate_radio_button, scope_chart_type::kPhasorSpectrum);
-	ui_.radio_group_chart_type->setId(ui_.bandwidth_radio_button, scope_chart_type::kBandwidth);
-	ui_.radio_group_chart_type->setId(ui_.acf_radio_button, scope_chart_type::kAcf);
+	ui_.radio_group_chart_type->setId(ui_.carrier_radio_button		  , scope_chart_type::kPowerSpectrum	);
+	ui_.radio_group_chart_type->setId(ui_.symbol_rate_psk_radio_button, scope_chart_type::kPhasorSpectrum	);
+	ui_.radio_group_chart_type->setId(ui_.symbol_rate_am_radio_button , scope_chart_type::kEnvelopeSpectrum	);
+	ui_.radio_group_chart_type->setId(ui_.bandwidth_radio_button	  , scope_chart_type::kBandwidth		);
+	ui_.radio_group_chart_type->setId(ui_.acf_radio_button			  , scope_chart_type::kAcf				);
 
 	connect(ui_.radio_group_chart_type,
 		QOverload<int>::of(&QButtonGroup::buttonClicked),

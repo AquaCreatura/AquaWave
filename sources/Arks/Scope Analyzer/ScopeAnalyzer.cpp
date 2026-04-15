@@ -189,7 +189,7 @@ bool ScopeAnalyzer::Restart(Limits<double> freq_bounds_Mhz, Limits<double> time_
 			return false;
 		}
 		selection_descr_.samplerate_hz = setup->samplerate_hz; //Выставляем ЧД
-		resampled_samplerate_ = setup->banwidth_hz * 4;
+		resampled_samplerate_ = setup->banwidth_hz * 2;
 		resampler_.Init(setup->samplerate_hz, resampled_samplerate_, setup->samplerate_hz);
 		resampled_unit_.freq_info_.samplerate_hz = resampled_samplerate_;
 	}

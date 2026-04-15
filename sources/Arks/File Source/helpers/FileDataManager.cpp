@@ -13,10 +13,15 @@ file_source::FileDataManager::FileDataManager(const fluctus::SourceDescription& 
 // Инициализация слушателя для конкретного ARK
 void file_source::FileDataManager::InitReader(const fluctus::ArkWptr& reader, InitParams &setup)
 {
-    auto& listener = listeners_.try_emplace(reader, reader, params_).first->second; // Создает или получает существующий listener
-    
-    listener.WaitProcess();              // Останавливает текущий процесс (если работает)
-    listener.SetBaseParams(setup);  // Настраивает базовые параметры
+	auto& listener = listeners_.try_emplace(reader, reader, params_).first->second; // Создает или получает существующий listener
+    listener.WaitProcess();             // Останавливает текущий процесс (если работает)
+    listener.SetBaseParams(setup);		// Настраивает базовые параметры
+}
+
+void file_source::FileDataManager::UpdateChunkSize(const fluctus::ArkWptr & reader, const int chunk_size)
+{
+	auto& listener = listeners_.find(reader)->second;
+	listener.SetChunkSize(chunk_size);
 }
 
 void file_source::FileDataManager::StartReading(const fluctus::ArkWptr & reader, Limits<double> time_bounds, const FileSrcDove::FileSrcDoveThought read_type)
@@ -78,6 +83,11 @@ void file_source::FileDataListener::SetBaseParams(InitParams &setup)
 	resampler_.SetBaseParams(file_params_.carrier_hz, file_params_.samplerate_hz);
 	resampler_.SetTargetParams(setup.carrier_hz, setup.samplerate_hz, setup.banwidth_hz);
     block_size_ = setup.chunk_size;                     // Сохранение размера блока
+}
+
+void file_source::FileDataListener::SetChunkSize(const int chunk_size)
+{
+	block_size_ = chunk_size;
 }
 
 // Остановка текущего асинхронного процесса
@@ -153,7 +163,7 @@ void file_source::FileDataListener::ReadChunksInRangeProcess(const Limits<double
 		return;
 	}
 	data_info_.time_point = 0.;
-	reader.InitStartEndRatio(time_bounds, chunk_size);
+	reader.InitStartEndRatio(time_bounds);
 	const double supposed_samples = (time_bounds.delta()) * file_params_.count_of_samples /
 												file_params_.samplerate_hz * data_info_.freq_info_.samplerate_hz;
 
@@ -163,9 +173,8 @@ void file_source::FileDataListener::ReadChunksInRangeProcess(const Limits<double
 	std::vector<uint8_t> read_data;
 	size_t chunk_pos = 0;
 	int64_t samples_processed = 0;
-	double time_point = 0;
 	while (state_ != kNeedStop) {
-		if (!reader.ReadStream(read_data, time_point))
+		if (!reader.ReadStream(read_data, block_size_))
 			break;
 		if (read_data.size() != 1 << int(log2(read_data.size())))
 			break;
@@ -206,40 +215,46 @@ void file_source::FileDataListener::LoopReadInRangeProcess(const Limits<double>&
 		state_ = kProcessStopped;
 		return;
 	}
-
-	const auto chunk_size = block_size_;
 	StreamReader reader;
-
 	// Однократная настройка файлового читателя
 	if (!reader.SetFileParams(file_params_))
 	{
 		state_ = kProcessStopped;
 		return;
 	}
-	reader.InitStartEndRatio(time_bounds, chunk_size);
-
 	// Ожидаемое количество выходных отсчётов за один проход диапазона
 	const double supposed_samples = (time_bounds.delta()) *
 		file_params_.count_of_samples /
 		file_params_.samplerate_hz *
 		data_info_.freq_info_.samplerate_hz;
-
+	
+	auto chunk_size = block_size_;	
+	reader.InitStartEndRatio(time_bounds);
 	std::vector<Ipp32fc> casted_vec(chunk_size);
 	std::vector<Ipp32fc> chunk_to_send(chunk_size);
 	std::vector<uint8_t> read_data;
 	size_t chunk_pos = 0;               // текущая позиция в выходном чанке
 	int64_t samples_processed = 0;      // общее число обработанных выходных отсчётов
-	double time_point = 0;
 
 	while (state_ != kNeedStop)
 	{
+		if (block_size_ != chunk_size) {
+			chunk_size = block_size_;
+			casted_vec.resize(chunk_size);
+			chunk_to_send.resize(chunk_size);
+
+			chunk_pos = 0;               // текущая позиция в выходном чанке
+			samples_processed = 0;      // общее число обработанных выходных отсчётов
+
+			reader.InitStartEndRatio(time_bounds);
+		}
 		// Пытаемся прочитать очередной блок из файла
-		if (!reader.ReadStream(read_data, time_point))
+		if (!reader.ReadStream(read_data, chunk_size))
 		{
 			// Достигнут конец диапазона — переинициализируем читатель для нового прохода
-			reader.InitStartEndRatio(time_bounds, chunk_size);
+			reader.InitStartEndRatio(time_bounds);
 			// Пробуем прочитать снова; если опять неудача — фатальная ошибка
-			if (!reader.ReadStream(read_data, time_point))
+			if (!reader.ReadStream(read_data, chunk_size))
 			{
 				state_ = kProcessStopped;
 				return;

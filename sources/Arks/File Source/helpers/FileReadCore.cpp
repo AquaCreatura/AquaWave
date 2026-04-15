@@ -186,18 +186,13 @@ bool FileReader::GetDataAround(const double ratio_point, const size_t data_size,
 
 //=======================================  StreamReader ============================================
 
-bool StreamReader::Init(const size_t start_sample, const size_t total_samples, const size_t block_size) {
+bool StreamReader::Init(const size_t start_sample, const size_t total_samples) {
     if (!ifstream_.is_open()) {
         std::cerr << "Error: File not open. Call FileReader::SetFileParams() first." << std::endl;
         return false;
     }
 
 	file_size_samples_ = GetFileSize();
-
-    if (block_size == 0) {
-        std::cerr << "Error: Block size must be greater than 0." << std::endl;
-        return false;
-    }
 
     if (start_sample >= file_size_samples_) {
         std::cerr << "Error: Start position " << start_sample << " is beyond file size " << file_size_samples_ << "." << std::endl;
@@ -215,14 +210,13 @@ bool StreamReader::Init(const size_t start_sample, const size_t total_samples, c
 
     start_sample_     = start_sample;
     total_samples_    = effective_total_samples; // Use the potentially truncated value
-    block_size_       = block_size;
     current_position_ = 0;
     is_initialized_   = true;
 
     return true;
 }
 
-bool StreamReader::InitStartEndRatio(const Limits<double>& time_bounds, const size_t block_size) {
+bool StreamReader::InitStartEndRatio(const Limits<double>& time_bounds) {
     if (!ifstream_.is_open()) {
         std::cerr << "Error: File not open"<< std::endl;
         return false;
@@ -242,10 +236,10 @@ bool StreamReader::InitStartEndRatio(const Limits<double>& time_bounds, const si
     if (end_pos < start_pos) end_pos = start_pos; // Ensure end_pos is not before start_pos
 
     // Call the main Init with calculated absolute positions
-    return Init(start_pos, end_pos - start_pos, block_size);
+    return Init(start_pos, end_pos - start_pos);
 }
 
-bool StreamReader::ReadStream(std::vector<uint8_t>& vec, double &read_pos) {
+bool StreamReader::ReadStream(std::vector<uint8_t>& vec, const size_t block_size) {
     vec.clear();
 
     if (!is_initialized_ || !IsReadStreamAvailable()) {
@@ -253,7 +247,7 @@ bool StreamReader::ReadStream(std::vector<uint8_t>& vec, double &read_pos) {
     }
 
     const size_t remaining_samples = total_samples_ - current_position_;
-    const size_t samples_to_read = std::min(block_size_, remaining_samples);
+    const size_t samples_to_read = std::min(block_size, remaining_samples);
 
     if (samples_to_read == 0) {
         return false;
@@ -272,8 +266,7 @@ bool StreamReader::ReadStream(std::vector<uint8_t>& vec, double &read_pos) {
     const size_t actual_samples_read = actual_bytes_read / sample_size;
 
 
-	//read_pos = (start_sample_ + current_position_ + actual_samples_read / 2.) / file_size_samples_;
-	read_pos = (current_position_ + actual_samples_read / 2.) / total_samples_;
+
 
 
     current_position_ += actual_samples_read;
@@ -283,5 +276,7 @@ bool StreamReader::ReadStream(std::vector<uint8_t>& vec, double &read_pos) {
 bool StreamReader::IsReadStreamAvailable() const {
     return is_initialized_ && (current_position_ < total_samples_);
 }
+
+
 
 } // namespace file_source

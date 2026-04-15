@@ -224,7 +224,7 @@ void SpectrumDpx::RequestSelectedData()
     auto file_src_ = arks.front();
     auto req_dove = std::make_shared<file_source::FileSrcDove>();
     req_dove->base_thought      = fluctus::DoveParrent::DoveThought::kSpecialThought;
-    req_dove->special_thought   = file_source::FileSrcDove::kInitReaderInfo |  file_source::FileSrcDove::kAskLoopInRange;
+    req_dove->special_thought   = file_source::FileSrcDove::kInitiate |  file_source::FileSrcDove::kAskLoopInRange;
     req_dove->target_ark        = shared_from_this();
 	req_dove->time_bounds		= { 0., 1. };
 	auto &setup = req_dove->setup;

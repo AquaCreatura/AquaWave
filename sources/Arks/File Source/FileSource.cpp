@@ -62,9 +62,13 @@ bool file_source::FileSourceArk::SendDove(fluctus::DoveSptr const& sent_dove)
         const auto file_src_thought = file_src_dove->special_thought;
         
         // Инициализация читателя
-        if (file_src_thought & FileSrcDove::FileSrcDoveThought::kInitReaderInfo)
+		if (file_src_thought & FileSrcDove::FileSrcDoveThought::kInitiate)
+		{
+			listener_man_.InitReader(target_ark, *file_src_dove->setup);
+		}
+        if (file_src_thought & FileSrcDove::FileSrcDoveThought::kSetChunkSize)
         {
-            listener_man_.InitReader(target_ark, *file_src_dove->setup);
+            listener_man_.UpdateChunkSize(target_ark, file_src_dove->setup->chunk_size);
         }
         
         // 

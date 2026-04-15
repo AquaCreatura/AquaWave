@@ -33,7 +33,7 @@ namespace file_source
         
         // Установка базовых параметров (частота, размер блока и т. д.)
         void SetBaseParams(InitParams &setup);
-        
+		void SetChunkSize(const int chunk_size);
         // Остановка процесса чтения
         void WaitProcess();
 		void WaitProcessLocked();
@@ -94,6 +94,7 @@ namespace file_source
         
         // Инициализация слушателя для ARK (если его ещё нет)
         void InitReader(const fluctus::ArkWptr& reader, InitParams &setup);
+		void UpdateChunkSize(const fluctus::ArkWptr& reader, const int chunk_size);
         
         // Запуск чтения вокруг позиции для указанного ARK
         void StartReading(const fluctus::ArkWptr& reader, Limits<double> time_bounds, const FileSrcDove::FileSrcDoveThought read_type);
@@ -103,7 +104,7 @@ namespace file_source
 		void StopAllReaders();
     private:
         std::unordered_map<std::weak_ptr<fluctus::ArkInterface>, FileDataListener, 
-            fluctus::WeakPtrHash<fluctus::ArkInterface>, fluctus::WeakPtrEqual<fluctus::ArkInterface>> listeners_; // Словарь слушателей
+            fluctus::WeakPtrHash<fluctus::ArkInterface>, fluctus::WeakPtrEqual<fluctus::ArkInterface>> listeners_; //Это инструкция для обращения с хэшом weak pointer
         const SourceDescription& params_; // Параметры файла
     };
 };

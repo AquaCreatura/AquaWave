@@ -71,7 +71,7 @@ bool spg_core::SpgRequester::SendRequestDove(const request_params & req_info)
 
     auto req_dove = std::make_shared<file_source::FileSrcDove>();
     req_dove->base_thought      = fluctus::DoveParrent::DoveThought::kSpecialThought;
-    req_dove->special_thought   = file_source::FileSrcDove::kInitReaderInfo |  file_source::FileSrcDove::kAskChunkAround;
+    req_dove->special_thought   = file_source::FileSrcDove::kInitiate |  file_source::FileSrcDove::kAskChunkAround;
     req_dove->target_ark        = base_ark;
 	req_dove->time_bounds = { req_info.time_point, req_info.time_point };
 	auto &freq_bounds = spg_.base_data.val_bounds.vertical * 1.e6;

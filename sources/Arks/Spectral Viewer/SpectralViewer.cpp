@@ -164,7 +164,7 @@ void SpectralViewer::RequestSelectedData()
 
     auto req_dove = std::make_shared<file_source::FileSrcDove>();
     req_dove->base_thought      = fluctus::DoveParrent::DoveThought::kSpecialThought;
-    req_dove->special_thought   = file_source::FileSrcDove::kInitReaderInfo |  file_source::FileSrcDove::kAskChunksInRange;
+    req_dove->special_thought   = file_source::FileSrcDove::kInitiate |  file_source::FileSrcDove::kAskChunksInRange;
     req_dove->target_ark        = shared_from_this();
 	req_dove->time_bounds		= { 0., 1. };
 	req_dove->setup.emplace();

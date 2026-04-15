@@ -86,10 +86,9 @@ public:
      *
      * @param start_sample Начальный сэмпл, с которого начинается чтение.
      * @param total_samples Общее количество сэмплов для чтения.
-     * @param block_size Размер одного блока для чтения.
      * @return true если инициализация прошла успешно, иначе false.
      */
-    bool Init(const size_t start_sample, const size_t total_samples, const size_t block_size);
+    bool Init(const size_t start_sample, const size_t total_samples);
 
     /**
      * @brief Инициализирует потоковое чтение, используя относительные координаты.
@@ -99,7 +98,7 @@ public:
      * @param block_size Размер одного блока для чтения.
      * @return true если инициализация прошла успешно, иначе false.
      */
-    bool InitStartEndRatio(const Limits<double>& time_bounds, const size_t block_size);
+    bool InitStartEndRatio(const Limits<double>& time_bounds);
 
     /**
      * @brief Считывает следующий блок данных в поток.
@@ -107,7 +106,7 @@ public:
      * @param vec Вектор, в который будут записаны считанные байты.
      * @return true если блок был успешно прочитан, иначе false.
      */
-    bool ReadStream(std::vector<uint8_t>& vec, double &read_pos);
+    bool ReadStream(std::vector<uint8_t>& vec, const size_t block_size_s);
 
     /**
      * @brief Проверяет, возможно ли дальнейшее чтение из потока.
@@ -115,12 +114,10 @@ public:
      * @return true если доступны данные для чтения, иначе false.
      */
     bool IsReadStreamAvailable() const;
-
 private:
     bool    is_initialized_ {false};   ///< Флаг, указывающий на успешную инициализацию.
     size_t  start_sample_;             ///< Начальный сэмпл для чтения в рамках потока.
     size_t  total_samples_;            ///< Общее количество сэмплов для чтения в рамках потока.
-    size_t  block_size_;               ///< Размер одного блока данных для чтения.
     size_t  current_position_;         ///< Текущая позиция в потоке чтения относительно start_sample_.
 	size_t  file_size_samples_;
 };

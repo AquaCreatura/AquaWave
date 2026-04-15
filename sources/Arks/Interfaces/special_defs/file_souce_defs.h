@@ -14,13 +14,14 @@ namespace file_source
         enum FileSrcDoveThought : int64_t
         {
             kUnknown = 0, 
-            kInitReaderInfo       = 1 << 0, //To init new reader with passed samplerate_hz and carrier_hz
-            kAskChunkAround		  = 1 << 1, //To get chunk around passed point
-            kAskChunksInRange     = 1 << 2, //To get chunks in range
-            kAskWholeInRange	  = 1 << 3, //To get data, which is included inside passed points
-			kAskLoopInRange		  = 1 << 4, //To start cyclic sending in specified range
+            kInitiate			= 1 << 0, //To init new reader with passed samplerate_hz and carrier_hz
+			kSetChunkSize		= 1 << 1,  //To set new chunk size
+            kAskChunkAround		= 1 << 12, //To get chunk around passed point
+            kAskChunksInRange   = 1 << 13, //To get chunks in range
+            kAskWholeInRange	= 1 << 13, //To get data, which is included inside passed points
+			kAskLoopInRange		= 1 << 14, //To start cyclic sending in specified range
 
-            kSetFileName          = 1 << 16, //To set file from command line
+            kSetFileName        = 1 << 20, //To set file from command line
         };
 		FileSrcDove() { };
 		FileSrcDove(FileSrcDoveThought passed_thought) { special_thought = passed_thought; };

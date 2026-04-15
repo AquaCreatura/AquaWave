@@ -106,7 +106,6 @@ bool dpx_core::SpectrumDpx::SendDove(fluctus::DoveSptr const & sent_dove)
     if(base_thought & fluctus::DoveParrent::DoveThought::kReset)
     {
 		Reload();
-		RequestSelectedData();
     }
 	if (base_thought & fluctus::DoveParrent::DoveThought::kSpecialThought) {
 		const auto special_thought = sent_dove->special_thought;
@@ -157,9 +156,7 @@ void dpx_core::SpectrumDpx::SetNewFftOrder(int n_fft_order)
 {
 	n_fft_ = 1 << n_fft_order;
 	UpdateAxisBounds();
-
 	dpx_drawer_->ClearData();
-	RequestSelectedData();
 }
 
 void dpx_core::SpectrumDpx::UpdateAxisBounds()
@@ -216,30 +213,4 @@ void dpx_core::SpectrumDpx::UpdateAxisBounds()
 
 	dpx_drawer_->SetHorizontalMinMaxBounds(bounds);
 	dpx_drawer_->SetHorizontalSuffix(suffix.c_str());
-}
-void SpectrumDpx::RequestSelectedData()
-{
-    auto arks = GetBehindArks();
-    if(arks.empty()) return;
-    auto file_src_ = arks.front();
-    auto req_dove = std::make_shared<file_source::FileSrcDove>();
-    req_dove->base_thought      = fluctus::DoveParrent::DoveThought::kSpecialThought;
-    req_dove->special_thought   = file_source::FileSrcDove::kInitiate |  file_source::FileSrcDove::kAskLoopInRange;
-    req_dove->target_ark        = shared_from_this();
-	req_dove->time_bounds		= { 0., 1. };
-	auto &setup = req_dove->setup;
-	setup.emplace();
-	setup->chunk_size = n_fft_;
-	setup->carrier_hz = src_info_.descr.carrier_hz;
-	setup->samplerate_hz = src_info_.descr.samplerate_hz;
-	setup->banwidth_hz = setup->samplerate_hz * src_info_.descr.bw_ratio_;
-    if (!file_src_->SendDove(req_dove))
-    {
-        QMessageBox::warning(
-                            nullptr,                        // родительское окно (может быть this)
-                            "Cannot Send Data",            // заголовок окна
-                            "Do something with DPX or file source, or..."  // сообщение
-                        );
-    }
-
 }

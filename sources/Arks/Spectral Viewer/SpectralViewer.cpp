@@ -109,16 +109,16 @@ bool SpectralViewer::Reload()
     auto file_src = src_info_.ark.lock();
 	
     if(!file_src) return true;
+
 	
-    auto req_dove = std::make_shared<DoveParrent>();
-	{
-		auto req_dove = std::make_shared<fluctus::DoveParrent>(fluctus::DoveParrent::kGetDescription);
-		if (!file_src->SendDove(req_dove) || !req_dove->description) {
-			return false;
-		}
-		const int max_order = std::min(log2(req_dove->description->count_of_samples), 21.);
-		window_->SetMaxFFtOrder(max_order);
+	auto req_dove = std::make_shared<fluctus::DoveParrent>(fluctus::DoveParrent::kGetDescription);
+	if (!file_src->SendDove(req_dove) || !req_dove->description) {
+		return false;
 	}
+	src_info_.descr = *req_dove->description;
+	const int max_order = std::min(log2(req_dove->description->count_of_samples), 21.);
+	window_->SetMaxFFtOrder(max_order);
+	
 	req_dove->base_thought = fluctus::DoveParrent::DoveThought::kReset;
 	spg_->SendDove(req_dove);
 	spectrum_->SendDove(req_dove);
@@ -158,17 +158,20 @@ void spectral_viewer::SpectralViewer::OnSelectionIsReady()
 
 void SpectralViewer::RequestSelectedData()
 {
-	return;
 	auto file_src = src_info_.ark.lock();
 	if (!file_src) return;
 
     auto req_dove = std::make_shared<file_source::FileSrcDove>();
     req_dove->base_thought      = fluctus::DoveParrent::DoveThought::kSpecialThought;
-    req_dove->special_thought   = file_source::FileSrcDove::kInitiate |  file_source::FileSrcDove::kAskChunksInRange;
+    req_dove->special_thought   = file_source::FileSrcDove::kInitiate |  file_source::FileSrcDove::kAskLoopInRange;
     req_dove->target_ark        = shared_from_this();
 	req_dove->time_bounds		= { 0., 1. };
 	req_dove->setup.emplace();
 	req_dove->setup->chunk_size = n_fft_;
+	req_dove->setup->carrier_hz = src_info_.descr.carrier_hz;
+	req_dove->setup->banwidth_hz = src_info_.descr.samplerate_hz * src_info_.descr.bw_ratio_;
+	req_dove->setup->samplerate_hz = src_info_.descr.samplerate_hz;
+
     if (!file_src->SendDove(req_dove))
     {
         QMessageBox::warning(

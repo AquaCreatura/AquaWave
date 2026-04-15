@@ -28,9 +28,6 @@ protected:
 	void SetNewFftOrder(int n_fft_order);
 	void UpdateAxisBounds();
 protected:
-    virtual void RequestSelectedData();
-
-protected:
     SourceArk                  src_info_;
 	std::shared_ptr<aqua_gui::SelectionHolder> selection_holder_;
     QPointer<ChartDPX>          dpx_drawer_;

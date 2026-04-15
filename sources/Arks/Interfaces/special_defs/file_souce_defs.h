@@ -18,7 +18,6 @@ namespace file_source
 			kSetChunkSize		= 1 << 1,  //To set new chunk size
             kAskChunkAround		= 1 << 12, //To get chunk around passed point
             kAskChunksInRange   = 1 << 13, //To get chunks in range
-            kAskWholeInRange	= 1 << 13, //To get data, which is included inside passed points
 			kAskLoopInRange		= 1 << 14, //To start cyclic sending in specified range
 
             kSetFileName        = 1 << 20, //To set file from command line

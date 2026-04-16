@@ -64,22 +64,21 @@ void spg_core::SpgRequester::LoopProcess()
 
 bool spg_core::SpgRequester::SendRequestDove(const request_params & req_info)
 {
+	using namespace file_source;
+
     if(!req_info.need_request) return false;
     const auto file_src = ark_file_src_.lock();
     const auto base_ark = ark_spg_.lock();
     if(!file_src || !base_ark) return false;
 
-    auto req_dove = std::make_shared<file_source::FileSrcDove>();
-    req_dove->base_thought      = fluctus::DoveParrent::DoveThought::kSpecialThought;
-    req_dove->special_thought   = file_source::FileSrcDove::kInitiate |  file_source::FileSrcDove::kAskChunkAround;
+    auto req_dove = std::make_shared<FileSrcDove>(FileSrcDove::kInitiate | FileSrcDove::kAskChunkAround);
     req_dove->target_ark        = base_ark;
 	req_dove->time_bounds = { req_info.time_point, req_info.time_point };
-	auto &freq_bounds = spg_.base_data.val_bounds.vertical * 1.e6;
-	auto &setup = req_dove->setup;
-	setup.emplace();
-	setup->chunk_size = req_info.data_size;
-	setup->carrier_hz = freq_bounds.mid();
-	setup->samplerate_hz = freq_bounds.delta();
+	auto freq_bounds = spg_.base_data.val_bounds.vertical * 1.e6;
+	auto &setup = *req_dove->setup.emplace();
+	setup.chunk_size = req_info.data_size;
+	setup.carrier_hz = freq_bounds.mid();
+	setup.samplerate_hz = freq_bounds.delta();
     if (!file_src->SendDove(req_dove))
     {
         return false;

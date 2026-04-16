@@ -9,6 +9,7 @@ namespace analyzer
 
     struct AnalyzeDove: public fluctus::DoveParrent
     {
+		AnalyzeDove(thoughts_list thooghts) { special_thought = thooghts; };
 		AnalyzeDove() { base_thought = fluctus::DoveParrent::kSpecialThought; };
         enum SpectralThought : int64_t
         {

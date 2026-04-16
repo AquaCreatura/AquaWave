@@ -1,5 +1,5 @@
 #include "FileDataManager.h"
-#include "FileReadCore.h"
+
 using namespace file_source;
 
 //=================================== FileDataManager Implementation =============================
@@ -311,25 +311,39 @@ void file_source::FileDataListener::LoopReadInRangeProcess(const Limits<double>&
 
 	state_ = kNoProcess;
 }
-
+#include <qdebug.h>
 // Основной процесс чтения данных вокруг позиции
 void file_source::FileDataListener::ReadAroundProcess(double pos_ratio, const int64_t chunk_size)
 {
-	FileReader reader;
-    if(!reader.SetFileParams(file_params_))  // Настройка файлового читателя
+
+	
+
+    if(!file_reader_.SetFileParams(file_params_))  // Настройка файлового читателя
     {
 		state_ = kProcessStopped;  // Ошибка чтения
         return;
     }
+
+
+
+
     // Чтение данных вокруг позиции
-    if(!reader.GetDataAround(pos_ratio, chunk_size, data_info_.data_vec) ||
+    if(!file_reader_.GetDataAround(pos_ratio, chunk_size, data_info_.data_vec) ||
 		(data_info_.data_vec.size() != chunk_size * GetSampleSize(file_params_.data_type_) ))
     {
         state_ = kProcessStopped;  // Ошибка чтения
         return;
     }
     
+
+
+	auto start = std::chrono::high_resolution_clock::now();
 	std::vector<Ipp32fc> casted_vec(chunk_size);
+
+	// В конце участка
+	auto end = std::chrono::high_resolution_clock::now();
+	std::chrono::duration<double, std::micro> ms = end - start;
+	qDebug() << "Time: " << ms.count() << " microsec";
 
 	switch (file_params_.data_type_)
 	{
@@ -346,6 +360,10 @@ void file_source::FileDataListener::ReadAroundProcess(double pos_ratio, const in
     data_info_.data_vec.swap((std::vector<uint8_t>&)casted_vec);
     data_info_.time_point = pos_ratio;
 
+
     SendPreparedData();   // Успешное чтение - отправка данных
+
+
+
     state_ = kNoProcess;  // Сброс состояния
 }

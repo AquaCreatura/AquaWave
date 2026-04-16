@@ -22,8 +22,13 @@ namespace file_source
 
             kSetFileName        = 1 << 20, //To set file from command line
         };
-		FileSrcDove() { };
-		FileSrcDove(FileSrcDoveThought passed_thought) { special_thought = passed_thought; };
+		FileSrcDove() {
+			base_thought = fluctus::DoveParrent::kSpecialThought;
+		};
+		FileSrcDove(thoughts_list passed_thought) { 
+			base_thought = fluctus::DoveParrent::kSpecialThought; 
+			special_thought = passed_thought; 
+		};
 
 		fluctus::Limits<double> time_bounds{ 0., 1. }; //For file source
 		aqua_opt<fluctus::InitParams>	setup;

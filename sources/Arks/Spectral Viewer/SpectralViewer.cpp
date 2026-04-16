@@ -79,8 +79,7 @@ bool SpectralViewer::SendDove(fluctus::DoveSptr const & sent_dove)
         src_info_.ark = target_val;
 		//Определяем командное соединение
 		{
-			fluctus::DoveSptr req_dove = std::make_shared<fluctus::DoveParrent>();
-			req_dove->base_thought = fluctus::DoveParrent::kTieSource; // Изменение типа запроса: привязать.
+			fluctus::DoveSptr req_dove = std::make_shared<fluctus::DoveParrent>(fluctus::DoveParrent::kTieSource);
 			req_dove->target_ark = target_val;
 			spg_->SendDove(req_dove);
 			spectrum_->SendDove(req_dove);
@@ -111,18 +110,32 @@ bool SpectralViewer::Reload()
     if(!file_src) return true;
 
 	
-	auto req_dove = std::make_shared<fluctus::DoveParrent>(fluctus::DoveParrent::kGetDescription);
-	if (!file_src->SendDove(req_dove) || !req_dove->description) {
+	auto parrent_dove = std::make_shared<fluctus::DoveParrent>(fluctus::DoveParrent::kGetDescription);
+	if (!file_src->SendDove(parrent_dove) || !parrent_dove->description) {
 		return false;
 	}
-	src_info_.descr = *req_dove->description;
-	const int max_order = std::min(log2(req_dove->description->count_of_samples), 21.);
+	src_info_.descr = *parrent_dove->description;
+	const int max_order = std::min(log2(parrent_dove->description->count_of_samples), 21.);
 	window_->SetMaxFFtOrder(max_order);
 	
-	req_dove->base_thought = fluctus::DoveParrent::DoveThought::kReset;
-	spg_->SendDove(req_dove);
-	spectrum_->SendDove(req_dove);
-	RequestSelectedData();
+	parrent_dove->base_thought = fluctus::DoveParrent::DoveThought::kReset;
+	spg_->SendDove(parrent_dove);
+	spectrum_->SendDove(parrent_dove);
+
+	{
+		using namespace file_source;
+		auto req_dove = std::make_shared<FileSrcDove>(FileSrcDove::kInitiate | FileSrcDove::kAskLoopInRange);
+		req_dove->target_ark = shared_from_this();
+		req_dove->time_bounds = { 0., 1. };
+		req_dove->setup.emplace();
+		req_dove->setup->chunk_size = n_fft_;
+		req_dove->setup->carrier_hz = src_info_.descr.carrier_hz;
+		req_dove->setup->banwidth_hz = src_info_.descr.samplerate_hz * src_info_.descr.bw_ratio_;
+		req_dove->setup->samplerate_hz = src_info_.descr.samplerate_hz;
+		if (!file_src->SendDove(req_dove)) {
+			QMessageBox::warning(nullptr, "Cannot Send Data", "Do something with DPX or file source, or...");
+		}
+	}
     return true;
 }
 
@@ -131,12 +144,23 @@ void SpectralViewer::SetNewFftOrder(int n_fft_order)
 	int new_fft = 1 << n_fft_order;
 	if (n_fft_ == new_fft) return;
 	n_fft_ = new_fft;
-	auto req_dove = std::make_shared<SpectralDove>();
-	req_dove->special_thought = SpectralDove::SpectralThought::kSetFFtOrder;
-	req_dove->fft_order_ = n_fft_order;
-	spg_->SendDove(req_dove);
-	spectrum_->SendDove(req_dove);
-	RequestSelectedData();
+	auto file_src = src_info_.ark.lock();
+	if (!file_src) return;
+
+	auto spectral_dove = std::make_shared<SpectralDove>(SpectralDove::SpectralThought::kSetFFtOrder);
+	spectral_dove->fft_order_ = n_fft_order;
+	spg_->SendDove(spectral_dove);
+	spectrum_->SendDove(spectral_dove);
+
+	
+
+	auto file_src_dove = std::make_shared<file_source::FileSrcDove>(file_source::FileSrcDove::kSetChunkSize);
+	file_src_dove->target_ark = shared_from_this();
+	file_src_dove->time_bounds = { 0., 1. };
+	file_src_dove->setup.emplace()->chunk_size = n_fft_;
+	if (!file_src->SendDove(file_src_dove)) {
+		QMessageBox::warning(nullptr, "Cannot Send Data", "Do something with DPX or file source, or..."  );
+	}
 }
 
 void spectral_viewer::SpectralViewer::OnSelectionIsReady()
@@ -144,8 +168,7 @@ void spectral_viewer::SpectralViewer::OnSelectionIsReady()
 	auto front_arks = GetFrontArks();
 	for (auto front_iter : front_arks) {
 		if (front_iter->GetArkType() == fluctus::kScopeAnalyser) {
-			auto analyze_dove = std::make_shared<analyzer::AnalyzeDove>();
-			analyze_dove->special_thought = analyzer::AnalyzeDove::kStartFromFileSource;
+			auto analyze_dove = std::make_shared<analyzer::AnalyzeDove>(analyzer::AnalyzeDove::kStartFromFileSource);
 			auto cur_sel = selection_holder_->GetCurrentSelection();
 			if (cur_sel.freq_bounds.delta() < 0) std::swap(cur_sel.freq_bounds.low, cur_sel.freq_bounds.high);
 			if (cur_sel.time_bounds.delta() < 0) std::swap(cur_sel.time_bounds.low, cur_sel.time_bounds.high);
@@ -156,29 +179,4 @@ void spectral_viewer::SpectralViewer::OnSelectionIsReady()
 	}
 }
 
-void SpectralViewer::RequestSelectedData()
-{
-	auto file_src = src_info_.ark.lock();
-	if (!file_src) return;
 
-    auto req_dove = std::make_shared<file_source::FileSrcDove>();
-    req_dove->base_thought      = fluctus::DoveParrent::DoveThought::kSpecialThought;
-    req_dove->special_thought   = file_source::FileSrcDove::kInitiate |  file_source::FileSrcDove::kAskLoopInRange;
-    req_dove->target_ark        = shared_from_this();
-	req_dove->time_bounds		= { 0., 1. };
-	req_dove->setup.emplace();
-	req_dove->setup->chunk_size = n_fft_;
-	req_dove->setup->carrier_hz = src_info_.descr.carrier_hz;
-	req_dove->setup->banwidth_hz = src_info_.descr.samplerate_hz * src_info_.descr.bw_ratio_;
-	req_dove->setup->samplerate_hz = src_info_.descr.samplerate_hz;
-
-    if (!file_src->SendDove(req_dove))
-    {
-        QMessageBox::warning(
-                            nullptr,                        // родительское окно (может быть this)
-                            "Cannot Send Data",            // заголовок окна
-                            "Do something with DPX or file source, or..."  // сообщение
-                        );
-    }
-
-}

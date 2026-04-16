@@ -14,6 +14,13 @@ FileReader::~FileReader() {
 bool FileReader::SetFileParams(const fluctus::SourceDescription &params) {
     // Закрываем любой ранее открытый файл
     if (ifstream_.is_open()) {
+		auto &a = last_params_; auto &b = params;
+		if (std::tie(a.carrier_hz, a.samplerate_hz, a.data_type_, a.bw_ratio_, a.file_name_,
+			a.is_signal, a.count_of_samples, a.first_sample_offset)
+			==
+			std::tie(b.carrier_hz, b.samplerate_hz, b.data_type_, b.bw_ratio_, b.file_name_,
+				b.is_signal, b.count_of_samples, b.first_sample_offset))
+			return true;
         ifstream_.close();
     }
 

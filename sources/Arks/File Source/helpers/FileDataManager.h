@@ -5,6 +5,7 @@
 #include <unordered_map> // Для хранения слушателей
 
 #include "DSP Tools/Resampler/ResamplerMan.h" // Менеджер ресемплера
+#include "FileReadCore.h"
 #include "ark_interface.h"
 #include "special_defs\file_souce_defs.h"
 #include "ark_defs.h"
@@ -83,6 +84,7 @@ namespace file_source
         int64_t block_size_;                 // Размер блока данных
         const SourceDescription& file_params_;          // Параметры файла (константная ссылка)
 		tbb::spin_mutex init_mutex_;
+		FileReader		file_reader_;
     };
 
     // Менеджер слушателей файловых данных

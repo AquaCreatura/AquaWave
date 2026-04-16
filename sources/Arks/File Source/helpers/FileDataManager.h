@@ -71,7 +71,7 @@ namespace file_source
          * - out_data_size Ч требуемый размер данных после ресемплера
          */
         void ReadAroundProcess(double pos_ratio, int64_t out_data_size);
-        
+		void LoopReadPointsProcess();
         // ќтправка подготовленных данных (веро€тно, в ARK)
         void SendPreparedData();
 

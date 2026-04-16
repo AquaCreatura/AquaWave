@@ -164,6 +164,8 @@
     <ClCompile Include="sources\GUI\Drawers\ImageBackGround.cpp" />
     <ClCompile Include="sources\GUI\Drawers\QimageZoomer.cpp" />
     <ClCompile Include="sources\GUI\Drawers\SelectionDrawer.cpp" />
+    <ClCompile Include="sources\Tools\aqua_array_queue.cpp" />
+    <ClCompile Include="sources\Tools\aqua_obj_queue.cpp" />
     <ClCompile Include="sources\Tools\file_helpers.cpp" />
     <ClCompile Include="sources\Tools\qt_utility.cpp" />
   </ItemGroup>
@@ -212,6 +214,8 @@
     <ClInclude Include="sources\GUI\Charts\SPG\SPG core\SpgScaler.h" />
     <ClInclude Include="sources\GUI\Charts\SPG\SPG core\spg_defs.h" />
     <ClInclude Include="sources\GUI\Drawers\SelectionDrawer.h" />
+    <ClInclude Include="sources\Tools\aqua_array_queue.h" />
+    <ClInclude Include="sources\Tools\aqua_obj_queue.h" />
     <ClInclude Include="sources\Tools\file_helpers.h" />
     <QtMoc Include="sources\Tools\qt_utility.h" />
     <ClInclude Include="sources\Tools\utility_aqua.h" />

@@ -1,5 +1,5 @@
 #include "FileDataManager.h"
-
+#include <qdebug.h>
 using namespace file_source;
 
 //=================================== FileDataManager Implementation =============================
@@ -112,11 +112,16 @@ bool file_source::FileDataListener::StartSingleAround(const double pos_ratio)
     WaitProcess();
 	state_ = ListenerState::kReadAround;  
 
+
+	
+
     process_anchor_ = std::async(std::launch::async, 
                                 &FileDataListener::ReadAroundProcess, 
                                 this, 
                                 pos_ratio, 
                                 block_size_);
+
+
     return true;
 }
 
@@ -311,22 +316,16 @@ void file_source::FileDataListener::LoopReadInRangeProcess(const Limits<double>&
 
 	state_ = kNoProcess;
 }
-#include <qdebug.h>
+
 // Основной процесс чтения данных вокруг позиции
 void file_source::FileDataListener::ReadAroundProcess(double pos_ratio, const int64_t chunk_size)
 {
-
-	
 
     if(!file_reader_.SetFileParams(file_params_))  // Настройка файлового читателя
     {
 		state_ = kProcessStopped;  // Ошибка чтения
         return;
     }
-
-
-
-
     // Чтение данных вокруг позиции
     if(!file_reader_.GetDataAround(pos_ratio, chunk_size, data_info_.data_vec) ||
 		(data_info_.data_vec.size() != chunk_size * GetSampleSize(file_params_.data_type_) ))
@@ -334,17 +333,8 @@ void file_source::FileDataListener::ReadAroundProcess(double pos_ratio, const in
         state_ = kProcessStopped;  // Ошибка чтения
         return;
     }
-    
 
-
-	auto start = std::chrono::high_resolution_clock::now();
 	std::vector<Ipp32fc> casted_vec(chunk_size);
-
-	// В конце участка
-	auto end = std::chrono::high_resolution_clock::now();
-	std::chrono::duration<double, std::micro> ms = end - start;
-	qDebug() << "Time: " << ms.count() << " microsec";
-
 	switch (file_params_.data_type_)
 	{
 	case IppDataType::ipp16sc: {
@@ -355,15 +345,49 @@ void file_source::FileDataListener::ReadAroundProcess(double pos_ratio, const in
 		casted_vec.swap((std::vector<Ipp32fc>&)data_info_.data_vec);
 		break;
 	}
-
-
     data_info_.data_vec.swap((std::vector<uint8_t>&)casted_vec);
     data_info_.time_point = pos_ratio;
 
-
     SendPreparedData();   // Успешное чтение - отправка данных
-
-
-
     state_ = kNoProcess;  // Сброс состояния
+}
+
+void file_source::FileDataListener::LoopReadPointsProcess()
+{
+	if (!file_reader_.SetFileParams(file_params_))  // Настройка файлового читателя
+	{
+		state_ = kProcessStopped;  // Ошибка чтения
+		return;
+	}
+	int chunk_size = block_size_;
+	while (state_ != kNeedStop)
+	{
+		chunk_size = block_size_;
+		double pos_ratio = 0.;
+		// Чтение данных вокруг позиции
+		if (!file_reader_.GetDataAround(pos_ratio, chunk_size, data_info_.data_vec) ||
+			(data_info_.data_vec.size() != chunk_size * GetSampleSize(file_params_.data_type_)))
+		{
+			state_ = kProcessStopped;  // Ошибка чтения
+			return;
+		}
+
+		std::vector<Ipp32fc> casted_vec(chunk_size);
+		switch (file_params_.data_type_)
+		{
+		case IppDataType::ipp16sc: {
+			ippsConvert_16s32f((Ipp16s*)(data_info_.data_vec.data()), (Ipp32f*)(casted_vec.data()), chunk_size * 2);
+			break;
+		}
+		default:
+			casted_vec.swap((std::vector<Ipp32fc>&)data_info_.data_vec);
+			break;
+		}
+		data_info_.data_vec.swap((std::vector<uint8_t>&)casted_vec);
+		data_info_.time_point = pos_ratio;
+
+		SendPreparedData();   // Успешное чтение - отправка данных
+	}
+	
+	state_ = kNoProcess;  // Сброс состояния
 }

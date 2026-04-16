@@ -47,15 +47,23 @@ void spg_core::SpgRequester::StartProcess(bool do_start)
 		}
 	}
 }
-
+#include <qdebug.h>
 void spg_core::SpgRequester::LoopProcess()
 {
 	while (is_running_process_) {
 
+
 		const auto request_info = GetRequestParams();
+		
 		if (!SendRequestDove(request_info)) {
 			std::this_thread::sleep_for(std::chrono::milliseconds(100));
 		}
+
+		auto start = std::chrono::high_resolution_clock::now();
+		// В конце участка
+		auto end = std::chrono::high_resolution_clock::now();
+		std::chrono::duration<double, std::micro> ms = end - start;
+		qDebug() << "Time: " << ms.count() << " microsec";
 	}
 }
 

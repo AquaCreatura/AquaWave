@@ -34,7 +34,7 @@ public:
      * @param val_bounds New min/max value range to consider.
      * @return true if update or adjustment was successful.
      */
-    bool UpdateBounds_y(const Limits<double>& val_bounds);
+	bool UpdateBounds_y(const Limits<double>& val_bounds, const bool need_fast = true);
 
 protected:
     dpx_data &data_;  // Reference to the underlying data structure

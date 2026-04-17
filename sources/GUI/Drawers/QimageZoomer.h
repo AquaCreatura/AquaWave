@@ -38,7 +38,7 @@ public:
     QPixmap& GetPrecisedPart(const HorVerLim<double>& full_image_value_bounds, 
                              const HorVerLim<double>& target_display_value_bounds,
                              const HV_Info<int>& target_output_size);
-	static QImage HorMaxPoolingScale(QImage &base_qimage, int target_horizontal, int target_vertical);
+	static QImage HorMaxPoolingScale(QImage &base_qimage, HV_Info<int> target_output_size);
 protected:
     /**
      * @brief Checks if a redraw of the cached QPixmap is needed.
@@ -71,7 +71,7 @@ private:
     // Parameters from the last PrecisedPartSaver call, for redraw checks
     HV_Info<Limits<double>> last_min_max_value_bounds_ = {{0.0, 0.0}, {0.0, 0.0}};
     HV_Info<Limits<double>> last_target_value_bounds_ = {{0.0, 0.0}, {0.0, 0.0}};
-    HV_Info<int> last_target_output_size_ = {0, 0};
+    HV_Info<int> target_output_size_ = {0, 0};
 
     // Parameters of the last successfully rendered pixmap, for robust NeedRedraw()
     HV_Info<Limits<double>> rendered_min_max_value_bounds_ = {{0.0, 0.0}, {0.0, 0.0}};

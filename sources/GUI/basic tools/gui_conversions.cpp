@@ -58,7 +58,7 @@ argb_t* LUT_HSV_Instance::get_table_ptr()
     return &core_.arr[0];
 }
 
-argb_t aqua_gui::LUT_HSV_Instance::DensityToRGB(const double density)
+argb_t aqua_gui::LUT_HSV_Instance::DensityToRGB(double density)
 {
 
 	if (density <= 0)
@@ -66,8 +66,7 @@ argb_t aqua_gui::LUT_HSV_Instance::DensityToRGB(const double density)
 	argb_t* color_palette = LUT_HSV_Instance::get_table_ptr();
 	// Calculate palette index and clamp within valid range
 	int color_index = static_cast<int>(density * (hsv_table_size_c - 1));
-	color_index = qBound(0, color_index, hsv_table_size_c - 1);
-
+	color_index = qBound(0, color_index + 1, hsv_table_size_c - 1);
 	// Return RGBA color from palette 
 	return color_palette[color_index];
 }

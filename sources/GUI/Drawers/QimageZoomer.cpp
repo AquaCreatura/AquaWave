@@ -33,7 +33,7 @@ bool QimageZoomer::SetNewBase(QImage *base_qimage)
     cached_pixmap_ = QPixmap(); 
     last_min_max_value_bounds_ = {{0.0, 0.0}, {0.0, 0.0}}; // Reset
     last_target_value_bounds_ = {{0.0, 0.0}, {0.0, 0.0}}; // Reset
-    last_target_output_size_ = {0, 0};
+    target_output_size_ = {0, 0};
     need_high_quality_ = true; 
     rendered_min_max_value_bounds_ = {{0.0, 0.0}, {0.0, 0.0}}; // Reset rendered state
     rendered_target_value_bounds_ = {{0.0, 0.0}, {0.0, 0.0}}; // Reset rendered state
@@ -61,7 +61,7 @@ QImage* QimageZoomer::ReleaseBase()
     // Reset all state to force redraw
     last_min_max_value_bounds_ = {{0.0, 0.0}, {0.0, 0.0}}; 
     last_target_value_bounds_ = {{0.0, 0.0}, {0.0, 0.0}};
-    last_target_output_size_ = {0, 0};
+    target_output_size_ = {0, 0};
     need_high_quality_ = true;
     rendered_min_max_value_bounds_ = {{0.0, 0.0}, {0.0, 0.0}};
     rendered_target_value_bounds_ = {{0.0, 0.0}, {0.0, 0.0}};
@@ -86,7 +86,7 @@ QPixmap& QimageZoomer::GetPrecisedPart(const HorVerLim<double>& full_image_value
     // Update current request parameters
     last_min_max_value_bounds_ = full_image_value_bounds;
     last_target_value_bounds_ = target_display_value_bounds;
-    last_target_output_size_ = target_output_size;
+    target_output_size_ = target_output_size;
 	need_high_quality_ = false; //ѕо умолчанию, хорошее качество не нужно
 
     if (NeedRedraw()) {
@@ -96,10 +96,10 @@ QPixmap& QimageZoomer::GetPrecisedPart(const HorVerLim<double>& full_image_value
     return cached_pixmap_;
 }
 
-QImage QimageZoomer::HorMaxPoolingScale(QImage & base_qimage, int target_horizontal, int target_vertical)
+QImage QimageZoomer::HorMaxPoolingScale(QImage & base_qimage, HV_Info<int> target)
 {
 	// Ќекорректные размеры Ц возвращаем пустое изображение
-	if (base_qimage.isNull() || target_horizontal <= 0 || target_vertical <= 0)
+	if (base_qimage.isNull() || target.horizontal <= 0 || target.vertical <= 0)
 		return QImage();
 
 	// ѕриводим исходное изображение к формату ARGB32 дл€ единообразного доступа к пиксел€м
@@ -108,26 +108,26 @@ QImage QimageZoomer::HorMaxPoolingScale(QImage & base_qimage, int target_horizon
 	int src_h = src.height();
 
 	// ≈сли размеры не изменились, возвращаем копию
-	if (src_w == target_horizontal && src_h == target_vertical)
+	if (src_w == target.horizontal && src_h == target.vertical)
 		return src.copy();
 
 	// –езультирующее изображение (ARGB32)
-	QImage result(target_horizontal, target_vertical, QImage::Format_ARGB32);
+	QImage result(target.horizontal, target.vertical, QImage::Format_ARGB32);
 	if (result.isNull())
 		return QImage();
 
 	// ѕредварительно вычисл€ем шаги дл€ вертикального отображени€ (целочисленное деление)
 	// ƒл€ каждого y вычисл€ем исходную строку src_y = (y * src_h) / target_vertical
 
-	for (int y = 0; y < target_vertical; ++y) {
-		int src_y = (y * src_h) / target_vertical;               // децимаци€ / дублирование
+	for (int y = 0; y < target.vertical; ++y) {
+		int src_y = (y * src_h) / target.vertical;               // децимаци€ / дублирование
 		const QRgb* src_line = reinterpret_cast<const QRgb*>(src.constScanLine(src_y));
 		QRgb* dst_line = reinterpret_cast<QRgb*>(result.scanLine(y));
 
 		// ќбработка горизонтали: max pooling
-		for (int x = 0; x < target_horizontal; ++x) {
-			int left = (x * src_w) / target_horizontal;
-			int right = ((x + 1) * src_w) / target_horizontal;
+		for (int x = 0; x < target.horizontal; ++x) {
+			int left = (x * src_w) / target.horizontal;
+			int right = ((x + 1) * src_w) / target.horizontal;
 
 			// √арантируем, что в диапазоне есть хот€ бы один пиксель
 			if (right <= left)
@@ -171,7 +171,7 @@ bool QimageZoomer::NeedRedraw() const
     }
 
     // Check if output size has changed from last rendered
-    if (rendered_target_output_size_ != last_target_output_size_) {
+    if (rendered_target_output_size_ != target_output_size_) {
 		need_redraw = true;
 		is_change_by_user = true;
     }
@@ -239,13 +239,13 @@ bool QimageZoomer::UpdateQPixmap()
 
     // Scale to the desired size and convert to QPixmap
 	QImage scaled_qimage;
-	if (need_max_pooling_ && (double(last_target_output_size_.horizontal) / cropped_image.width() < 1.2 )) {
+	if (need_max_pooling_ && (double(target_output_size_.horizontal) / cropped_image.width() < 1.2 )) {
 
-		scaled_qimage = HorMaxPoolingScale(cropped_image, last_target_output_size_.horizontal, last_target_output_size_.vertical);
+		scaled_qimage = HorMaxPoolingScale(cropped_image, target_output_size_);
 	}
 	else
 	{
-		scaled_qimage = cropped_image.scaled(last_target_output_size_.horizontal, last_target_output_size_.vertical,
+		scaled_qimage = cropped_image.scaled(target_output_size_.horizontal, target_output_size_.vertical,
 			Qt::IgnoreAspectRatio, mode);
 	}
 	
@@ -256,7 +256,7 @@ bool QimageZoomer::UpdateQPixmap()
     // Store parameters used for this successful render
     rendered_min_max_value_bounds_ = last_min_max_value_bounds_;
     rendered_target_value_bounds_ = last_target_value_bounds_;
-    rendered_target_output_size_ = last_target_output_size_;
+    rendered_target_output_size_ = target_output_size_;
     is_rendered_high_quality_ = need_high_quality_;
     need_update_            = false;
     return !cached_pixmap_.isNull();

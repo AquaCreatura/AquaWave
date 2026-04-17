@@ -34,6 +34,7 @@ bool DpxDataScaler::UpdateBounds_x(const Limits<double>& new_bounds) {
     // Создаём новый массив, инициализированный нулями
     std::vector<dpx_data::DataType> new_data(height * new_width, 0);
 
+	
     // Вычисляем шаг значений для нового массива
     const double new_val_step = (new_width > 1) 
         ? new_bounds.delta() / (new_width - 1) 
@@ -73,7 +74,7 @@ bool DpxDataScaler::UpdateBounds_x(const Limits<double>& new_bounds) {
                 new_data[y * new_width + x] = data_[y][idx1];
             } else {
                 SlopeInterpolator interpolator(data_[y][idx1], data_[y][idx2]);
-                new_data[y * new_width + x] = static_cast<dpx_data::DataType>(interpolator.Interpolate(t));
+                new_data[y * new_width + x] = static_cast<dpx_data::DataType>(interpolator.Interpolate(t) + 0.5);
             }
         }
     }
@@ -94,7 +95,7 @@ bool DpxDataScaler::UpdateBounds_x(const Limits<double>& new_bounds) {
 }
 
 
-bool DpxDataScaler::UpdateBounds_y(const Limits<double>& new_bounds)
+bool DpxDataScaler::UpdateBounds_y(const Limits<double>& new_bounds, const bool need_fast)
 {
     // Сохраняем ссылки для удобства
     auto& size = data_.size;
@@ -120,42 +121,33 @@ bool DpxDataScaler::UpdateBounds_y(const Limits<double>& new_bounds)
     // Создаём новый массив, инициализированный нулями
     std::vector<dpx_data::DataType> new_data(height * width, 0);
 
+	// Шаги
+	const double new_val_step = new_bounds.delta() / height;
+	const double old_val_step = old_bounds.delta() / height;
 
+	// Идём по старому массиву
+	for (size_t x = 0; x < width; ++x) {
+		for (size_t y = 0; y < height; ++y) {
+			// Значение в старом массиве
+			const double value = old_bounds.low + (y + 0.5) * old_val_step;
 
-    // Вычисляем шаг значений для нового массива
-	const double new_val_step = new_bounds.delta() / (height);
+			// Проверка выхода за границы нового диапазона
+			if (value < new_bounds.low || value > new_bounds.high) {
+				continue;
+			}
 
-    // Вычисляем шаг значений для исходного массива
-    const double old_val_step = old_bounds.delta() / (height);
-    
-    // Обработка каждого столбца
-    for (size_t x = 0; x < width; ++x) {
-        // Обработка каждой строки в новом массиве
-        for (size_t y = 0; y < height; ++y) {
-            // Вычисляем значение в центре текущего пикселя
-            const double value = new_bounds.low + (y + 0.5) * new_val_step;
-            
-            // Проверка выхода за границы исходного диапазона
-            if (value < old_bounds.low|| value > old_bounds.high) {
-                continue; // Оставляем 0
-            }
-            
-            // Вычисляем позицию в старом массиве
-            const double normalized = (value - old_bounds.low) / old_bounds.delta();
-            double pos_norm = normalized * (height) ;
-			pos_norm = qBound(0., pos_norm, height - 1.);
-            
-            
-            const size_t left_idx = static_cast<size_t>(pos_norm);
-            const size_t right_idx = (left_idx < height - 1) ? left_idx + 1 : left_idx;
-            const double dist_to_center = pos_norm - left_idx;
+			// Нормализация в новый диапазон
+			const double normalized = (value - new_bounds.low) / new_bounds.delta();
+			double pos_norm = normalized * height;
+			pos_norm = qBound(0.0, pos_norm, static_cast<double>(height - 1));
 
-	
-            // Интерполяция значений
-            SlopeInterpolator interpolator(data_[left_idx][x], data_[right_idx][x]);
-            new_data[y * width + x] = static_cast<dpx_data::DataType>(interpolator.Interpolate(dist_to_center));
-        }
-    }
+			// Индекс в новом массиве (без интерполяции)
+			const size_t new_y = static_cast<size_t>(pos_norm);
+
+			// Копирование
+			new_data[new_y * width + x] = data_[y][x];
+		}
+	}
     data_.data.swap(new_data);
     data_.need_redraw = true;
     return true;

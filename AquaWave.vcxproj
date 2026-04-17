@@ -123,6 +123,7 @@
     <ClCompile Include="main.cpp" />
     <ClCompile Include="sources\Arks\Elements\Constellation\Constellation.cpp" />
     <ClCompile Include="sources\Arks\Elements\DPX Spectrum\SpectrumDPX.cpp" />
+    <ClCompile Include="sources\Arks\Elements\Static SPG\requester\SpgRequester.cpp" />
     <ClCompile Include="sources\Arks\Elements\Static SPG\Spectrogram.cpp" />
     <ClCompile Include="sources\Arks\File Source\FileSource.cpp" />
     <ClCompile Include="sources\Arks\File Source\helpers\FileDataManager.cpp" />
@@ -155,7 +156,6 @@
     <ClCompile Include="sources\GUI\Charts\DPX\DPX core\DpxScaler.cpp" />
     <ClCompile Include="sources\GUI\Charts\DPX\DpxChart.cpp" />
     <ClCompile Include="sources\GUI\Charts\ChartInterface.cpp" />
-    <ClCompile Include="sources\GUI\Charts\SPG\helpers\SpgRequester.cpp" />
     <ClCompile Include="sources\GUI\Charts\SPG\SPG core\SpgCore.cpp" />
     <ClCompile Include="sources\GUI\Charts\SPG\SPG core\SpgRenderer.cpp" />
     <ClCompile Include="sources\GUI\Charts\SPG\SPG core\SpgScaler.cpp" />
@@ -171,6 +171,7 @@
     <ClInclude Include="sources\aqua_defines.h" />
     <QtMoc Include="sources\Arks\Elements\DPX Spectrum\SpectrumDPX.h" />
     <ClInclude Include="sources\Arks\Elements\Constellation\Constellation.h" />
+    <QtMoc Include="sources\Arks\Elements\Static SPG\requester\SpgRequester.h" />
     <ClInclude Include="sources\Arks\Elements\Static SPG\Spectrogram.h" />
     <ClInclude Include="sources\Arks\File Source\FileSource.h" />
     <ClInclude Include="sources\Arks\File Source\helpers\FileDataManager.h" />
@@ -205,7 +206,6 @@
     <ClInclude Include="sources\GUI\Charts\Constel\Core\ConstelRenderer.h" />
     <ClInclude Include="sources\GUI\Charts\Constel\Core\constel_defs.h" />
     <ClInclude Include="sources\GUI\Charts\DPX\DPX core\DpxScaler.h" />
-    <QtMoc Include="sources\GUI\Charts\SPG\helpers\SpgRequester.h" />
     <QtMoc Include="sources\GUI\Charts\SPG\SPG core\SpgCore.h" />
     <QtMoc Include="sources\GUI\Charts\SPG\SpgChart.h" />
     <ClInclude Include="sources\GUI\Charts\SPG\SPG core\SpgRenderer.h" />

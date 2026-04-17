@@ -15,6 +15,6 @@ private:
     Ui::AquaWaveWindow              ui;
 	ShipBuilder						ship_builder_;
 	fluctus::ArkSptr				file_src_;
-	fluctus::ArkSptr				spectral_viewer;
-	fluctus::ArkSptr				scope_analyser;
+	fluctus::ArkSptr				spectral_viewer_;
+	fluctus::ArkSptr				scope_analyser_;
 };

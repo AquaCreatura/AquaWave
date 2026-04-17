@@ -85,6 +85,19 @@ bool SpectralViewer::SendDove(fluctus::DoveSptr const & sent_dove)
 			spectrum_->SendDove(req_dove);
 		}
     }
+	if (base_thought & fluctus::DoveParrent::DoveThought::kActivate)
+	{
+		fluctus::DoveSptr req_dove = std::make_shared<fluctus::DoveParrent>(fluctus::DoveParrent::kActivate);
+		spg_->SendDove(req_dove);
+		spectrum_->SendDove(req_dove);
+	}
+	if (base_thought & fluctus::DoveParrent::DoveThought::kDeactivate)
+	{
+		fluctus::DoveSptr req_dove = std::make_shared<fluctus::DoveParrent>(fluctus::DoveParrent::kDeactivate);
+		spg_->SendDove(req_dove);
+		spectrum_->SendDove(req_dove);
+	}
+
     //
     if(base_thought == fluctus::DoveParrent::DoveThought::kReset)
     {

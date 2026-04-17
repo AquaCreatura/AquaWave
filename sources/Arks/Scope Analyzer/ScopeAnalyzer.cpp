@@ -41,7 +41,7 @@ ScopeAnalyzer::ScopeAnalyzer()
 			window_->AddChartWindow(chart_window, chart_type);
 		}
 	}
-	window_->ActivateWindow(kPowerSpectrum);
+	window_->ActivateWindow(scope_chart_type::kPowerSpectrum);
 	resampler_.SetPrecision(0);
 	connect(window_, &ScopeAnalyzerWindow::FftChangeNeed, this, &ScopeAnalyzer::SetNewFftOrder);
 }
@@ -109,6 +109,15 @@ bool ScopeAnalyzer::SendDove(fluctus::DoveSptr const & sent_dove)
     {
         return Reload();
     }
+	if (base_thought & fluctus::DoveParrent::DoveThought::kActivate)
+	{
+		window_->ActivateWindow(window_->GetCurrentChart());
+	}
+	if (base_thought & fluctus::DoveParrent::DoveThought::kDeactivate)
+	{
+		window_->ActivateWindow(scope_chart_type::undefined);
+	}
+
 	if (base_thought & fluctus::DoveParrent::DoveThought::kGetDescription)
 	{
 		sent_dove->description = selection_descr_;

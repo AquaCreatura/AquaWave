@@ -1,10 +1,10 @@
 #pragma once
 #include <qpointer.h>
 #include "DSP Tools/Pipelines/BasePipes.h"
-#include "Arks\Interfaces\base_impl\ark_base.h"
-#include "GUI/Charts/SPG/helpers/SpgRequester.h"
+#include "Arks/Interfaces/base_impl/ark_base.h"
+#include "requester/SpgRequester.h"
 #include "GUI/Charts/SPG/SpgChart.h"
-#include "special_defs\spectral_viewer_defs.h"
+#include "special_defs/spectral_viewer_defs.h"
 namespace spg_core
 {
 

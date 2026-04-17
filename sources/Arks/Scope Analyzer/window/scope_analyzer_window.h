@@ -7,19 +7,16 @@ namespace scope_analyzer {
 
 enum scope_chart_type {
 	undefined		= 0,
-	kBaseSpg		= 1,
-	kBaseSpectrum	= 2,
+	kAcf			= 1, //АКФ
 
-	kAcf			= 4, //АКФ
+	kPhasorSpectrum = 2, //Спектр мгновенной частоты (Символьная для PSK)
+	kEnvelopeSpectrum = 4, //Спектр огибающей (Символьная для AM)
 
-	kPhasorSpectrum = 8, //Спектр мгновенной частоты (Символьная для PSK)
-	kEnvelopeSpectrum = 16, //Спектр огибающей (Символьная для AM)
-
-	kPowerSpectrum  = 32, //Спектр степени (Отстройка несущей)
+	kPowerSpectrum  = 8, //Спектр степени (Отстройка несущей)
 	
-	kBandwidth      = 64, //Ширина полосы
+	kBandwidth      = 16, //Ширина полосы
 	
-	kConstellation  = 128
+	kConstellation  = 32
 };
 
 
@@ -32,6 +29,7 @@ public:
 
 	void AddChartWindow(QWidget* wigdet_ptr, scope_chart_type type_of_chart);
 	void ActivateWindow(scope_chart_type type_of_chart);
+	scope_chart_type GetCurrentChart();
 	void SetMaxFFtOrder(int max_fft_order);
 
 	void UpdateFFtCombobox(const int max_order, const int cur_fft_order);
@@ -42,6 +40,7 @@ protected:
 	Ui::ScopeAnalyzerWindow ui_;
 	std::unique_ptr<utility_aqua::DelayedCaller> fft_delayed_;
 	std::map<scope_chart_type, QWidget*> charts_;
+	scope_chart_type cur_chart_type_;
 };
 
 }

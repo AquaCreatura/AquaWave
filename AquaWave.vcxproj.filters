@@ -71,9 +71,6 @@
     <Filter Include="DSP Tools\FFT">
       <UniqueIdentifier>{217182ea-5917-4bac-8f16-9bb629978711}</UniqueIdentifier>
     </Filter>
-    <Filter Include="GUI\Charts\SPG\helpers">
-      <UniqueIdentifier>{162440d7-1864-4c7e-a5d6-49550eb6bc8c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ARKS\Spectral Viewer">
       <UniqueIdentifier>{de5b3b9a-9e13-4e31-a63d-caa2082593ba}</UniqueIdentifier>
     </Filter>
@@ -118,6 +115,9 @@
     </Filter>
     <Filter Include="GUI\QSS_themes">
       <UniqueIdentifier>{3eced2d3-ca09-4078-b73a-0c3294adf820}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="ARKS\Elements\Static SPG\requester">
+      <UniqueIdentifier>{5e66df57-3a99-42dc-b439-4d7267d31dfa}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <!-- ClCompile (CPP Files) -->
@@ -194,9 +194,6 @@
     <ClCompile Include="sources\GUI\basic tools\gui_worker.cpp">
       <Filter>GUI\basic tools</Filter>
     </ClCompile>
-    <ClCompile Include="sources\GUI\Charts\SPG\helpers\SpgRequester.cpp">
-      <Filter>GUI\Charts\SPG\helpers</Filter>
-    </ClCompile>
     <ClCompile Include="sources\Arks\File Source\FileSource.cpp">
       <Filter>ARKS\File Source</Filter>
     </ClCompile>
@@ -262,6 +259,9 @@
     </ClCompile>
     <ClCompile Include="sources\Tools\qt_utility.cpp">
       <Filter>Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\Arks\Elements\Static SPG\requester\SpgRequester.cpp">
+      <Filter>ARKS\Elements\Static SPG\requester</Filter>
     </ClCompile>
   </ItemGroup>
   <!-- ClInclude (H Files) -->
@@ -429,9 +429,6 @@
     <QtMoc Include="sources\Arks\Scope Analyzer\ScopeAnalyzer.h">
       <Filter>ARKS\Scope Analyzer</Filter>
     </QtMoc>
-    <QtMoc Include="sources\GUI\Charts\SPG\helpers\SpgRequester.h">
-      <Filter>GUI\Charts\SPG\helpers</Filter>
-    </QtMoc>
     <QtMoc Include="sources\Arks\Interfaces\ark_interface.h">
       <Filter>ARKS\Interfaces</Filter>
     </QtMoc>
@@ -452,6 +449,9 @@
     </QtMoc>
     <QtMoc Include="sources\Tools\qt_utility.h">
       <Filter>Tools</Filter>
+    </QtMoc>
+    <QtMoc Include="sources\Arks\Elements\Static SPG\requester\SpgRequester.h">
+      <Filter>ARKS\Elements\Static SPG\requester</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>

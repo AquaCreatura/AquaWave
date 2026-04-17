@@ -14,7 +14,6 @@ ChartInterface::ChartInterface(QWidget* parent, std::shared_ptr<SelectionHolder>
 
     SetVerticalSuffix("power");
     connect(&redraw_timer_, &QTimer::timeout, this, QOverload<>::of(&ChartInterface::update));
-    redraw_timer_.start(50);
     SetBackgroundImage(":/AquaWave/third_party/background/black_mountain.jpg");
 
 }
@@ -89,6 +88,16 @@ void ChartInterface::SetSelectionHolder(std::shared_ptr<SelectionHolder> selecti
 {
 	selection_drawer_.SetSelectionHolder(selection_holder);
 }
+
+void ChartInterface::ActivateChart(bool do_activate)
+{
+	if (do_activate)
+		redraw_timer_.start(50);
+	else
+		redraw_timer_.stop();
+}
+
+
 
 void ChartInterface::mouseMoveEvent(QMouseEvent * mouse_event)
 {

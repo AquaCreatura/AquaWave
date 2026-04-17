@@ -56,10 +56,12 @@ bool DpxCore::AccumulateNewData(const std::vector<float>& passed_data, const Lim
         return false;
     }
     const double samples_per_pixel =  double(passed_data.size()) / dpx_data_.size.horizontal;
-    if (samples_per_pixel > 1 ) {
-        return RoughPassedLoop(passed_data, x_bounds); // Use original x_bounds from input
+	const bool is_analyse = (scale_info_.val_info_.domain_type == ChartDomainType::kAnalyzeDomain);
+    if (samples_per_pixel < 1.) {
+		return SlopePassedLoop(passed_data, x_bounds); 
     } else {
-        return SlopePassedLoop(passed_data, x_bounds); // Use original x_bounds from input
+		return RoughPassedLoop(passed_data, x_bounds); 
+        
     }
 }
 

@@ -11,12 +11,12 @@ AquaWave::AquaWave(QWidget *parent, const QString& file_path)
 	//(QString&)file_path = "D:\\signals\\17.10.2025 16_41_59 1875.300000MHz 12800.000KHz.pcm";
     ui.setupUi(this); 
 	file_src_				= ship_builder_.BuildNewShip(fluctus::kFileSource, this);
-	spectral_viewer	= ship_builder_.BuildNewShip(fluctus::kSpectralViewer);
-	scope_analyser		= ship_builder_.BuildNewShip(fluctus::kScopeAnalyser);
+	spectral_viewer_	= ship_builder_.BuildNewShip(fluctus::kSpectralViewer);
+	scope_analyser_		= ship_builder_.BuildNewShip(fluctus::kScopeAnalyser);
 
-	ShipBuilder::Bind_SrcSink(file_src_, spectral_viewer);
-	ShipBuilder::Bind_SrcSink(file_src_, scope_analyser);
-	ShipBuilder::Bind_SrcSink(spectral_viewer, scope_analyser);
+	ShipBuilder::Bind_SrcSink(file_src_, spectral_viewer_);
+	ShipBuilder::Bind_SrcSink(file_src_, scope_analyser_);
+	ShipBuilder::Bind_SrcSink(spectral_viewer_, scope_analyser_);
 
 	
 	connect(ui.new_file_menu_action, &QAction::triggered, [this]()
@@ -34,17 +34,21 @@ AquaWave::AquaWave(QWidget *parent, const QString& file_path)
 		file_src_->SendDove(file_dove);
 	}
 
-	this->ui.main_stacked->addWidget(ShipBuilder::GetWindow(spectral_viewer));
-	this->ui.main_stacked->addWidget(ShipBuilder::GetWindow(scope_analyser));
+	this->ui.main_stacked->addWidget(ShipBuilder::GetWindow(spectral_viewer_));
+	this->ui.main_stacked->addWidget(ShipBuilder::GetWindow(scope_analyser_));
 	connect(ui.spectral_viewer_navigate_button, &QPushButton::clicked, [this](){
-		ui.main_stacked->setCurrentWidget(ShipBuilder::GetWindow(spectral_viewer));
+		ui.main_stacked->setCurrentWidget(ShipBuilder::GetWindow(spectral_viewer_));
+		spectral_viewer_->SendDove(std::make_shared<fluctus::DoveParrent>(fluctus::DoveParrent::kActivate));
+		scope_analyser_->SendDove(std::make_shared<fluctus::DoveParrent>(fluctus::DoveParrent::kDeactivate));
 	});
 	connect(ui.analyze_navigate_button, &QPushButton::clicked, [this]() {
-		ui.main_stacked->setCurrentWidget(ShipBuilder::GetWindow(scope_analyser));
+		ui.main_stacked->setCurrentWidget(ShipBuilder::GetWindow(scope_analyser_));
+		scope_analyser_->SendDove(std::make_shared<fluctus::DoveParrent>(fluctus::DoveParrent::kActivate));
+		spectral_viewer_->SendDove(std::make_shared<fluctus::DoveParrent>(fluctus::DoveParrent::kDeactivate));
 	});
-	
+	ui.spectral_viewer_navigate_button->click();
 	//connect
-	this->ui.main_stacked->setCurrentWidget(ShipBuilder::GetWindow(spectral_viewer));
+	//this->ui.main_stacked->setCurrentWidget(ShipBuilder::GetWindow(spectral_viewer_));
 
 
 	//default_theme

@@ -46,7 +46,7 @@ struct HV_Info
 template <typename T>
 using HorVerLim = HV_Info<Limits<T>>;
 
-enum ChartDomainType
+enum class ChartDomainType
 {
 	kFreqDomain,    // Default АЧХ
 	kTimeFrequency, // Частотно временная область

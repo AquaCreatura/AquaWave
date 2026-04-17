@@ -1,5 +1,6 @@
 #include "scope_analyzer_window.h"
 #include "Tools/parse_tools.h"
+#include "GUI/Charts/ChartInterface.h"
 using namespace scope_analyzer;
 ScopeAnalyzerWindow::ScopeAnalyzerWindow()
 {
@@ -36,6 +37,7 @@ ScopeAnalyzerWindow::ScopeAnalyzerWindow()
 
 void ScopeAnalyzerWindow::AddChartWindow(QWidget * widget_ptr, scope_chart_type type_of_chart)
 {
+	if (charts_.empty()) cur_chart_type_ = type_of_chart;
 	charts_[type_of_chart] = widget_ptr;
 
 	switch (type_of_chart)
@@ -55,7 +57,10 @@ void ScopeAnalyzerWindow::AddChartWindow(QWidget * widget_ptr, scope_chart_type 
 
 void ScopeAnalyzerWindow::ActivateWindow(scope_chart_type type_of_chart)
 {
-	if (charts_.count(type_of_chart) == 0 || type_of_chart <= scope_chart_type::kBaseSpectrum) return;
+	if (auto casted = dynamic_cast<ChartInterface*>(charts_[cur_chart_type_]))
+		casted->ActivateChart(false);
+
+	if (charts_.count(type_of_chart) == 0) return;
 	//Выставляем нажатие
 	{
 		QAbstractButton* button = ui_.radio_group_chart_type->button(type_of_chart);
@@ -64,6 +69,15 @@ void ScopeAnalyzerWindow::ActivateWindow(scope_chart_type type_of_chart)
 		button->blockSignals(false);	
 	}
 	ui_.harmonic_chart_stacked->setCurrentWidget(charts_[type_of_chart]);
+
+	if (auto casted = dynamic_cast<ChartInterface*>(charts_[type_of_chart]))
+		casted->ActivateChart(true);
+	cur_chart_type_ = type_of_chart;
+}
+
+scope_chart_type scope_analyzer::ScopeAnalyzerWindow::GetCurrentChart()
+{
+	return scope_chart_type(ui_.radio_group_chart_type->checkedId());
 }
 
 void scope_analyzer::ScopeAnalyzerWindow::SetMaxFFtOrder(int max_fft_order)

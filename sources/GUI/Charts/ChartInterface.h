@@ -58,7 +58,9 @@ public:
     */
     virtual void                    ClearData           () = 0;
 
-	virtual void					SetSelectionHolder(std::shared_ptr<SelectionHolder> selection_holder);
+	virtual void					SetSelectionHolder	(std::shared_ptr<SelectionHolder> selection_holder);
+
+	virtual void					ActivateChart		(bool do_activate);
 signals:
 	void					SelectionIsReady();
 protected slots:

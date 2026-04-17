@@ -107,6 +107,14 @@ bool dpx_core::SpectrumDpx::SendDove(fluctus::DoveSptr const & sent_dove)
     {
 		Reload();
     }
+	if (base_thought & fluctus::DoveParrent::DoveThought::kActivate)
+	{
+		dpx_drawer_->ActivateChart(true);
+	}
+	if (base_thought & fluctus::DoveParrent::DoveThought::kDeactivate)
+	{
+		dpx_drawer_->ActivateChart(false);
+	}
 	if (base_thought & fluctus::DoveParrent::DoveThought::kSpecialThought) {
 		const auto special_thought = sent_dove->special_thought;
 		if (auto spectral_dove = std::dynamic_pointer_cast<spectral_viewer::SpectralDove>(sent_dove)) {

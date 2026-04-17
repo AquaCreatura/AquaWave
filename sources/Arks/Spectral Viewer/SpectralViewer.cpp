@@ -97,7 +97,6 @@ bool SpectralViewer::SendDove(fluctus::DoveSptr const & sent_dove)
 
 
 
-
 ArkType SpectralViewer::GetArkType() const
 {
     return ArkType::kSpectralViewer;

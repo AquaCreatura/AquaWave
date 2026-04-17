@@ -164,8 +164,6 @@
     <ClCompile Include="sources\GUI\Drawers\ImageBackGround.cpp" />
     <ClCompile Include="sources\GUI\Drawers\QimageZoomer.cpp" />
     <ClCompile Include="sources\GUI\Drawers\SelectionDrawer.cpp" />
-    <ClCompile Include="sources\Tools\aqua_array_queue.cpp" />
-    <ClCompile Include="sources\Tools\aqua_obj_queue.cpp" />
     <ClCompile Include="sources\Tools\file_helpers.cpp" />
     <ClCompile Include="sources\Tools\qt_utility.cpp" />
   </ItemGroup>

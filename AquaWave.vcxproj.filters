@@ -263,12 +263,6 @@
     <ClCompile Include="sources\Tools\qt_utility.cpp">
       <Filter>Tools</Filter>
     </ClCompile>
-    <ClCompile Include="sources\Tools\aqua_obj_queue.cpp">
-      <Filter>Tools</Filter>
-    </ClCompile>
-    <ClCompile Include="sources\Tools\aqua_array_queue.cpp">
-      <Filter>Tools</Filter>
-    </ClCompile>
   </ItemGroup>
   <!-- ClInclude (H Files) -->
   <ItemGroup>

@@ -115,7 +115,9 @@ void ChartInterface::mouseReleaseEvent(QMouseEvent * mouse_event)
 
 void ChartInterface::wheelEvent(QWheelEvent* wheel_event)
 {
-    if (aqua_gui::ZoomFromWheelDelta(scale_info_, wheel_event->delta(), wheel_event->pos()))
+	const int wheel_delta = !wheel_event->pixelDelta().isNull() ? wheel_event->pixelDelta().y() : wheel_event->angleDelta().y();
+
+    if (aqua_gui::ZoomFromWheelDelta(scale_info_, wheel_delta, wheel_event->pos()))
     {
         update();
     }

@@ -14,10 +14,10 @@ DpxDataScaler::DpxDataScaler(dpx_data &init_val)
 bool DpxDataScaler::UpdateBounds_x(const Limits<double>& new_bounds) {
     // Сохраняем ссылки для удобства
     auto& size = data_.size;
-    auto& old_bounds = data_.val_bounds.horizontal;
-    const size_t height = size.vertical;
-    const size_t old_width = size.horizontal;
-    const size_t new_width = size.horizontal; // Ширина остаётся прежней
+    auto& old_bounds = data_.val_bounds.hor;
+    const size_t height = size.vert;
+    const size_t old_width = size.hor;
+    const size_t new_width = size.hor; // Ширина остаётся прежней
 
     // Сохраняем старые границы перед обновлением
     const Limits<double> original_bounds = old_bounds;
@@ -99,12 +99,12 @@ bool DpxDataScaler::UpdateBounds_y(const Limits<double>& new_bounds, const bool 
 {
     // Сохраняем ссылки для удобства
     auto& size = data_.size;
-    auto& ref_bounds = data_.val_bounds.vertical;
+    auto& ref_bounds = data_.val_bounds.vert;
     
     if(ref_bounds == new_bounds) return true;
 
-    const size_t width = size.horizontal;
-    const size_t height = size.vertical;
+    const size_t width = size.hor;
+    const size_t height = size.vert;
 
     // Сохраняем старые границы перед обновлением
     const Limits<double> old_bounds = ref_bounds;

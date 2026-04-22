@@ -35,9 +35,9 @@ bool dpx_core::DpxRenderer::UpdateDpxRgbData()
     if(dpx_rgb_.size != dpx_.size)
     {
 		tbb::spin_mutex::scoped_lock scoped_locker(dpx_.redraw_mutex);
-        dpx_rgb_.data.resize(dpx_.size.horizontal * dpx_.size.vertical);
+        dpx_rgb_.data.resize(dpx_.size.hor * dpx_.size.vert);
         need_redraw = true;
-        dpx_rgb_.qimage = QImage((uint8_t*)dpx_rgb_.data.data(), dpx_.size.horizontal, dpx_.size.vertical, QImage::Format::Format_ARGB32);
+        dpx_rgb_.qimage = QImage((uint8_t*)dpx_rgb_.data.data(), dpx_.size.hor, dpx_.size.vert, QImage::Format::Format_ARGB32);
         dpx_rgb_.size = dpx_.size;
         zoomer_.SetNewBase(&dpx_rgb_.qimage);
     }
@@ -49,8 +49,8 @@ bool dpx_core::DpxRenderer::UpdateDpxRgbData()
 
         tbb::spin_mutex::scoped_lock scoped_locker(dpx_.redraw_mutex);
 
-        const int grid_height = dpx_.size.vertical;
-        const int grid_width  = dpx_.size.horizontal;
+        const int grid_height = dpx_.size.vert;
+        const int grid_width  = dpx_.size.hor;
         argb_t *rgb_iter = dpx_rgb_.data.data();
         for(int vert_number = 0; vert_number < grid_height; vert_number++)
         {

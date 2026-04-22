@@ -14,13 +14,13 @@ struct HV_Info
 {
     HV_Info& operator=(const HV_Info<W, H>& right) 
     {
-        horizontal = right.horizontal;
-        vertical   = right.vertical;
+        hor = right.hor;
+        vert   = right.vert;
         return *this;
     }
     const bool operator==(const HV_Info<W, H>& right) const
     {
-        return (horizontal == right.horizontal) && (vertical == right.vertical);
+        return (hor == right.hor) && (vert == right.vert);
     }
     bool operator!=(const HV_Info<W, H>& right) const
     {
@@ -29,19 +29,19 @@ struct HV_Info
     HV_Info<W, H> operator-(const HV_Info<W, H>& right)
     {
         HV_Info<W> res;
-        res.horizontal  = {horizontal - right.horizontal};
-        res.vertical    = {vertical   - right.vertical};
+        res.hor  = {hor - right.hor};
+        res.vert    = {vert   - right.vert};
         return res;
     }
     HV_Info<W, H> operator+(const HV_Info<W, H>& right)
     {
         HV_Info<W> res;
-        res.horizontal  = {horizontal + right.horizontal};
-        res.vertical    = {vertical   + right.vertical};
+        res.hor  = {hor + right.hor};
+        res.vert    = {vert   + right.vert};
         return res;
     }
-    W horizontal = W();
-    H vertical   = H();
+    W hor = W();
+    H vert   = H();
 };
 template <typename T>
 using HorVerLim = HV_Info<Limits<T>>;

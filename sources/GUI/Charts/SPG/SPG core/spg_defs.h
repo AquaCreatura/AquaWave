@@ -32,8 +32,8 @@ namespace spg_core
         //Слева направо = время, а сверху вниз - частота (границы = val_bounds) (Т.е. КАРТИНКА вверх ногами!)
 
         // Доступ к строкам данных
-        DataType* operator[](size_t row) { return &data[row * size.horizontal]; }
-        const DataType* operator[](size_t row) const { return &data[row * size.horizontal]; }
+        DataType* operator[](size_t row) { return &data[row * size.hor]; }
+        const DataType* operator[](size_t row) const { return &data[row * size.hor]; }
 
         HorVerLim<double>					val_bounds;		//Диапазон значений 
         HV_Info<size_t>						size;			//Размерность массива

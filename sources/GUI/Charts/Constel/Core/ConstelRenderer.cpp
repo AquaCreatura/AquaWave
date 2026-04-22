@@ -19,7 +19,7 @@ void constel::ConstellRenderer::UpdatePixmap(const int side_size_px)
 		tbb::spin_mutex::scoped_lock lock(constel_.redraw_mutex);
 		if (constel_.data.empty()) return;
 		const size_t clusters_side_size_px = constel_.side_size;
-		if (dyn_qimage_.size.horizontal != clusters_side_size_px)
+		if (dyn_qimage_.size.hor != clusters_side_size_px)
 		{
 			dyn_qimage_.data.resize(clusters_side_size_px * clusters_side_size_px);
 			dyn_qimage_.qimage = QImage((uint8_t*)dyn_qimage_.data.data(), clusters_side_size_px, clusters_side_size_px, QImage::Format::Format_ARGB32);

@@ -99,7 +99,7 @@ QPixmap& QimageZoomer::GetPrecisedPart(const HorVerLim<double>& full_image_value
 QImage QimageZoomer::HorMaxPoolingScale(QImage & base_qimage, HV_Info<int> target)
 {
 	// Ќекорректные размеры Ц возвращаем пустое изображение
-	if (base_qimage.isNull() || target.horizontal <= 0 || target.vertical <= 0)
+	if (base_qimage.isNull() || target.hor <= 0 || target.vert <= 0)
 		return QImage();
 
 	// ѕриводим исходное изображение к формату ARGB32 дл€ единообразного доступа к пиксел€м
@@ -108,26 +108,26 @@ QImage QimageZoomer::HorMaxPoolingScale(QImage & base_qimage, HV_Info<int> targe
 	int src_h = src.height();
 
 	// ≈сли размеры не изменились, возвращаем копию
-	if (src_w == target.horizontal && src_h == target.vertical)
+	if (src_w == target.hor && src_h == target.vert)
 		return src.copy();
 
 	// –езультирующее изображение (ARGB32)
-	QImage result(target.horizontal, target.vertical, QImage::Format_ARGB32);
+	QImage result(target.hor, target.vert, QImage::Format_ARGB32);
 	if (result.isNull())
 		return QImage();
 
 	// ѕредварительно вычисл€ем шаги дл€ вертикального отображени€ (целочисленное деление)
 	// ƒл€ каждого y вычисл€ем исходную строку src_y = (y * src_h) / target_vertical
 
-	for (int y = 0; y < target.vertical; ++y) {
-		int src_y = (y * src_h) / target.vertical;               // децимаци€ / дублирование
+	for (int y = 0; y < target.vert; ++y) {
+		int src_y = (y * src_h) / target.vert;               // децимаци€ / дублирование
 		const QRgb* src_line = reinterpret_cast<const QRgb*>(src.constScanLine(src_y));
 		QRgb* dst_line = reinterpret_cast<QRgb*>(result.scanLine(y));
 
 		// ќбработка горизонтали: max pooling
-		for (int x = 0; x < target.horizontal; ++x) {
-			int left = (x * src_w) / target.horizontal;
-			int right = ((x + 1) * src_w) / target.horizontal;
+		for (int x = 0; x < target.hor; ++x) {
+			int left = (x * src_w) / target.hor;
+			int right = ((x + 1) * src_w) / target.hor;
 
 			// √арантируем, что в диапазоне есть хот€ бы один пиксель
 			if (right <= left)
@@ -221,10 +221,10 @@ bool QimageZoomer::UpdateQPixmap()
         last_target_value_bounds_
     );
 
-    int src_width = basic_pixel_crop_bounds.horizontal.delta();
-    int src_height = basic_pixel_crop_bounds.vertical.delta();
-    int src_x = basic_pixel_crop_bounds.horizontal.low;
-    int src_y = base_image_height - basic_pixel_crop_bounds.vertical.high;
+    int src_width = basic_pixel_crop_bounds.hor.delta();
+    int src_height = basic_pixel_crop_bounds.vert.delta();
+    int src_x = basic_pixel_crop_bounds.hor.low;
+    int src_y = base_image_height - basic_pixel_crop_bounds.vert.high;
     // Ensure valid crop dimensions
     if (src_width <= 0 || src_height <= 0) {
         cached_pixmap_ = QPixmap(); // Invalid crop area
@@ -239,13 +239,13 @@ bool QimageZoomer::UpdateQPixmap()
 
     // Scale to the desired size and convert to QPixmap
 	QImage scaled_qimage;
-	if (need_max_pooling_ && (double(target_output_size_.horizontal) / cropped_image.width() < 1.2 )) {
+	if (need_max_pooling_ && (double(target_output_size_.hor) / cropped_image.width() < 1.2 )) {
 
 		scaled_qimage = HorMaxPoolingScale(cropped_image, target_output_size_);
 	}
 	else
 	{
-		scaled_qimage = cropped_image.scaled(target_output_size_.horizontal, target_output_size_.vertical,
+		scaled_qimage = cropped_image.scaled(target_output_size_.hor, target_output_size_.vert,
 			Qt::IgnoreAspectRatio, mode);
 	}
 	
@@ -281,26 +281,26 @@ HV_Info<Limits<int>> QimageZoomer::CalculatePixelCropBounds(
         return (span == 0.0) ? 1.0 : span; // Prevent division by zero
     };
 
-    double full_h_span = safe_span(full_val_bounds.horizontal.low, full_val_bounds.horizontal.high);
-    double full_v_span = safe_span(full_val_bounds.vertical.low, full_val_bounds.vertical.high);
+    double full_h_span = safe_span(full_val_bounds.hor.low, full_val_bounds.hor.high);
+    double full_v_span = safe_span(full_val_bounds.vert.low, full_val_bounds.vert.high);
 
     // Calculate pixel coordinates for the target display value bounds
     // Horizontal
     // The ratio of the target range within the full range.
-    double h_start_ratio = (target_val_bounds.horizontal.low - full_val_bounds.horizontal.low) / full_h_span;
-    double h_end_ratio = (target_val_bounds.horizontal.high - full_val_bounds.horizontal.low) / full_h_span;
+    double h_start_ratio = (target_val_bounds.hor.low - full_val_bounds.hor.low) / full_h_span;
+    double h_end_ratio = (target_val_bounds.hor.high - full_val_bounds.hor.low) / full_h_span;
 
     int pixel_h_low = static_cast<int>(h_start_ratio * img_width);
     int pixel_h_high = static_cast<int>(h_end_ratio * img_width);
 
     // Vertical
     // For QImage, Y-axis typically increases downwards. If your value system has Y increasing upwards,
-    // you might need to adjust the vertical calculation:
-    // (full_val_bounds.vertical.high - target_val_bounds.vertical.high) / full_v_span for start
-    // (full_val_bounds.vertical.high - target_val_bounds.vertical.low) / full_v_span for end
+    // you might need to adjust the vert calculation:
+    // (full_val_bounds.vert.high - target_val_bounds.vert.high) / full_v_span for start
+    // (full_val_bounds.vert.high - target_val_bounds.vert.low) / full_v_span for end
     // Assuming Y-axis in values also increases downwards for simplicity.
-    double v_start_ratio = (target_val_bounds.vertical.low - full_val_bounds.vertical.low) / full_v_span;
-    double v_end_ratio = (target_val_bounds.vertical.high - full_val_bounds.vertical.low) / full_v_span;
+    double v_start_ratio = (target_val_bounds.vert.low - full_val_bounds.vert.low) / full_v_span;
+    double v_end_ratio = (target_val_bounds.vert.high - full_val_bounds.vert.low) / full_v_span;
 
     int pixel_v_low = static_cast<int>(v_start_ratio * img_height);
     int pixel_v_high = static_cast<int>(v_end_ratio * img_height);

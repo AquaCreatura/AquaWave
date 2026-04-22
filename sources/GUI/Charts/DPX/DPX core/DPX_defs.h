@@ -20,8 +20,8 @@ struct dpx_data
     typedef int64_t DataType;
     
     // Доступ к строкам данных
-    DataType* operator[](size_t row) { return &data[row * size.horizontal]; }
-    const DataType* operator[](size_t row) const { return &data[row * size.horizontal]; }
+    DataType* operator[](size_t row) { return &data[row * size.hor]; }
+    const DataType* operator[](size_t row) const { return &data[row * size.hor]; }
 
     HorVerLim<double>       val_bounds; // Диапазон значений 
     HV_Info<size_t>         size;

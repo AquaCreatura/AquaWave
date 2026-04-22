@@ -23,21 +23,21 @@ bool DpxCore::Emplace() {
 	// Обновляем данные
 	tbb::spin_mutex::scoped_lock scoped_locker(dpx_data_.redraw_mutex);
 
-    if(dpx_data_.val_bounds.horizontal.delta() <= 0) dpx_data_.val_bounds.horizontal = {0, 1000};              // Set x-axis Limits
-    if(dpx_data_.val_bounds.vertical.delta()   <= 0) dpx_data_.val_bounds.vertical   = {0.0, 1.0};             // Set y-axis Limits
-    dpx_data_.size.vertical         = 1'024 / 5;                // Set data matrix height
-    dpx_data_.size.horizontal       = 1'024 * 4 ;              // Set data matrix width
+    if(dpx_data_.val_bounds.hor.delta() <= 0) dpx_data_.val_bounds.hor = {0, 1000};              // Set x-axis Limits
+    if(dpx_data_.val_bounds.vert.delta()   <= 0) dpx_data_.val_bounds.vert   = {0.0, 1.0};             // Set y-axis Limits
+    dpx_data_.size.vert         = 1'024 / 5;                // Set data matrix height
+    dpx_data_.size.hor       = 1'024 * 4 ;              // Set data matrix width
 
     // Check for valid dimensions before resizing
-    if (dpx_data_.size.vertical == 0 || dpx_data_.size.horizontal == 0) {
+    if (dpx_data_.size.vert == 0 || dpx_data_.size.hor == 0) {
         std::cerr << "Error: Initial DPX data dimensions cannot be zero." << std::endl;
         return false;
     }
 
-    const size_t data_size = static_cast<size_t>(dpx_data_.size.vertical) * dpx_data_.size.horizontal;  // Total number of data elements
+    const size_t data_size = static_cast<size_t>(dpx_data_.size.vert) * dpx_data_.size.hor;  // Total number of data elements
     dpx_data_.data.clear();                      // Clear any existing data
     dpx_data_.data.resize(data_size, 0);         // Allocate and zero-initialize data
-    dpx_data_.column_weight.assign(dpx_data_.size.horizontal, 0); // Use assign for clear and resize
+    dpx_data_.column_weight.assign(dpx_data_.size.hor, 0); // Use assign for clear and resize
     dpx_data_.need_redraw = true;                // Set redraw flag
     return true;                                 // Initialization successful
 }
@@ -49,13 +49,13 @@ bool DpxCore::AccumulateNewData(const std::vector<float>& passed_data, const Lim
         return false;       // Return if input is empty
     }
     dpx_data_.need_redraw = true;
-    // Choose loop strategy based on data size vs. horizontal resolution
-    // Ensure horizontal is not zero to avoid division by zero in loop implementations
-    if (dpx_data_.size.horizontal == 0) {
+    // Choose loop strategy based on data size vs. hor resolution
+    // Ensure hor is not zero to avoid division by zero in loop implementations
+    if (dpx_data_.size.hor == 0) {
         std::cerr << "Error: dpx_data_.size.horizontal is zero. Cannot process data." << std::endl;
         return false;
     }
-    const double samples_per_pixel =  double(passed_data.size()) / dpx_data_.size.horizontal;
+    const double samples_per_pixel =  double(passed_data.size()) / dpx_data_.size.hor;
 	const bool is_analyse = (scale_info_.val_info_.domain_type == ChartDomainType::kAnalyzeDomain);
     if (samples_per_pixel < 1.) {
 		return SlopePassedLoop(passed_data, x_bounds); 
@@ -68,7 +68,7 @@ bool DpxCore::AccumulateNewData(const std::vector<float>& passed_data, const Lim
 bool DpxCore::SetMinMax_X(const Limits<double>& new_x_bounds)
 {
     // Only call UpdateBounds_x if the bounds actually change
-    if (new_x_bounds!= dpx_data_.val_bounds.horizontal) {
+    if (new_x_bounds!= dpx_data_.val_bounds.hor) {
         return dpx_scaler_.UpdateBounds_x(new_x_bounds);
     }
     return true; // No change in bounds, considered successful
@@ -76,7 +76,7 @@ bool DpxCore::SetMinMax_X(const Limits<double>& new_x_bounds)
 
 Limits<double> DpxCore::GetPowerBounds() const
 {
-    return dpx_data_.val_bounds.vertical;
+    return dpx_data_.val_bounds.vert;
 }
 
 void DpxCore::SetPowerBounds(const Limits<double>& x_bounds)
@@ -88,8 +88,8 @@ void DpxCore::SetPowerBounds(const Limits<double>& x_bounds)
 QPixmap & DpxCore::GetRelevantPixmap()
 {
     auto &min_max = scale_info_.val_info_.min_max_bounds_;
-    SetPowerBounds(min_max.vertical); //Обновляем границы мощности
-    SetMinMax_X   (min_max.horizontal); //Обновляем диапазон значений
+    SetPowerBounds(min_max.vert); //Обновляем границы мощности
+    SetMinMax_X   (min_max.hor); //Обновляем диапазон значений
     return dpx_renderer_.GetRelevantPixmap();
 }
 
@@ -112,19 +112,19 @@ bool DpxCore::RoughPassedLoop(
     const double input_x_max = x_bounds.high;
 
     // Compute dimensions of the DPX grid.
-    const size_t grid_width = static_cast<size_t>(dpx_data_.size.horizontal);  // Number of bins along x-axis
-    const size_t grid_height = static_cast<size_t>(dpx_data_.size.vertical);   // Number of bins along y-axis
+    const size_t grid_width = static_cast<size_t>(dpx_data_.size.hor);  // Number of bins along x-axis
+    const size_t grid_height = static_cast<size_t>(dpx_data_.size.vert);   // Number of bins along y-axis
 
     // Total span along x for the current DPX data display range.
-    auto &dpx_horizontal_bounds = dpx_data_.val_bounds.horizontal;
+    auto &dpx_horizontal_bounds = dpx_data_.val_bounds.hor;
     const double dpx_x_range = dpx_horizontal_bounds.delta();
     const double dpx_x_start = dpx_horizontal_bounds.low;
     const double dpx_x_bin_width = dpx_x_range / static_cast<double>(grid_width);
 
     // Starting positions (lower limits) for y-axis mapping.
-    auto &dpx_vertical_bounds = dpx_data_.val_bounds.vertical;
+    auto &dpx_vertical_bounds = dpx_data_.val_bounds.vert;
     const double dpx_y_start = dpx_vertical_bounds.low;
-    const double dpx_y_step = dpx_vertical_bounds.delta() / dpx_data_.size.vertical;
+    const double dpx_y_step = dpx_vertical_bounds.delta() / dpx_data_.size.vert;
     const double dpx_y_step_inverse = 1.0 / dpx_y_step;
 
     // Calculate how much real-world x advances per incoming input sample.
@@ -187,11 +187,11 @@ bool DpxCore::SlopePassedLoop(const std::vector<float>& passed_data,
     const double input_x_range = static_cast<double>(passed_bounds.high - passed_bounds.low);
     const double input_x_step = input_x_range / (input_point_count - 1);  // шаг по X для входных данных
 
-    const auto& x_bounds_dpx = dpx_data_.val_bounds.horizontal;
-    const auto& y_bounds_dpx = dpx_data_.val_bounds.vertical;
+    const auto& x_bounds_dpx = dpx_data_.val_bounds.hor;
+    const auto& y_bounds_dpx = dpx_data_.val_bounds.vert;
 
-    const int64_t grid_width  = static_cast<int64_t>(dpx_data_.size.horizontal);  // количество колонок
-    const int64_t grid_height = static_cast<int64_t>(dpx_data_.size.vertical);    // количество строк
+    const int64_t grid_width  = static_cast<int64_t>(dpx_data_.size.hor);  // количество колонок
+    const int64_t grid_height = static_cast<int64_t>(dpx_data_.size.vert);    // количество строк
 
     const double dpx_x_start = x_bounds_dpx.low;
     const double dpx_x_bin_width = x_bounds_dpx.delta() / static_cast<double>(grid_width);

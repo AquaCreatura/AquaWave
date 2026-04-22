@@ -46,8 +46,8 @@ bool ImageBG::DrawImage(QPainter& passed_painter)
         
         // Get target size for the output pixmap
         HV_Info<int> target_image_size = {
-            scale_info_.pix_info_.chart_size_px.horizontal + 1,
-            scale_info_.pix_info_.chart_size_px.vertical + 1
+            scale_info_.pix_info_.chart_size_px.hor + 1,
+            scale_info_.pix_info_.chart_size_px.vert + 1
         };
 
         // Use QimageZoomer to get the precise part, scaled and potentially cached
@@ -86,7 +86,7 @@ constexpr const T& clamp(const T& val, const T& low, const T& high) {
  *
  * Algorithm:
  * 1. Determine the center of the current view from scale_info_.val_info_.
- * 2. Get two zoom coefficients (horizontal and vertical) from scale_info_.val_info_.
+ * 2. Get two zoom coefficients (hor and vert) from scale_info_.val_info_.
  * Calculate the average of these two as the "working zoom coefficient".
  * 3. Based on the working zoom coefficient and the full image value bounds (min_max_bounds_),
  * determine the new length and width of the target display rectangle.
@@ -98,14 +98,14 @@ constexpr const T& clamp(const T& val, const T& low, const T& high) {
 HorVerLim<double> ImageBG::CalculateTargetDisplayValueBounds() const
 {
     // 1. Определяем центр текущего отображения
-    const auto& current_h_bounds = scale_info_.val_info_.cur_bounds.horizontal;
-    const auto& current_v_bounds = scale_info_.val_info_.cur_bounds.vertical;
+    const auto& current_h_bounds = scale_info_.val_info_.cur_bounds.hor;
+    const auto& current_v_bounds = scale_info_.val_info_.cur_bounds.vert;
     double center_x = current_h_bounds.mid(); // Предполагаем наличие метода mid()
     double center_y = current_v_bounds.mid(); // Предполагаем наличие метода mid()
 
     // Полные размеры изображения, предотвращая деление на ноль
-    const auto& full_h_bounds = scale_info_.val_info_.min_max_bounds_.horizontal;
-    const auto& full_v_bounds = scale_info_.val_info_.min_max_bounds_.vertical;
+    const auto& full_h_bounds = scale_info_.val_info_.min_max_bounds_.hor;
+    const auto& full_v_bounds = scale_info_.val_info_.min_max_bounds_.vert;
     double full_image_span_x = std::max(full_h_bounds.delta(), 1e-9);
     double full_image_span_y = std::max(full_v_bounds.delta(), 1e-9);
 

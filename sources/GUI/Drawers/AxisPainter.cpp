@@ -11,9 +11,9 @@ scale_info_(base_scale_info)
 void AxisManager::InitHorizontal(const QString & ox_name)
 {
     //need be updated, only if there is a new unique text
-    if(!ox_name.isEmpty() && (ox_name != axis_.horizontal.qstr_suffix)) 
+    if(!ox_name.isEmpty() && (ox_name != axis_.hor.qstr_suffix)) 
     {
-        axis_.horizontal.qstr_suffix = ox_name;
+        axis_.hor.qstr_suffix = ox_name;
         need_be_updated_             = true;
     }
 }
@@ -21,9 +21,9 @@ void AxisManager::InitHorizontal(const QString & ox_name)
 void AxisManager::InitVertical(const QString & oy_name)
 {
     //need be updated, only if there is a new unique text
-    if(!oy_name.isEmpty() && (oy_name != axis_.vertical.qstr_suffix)) 
+    if(!oy_name.isEmpty() && (oy_name != axis_.vert.qstr_suffix)) 
     {
-        axis_.vertical.qstr_suffix   = oy_name;
+        axis_.vert.qstr_suffix   = oy_name;
         need_be_updated_             = true;
     }
 }
@@ -39,15 +39,15 @@ bool AxisManager::DrawAxis(QPainter& passed_painter)
     // Пересоздаём Pixmap, если размеры изменились
     if (last_widget_size_ != scale_info_.pix_info_.widget_size_px)
     {
-        cache_pixmap_ = QPixmap(scale_info_.pix_info_.widget_size_px.horizontal,
-                                scale_info_.pix_info_.widget_size_px.vertical);
+        cache_pixmap_ = QPixmap(scale_info_.pix_info_.widget_size_px.hor,
+                                scale_info_.pix_info_.widget_size_px.vert);
         last_widget_size_ = scale_info_.pix_info_.widget_size_px;
     }
     // Заполняем прозрачным фоном
     cache_pixmap_.fill(Qt::transparent);
     // Привязываем QPainter к Pixmap
     QPainter cur_painter(&cache_pixmap_);
-	if(scale_info_.val_info_.cur_bounds.vertical.high == 100) 
+	if(scale_info_.val_info_.cur_bounds.vert.high == 100) 
 		cache_pixmap_.fill(Qt::transparent);
     // Инициализация перьев
     QPen text_pen;
@@ -64,21 +64,21 @@ bool AxisManager::DrawAxis(QPainter& passed_painter)
 
     // Горизонтальная ось
     {
-        Limits<double> scaled_bounds = scale_info_.val_info_.cur_bounds.horizontal; 
+        Limits<double> scaled_bounds = scale_info_.val_info_.cur_bounds.hor; 
 
-        axis_.horizontal.grid_info.FillLineVectors(scale_info_.pix_info_.chart_size_px.horizontal, scaled_bounds);
+        axis_.hor.grid_info.FillLineVectors(scale_info_.pix_info_.chart_size_px.hor, scaled_bounds);
         
-        auto& cur_line_info = axis_.horizontal.grid_info;
-        const int axis_height = scale_info_.pix_info_.chart_size_px.vertical;
-        const int axis_width = scale_info_.pix_info_.chart_size_px.horizontal;
+        auto& cur_line_info = axis_.hor.grid_info;
+        const int axis_height = scale_info_.pix_info_.chart_size_px.vert;
+        const int axis_width = scale_info_.pix_info_.chart_size_px.hor;
         // Получаем порядок для форматирования чисел с плавающей точкой
-        const int dot_power_string = axis_.horizontal.grid_info.GetFloatStringPower();
+        const int dot_power_string = axis_.hor.grid_info.GetFloatStringPower();
 
         // Подпись оси
         {
             cur_painter.setPen(text_pen);
-            cur_painter.drawText(5, scale_info_.pix_info_.widget_size_px.vertical - 5, 
-                                axis_.horizontal.qstr_suffix);
+            cur_painter.drawText(5, scale_info_.pix_info_.widget_size_px.vert - 5, 
+                                axis_.hor.qstr_suffix);
         }
 
         // Проходим по всем линиям сетки
@@ -111,24 +111,24 @@ bool AxisManager::DrawAxis(QPainter& passed_painter)
 
     // Вертикальная ось
     {
-        axis_.vertical.grid_info.FillLineVectors(scale_info_.pix_info_.chart_size_px.vertical, 
-                                                        scale_info_.val_info_.cur_bounds.vertical);
-        auto& cur_line_info = axis_.vertical.grid_info;
-        const int axis_height = scale_info_.pix_info_.chart_size_px.vertical;
-        const int axis_width = scale_info_.pix_info_.chart_size_px.horizontal;
+        axis_.vert.grid_info.FillLineVectors(scale_info_.pix_info_.chart_size_px.vert, 
+                                                        scale_info_.val_info_.cur_bounds.vert);
+        auto& cur_line_info = axis_.vert.grid_info;
+        const int axis_height = scale_info_.pix_info_.chart_size_px.vert;
+        const int axis_width = scale_info_.pix_info_.chart_size_px.hor;
         // Получаем порядок для форматирования чисел с плавающей точкой
-        const int dot_power_string = axis_.vertical.grid_info.GetFloatStringPower();
+        const int dot_power_string = axis_.vert.grid_info.GetFloatStringPower();
 
         // Подпись оси
         {
             cur_painter.setPen(text_pen);
-            cur_painter.drawText(axis_width + 5, 15, axis_.vertical.qstr_suffix);
+            cur_painter.drawText(axis_width + 5, 15, axis_.vert.qstr_suffix);
         }
         // Проходим по всем линиям сетки
         for (const auto& vert_line : cur_line_info.grid_lines_)
         {
             // Точка на оси
-            const QPoint axis_point = {axis_width, scale_info_.pix_info_.chart_size_px.vertical - vert_line.pixel_number_};
+            const QPoint axis_point = {axis_width, scale_info_.pix_info_.chart_size_px.vert - vert_line.pixel_number_};
 
             // Рисуем линию сетки
             {
@@ -186,26 +186,26 @@ bool AxisManager::DrawMarginBackGround(QPainter& passed_painter, const QPen& fra
 
 
     //start point (H <--> F)
-    polyg.moveTo(0                                 , pix_info.widget_size_px.vertical);
+    polyg.moveTo(0                                 , pix_info.widget_size_px.vert);
     //H stage
-    polyg.lineTo(0                                 , pix_info.chart_size_px .vertical);
+    polyg.lineTo(0                                 , pix_info.chart_size_px .vert);
     //B stage
-    polyg.lineTo(pix_info.chart_size_px .horizontal, pix_info.chart_size_px .vertical);
+    polyg.lineTo(pix_info.chart_size_px .hor, pix_info.chart_size_px .vert);
     //C stage    
-    polyg.lineTo(pix_info.chart_size_px .horizontal, 0                               );
+    polyg.lineTo(pix_info.chart_size_px .hor, 0                               );
     //D stage    
-    polyg.lineTo(pix_info.widget_size_px.horizontal, 0                               );
+    polyg.lineTo(pix_info.widget_size_px.hor, 0                               );
     //E stage    
-    polyg.lineTo(pix_info.widget_size_px.horizontal, pix_info.widget_size_px.vertical);
+    polyg.lineTo(pix_info.widget_size_px.hor, pix_info.widget_size_px.vert);
     //F stage
-    polyg.lineTo(0                                 , pix_info.widget_size_px.vertical);
+    polyg.lineTo(0                                 , pix_info.widget_size_px.vert);
     //Fill this polygon
     passed_painter.fillPath(polyg, strange_grad);
     //Frame around margin axises 
     {
         passed_painter.setPen  (frame_pen);
-        passed_painter.drawLine(pix_info.chart_size_px.horizontal, pix_info.chart_size_px.vertical , 0                                , pix_info.chart_size_px.vertical);
-        passed_painter.drawLine(pix_info.chart_size_px.horizontal, pix_info.chart_size_px.vertical , pix_info.chart_size_px.horizontal, 0                              );
+        passed_painter.drawLine(pix_info.chart_size_px.hor, pix_info.chart_size_px.vert , 0                                , pix_info.chart_size_px.vert);
+        passed_painter.drawLine(pix_info.chart_size_px.hor, pix_info.chart_size_px.vert , pix_info.chart_size_px.hor, 0                              );
 
     }
         

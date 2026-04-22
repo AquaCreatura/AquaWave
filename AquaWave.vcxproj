@@ -148,6 +148,8 @@
     <ClCompile Include="sources\GUI\basic tools\gui_helper.cpp" />
     <ClCompile Include="sources\GUI\basic tools\gui_worker.cpp" />
     <ClCompile Include="sources\GUI\basic tools\PowerManager.cpp" />
+    <ClCompile Include="sources\GUI\basic tools\Tiler\ChartTiler.cpp" />
+    <ClCompile Include="sources\GUI\basic tools\Tiler\DataTiler.cpp" />
     <ClCompile Include="sources\GUI\Charts\Constel\ConstelChart.cpp" />
     <ClCompile Include="sources\GUI\Charts\Constel\Core\ConstelCore.cpp" />
     <ClCompile Include="sources\GUI\Charts\Constel\Core\ConstelRenderer.cpp" />
@@ -202,6 +204,8 @@
     <ClInclude Include="sources\GUI\basic tools\gui_worker.h" />
     <ClInclude Include="sources\GUI\basic tools\PowerManager.h" />
     <QtMoc Include="sources\GUI\Charts\Constel\ConstelChart.h" />
+    <ClInclude Include="sources\GUI\basic tools\Tiler\ChartTiler.h" />
+    <ClInclude Include="sources\GUI\basic tools\Tiler\DataTiler.h" />
     <ClInclude Include="sources\GUI\Charts\Constel\Core\ConstelCore.h" />
     <ClInclude Include="sources\GUI\Charts\Constel\Core\ConstelRenderer.h" />
     <ClInclude Include="sources\GUI\Charts\Constel\Core\constel_defs.h" />

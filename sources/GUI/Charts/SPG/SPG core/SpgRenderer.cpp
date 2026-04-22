@@ -33,9 +33,9 @@ bool spg_core::SpgRenderer::UpdateSpectrogramData()
     holder_to_draw.need_redraw = false; //Сразу переводим в значение false, чтобы не пропустить новые данные, пока рисуем
     if(wrapper_rgb.size != holder_to_draw.size)
     {
-        wrapper_rgb.data.resize(holder_to_draw.size.horizontal * holder_to_draw.size.vertical);
+        wrapper_rgb.data.resize(holder_to_draw.size.hor * holder_to_draw.size.vert);
         need_redraw = true;
-        wrapper_rgb.qimage = QImage((uint8_t*)wrapper_rgb.data.data(), holder_to_draw.size.horizontal, holder_to_draw.size.vertical, QImage::Format::Format_ARGB32);
+        wrapper_rgb.qimage = QImage((uint8_t*)wrapper_rgb.data.data(), holder_to_draw.size.hor, holder_to_draw.size.vert, QImage::Format::Format_ARGB32);
         wrapper_rgb.size = holder_to_draw.size;
         zoomer_.SetNewBase(&wrapper_rgb.qimage);
     }
@@ -43,8 +43,8 @@ bool spg_core::SpgRenderer::UpdateSpectrogramData()
     {
         tbb::spin_mutex::scoped_lock guard_lock(spg_.rw_mutex_);
         //Здесь бы mutex по-хорошему
-        const int grid_height = holder_to_draw.size.vertical;
-        const int grid_width  = holder_to_draw.size.horizontal;
+        const int grid_height = holder_to_draw.size.vert;
+        const int grid_width  = holder_to_draw.size.hor;
 
 		double  max_density = 0;
 		double  summ_density = 0;
@@ -100,10 +100,10 @@ bool spg_core::SpgRenderer::IsModeSwitched(HorVerLim<double> realtime_size)
 	auto& rt_data = spg_.realtime_data;
 	auto& base_data = spg_.base_data;
 
-	const auto& passed_hor = realtime_size.horizontal;
-	const auto& passed_vert = realtime_size.vertical;
-	const auto& rt_hor = rt_data.val_bounds.horizontal;
-	const auto& rt_vert = rt_data.val_bounds.vertical;
+	const auto& passed_hor = realtime_size.hor;
+	const auto& passed_vert = realtime_size.vert;
+	const auto& rt_hor = rt_data.val_bounds.hor;
+	const auto& rt_vert = rt_data.val_bounds.vert;
 
 	const bool is_out_of_range = (passed_hor.low  < rt_hor.low || passed_hor.high > rt_hor.high) ||
 		(passed_vert.low < rt_vert.low || passed_vert.high > rt_vert.high);
@@ -122,39 +122,39 @@ bool spg_core::SpgRenderer::IsModeSwitched(HorVerLim<double> realtime_size)
 		double normalize_koeff = std::sqrt(max_zoom) * 0.98 / 2.0;
 		const auto& src_bounds = base_data.val_bounds;
 
-		new_size.horizontal.low = std::max(src_bounds.horizontal.low,
+		new_size.hor.low = std::max(src_bounds.hor.low,
 			passed_hor.mid() - passed_hor.delta() * normalize_koeff);
-		new_size.horizontal.high = std::min(src_bounds.horizontal.high,
+		new_size.hor.high = std::min(src_bounds.hor.high,
 			passed_hor.mid() + passed_hor.delta() * normalize_koeff);
-		new_size.vertical.low = std::max(src_bounds.vertical.low,
+		new_size.vert.low = std::max(src_bounds.vert.low,
 			passed_vert.mid() - passed_vert.delta() * normalize_koeff);
-		new_size.vertical.high = std::min(src_bounds.vertical.high,
+		new_size.vert.high = std::min(src_bounds.vert.high,
 			passed_vert.mid() + passed_vert.delta() * normalize_koeff);
 
 		int threshold_value = 0;
 		int rt_threshold = 0;
 		//Если ещё не переключились в режим rt - проверим базу
 		if (is_out_of_range || !realtime_mode_) {
-			const double hor_delta_base = base_data.val_bounds.horizontal.delta();
-			const auto	 relative_start = base_data.val_bounds.horizontal.low;
-			const double start_pos = (new_size.horizontal.low - relative_start) / hor_delta_base;
-			const double end_pos = (new_size.horizontal.high - relative_start) / hor_delta_base;
+			const double hor_delta_base = base_data.val_bounds.hor.delta();
+			const auto	 relative_start = base_data.val_bounds.hor.low;
+			const double start_pos = (new_size.hor.low - relative_start) / hor_delta_base;
+			const double end_pos = (new_size.hor.high - relative_start) / hor_delta_base;
 
-			const int start_idx = static_cast<int>(start_pos * base_data.size.horizontal);
-			const int end_idx = static_cast<int>(end_pos   * base_data.size.horizontal);
+			const int start_idx = static_cast<int>(start_pos * base_data.size.hor);
+			const int end_idx = static_cast<int>(end_pos   * base_data.size.hor);
 
 			for (int i = start_idx; i < end_idx; ++i) {
 				threshold_value += base_data.relevant_vec[i];
 			}
 		}
 		if (strong_focus && !is_out_of_range) {
-			const double hor_delta_base = rt_data.val_bounds.horizontal.delta();
-			const auto	 relative_start = rt_data.val_bounds.horizontal.low;
-			const double start_pos = (new_size.horizontal.low - relative_start) / hor_delta_base;
-			const double end_pos = (new_size.horizontal.high - relative_start) / hor_delta_base;
+			const double hor_delta_base = rt_data.val_bounds.hor.delta();
+			const auto	 relative_start = rt_data.val_bounds.hor.low;
+			const double start_pos = (new_size.hor.low - relative_start) / hor_delta_base;
+			const double end_pos = (new_size.hor.high - relative_start) / hor_delta_base;
 
-			const int start_idx = static_cast<int>(start_pos * rt_data.size.horizontal);
-			const int end_idx = static_cast<int>(end_pos   * rt_data.size.horizontal);
+			const int start_idx = static_cast<int>(start_pos * rt_data.size.hor);
+			const int end_idx = static_cast<int>(end_pos   * rt_data.size.hor);
 
 			for (int i = start_idx; i < end_idx; ++i) {
 				rt_threshold += rt_data.relevant_vec[i];
@@ -165,7 +165,7 @@ bool spg_core::SpgRenderer::IsModeSwitched(HorVerLim<double> realtime_size)
 			}
 
 
-			rt_data.ready_threshold = rt_data.ready_threshold.load() * new_size.horizontal.delta() / rt_data.val_bounds.horizontal.delta();
+			rt_data.ready_threshold = rt_data.ready_threshold.load() * new_size.hor.delta() / rt_data.val_bounds.hor.delta();
 			rt_data.ready_threshold = std::max(rt_data.ready_threshold.load(), rt_threshold);
 		}
 

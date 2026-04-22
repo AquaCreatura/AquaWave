@@ -30,23 +30,23 @@ bool ChartInterface::SetBackgroundImage(const QString & image_path)
 
 void ChartInterface::SetVerticalMinMaxBounds(const Limits<double>& vertical_bounds)
 {
-    auto& cur_min_max = scale_info_.val_info_.min_max_bounds_.vertical;
+    auto& cur_min_max = scale_info_.val_info_.min_max_bounds_.vert;
     // Если ничего не изменилось — выходим
     if (cur_min_max == vertical_bounds) return;
 
     cur_min_max = vertical_bounds;
-    scale_info_.val_info_.cur_bounds.vertical = vertical_bounds;
+    scale_info_.val_info_.cur_bounds.vert = vertical_bounds;
 }
 
 // Установка границ по горизонтали
 void ChartInterface::SetHorizontalMinMaxBounds(const Limits<double>& hor_bounds)
 {
-    auto& cur_val_info = scale_info_.val_info_.min_max_bounds_.horizontal;
+    auto& cur_val_info = scale_info_.val_info_.min_max_bounds_.hor;
     // Если ничего не изменилось — выходим
     if (cur_val_info == hor_bounds) return;
 
     cur_val_info = hor_bounds;
-    scale_info_.val_info_.cur_bounds.horizontal = hor_bounds;
+    scale_info_.val_info_.cur_bounds.hor = hor_bounds;
     power_man_.SetNewViewBounds(hor_bounds);
 }
 
@@ -191,14 +191,14 @@ void ChartInterface::UpdateWidgetSizeInfo()
     //if data is not changed - go away (don't touch anything)
     if(pix_info.widget_size_px == cur_size) return;
 
-	if(cur_size.horizontal > 0)
+	if(cur_size.hor > 0)
 	{
 		static const HV_Info<int> need_margin_px{ 50, 30 };
 		pix_info.margin_px = need_margin_px;
-		if (double(need_margin_px.horizontal) / cur_size.horizontal > 0.3)
-			pix_info.margin_px.horizontal = 0;
-		if (double(need_margin_px.vertical) / cur_size.vertical > 0.3)
-			pix_info.margin_px.vertical = 0;
+		if (double(need_margin_px.hor) / cur_size.hor > 0.3)
+			pix_info.margin_px.hor = 0;
+		if (double(need_margin_px.vert) / cur_size.vert > 0.3)
+			pix_info.margin_px.vert = 0;
 	}
 
     pix_info.widget_size_px = cur_size;

@@ -82,7 +82,7 @@ bool spg_core::SpgRequester::SendRequestDove(const request_params & req_info)
     auto req_dove = std::make_shared<FileSrcDove>(FileSrcDove::kInitiate | FileSrcDove::kAskChunkAround);
     req_dove->target_ark        = base_ark;
 	req_dove->time_bounds = { req_info.time_point, req_info.time_point };
-	auto freq_bounds = spg_.base_data.val_bounds.vertical * 1.e6;
+	auto freq_bounds = spg_.base_data.val_bounds.vert * 1.e6;
 	auto &setup = *req_dove->setup.emplace();
 	setup.chunk_size = req_info.data_size;
 	setup.carrier_hz = freq_bounds.mid();
@@ -123,8 +123,8 @@ SpgRequester::request_params SpgRequester::GetRequestParams() {
 	auto &holder_to_request = need_request_base ? spg_.base_data : spg_.realtime_data;
 
 	
-    const auto &hor_bounds = holder_to_request.val_bounds.horizontal; // Horizontal value bounds
-    const auto &src_bounds = spg_.base_data.val_bounds.horizontal; // Source time bounds
+    const auto &hor_bounds = holder_to_request.val_bounds.hor; // Horizontal value bounds
+    const auto &src_bounds = spg_.base_data.val_bounds.hor; // Source time bounds
 
     // Calculate normalized request bounds relative to source time bounds
     const Limits<double> req_bounds = {
@@ -135,10 +135,10 @@ SpgRequester::request_params SpgRequester::GetRequestParams() {
 
 	req_info.data_size = spg_.n_fft_;
 	
-    const int hor_size = holder_to_request.size.horizontal; // Horizontal data size
+    const int hor_size = holder_to_request.size.hor; // Horizontal data size
     const auto &relevant_vec = holder_to_request.relevant_vec; // Vector indicating relevant data points
 
-    // Generate pixel locations if not already computed for horizontal size
+    // Generate pixel locations if not already computed for hor size
     if (base_draw_locations_.size() != hor_size) {
         base_draw_locations_ = GetAssimLocationsVec(hor_size);
     }

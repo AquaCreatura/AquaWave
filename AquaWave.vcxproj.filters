@@ -119,6 +119,9 @@
     <Filter Include="ARKS\Elements\Static SPG\requester">
       <UniqueIdentifier>{5e66df57-3a99-42dc-b439-4d7267d31dfa}</UniqueIdentifier>
     </Filter>
+    <Filter Include="GUI\basic tools\Tiler">
+      <UniqueIdentifier>{bdf9f006-9c87-459c-bacc-da953de6bee8}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <!-- ClCompile (CPP Files) -->
   <ItemGroup>
@@ -262,6 +265,12 @@
     </ClCompile>
     <ClCompile Include="sources\Arks\Elements\Static SPG\requester\SpgRequester.cpp">
       <Filter>ARKS\Elements\Static SPG\requester</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\GUI\basic tools\Tiler\ChartTiler.cpp">
+      <Filter>GUI\basic tools\Tiler</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\GUI\basic tools\Tiler\DataTiler.cpp">
+      <Filter>GUI\basic tools\Tiler</Filter>
     </ClCompile>
   </ItemGroup>
   <!-- ClInclude (H Files) -->
@@ -407,6 +416,12 @@
     </ClInclude>
     <ClInclude Include="sources\Tools\aqua_array_queue.h">
       <Filter>Tools</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\GUI\basic tools\Tiler\ChartTiler.h">
+      <Filter>GUI\basic tools\Tiler</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\GUI\basic tools\Tiler\DataTiler.h">
+      <Filter>GUI\basic tools\Tiler</Filter>
     </ClInclude>
   </ItemGroup>
   <!-- QtMoc (For Headers Requiring Moc) -->

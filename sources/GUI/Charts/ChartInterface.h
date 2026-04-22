@@ -28,11 +28,11 @@ public:
     virtual void                    SetVerticalMinMaxBounds(const Limits<double>& vertical_bounds);
 
     /*
-        Set start and end values for horizontal axis 
+        Set start and end values for hor axis 
     */
     virtual void                    SetHorizontalMinMaxBounds (const Limits<double>& hor_bounds);
     /*
-        Set horizontal axis suffix
+        Set hor axis suffix
     */
     virtual void                    SetHorizontalSuffix (const QString& suffix);
     /*
@@ -41,7 +41,7 @@ public:
     */ 
     virtual void                    SetPowerBounds   (const Limits<double>& power_bounds, const bool is_adaptive = true);
     /*
-        Set horizontal axis suffix
+        Set hor axis suffix
     */
     virtual void                    SetVerticalSuffix   (const QString& suffix);
     /*

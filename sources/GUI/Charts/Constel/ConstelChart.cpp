@@ -9,11 +9,11 @@ ChartConstel::ChartConstel(QWidget * parrent):
 	setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 	scale_info_.pix_info_.margin_px = { 0,0 };
 
-	scale_info_.val_info_.min_max_bounds_.horizontal = { 0,1 };
-	scale_info_.val_info_.min_max_bounds_.vertical = { 0,1 };
+	scale_info_.val_info_.min_max_bounds_.hor = { 0,1 };
+	scale_info_.val_info_.min_max_bounds_.vert = { 0,1 };
 	
-	scale_info_.val_info_.cur_bounds.horizontal = { 0,1 };
-	scale_info_.val_info_.cur_bounds.vertical = { 0,1 };
+	scale_info_.val_info_.cur_bounds.hor = { 0,1 };
+	scale_info_.val_info_.cur_bounds.vert = { 0,1 };
 
 	connect(&redraw_timer_, &QTimer::timeout, this, QOverload<>::of(&ChartConstel::update));
 	redraw_timer_.start(100);
@@ -39,7 +39,7 @@ void ChartConstel::paintEvent(QPaintEvent * paint_event)
 	QPainter new_frame_painter(this);
 	bg_image_.DrawImage(new_frame_painter);
 	{
-		auto data_pixmap = core_.GetRelevantPixmap(scale_info_.pix_info_.chart_size_px.horizontal);
+		auto data_pixmap = core_.GetRelevantPixmap(scale_info_.pix_info_.chart_size_px.hor);
 		new_frame_painter.drawPixmap(0,0, data_pixmap);
 	}
 	
@@ -58,12 +58,12 @@ void ChartConstel::resizeEvent(QResizeEvent * event)
 	
 
 	
-	if (cur_size.vertical < cur_size.horizontal) {
-		setMinimumHeight(cur_size.horizontal);
+	if (cur_size.vert < cur_size.hor) {
+		setMinimumHeight(cur_size.hor);
 	}
-	else if (cur_size.horizontal < cur_size.vertical) {
-		setMinimumHeight(cur_size.horizontal);		
-		const auto min_size = std::min(cur_size.horizontal, cur_size.vertical);
+	else if (cur_size.hor < cur_size.vert) {
+		setMinimumHeight(cur_size.hor);		
+		const auto min_size = std::min(cur_size.hor, cur_size.vert);
 		//resize(min_size, min_size);
 	}
 	

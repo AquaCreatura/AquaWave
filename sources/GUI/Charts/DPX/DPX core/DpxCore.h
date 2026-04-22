@@ -51,7 +51,7 @@ public:
     QPixmap&       GetRelevantPixmap();
 private:
     /**
-     * @brief Processes the input data directly, assuming passed_data size is greater than or equal to dpx_data_.size.horizontal.
+     * @brief Processes the input data directly, assuming passed_data size is greater than or equal to dpx_data_.size.hor.
      * @param passed_data Input values to process.
      * @param x_bounds Range of X-axis corresponding to the data.
      * @return true if processing succeeded.
@@ -60,7 +60,7 @@ private:
 
     /**
      * @brief Processes the input data using linear interpolation between neighboring values.
-     * Used when dpx_data_.size.horizontal > passed_data.size().
+     * Used when dpx_data_.size.hor > passed_data.size().
      * @param passed_data Input values to interpolate.
      * @param x_bounds Range of X-axis corresponding to the data.
      * @return true if interpolation succeeded.

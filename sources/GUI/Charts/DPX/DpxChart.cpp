@@ -30,13 +30,13 @@ void ChartDPX::DrawData(QPainter & passed_painter)
 
 void ChartDPX::PushData(const draw_data& draw_data )
 {
-	auto &draw_bounds = draw_data.freq_bounds.delta() ? draw_data.freq_bounds : scale_info_.val_info_.min_max_bounds_.horizontal;
+	auto &draw_bounds = draw_data.freq_bounds.delta() ? draw_data.freq_bounds : scale_info_.val_info_.min_max_bounds_.hor;
 
 	bool need_reset = power_man_.NeedRelevantBounds();
 	power_man_.UpdateBounds(draw_data.data, draw_bounds);
 	if (need_reset) {
 		UpdateChartPowerBounds(); //Обновляем scale descr
-		dpx_painter_.SetPowerBounds(scale_info_.val_info_.min_max_bounds_.vertical); //Обновляем матрицу DPX
+		dpx_painter_.SetPowerBounds(scale_info_.val_info_.min_max_bounds_.vert); //Обновляем матрицу DPX
 	}
     dpx_painter_.AccumulateNewData(draw_data.data , draw_bounds); //Накапливаем новые данные
 }

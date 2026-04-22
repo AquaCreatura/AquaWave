@@ -46,20 +46,20 @@ bool aqua_gui::SelectionDrawer::DrawSelections(QPainter & painter)
 	//painter
 	{
 		auto val_hv = GetHorVert(sel_holder_->GetCurrentSelection());
-		auto &vert_sel = val_hv.vertical;
+		auto &vert_sel = val_hv.vert;
 		if (domain == ChartDomainType::kAnalyzeDomain) //Не отрисовываем вертикальный selection при анализе
 			vert_sel.high = vert_sel.low;
 
-		auto &hor_sel = val_hv.horizontal;
+		auto &hor_sel = val_hv.hor;
 
 		if (vert_sel.high < vert_sel.low) std::swap(vert_sel.low, vert_sel.high);
 		if (hor_sel.high < hor_sel.low) std::swap(hor_sel.low, hor_sel.high);
 	
 		HorVerLim<int> user_rect = {
-			{ std::lround((hor_sel.low - cur_chart_val.horizontal.low) / cur_chart_val.horizontal.delta() * chart_size_px.horizontal),
-			std::lround((hor_sel.high - cur_chart_val.horizontal.low) / cur_chart_val.horizontal.delta() * chart_size_px.horizontal) },
-			std::lround((cur_chart_val.vertical.high - vert_sel.high) / cur_chart_val.vertical.delta() * chart_size_px.vertical),
-			std::lround((cur_chart_val.vertical.high - vert_sel.low) / cur_chart_val.vertical.delta() * chart_size_px.vertical)
+			{ std::lround((hor_sel.low - cur_chart_val.hor.low) / cur_chart_val.hor.delta() * chart_size_px.hor),
+			std::lround((hor_sel.high - cur_chart_val.hor.low) / cur_chart_val.hor.delta() * chart_size_px.hor) },
+			std::lround((cur_chart_val.vert.high - vert_sel.high) / cur_chart_val.vert.delta() * chart_size_px.vert),
+			std::lround((cur_chart_val.vert.high - vert_sel.low) / cur_chart_val.vert.delta() * chart_size_px.vert)
 		};
 		if (DrawRectangles(painter, user_rect)) {
 			DrawMarks(painter, user_rect, val_hv);
@@ -76,26 +76,26 @@ void aqua_gui::SelectionDrawer::EditableEvent(const QPoint& mouse_location, cons
 	auto &chart_size_px = scale_info_.pix_info_.chart_size_px;
 
 	const HV_Info<double> ratio_pos = {
-		qBound(0, mouse_location.x(), chart_size_px.horizontal) / double(chart_size_px.horizontal),
-		qBound(0, mouse_location.y(), chart_size_px.vertical) / double(chart_size_px.vertical)
+		qBound(0, mouse_location.x(), chart_size_px.hor) / double(chart_size_px.hor),
+		qBound(0, mouse_location.y(), chart_size_px.vert) / double(chart_size_px.vert)
 	};
 	const HV_Info<double> value_pos = {
-		ratio_pos.horizontal * cur_chart_val.horizontal.delta() + cur_chart_val.horizontal.low,
-		cur_chart_val.vertical.high - ratio_pos.vertical * cur_chart_val.vertical.delta()
+		ratio_pos.hor * cur_chart_val.hor.delta() + cur_chart_val.hor.low,
+		cur_chart_val.vert.high - ratio_pos.vert * cur_chart_val.vert.delta()
 	};
 	switch (event_type)
 	{
 	case aqua_gui::SelectionDrawer::kMove:		
 		if (!is_pressed_) return; //Выходим при пустой отрисовке.
 		
-		cur_hv_.horizontal.high = value_pos.horizontal;
-		cur_hv_.vertical.high   = value_pos.vertical;
+		cur_hv_.hor.high = value_pos.hor;
+		cur_hv_.vert.high   = value_pos.vert;
 		
 		break;
 	case aqua_gui::SelectionDrawer::kPressed:	//Начинаем
 		is_pressed_ = true;
-		cur_hv_.horizontal = { value_pos.horizontal,value_pos.horizontal };
-		cur_hv_.vertical	  =	{ value_pos.vertical  ,value_pos.vertical };
+		cur_hv_.hor = { value_pos.hor,value_pos.hor };
+		cur_hv_.vert	  =	{ value_pos.vert  ,value_pos.vert };
 		break;
 	case aqua_gui::SelectionDrawer::kReleased:	//Заканчиваем
 		is_pressed_ = false;
@@ -110,14 +110,14 @@ void aqua_gui::SelectionDrawer::ChangeCurSelection()
 {
 	selection_info sel_info;
 	if (scale_info_.val_info_.domain_type == ChartDomainType::kTimeFrequency) {
-		sel_info.freq_bounds = cur_hv_.vertical;
-		sel_info.time_bounds = cur_hv_.horizontal / scale_info_.val_info_.min_max_bounds_.horizontal.delta();
+		sel_info.freq_bounds = cur_hv_.vert;
+		sel_info.time_bounds = cur_hv_.hor / scale_info_.val_info_.min_max_bounds_.hor.delta();
 		sel_info.power_bounds = {0, 1};
 	}
 	else
 	{
-		sel_info.freq_bounds  = cur_hv_.horizontal;
-		sel_info.power_bounds = cur_hv_.vertical;
+		sel_info.freq_bounds  = cur_hv_.hor;
+		sel_info.power_bounds = cur_hv_.vert;
 		sel_info.time_bounds  = {0, 1.};
 	}
 	sel_holder_->SetCurrentSelection(sel_info);
@@ -127,13 +127,13 @@ HorVerLim<double> aqua_gui::SelectionDrawer::GetHorVert(const selection_info & s
 {
 	HorVerLim<double> hor_ver;
 	if (scale_info_.val_info_.domain_type == ChartDomainType::kTimeFrequency) {
-		hor_ver.horizontal = sel_info.time_bounds * scale_info_.val_info_.min_max_bounds_.horizontal.delta();
-		hor_ver.vertical = sel_info.freq_bounds;
+		hor_ver.hor = sel_info.time_bounds * scale_info_.val_info_.min_max_bounds_.hor.delta();
+		hor_ver.vert = sel_info.freq_bounds;
 	}
 	else
 	{
-		hor_ver.horizontal = sel_info.freq_bounds;
-		hor_ver.vertical = sel_info.power_bounds;
+		hor_ver.hor = sel_info.freq_bounds;
+		hor_ver.vert = sel_info.power_bounds;
 	}
 	return hor_ver;
 }
@@ -143,18 +143,18 @@ bool aqua_gui::SelectionDrawer::DrawRectangles(QPainter & painter, const HorVerL
 
 	auto &chart_size_px = scale_info_.pix_info_.chart_size_px;
 
-	bool is_hor_valid = user_rect.horizontal.delta() >= 1;
-	bool is_vert_valid = user_rect.vertical.delta() >= 1;
+	bool is_hor_valid = user_rect.hor.delta() >= 1;
+	bool is_vert_valid = user_rect.vert.delta() >= 1;
 	if (!is_hor_valid && !is_vert_valid) return false;
 
 	painter.save();
-	QRect limit_rect = { 0,0, chart_size_px.horizontal, chart_size_px.vertical };
+	QRect limit_rect = { 0,0, chart_size_px.hor, chart_size_px.vert };
 	painter.setClipRect(limit_rect);
 	
 
 
-	const QRect pixel_rect = { int(user_rect.horizontal.low), int(user_rect.vertical.low),
-		int(user_rect.horizontal.delta() + 1), int(user_rect.vertical.delta() + 1) };
+	const QRect pixel_rect = { int(user_rect.hor.low), int(user_rect.vert.low),
+		int(user_rect.hor.delta() + 1), int(user_rect.vert.delta() + 1) };
 	{
 		QPen sel_pen;
 		sel_pen.setColor((is_vert_valid && is_hor_valid) ? QColor(80, 80, 80, 255) : QColor(255, 255, 255, 255));
@@ -164,22 +164,22 @@ bool aqua_gui::SelectionDrawer::DrawRectangles(QPainter & painter, const HorVerL
 		painter.setPen(sel_pen);
 
 		if (is_hor_valid) {
-			painter.drawLine(pixel_rect.left(), 0, pixel_rect.left(), chart_size_px.vertical); //Вертикальные линии
-			painter.drawLine(pixel_rect.right() + 1, 0, pixel_rect.right() + 1, chart_size_px.vertical);
+			painter.drawLine(pixel_rect.left(), 0, pixel_rect.left(), chart_size_px.vert); //Вертикальные линии
+			painter.drawLine(pixel_rect.right() + 1, 0, pixel_rect.right() + 1, chart_size_px.vert);
 
 			if (scale_info_.val_info_.domain_type != ChartDomainType::kTimeFrequency) {
-				QRect fillrect(QPoint(pixel_rect.left(), 0), QPoint({ pixel_rect.right(), chart_size_px.vertical }));
+				QRect fillrect(QPoint(pixel_rect.left(), 0), QPoint({ pixel_rect.right(), chart_size_px.vert }));
 				painter.fillRect(fillrect, fillColor);
 			}
 		}
 
 
 		if (is_vert_valid) {
-			painter.drawLine(0, pixel_rect.top(), chart_size_px.horizontal, pixel_rect.top()); //Горизонтальные линии
-			painter.drawLine(0, pixel_rect.bottom() + 1, chart_size_px.horizontal, pixel_rect.bottom() + 1);
+			painter.drawLine(0, pixel_rect.top(), chart_size_px.hor, pixel_rect.top()); //Горизонтальные линии
+			painter.drawLine(0, pixel_rect.bottom() + 1, chart_size_px.hor, pixel_rect.bottom() + 1);
 
 			if (scale_info_.val_info_.domain_type == ChartDomainType::kTimeFrequency) {
-				QRect fillrect(QPoint(0, pixel_rect.top()), QPoint({ chart_size_px.horizontal, pixel_rect.bottom() }));
+				QRect fillrect(QPoint(0, pixel_rect.top()), QPoint({ chart_size_px.hor, pixel_rect.bottom() }));
 				painter.fillRect(fillrect, fillColor);
 			}
 			
@@ -217,8 +217,8 @@ bool aqua_gui::SelectionDrawer::DrawSizes(
 	const HorVerLim<double>& hv_val)
 {
 	auto &chart = scale_info_.pix_info_.chart_size_px;
-	const int chartW = chart.horizontal;
-	const int chartH = chart.vertical;
+	const int chartW = chart.hor;
+	const int chartH = chart.vert;
 
 	painter.save();
 	painter.setRenderHint(QPainter::Antialiasing, true);
@@ -229,10 +229,10 @@ bool aqua_gui::SelectionDrawer::DrawSizes(
 	const int textMargin = 5;   // Отступ текста от линии
 	const int minSizeForInsideArrows = 40;
 
-	int left = user_rect.horizontal.low;
-	int right = user_rect.horizontal.high;
-	int top = user_rect.vertical.low;
-	int bottom = user_rect.vertical.high;
+	int left = user_rect.hor.low;
+	int right = user_rect.hor.high;
+	int top = user_rect.vert.low;
+	int bottom = user_rect.vert.high;
 
 	// Вспомогательная функция для отрисовки только "головы" стрелки
 	auto drawArrowHead = [&](QPointF tip, double angle) {
@@ -252,12 +252,12 @@ bool aqua_gui::SelectionDrawer::DrawSizes(
 											  // Определение Y (для ширины) - Приоритет СНИЗУ
 	int y = (bottom + offset + 5 <= chartH) ? (bottom + offset) :
 		(top - offset - 5 >= 0) ? (top - offset) : qBound(5, bottom + offset, chartH - 5);
-	if (user_rect.vertical.delta() == 0)
+	if (user_rect.vert.delta() == 0)
 		y = chartH - 5;
 	// Определение X (для высоты) - Приоритет СПРАВА
 	int x = (right + offset + 15 <= chartW) ? (right + offset) :
 		(left - offset - 15 >= 0) ? (left - offset) : qBound(5, right + offset, chartW - 5);
-	if (user_rect.horizontal.delta() == 0) 
+	if (user_rect.hor.delta() == 0) 
 		x = chartW - 5;
 
 	auto drawDimension = [&](QPointF p1, QPointF p2, bool isVertical, QString text) {
@@ -323,12 +323,12 @@ bool aqua_gui::SelectionDrawer::DrawSizes(
 	};
 
 	// Вызовы отрисовки
-	if ((user_rect.horizontal.delta())) {
-		QString hor_text = aqua_parse_tools::ValueToString(hv_val.horizontal.delta(), -1).c_str();
+	if ((user_rect.hor.delta())) {
+		QString hor_text = aqua_parse_tools::ValueToString(hv_val.hor.delta(), -1).c_str();
 		drawDimension(QPointF(left, y), QPointF(right, y), false, hor_text);
 	}
-	if (user_rect.vertical.delta()) {
-		QString vert_text = aqua_parse_tools::ValueToString(hv_val.vertical.delta(), -1).c_str();
+	if (user_rect.vert.delta()) {
+		QString vert_text = aqua_parse_tools::ValueToString(hv_val.vert.delta(), -1).c_str();
 		drawDimension(QPointF(x, top), QPointF(x, bottom), true, vert_text);
 	}
 
@@ -357,8 +357,8 @@ bool aqua_gui::SelectionDrawer::DrawMarks(QPainter & painter, const HorVerLim<in
 		int w = tr.width() + 12, h = tr.height() + 4;
 
 		// Определяем координаты: если Hor -> X=p, Y=низ графика. Если Ver -> X=край графика, Y=p.
-		QRect bg = isHor ? QRect(p - w / 2, chart_size_px.vertical + 5, w, h)
-			: QRect(chart_size_px.horizontal + 5, p - h / 2, w, h);
+		QRect bg = isHor ? QRect(p - w / 2, chart_size_px.vert + 5, w, h)
+			: QRect(chart_size_px.hor + 5, p - h / 2, w, h);
 
 		painter.fillRect(bg, QColor(50, 50, 50));
 		painter.setPen(Qt::white);
@@ -367,12 +367,12 @@ bool aqua_gui::SelectionDrawer::DrawMarks(QPainter & painter, const HorVerLim<in
 
 	// 3. Главная логика обработки оси
 	auto processAxis = [&](bool isHor) {
-		const auto& v = isHor ? hv_val.horizontal : hv_val.vertical;
-		const auto& p = isHor ? user_rect.horizontal : user_rect.vertical;
+		const auto& v = isHor ? hv_val.hor : hv_val.vert;
+		const auto& p = isHor ? user_rect.hor : user_rect.vert;
 
 		if (v.delta() < 0.000001) return;
 
-		double total_delta = isHor ? cur_chart_val.horizontal.delta() : cur_chart_val.vertical.delta();
+		double total_delta = isHor ? cur_chart_val.hor.delta() : cur_chart_val.vert.delta();
 		int precision = GetPrecission(total_delta);
 
 		// Рисуем центральную линию и метку, если совпадает тип домена
@@ -382,8 +382,8 @@ bool aqua_gui::SelectionDrawer::DrawMarks(QPainter & painter, const HorVerLim<in
 		if (needLine) {
 			int mid_p = p.low + p.delta() / 2;
 			painter.setPen(dashPen);
-			if (isHor) painter.drawLine(mid_p, 0, mid_p, chart_size_px.vertical);
-			else       painter.drawLine(0, mid_p, chart_size_px.horizontal, mid_p);
+			if (isHor) painter.drawLine(mid_p, 0, mid_p, chart_size_px.vert);
+			else       painter.drawLine(0, mid_p, chart_size_px.hor, mid_p);
 
 			drawLabel(ValueToString(v.low + v.delta() / 2, precision).c_str(), mid_p, isHor);
 		}
@@ -430,11 +430,11 @@ bool aqua_gui::MouseDrawer::Draw(QPainter & painter)
 	auto &chart_size_px = scale_info_.pix_info_.chart_size_px;
 	auto hor_px = pos_.x();
 	auto vert_px = pos_.y();
-	if (hor_px < 0 || hor_px > chart_size_px.horizontal) return true;
-	if (vert_px < 0 || vert_px > chart_size_px.vertical) return true;
+	if (hor_px < 0 || hor_px > chart_size_px.hor) return true;
+	if (vert_px < 0 || vert_px > chart_size_px.vert) return true;
 
-	auto val_hor = cur_chart_val.horizontal.low + double(hor_px) / chart_size_px.horizontal * cur_chart_val.horizontal.delta();
-	auto val_vert = cur_chart_val.vertical.low + (1 - double(vert_px) / chart_size_px.vertical) * cur_chart_val.vertical.delta();
+	auto val_hor = cur_chart_val.hor.low + double(hor_px) / chart_size_px.hor * cur_chart_val.hor.delta();
+	auto val_vert = cur_chart_val.vert.low + (1 - double(vert_px) / chart_size_px.vert) * cur_chart_val.vert.delta();
 
 	// Настройка пера для линий
 	QPen dashPen(QColor(200, 200, 200));
@@ -442,8 +442,8 @@ bool aqua_gui::MouseDrawer::Draw(QPainter & painter)
 	painter.setPen(dashPen);
 
 	// Рисуем перекрестие
-	painter.drawLine(hor_px, 0, hor_px, chart_size_px.vertical);
-	painter.drawLine(0, vert_px, chart_size_px.horizontal, vert_px);
+	painter.drawLine(hor_px, 0, hor_px, chart_size_px.vert);
+	painter.drawLine(0, vert_px, chart_size_px.hor, vert_px);
 
 	// Лямбда для отрисовки текстовой плашки
 	auto drawValueLabel = [&](const QString& text, int ref_x, int ref_y, bool isBottomAxis, bool draw_inside) {
@@ -498,21 +498,21 @@ bool aqua_gui::MouseDrawer::Draw(QPainter & painter)
 	// --- ИСПОЛЬЗОВАНИЕ ---
 
 	// 1. Вертикальная ось (сбоку)
-	QString vert_text = ValueToString(val_vert, GetPrecission(cur_chart_val.vertical.delta())).c_str();
+	QString vert_text = ValueToString(val_vert, GetPrecission(cur_chart_val.vert.delta())).c_str();
 
 	// Если марджина нет (<=0), рисуем внутри
-	bool vert_inside = (scale_info_.pix_info_.margin_px.horizontal <= 0);
-	// Передаем chart_size_px.horizontal как линию границы графика
-	drawValueLabel(vert_text, chart_size_px.horizontal, vert_px, false, vert_inside);
+	bool vert_inside = (scale_info_.pix_info_.margin_px.hor <= 0);
+	// Передаем chart_size_px.hor как линию границы графика
+	drawValueLabel(vert_text, chart_size_px.hor, vert_px, false, vert_inside);
 
 
 	// 2. Горизонтальная ось (снизу)
-	QString hor_text = ValueToString(val_hor, GetPrecission(cur_chart_val.horizontal.delta())).c_str();
+	QString hor_text = ValueToString(val_hor, GetPrecission(cur_chart_val.hor.delta())).c_str();
 
 	// Если марджина нет (<=0), рисуем внутри
-	bool hor_inside = (scale_info_.pix_info_.margin_px.vertical <= 0);
-	// Передаем chart_size_px.vertical как линию границы графика
-	drawValueLabel(hor_text, hor_px, chart_size_px.vertical, true, hor_inside);
+	bool hor_inside = (scale_info_.pix_info_.margin_px.vert <= 0);
+	// Передаем chart_size_px.vert как линию границы графика
+	drawValueLabel(hor_text, hor_px, chart_size_px.vert, true, hor_inside);
 
 	return true;
 }

@@ -267,10 +267,11 @@ void file_source::FileDataListener::LoopReadInRangeProcess(const Limits<double>&
 		}
 
 		// Преобразование int16 -> float (комплексные отсчёты)
+		casted_vec.resize(read_data.size() / sizeof(Ipp32fc));
 		switch (file_params_.data_type_)
 		{
 		case IppDataType::ipp16sc: {
-			ippsConvert_16s32f((Ipp16s*)(read_data.data()), (Ipp32f*)(casted_vec.data()), chunk_size * 2);
+			ippsConvert_16s32f((Ipp16s*)(read_data.data()), (Ipp32f*)(casted_vec.data()), casted_vec.size() * 2);
 			break;
 		}
 		default:

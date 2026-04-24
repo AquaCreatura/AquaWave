@@ -8,7 +8,6 @@ ChartSPG::ChartSPG(QWidget * parrent, std::shared_ptr<SelectionHolder> selection
 
     SetVerticalSuffix("power");
 	scale_info_.val_info_.domain_type = ChartDomainType::kTimeFrequency;
-	scale_info_.val_info_.max_zoom_koeffs_ = { 20, 1000};
 	//SetBackgroundImage(":/AquaWave/third_party/background/black_forest.jpg");
 }
 
@@ -55,6 +54,7 @@ void ChartSPG::SetHorizontalMinMaxBounds(const Limits<double>& hor_bounds)
 
 void spg_core::ChartSPG::SetFftOrder(int fft_order)
 {
+	scale_info_.val_info_.max_zoom_koeffs_.vert = std::max(1., (1 << fft_order) / 20.);
 	spg_core_.SetNfftOrder(fft_order);
 }
 

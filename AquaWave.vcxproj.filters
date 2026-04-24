@@ -269,7 +269,13 @@
     <ClCompile Include="sources\GUI\basic tools\Tiler\ChartTiler.cpp">
       <Filter>GUI\basic tools\Tiler</Filter>
     </ClCompile>
-    <ClCompile Include="sources\GUI\basic tools\Tiler\DataTiler.cpp">
+    <ClCompile Include="sources\GUI\basic tools\Tiler\TileInterface.cpp">
+      <Filter>GUI\basic tools\Tiler</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\GUI\basic tools\Tiler\TileDPX.cpp">
+      <Filter>GUI\basic tools\Tiler</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\GUI\basic tools\Tiler\TileSPG.cpp">
       <Filter>GUI\basic tools\Tiler</Filter>
     </ClCompile>
   </ItemGroup>
@@ -420,7 +426,13 @@
     <ClInclude Include="sources\GUI\basic tools\Tiler\ChartTiler.h">
       <Filter>GUI\basic tools\Tiler</Filter>
     </ClInclude>
-    <ClInclude Include="sources\GUI\basic tools\Tiler\DataTiler.h">
+    <ClInclude Include="sources\GUI\basic tools\Tiler\TileInterface.h">
+      <Filter>GUI\basic tools\Tiler</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\GUI\basic tools\Tiler\TileDPX.h">
+      <Filter>GUI\basic tools\Tiler</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\GUI\basic tools\Tiler\TileSPG.h">
       <Filter>GUI\basic tools\Tiler</Filter>
     </ClInclude>
   </ItemGroup>

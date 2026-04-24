@@ -54,7 +54,7 @@ public:
     virtual void                    DrawData            (QPainter& painter) = 0;
 
     /*
-        Clear data from the kBaseSpectrum
+        Reset data from the kBaseSpectrum
     */
     virtual void                    ClearData           () = 0;
 

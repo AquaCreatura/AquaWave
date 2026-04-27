@@ -28,7 +28,7 @@ void ChartSPG::DrawData(QPainter & passed_painter)
 
 void ChartSPG::PushData(const draw_data & draw_data)
 {
-    power_man_.UpdateBounds(draw_data.data, scale_info_.val_info_.min_max_bounds_.hor /*data_bounds*/);
+    power_man_.UpdateBounds(draw_data.data, scale_info_.val_info_.min_max_bounds.hor /*data_bounds*/);
     spg_core_.AccumulateNewData(draw_data.data,draw_data.time_pos);
 }
 
@@ -47,14 +47,14 @@ void ChartSPG::SetVerticalMinMaxBounds(const Limits<double>& vert_bounds)
 
 void ChartSPG::SetHorizontalMinMaxBounds(const Limits<double>& hor_bounds)
 {
-	scale_info_.val_info_.max_zoom_koeffs_.hor = std::max(2., hor_bounds.delta() / 1000);
+	scale_info_.val_info_.max_zoom_koeffs.hor = std::max(2., hor_bounds.delta() / 1000);
 	ChartInterface::SetHorizontalMinMaxBounds(hor_bounds);	
     spg_core_.SetTimeBounds(hor_bounds);
 }
 
 void spg_core::ChartSPG::SetFftOrder(int fft_order)
 {
-	scale_info_.val_info_.max_zoom_koeffs_.vert = std::max(1., (1 << fft_order) / 20.);
+	scale_info_.val_info_.max_zoom_koeffs.vert = std::max(1., (1 << fft_order) / 20.);
 	spg_core_.SetNfftOrder(fft_order);
 }
 

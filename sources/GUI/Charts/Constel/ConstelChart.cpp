@@ -9,8 +9,8 @@ ChartConstel::ChartConstel(QWidget * parrent):
 	setSizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
 	scale_info_.pix_info_.margin_px = { 0,0 };
 
-	scale_info_.val_info_.min_max_bounds_.hor = { 0,1 };
-	scale_info_.val_info_.min_max_bounds_.vert = { 0,1 };
+	scale_info_.val_info_.min_max_bounds.hor = { 0,1 };
+	scale_info_.val_info_.min_max_bounds.vert = { 0,1 };
 	
 	scale_info_.val_info_.cur_bounds.hor = { 0,1 };
 	scale_info_.val_info_.cur_bounds.vert = { 0,1 };

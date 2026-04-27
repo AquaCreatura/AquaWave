@@ -41,7 +41,7 @@ bool ImageBG::DrawImage(QPainter& passed_painter)
 
     // Only recalculate and redraw if needed
     if (ShouldRedraw()) {
-        const HV_Info<Limits<double>> full_image_value_bounds = scale_info_.val_info_.min_max_bounds_;
+        const HV_Info<Limits<double>> full_image_value_bounds = scale_info_.val_info_.min_max_bounds;
         const HV_Info<Limits<double>> target_display_value_bounds = CalculateTargetDisplayValueBounds();
         
         // Get target size for the output pixmap
@@ -74,7 +74,7 @@ bool ImageBG::DrawImage(QPainter& passed_painter)
 bool ImageBG::ShouldRedraw() const
 {
     return need_redraw_ || last_pixmap_size_!=scale_info_.pix_info_.chart_size_px || 
-            last_scaled_val_bounds_ != scale_info_.val_info_.cur_bounds || last_base_val_bounds_ != scale_info_.val_info_.min_max_bounds_; //
+            last_scaled_val_bounds_ != scale_info_.val_info_.cur_bounds || last_base_val_bounds_ != scale_info_.val_info_.min_max_bounds; //
 }
 
 template <typename T>
@@ -88,7 +88,7 @@ constexpr const T& clamp(const T& val, const T& low, const T& high) {
  * 1. Determine the center of the current view from scale_info_.val_info_.
  * 2. Get two zoom coefficients (hor and vert) from scale_info_.val_info_.
  * Calculate the average of these two as the "working zoom coefficient".
- * 3. Based on the working zoom coefficient and the full image value bounds (min_max_bounds_),
+ * 3. Based on the working zoom coefficient and the full image value bounds (min_max_bounds),
  * determine the new length and width of the target display rectangle.
  * This ensures that the proportions of the original image are maintained.
  * 4. Define the new rectangle based on the calculated center, width, and height.
@@ -104,8 +104,8 @@ HorVerLim<double> ImageBG::CalculateTargetDisplayValueBounds() const
     double center_y = current_v_bounds.mid(); // Предполагаем наличие метода mid()
 
     // Полные размеры изображения, предотвращая деление на ноль
-    const auto& full_h_bounds = scale_info_.val_info_.min_max_bounds_.hor;
-    const auto& full_v_bounds = scale_info_.val_info_.min_max_bounds_.vert;
+    const auto& full_h_bounds = scale_info_.val_info_.min_max_bounds.hor;
+    const auto& full_v_bounds = scale_info_.val_info_.min_max_bounds.vert;
     double full_image_span_x = std::max(full_h_bounds.delta(), 1e-9);
     double full_image_span_y = std::max(full_v_bounds.delta(), 1e-9);
 
@@ -163,7 +163,7 @@ void ImageBG::ResetRedrawFlags()
     need_redraw_            = false; //
     last_pixmap_size_       = scale_info_.pix_info_.chart_size_px;
     last_scaled_val_bounds_ = scale_info_.val_info_.cur_bounds;
-    last_base_val_bounds_   = scale_info_.val_info_.min_max_bounds_;
+    last_base_val_bounds_   = scale_info_.val_info_.min_max_bounds;
 }
 
 } // namespace aqua_gui

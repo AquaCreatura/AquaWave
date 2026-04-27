@@ -87,7 +87,7 @@ void DpxCore::SetPowerBounds(const Limits<double>& x_bounds)
 
 QPixmap & DpxCore::GetRelevantPixmap()
 {
-    auto &min_max = scale_info_.val_info_.min_max_bounds_;
+    auto &min_max = scale_info_.val_info_.min_max_bounds;
     SetPowerBounds(min_max.vert); //Обновляем границы мощности
     SetMinMax_X   (min_max.hor); //Обновляем диапазон значений
     return dpx_renderer_.GetRelevantPixmap();

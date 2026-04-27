@@ -30,7 +30,7 @@ bool ChartInterface::SetBackgroundImage(const QString & image_path)
 
 void ChartInterface::SetVerticalMinMaxBounds(const Limits<double>& vertical_bounds)
 {
-    auto& cur_min_max = scale_info_.val_info_.min_max_bounds_.vert;
+    auto& cur_min_max = scale_info_.val_info_.min_max_bounds.vert;
     // Если ничего не изменилось — выходим
     if (cur_min_max == vertical_bounds) return;
 
@@ -41,7 +41,7 @@ void ChartInterface::SetVerticalMinMaxBounds(const Limits<double>& vertical_boun
 // Установка границ по горизонтали
 void ChartInterface::SetHorizontalMinMaxBounds(const Limits<double>& hor_bounds)
 {
-    auto& cur_val_info = scale_info_.val_info_.min_max_bounds_.hor;
+    auto& cur_val_info = scale_info_.val_info_.min_max_bounds.hor;
     // Если ничего не изменилось — выходим
     if (cur_val_info == hor_bounds) return;
 

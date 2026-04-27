@@ -36,8 +36,8 @@ private:
 	const ChartScaleInfo& scale_info_;
     size_t      data_memory_ = 1'024;   // Cколько последних значений учитываем при отрисовке
 
-    dynamic_qimage        dpx_rgb_;      // Структура для работы с QImage в качестве обёркти
-
+    dynamic_qimage        dyn_qim_;      // Структура для работы с QImage в качестве обёркти
+	
     QPixmap               cached_pixmap_;
     QimageZoomer          zoomer_;
 	QElapsedTimer		  data_update_timer_; 

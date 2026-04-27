@@ -23,7 +23,7 @@ QPixmap & dpx_core::DpxRenderer::GetRelevantPixmap()
 		data_update_timer_.restart();
 	}
 	
-    const HV_Info<Limits<double>> &base_bounds   = scale_info_.val_info_.min_max_bounds_;
+    const HV_Info<Limits<double>> &base_bounds   = scale_info_.val_info_.min_max_bounds;
     const HV_Info<Limits<double>> &target_bounds = scale_info_.val_info_.cur_bounds;
     return zoomer_.GetPrecisedPart(base_bounds, target_bounds, scale_info_.pix_info_.chart_size_px);
 
@@ -32,14 +32,14 @@ bool dpx_core::DpxRenderer::UpdateDpxRgbData()
 {   
     bool need_redraw = dpx_.need_redraw;
     dpx_.need_redraw = false; //Сразу переводим в значение false, чтобы не пропустить новые данные, пока рисуем
-    if(dpx_rgb_.size != dpx_.size)
+    if(dyn_qim_.size != dpx_.size)
     {
 		tbb::spin_mutex::scoped_lock scoped_locker(dpx_.redraw_mutex);
-        dpx_rgb_.data.resize(dpx_.size.hor * dpx_.size.vert);
+        dyn_qim_.data.resize(dpx_.size.hor * dpx_.size.vert);
         need_redraw = true;
-        dpx_rgb_.qimage = QImage((uint8_t*)dpx_rgb_.data.data(), dpx_.size.hor, dpx_.size.vert, QImage::Format::Format_ARGB32);
-        dpx_rgb_.size = dpx_.size;
-        zoomer_.SetNewBase(&dpx_rgb_.qimage);
+        dyn_qim_.qimage = QImage((uint8_t*)dyn_qim_.data.data(), dpx_.size.hor, dpx_.size.vert, QImage::Format::Format_ARGB32);
+        dyn_qim_.size = dpx_.size;
+        zoomer_.SetNewBase(&dyn_qim_.qimage);
     }
     if(need_redraw)
     {
@@ -51,7 +51,7 @@ bool dpx_core::DpxRenderer::UpdateDpxRgbData()
 
         const int grid_height = dpx_.size.vert;
         const int grid_width  = dpx_.size.hor;
-        argb_t *rgb_iter = dpx_rgb_.data.data();
+        argb_t *rgb_iter = dyn_qim_.data.data();
         for(int vert_number = 0; vert_number < grid_height; vert_number++)
         {
             const int64_t* column_weight_iter = &dpx_.column_weight[0]; //Reset for every row

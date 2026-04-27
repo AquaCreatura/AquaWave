@@ -4,7 +4,7 @@
 
 bool aqua_gui::ZoomFromWheelDelta(ChartScaleInfo & scale_info, const int wheel_delta, const QPoint scale_point)
 {
-    auto& min_max_bounds         = scale_info.val_info_.min_max_bounds_;
+    auto& min_max_bounds         = scale_info.val_info_.min_max_bounds;
     auto& cur_bounds      = scale_info.val_info_.cur_bounds;
     auto& px_info = scale_info.pix_info_;
 
@@ -22,7 +22,7 @@ bool aqua_gui::ZoomFromWheelDelta(ChartScaleInfo & scale_info, const int wheel_d
 
     const double val_y_scale_koeff = (min_max_bounds.vert.delta()) / (cur_bounds.vert.delta());
     bool values_changed = false;
-	const auto zoom_threshold = scale_info.val_info_.max_zoom_koeffs_;
+	const auto zoom_threshold = scale_info.val_info_.max_zoom_koeffs;
     // Масштабирование по оси X
     if (is_x_scale)
     {
@@ -104,7 +104,7 @@ void aqua_gui::AdaptPowerBounds(ChartScaleInfo & scale_info, const Limits<double
 		return;
 
     // Получаем ссылку на текущие максимально допустимые (автоматические) границы шкалы
-    auto &vert_min_max = scale_info.val_info_.min_max_bounds_.vert;
+    auto &vert_min_max = scale_info.val_info_.min_max_bounds.vert;
 
 	const double min_epsilon = new_bounds.delta() * 0;
     // Если автоматические границы изменились, обновляем шкалу
@@ -115,7 +115,7 @@ void aqua_gui::AdaptPowerBounds(ChartScaleInfo & scale_info, const Limits<double
         // Получаем ссылку на текущие отображаемые границы шкалы (которые видит пользователь)
         auto &vert_cur = scale_info.val_info_.cur_bounds.vert;
 		//Корретируем отображаемое
-		if (!scale_info.val_info_.need_reset_scale_) {
+		if (!scale_info.val_info_.need_reset_scale) {
 
 			// Вычисляем текущий коэффициент масштабирования (зума) по вертикали
 			const double zoom_vert_koeff = vert_cur.delta() / vert_min_max.delta();
@@ -135,7 +135,7 @@ void aqua_gui::AdaptPowerBounds(ChartScaleInfo & scale_info, const Limits<double
 			// Обновляем максимально допустимые (автоматические) границы
 			vert_min_max = new_bounds;
 			vert_cur = new_bounds;
-			scale_info.val_info_.need_reset_scale_ = false;
+			scale_info.val_info_.need_reset_scale = false;
 		}        
     }
 }

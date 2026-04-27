@@ -38,7 +38,7 @@ std::shared_ptr<SelectionHolder> aqua_gui::SelectionDrawer::GetSelectionHolder()
 bool aqua_gui::SelectionDrawer::DrawSelections(QPainter & painter)
 {
 	auto &cur_chart_val = scale_info_.val_info_.cur_bounds;
-	auto &base_chart_val = scale_info_.val_info_.min_max_bounds_;
+	auto &base_chart_val = scale_info_.val_info_.min_max_bounds;
 	auto &chart_size_px = scale_info_.pix_info_.chart_size_px;
 	auto domain = scale_info_.val_info_.domain_type;
 	
@@ -111,7 +111,7 @@ void aqua_gui::SelectionDrawer::ChangeCurSelection()
 	selection_info sel_info;
 	if (scale_info_.val_info_.domain_type == ChartDomainType::kTimeFrequency) {
 		sel_info.freq_bounds = cur_hv_.vert;
-		sel_info.time_bounds = cur_hv_.hor / scale_info_.val_info_.min_max_bounds_.hor.delta();
+		sel_info.time_bounds = cur_hv_.hor / scale_info_.val_info_.min_max_bounds.hor.delta();
 		sel_info.power_bounds = {0, 1};
 	}
 	else
@@ -127,7 +127,7 @@ HorVerLim<double> aqua_gui::SelectionDrawer::GetHorVert(const selection_info & s
 {
 	HorVerLim<double> hor_ver;
 	if (scale_info_.val_info_.domain_type == ChartDomainType::kTimeFrequency) {
-		hor_ver.hor = sel_info.time_bounds * scale_info_.val_info_.min_max_bounds_.hor.delta();
+		hor_ver.hor = sel_info.time_bounds * scale_info_.val_info_.min_max_bounds.hor.delta();
 		hor_ver.vert = sel_info.freq_bounds;
 	}
 	else

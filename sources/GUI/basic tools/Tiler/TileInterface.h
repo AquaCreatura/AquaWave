@@ -1,31 +1,26 @@
 #pragma once
 #include "GUI/gui_defs.h"
+//Отказаться от Unit -> Объединить с Tile!!
 using namespace aqua_gui;
 struct TilerUnit {
 	HorVerLim<double>	val_bounds;
 	HV_Info<size_t>		data_size;
 
 	std::vector<int>	data; //наша карта плотностей
-
-	//-Надо разделить!
-
-	//(Актуально для DPX)
-	std::vector<size_t>	column_weight; //Вес каждой колонки 
-
-	//(Актуально для SPG) - SPG было бы хорошо перевести транспарентный вид, но пока что так....
-	std::vector<bool>	relevant_vec;	// Актуальна ли колонка
-	std::vector<double> pos_vec;		// Вектор реальных позиций колонок
+	bool				is_data_updated;
+	tbb::spin_mutex		mutex;
 };
 
 class TileInterface {
 public:
 	void				SetValBounds			( HorVerLim<double> bounds );
-	void				Reset					();
 	HorVerLim<double>	GetValBounds			();
-	void				SetData					( const draw_data& data );
-	const TilerUnit&	GetDataUnit				();
-	void				UpdateDataFromDataUnit	( const TilerUnit& passed_data ); // + Update From current?...
+	const TilerUnit&	GetDataUnit();
+	virtual void		Reset();
 
-protected:
+	virtual void		SetData					( const draw_data& data		   ) = 0;
+	virtual void		UpdateDataFromDataUnit	( const TilerUnit& passed_data ) = 0; 	// + Update From current?...
+	virtual void		UpdateQimage			( dynamic_qimage& dyn_qimage   ) = 0;
+
 	TilerUnit unit_;
 };

@@ -9,7 +9,7 @@ spg_core::SpgRenderer::SpgRenderer(spg_data & init_val): spg_(init_val)
 
 QPixmap & spg_core::SpgRenderer::GetRelevantPixmap(const ChartScaleInfo & scale_info)
 {
-	const HorVerLim<double> &base_bounds	= scale_info.val_info_.min_max_bounds_;
+	const HorVerLim<double> &base_bounds	= scale_info.val_info_.min_max_bounds;
 	const HorVerLim<double> &target_bounds	= scale_info.val_info_.cur_bounds;
 
 	if (IsModeSwitched(target_bounds) || data_update_timer_.elapsed() >= 500  ) {

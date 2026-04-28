@@ -2,9 +2,9 @@
 #include "DPX_defs.h"
 #include "qpixmap.h"
 #include <qimage.h>
-#include "GUI/Drawers/QimageZoomer.h"
-#include "GUI/basic tools/gui_helper.h"
-#include "GUI/basic tools/gui_conversions.h"
+#include "GUI/Tools/Chart drawers/QimageZoomer.h"
+#include "GUI/Tools/gui_helper.h"
+#include "GUI/Tools/gui_conversions.h"
 #include <qelapsedtimer.h>
 using namespace aqua_gui;
 namespace dpx_core
@@ -40,7 +40,7 @@ private:
 	
     QPixmap               cached_pixmap_;
     QimageZoomer          zoomer_;
-	QElapsedTimer		  data_update_timer_; 
+	QElapsedTimer		  image_update_timer_; 
 	double				  last_average_density_	{1.};
 	double				  last_max_density_		{1.};
 };

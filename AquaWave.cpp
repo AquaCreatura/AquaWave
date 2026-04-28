@@ -4,7 +4,7 @@
 
 #include "AquaWave.h"
 #include "special_defs/file_souce_defs.h"
-#include "Tools/qt_utility.h"
+#include "Utilities/qt_utility.h"
 AquaWave::AquaWave(QWidget *parent, const QString& file_path)
     : QMainWindow(parent)
 {

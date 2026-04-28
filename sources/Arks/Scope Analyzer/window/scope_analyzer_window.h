@@ -1,6 +1,6 @@
 #pragma once
 #include "ui_scope_analyzer_window.h"
-#include "Tools/qt_utility.h"
+#include "Utilities/qt_utility.h"
 #include <qdialog.h>
 #include <map>
 namespace scope_analyzer {

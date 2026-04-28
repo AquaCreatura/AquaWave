@@ -2,9 +2,9 @@
 #include "DPX_defs.h"
 #include "qpixmap.h"
 #include <qimage.h>
-#include "GUI/Drawers/QimageZoomer.h"
-#include "GUI/basic tools/gui_helper.h"
-#include "GUI/basic tools/gui_conversions.h"
+#include "GUI/Tools/Chart drawers/QimageZoomer.h"
+#include "GUI/Tools/gui_helper.h"
+#include "GUI/Tools/gui_conversions.h"
 namespace dpx_core
 {
 /**

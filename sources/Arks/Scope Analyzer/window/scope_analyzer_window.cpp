@@ -1,5 +1,5 @@
 #include "scope_analyzer_window.h"
-#include "Tools/parse_tools.h"
+#include "Utilities/parse_tools.h"
 #include "GUI/Charts/ChartInterface.h"
 using namespace scope_analyzer;
 ScopeAnalyzerWindow::ScopeAnalyzerWindow()

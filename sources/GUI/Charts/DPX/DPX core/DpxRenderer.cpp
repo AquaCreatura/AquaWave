@@ -14,13 +14,13 @@ dpx_core::DpxRenderer::DpxRenderer(dpx_data & init_val, const ChartScaleInfo& sc
     dpx_(init_val), scale_info_(scale_info)
 {
 	if (scale_info_.val_info_.domain_type == ChartDomainType::kAnalyzeDomain) zoomer_.EnableMaxPoolingMode(true);
-	data_update_timer_.start();
+	image_update_timer_.start();
 }
 QPixmap & dpx_core::DpxRenderer::GetRelevantPixmap()
 {
-	if (data_update_timer_.elapsed() >= 500) {
+	if (image_update_timer_.elapsed() >= 500) {
 		UpdateDpxRgbData();
-		data_update_timer_.restart();
+		image_update_timer_.restart();
 	}
 	
     const HV_Info<Limits<double>> &base_bounds   = scale_info_.val_info_.min_max_bounds;

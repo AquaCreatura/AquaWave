@@ -1,7 +1,7 @@
 #include "QimageZoomer.h"
 #include <algorithm> // For std::min and std::max
 #include <QDebug> // ƒл€ отладочных сообщений, можно удалить в релизе
-#include "GUI/basic tools/gui_conversions.h"
+#include "GUI/Tools/gui_conversions.h"
 using namespace aqua_gui;
 
 

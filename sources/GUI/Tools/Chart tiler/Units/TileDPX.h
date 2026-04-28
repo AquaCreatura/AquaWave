@@ -5,7 +5,7 @@ class TileDPX : public TileInterface
 
 
 
-public:
+private:
 	//(Актуально для DPX)
 	std::vector<size_t>	column_weight; //Вес каждой колонки 
 };

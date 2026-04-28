@@ -1,5 +1,5 @@
 #include "spectral_viewer_window.h"
-#include "Tools\parse_tools.h"
+#include "Utilities/parse_tools.h"
 SpectralViewerWindow::SpectralViewerWindow()
 {
     ui_.setupUi(this);

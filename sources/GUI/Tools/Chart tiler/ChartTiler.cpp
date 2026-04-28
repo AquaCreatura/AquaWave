@@ -4,7 +4,7 @@ ChartTiler::ChartTiler(const ChartScaleInfo & scale_info) : scale_info_(scale_in
 {
 }
 
-void ChartTiler::UpdateBaseBounds()
+void ChartTiler::UpdateTileBase()
 {
 	//Обновить данные базовый порог
 }
@@ -18,12 +18,12 @@ void ChartTiler::UpdateBaseBounds()
 			С определённым порогом (1.5) пересоздаём картинку ниже.
 			переносим наши данные в картинку ниже - relevant копируем соотвествующим образом. Будет прореженная картинка, но потом дозапрашиваем данные
 */
-void ChartTiler::UpdateViewBounds()
+void ChartTiler::UpdateTileView()
 {
 	const auto &view_bounds = scale_info_.val_info_.cur_bounds;
 	const auto &base_bounds = scale_info_.val_info_.min_max_bounds;
 	std::unique_ptr<TileInterface> &used_tile = need_use_base_tile_ ? base_tile_ : cur_tile_;
-	HorVerLim<double> cur_tile_bounds = used_tile->GetValBounds();
+	const auto& cur_tile_bounds = used_tile->GetValBounds();
 	const bool is_out_of_cur_tile = (view_bounds.hor.low < cur_tile_bounds.hor.low) || (view_bounds.hor.high > cur_tile_bounds.hor.high);
 
 	//Если в результате зумминга мы всё ещё находимся в пределах текущего тайла
@@ -60,8 +60,8 @@ void ChartTiler::UpdateViewBounds()
 
 	//Докидываем информацию из наших тайлов
 	if(!need_use_base_tile_)
-		buff_tile_->UpdateDataFromDataUnit(cur_tile_->GetDataUnit()); 
-	buff_tile_->UpdateDataFromDataUnit(base_tile_->GetDataUnit());
+		buff_tile_->UpdateFromTile(cur_tile_); 
+	buff_tile_->UpdateFromTile(base_tile_);
 
 	std::swap(buff_tile_, cur_tile_);
 	need_use_base_tile_ = false;
@@ -69,42 +69,60 @@ void ChartTiler::UpdateViewBounds()
 
 }
 
-void ChartTiler::UpdateDynamicQimage()
+void ChartTiler::UpdateImageFromTile()
 {
 	auto &used_tile = need_use_base_tile_ ? base_tile_ : cur_tile_;
-	auto &cur_unit = used_tile->GetDataUnit();
 	//Приводим к размеру 1 к 1
-	if (dyn_qim_.size != cur_unit.data_size)
+	if (dyn_qim_.size != used_tile->GetImageSize())
 	{
-		auto need_size = cur_unit.data_size;
+		auto need_size = used_tile->GetImageSize();
 		dyn_qim_.data.resize(need_size.hor * need_size.vert);
 		dyn_qim_.qimage = QImage((uint8_t*)dyn_qim_.data.data(), need_size.hor, need_size.vert, QImage::Format::Format_ARGB32);
 		dyn_qim_.size = need_size;
 		zoomer_.SetNewBase(&dyn_qim_.qimage);
 	}
-	if (cur_unit.is_data_updated)
+	if (used_tile->is_data_updated_) {
+		used_tile->is_data_updated_ = false; //Лучше лишний раз отобразить, чем пропустить данные
 		used_tile->UpdateQimage(dyn_qim_);
+		zoomer_.MarkForUpdate();
+	}
+}
+
+bool ChartTiler::NeedUpdateImage()
+{
+	std::unique_ptr<TileInterface> &used_tile = need_use_base_tile_ ? base_tile_ : cur_tile_;
+	const auto &view_bounds = scale_info_.val_info_.cur_bounds;
+	const auto &cur_tile_bounds = used_tile->GetValBounds();
+	const bool is_out_of_cur_tile = (view_bounds.hor.low < cur_tile_bounds.hor.low) || (view_bounds.hor.high > cur_tile_bounds.hor.high);
+	const bool need_update = (is_out_of_cur_tile);
+	return need_update;
 }
 
 void ChartTiler::SetData(const draw_data & data)
 {
 	cur_tile_->SetData(data);
-	base_tile_->SetData(data);
+	base_tile_->SetData(data); //Только если вне границ у 'cur'
 }
 
 void ChartTiler::Reset()
 {
+	cur_tile_->Reset();
+	base_tile_->Reset();
+	buff_tile_->Reset();
 }
 
 const QPixmap & ChartTiler::GetRelevantPixmap()
 {
-	//Обновляем сами тайлы
+	//Обновляем при необходимости сами тайлы
+	if(NeedUpdateImage() || (image_update_timer_.elapsed() > 500))
 	{
-		UpdateBaseBounds();
-		UpdateViewBounds();
-	}
+		UpdateTileBase();//Обновляем тайлы
+		UpdateTileView();
 
-	UpdateDynamicQimage(); //Обновляем динамический QImage (по необходимости)
+		UpdateImageFromTile(); //Обновляем нашу текущую картинку
+
+		image_update_timer_.restart(); //Перезапускаем таймер 
+	}
 
 	return zoomer_.GetPrecisedPart(	scale_info_.val_info_.min_max_bounds,	//Мин/Макс границы изображения 
 									scale_info_.val_info_.cur_bounds,		//Границы отображаемые

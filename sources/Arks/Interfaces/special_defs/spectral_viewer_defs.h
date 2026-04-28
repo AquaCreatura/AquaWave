@@ -2,8 +2,8 @@
 #include <ipps.h>
 #include <stdint.h>
 #include <qstring.h>
-#include "Arks\Interfaces\ark_interface.h"
-#include "GUI/Drawers/SelectionDrawer.h"
+#include "Arks/Interfaces/ark_interface.h"
+#include "GUI/Tools/Chart drawers//SelectionDrawer.h"
 using namespace utility_aqua;
 namespace spectral_viewer
 {

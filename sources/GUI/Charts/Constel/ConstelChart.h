@@ -1,7 +1,7 @@
 #pragma once
 #include <qwidget.h>
 #include "GUI/gui_defs.h"
-#include "GUI/Drawers/ImageBackGround.h"
+#include "GUI/Tools/Chart drawers//ImageBackGround.h"
 #include "Core/ConstelCore.h"
 #include <qtimer.h>
 using namespace aqua_gui;

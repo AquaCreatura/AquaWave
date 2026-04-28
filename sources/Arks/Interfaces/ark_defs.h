@@ -12,7 +12,7 @@
 #include <qdialog.h>
 #include <qpointer.h>
 #include "aqua_defines.h"
-#include "Tools/utility_aqua.h"
+#include "Utilities/utility_aqua.h"
 namespace fluctus
 {
     class ArkInterface;

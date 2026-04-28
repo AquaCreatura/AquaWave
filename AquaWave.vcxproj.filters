@@ -5,14 +5,8 @@
     <Filter Include="Application">
       <UniqueIdentifier>{4fc737f1-c7a5-4376-a066-2a32d752a2ff}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Tools">
-      <UniqueIdentifier>{f6a7b8c9-0d1e-2f3a-4b5c-6d7e8f9a0b1c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="GUI">
       <UniqueIdentifier>{3462638b-1003-4b82-9a88-c0dea3bcef09}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GUI\basic tools">
-      <UniqueIdentifier>{e5f6a7b8-9c0d-1e2f-3a4b-5c6d7e8f9a0b}</UniqueIdentifier>
     </Filter>
     <Filter Include="GUI\Charts">
       <UniqueIdentifier>{da289fca-4831-47b0-83e9-7bca5fcd9519}</UniqueIdentifier>
@@ -22,9 +16,6 @@
     </Filter>
     <Filter Include="GUI\Charts\DPX\DPX core">
       <UniqueIdentifier>{d4e5f6a7-8b9c-0d1e-2f3a-4b5c6d7e8f9a}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="GUI\Drawers">
-      <UniqueIdentifier>{33333333-3333-3333-3333-333333333333}</UniqueIdentifier>
     </Filter>
     <Filter Include="GUI\Charts\SPG">
       <UniqueIdentifier>{4b929b38-cf07-4ab7-ac5f-5b77484236e2}</UniqueIdentifier>
@@ -119,8 +110,20 @@
     <Filter Include="ARKS\Elements\Static SPG\requester">
       <UniqueIdentifier>{5e66df57-3a99-42dc-b439-4d7267d31dfa}</UniqueIdentifier>
     </Filter>
-    <Filter Include="GUI\basic tools\Tiler">
-      <UniqueIdentifier>{bdf9f006-9c87-459c-bacc-da953de6bee8}</UniqueIdentifier>
+    <Filter Include="GUI\Tools">
+      <UniqueIdentifier>{4db4573a-337c-402b-a450-b1eb0c914851}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI\Tools\Chart tiler">
+      <UniqueIdentifier>{da86a1e2-9682-4710-a2f4-24a7df55baea}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI\Tools\Chart tiler\Units">
+      <UniqueIdentifier>{c098b8db-ecfe-4864-9745-163925215201}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI\Tools\Chart drawers">
+      <UniqueIdentifier>{128a0924-f8af-4ce3-8bb8-35eac5585e38}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Utilities">
+      <UniqueIdentifier>{eab120ec-b203-42ef-bc9a-7e9fd2255896}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <!-- ClCompile (CPP Files) -->
@@ -146,9 +149,6 @@
     <ClCompile Include="sources\DSP Tools\Resampler\ResamplerMan.cpp">
       <Filter>DSP Tools\Resampler</Filter>
     </ClCompile>
-    <ClCompile Include="sources\GUI\basic tools\gui_conversions.cpp">
-      <Filter>GUI\basic tools</Filter>
-    </ClCompile>
     <ClCompile Include="sources\GUI\Charts\DPX\DPX core\DpxCore.cpp">
       <Filter>GUI\Charts\DPX\DPX core</Filter>
     </ClCompile>
@@ -161,23 +161,11 @@
     <ClCompile Include="sources\GUI\Charts\ChartInterface.cpp">
       <Filter>GUI\Charts</Filter>
     </ClCompile>
-    <ClCompile Include="sources\GUI\Drawers\AxisPainter.cpp">
-      <Filter>GUI\Drawers</Filter>
-    </ClCompile>
-    <ClCompile Include="sources\GUI\Drawers\ImageBackGround.cpp">
-      <Filter>GUI\Drawers</Filter>
-    </ClCompile>
     <ClCompile Include="sources\DSP Tools\FFT\FFT_Worker.cpp">
       <Filter>DSP Tools\FFT</Filter>
     </ClCompile>
-    <ClCompile Include="sources\GUI\Drawers\QimageZoomer.cpp">
-      <Filter>GUI\Drawers</Filter>
-    </ClCompile>
     <ClCompile Include="sources\GUI\Charts\DPX\DPX core\DpxScaler.cpp">
       <Filter>GUI\Charts\DPX\DPX core</Filter>
-    </ClCompile>
-    <ClCompile Include="sources\GUI\basic tools\PowerManager.cpp">
-      <Filter>GUI\basic tools</Filter>
     </ClCompile>
     <ClCompile Include="sources\GUI\Charts\SPG\SPG core\SpgCore.cpp">
       <Filter>GUI\Charts\SPG\SPG core</Filter>
@@ -190,12 +178,6 @@
     </ClCompile>
     <ClCompile Include="sources\GUI\Charts\SPG\SpgChart.cpp">
       <Filter>GUI\Charts\SPG</Filter>
-    </ClCompile>
-    <ClCompile Include="sources\GUI\basic tools\gui_helper.cpp">
-      <Filter>GUI\basic tools</Filter>
-    </ClCompile>
-    <ClCompile Include="sources\GUI\basic tools\gui_worker.cpp">
-      <Filter>GUI\basic tools</Filter>
     </ClCompile>
     <ClCompile Include="sources\Arks\File Source\FileSource.cpp">
       <Filter>ARKS\File Source</Filter>
@@ -227,9 +209,6 @@
     <ClCompile Include="sources\Arks\ShipBuilder.cpp">
       <Filter>ARKS</Filter>
     </ClCompile>
-    <ClCompile Include="sources\GUI\Drawers\SelectionDrawer.cpp">
-      <Filter>GUI\Drawers</Filter>
-    </ClCompile>
     <ClCompile Include="sources\Arks\Elements\DPX Spectrum\SpectrumDPX.cpp">
       <Filter>ARKS\Elements\DPX Spectrum</Filter>
     </ClCompile>
@@ -245,9 +224,6 @@
     <ClCompile Include="sources\DSP Tools\basic\acf_worker.cpp">
       <Filter>DSP Tools\basic</Filter>
     </ClCompile>
-    <ClCompile Include="sources\Tools\file_helpers.cpp">
-      <Filter>Tools</Filter>
-    </ClCompile>
     <ClCompile Include="sources\GUI\Charts\Constel\Core\ConstelCore.cpp">
       <Filter>GUI\Charts\Constel\core</Filter>
     </ClCompile>
@@ -260,23 +236,50 @@
     <ClCompile Include="sources\GUI\Charts\Constel\ConstelChart.cpp">
       <Filter>GUI\Charts\Constel</Filter>
     </ClCompile>
-    <ClCompile Include="sources\Tools\qt_utility.cpp">
-      <Filter>Tools</Filter>
-    </ClCompile>
     <ClCompile Include="sources\Arks\Elements\Static SPG\requester\SpgRequester.cpp">
       <Filter>ARKS\Elements\Static SPG\requester</Filter>
     </ClCompile>
-    <ClCompile Include="sources\GUI\basic tools\Tiler\ChartTiler.cpp">
-      <Filter>GUI\basic tools\Tiler</Filter>
+    <ClCompile Include="sources\GUI\Tools\gui_conversions.cpp">
+      <Filter>GUI\Tools</Filter>
     </ClCompile>
-    <ClCompile Include="sources\GUI\basic tools\Tiler\TileInterface.cpp">
-      <Filter>GUI\basic tools\Tiler</Filter>
+    <ClCompile Include="sources\GUI\Tools\gui_helper.cpp">
+      <Filter>GUI\Tools</Filter>
     </ClCompile>
-    <ClCompile Include="sources\GUI\basic tools\Tiler\TileDPX.cpp">
-      <Filter>GUI\basic tools\Tiler</Filter>
+    <ClCompile Include="sources\GUI\Tools\gui_worker.cpp">
+      <Filter>GUI\Tools</Filter>
     </ClCompile>
-    <ClCompile Include="sources\GUI\basic tools\Tiler\TileSPG.cpp">
-      <Filter>GUI\basic tools\Tiler</Filter>
+    <ClCompile Include="sources\GUI\Tools\PowerManager.cpp">
+      <Filter>GUI\Tools</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\GUI\Tools\Chart tiler\ChartTiler.cpp">
+      <Filter>GUI\Tools\Chart tiler</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\GUI\Tools\Chart tiler\Units\TileDPX.cpp">
+      <Filter>GUI\Tools\Chart tiler\Units</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\GUI\Tools\Chart tiler\Units\TileInterface.cpp">
+      <Filter>GUI\Tools\Chart tiler\Units</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\GUI\Tools\Chart tiler\Units\TileSPG.cpp">
+      <Filter>GUI\Tools\Chart tiler\Units</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\GUI\Tools\Chart drawers\AxisPainter.cpp">
+      <Filter>GUI\Tools\Chart drawers</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\GUI\Tools\Chart drawers\ImageBackGround.cpp">
+      <Filter>GUI\Tools\Chart drawers</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\GUI\Tools\Chart drawers\QimageZoomer.cpp">
+      <Filter>GUI\Tools\Chart drawers</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\GUI\Tools\Chart drawers\SelectionDrawer.cpp">
+      <Filter>GUI\Tools\Chart drawers</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\Utilities\file_helpers.cpp">
+      <Filter>Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\Utilities\qt_utility.cpp">
+      <Filter>Utilities</Filter>
     </ClCompile>
   </ItemGroup>
   <!-- ClInclude (H Files) -->
@@ -302,9 +305,6 @@
     <ClInclude Include="sources\DSP Tools\Resampler\ResamplerMan.h">
       <Filter>DSP Tools\Resampler</Filter>
     </ClInclude>
-    <ClInclude Include="sources\GUI\basic tools\gui_conversions.h">
-      <Filter>GUI\basic tools</Filter>
-    </ClInclude>
     <ClInclude Include="sources\GUI\Charts\DPX\DPX core\DPX_defs.h">
       <Filter>GUI\Charts\DPX\DPX core</Filter>
     </ClInclude>
@@ -317,33 +317,15 @@
     <ClInclude Include="sources\GUI\Charts\DPX\DpxChart.h">
       <Filter>GUI\Charts\DPX</Filter>
     </ClInclude>
-    <ClInclude Include="sources\GUI\Drawers\AxisPainter.h">
-      <Filter>GUI\Drawers</Filter>
-    </ClInclude>
-    <ClInclude Include="sources\GUI\Drawers\ImageBackGround.h">
-      <Filter>GUI\Drawers</Filter>
-    </ClInclude>
     <ClInclude Include="sources\DSP Tools\FFT\FFT_Worker.h">
       <Filter>DSP Tools\FFT</Filter>
-    </ClInclude>
-    <ClInclude Include="sources\GUI\Drawers\QimageZoomer.h">
-      <Filter>GUI\Drawers</Filter>
     </ClInclude>
     <ClInclude Include="sources\GUI\gui_defs.h">
       <Filter>GUI</Filter>
     </ClInclude>
-    <ClInclude Include="sources\Tools\parse_tools.h">
-      <Filter>Tools</Filter>
-    </ClInclude>
     <ClInclude Include="sources\aqua_defines.h" />
-    <ClInclude Include="sources\Tools\utility_aqua.h">
-      <Filter>Tools</Filter>
-    </ClInclude>
     <ClInclude Include="sources\GUI\Charts\DPX\DPX core\DpxScaler.h">
       <Filter>GUI\Charts\DPX\DPX core</Filter>
-    </ClInclude>
-    <ClInclude Include="sources\GUI\basic tools\PowerManager.h">
-      <Filter>GUI\basic tools</Filter>
     </ClInclude>
     <ClInclude Include="sources\GUI\Charts\SPG\SPG core\spg_defs.h">
       <Filter>GUI\Charts\SPG\SPG core</Filter>
@@ -353,12 +335,6 @@
     </ClInclude>
     <ClInclude Include="sources\GUI\Charts\SPG\SPG core\SpgScaler.h">
       <Filter>GUI\Charts\SPG\SPG core</Filter>
-    </ClInclude>
-    <ClInclude Include="sources\GUI\basic tools\gui_helper.h">
-      <Filter>GUI\basic tools</Filter>
-    </ClInclude>
-    <ClInclude Include="sources\GUI\basic tools\gui_worker.h">
-      <Filter>GUI\basic tools</Filter>
     </ClInclude>
     <ClInclude Include="sources\Arks\File Source\FileSource.h">
       <Filter>ARKS\File Source</Filter>
@@ -377,9 +353,6 @@
     </ClInclude>
     <ClInclude Include="sources\Arks\ShipBuilder.h">
       <Filter>ARKS</Filter>
-    </ClInclude>
-    <ClInclude Include="sources\GUI\Drawers\SelectionDrawer.h">
-      <Filter>GUI\Drawers</Filter>
     </ClInclude>
     <ClInclude Include="sources\Arks\Interfaces\special_defs\analyzer_defs.h">
       <Filter>ARKS\Interfaces\special_defs</Filter>
@@ -402,9 +375,6 @@
     <ClInclude Include="sources\DSP Tools\basic\acf_worker.h">
       <Filter>DSP Tools\basic</Filter>
     </ClInclude>
-    <ClInclude Include="sources\Tools\file_helpers.h">
-      <Filter>Tools</Filter>
-    </ClInclude>
     <ClInclude Include="sources\GUI\Charts\Constel\Core\constel_defs.h">
       <Filter>GUI\Charts\Constel\core</Filter>
     </ClInclude>
@@ -417,23 +387,59 @@
     <ClInclude Include="sources\Arks\Elements\Constellation\Constellation.h">
       <Filter>ARKS\Elements\Constellation</Filter>
     </ClInclude>
-    <ClInclude Include="sources\Tools\aqua_obj_queue.h">
-      <Filter>Tools</Filter>
+    <ClInclude Include="sources\GUI\Tools\gui_conversions.h">
+      <Filter>GUI\Tools</Filter>
     </ClInclude>
-    <ClInclude Include="sources\Tools\aqua_array_queue.h">
-      <Filter>Tools</Filter>
+    <ClInclude Include="sources\GUI\Tools\gui_helper.h">
+      <Filter>GUI\Tools</Filter>
     </ClInclude>
-    <ClInclude Include="sources\GUI\basic tools\Tiler\ChartTiler.h">
-      <Filter>GUI\basic tools\Tiler</Filter>
+    <ClInclude Include="sources\GUI\Tools\gui_worker.h">
+      <Filter>GUI\Tools</Filter>
     </ClInclude>
-    <ClInclude Include="sources\GUI\basic tools\Tiler\TileInterface.h">
-      <Filter>GUI\basic tools\Tiler</Filter>
+    <ClInclude Include="sources\GUI\Tools\PowerManager.h">
+      <Filter>GUI\Tools</Filter>
     </ClInclude>
-    <ClInclude Include="sources\GUI\basic tools\Tiler\TileDPX.h">
-      <Filter>GUI\basic tools\Tiler</Filter>
+    <ClInclude Include="sources\GUI\Tools\Chart tiler\ChartTiler.h">
+      <Filter>GUI\Tools\Chart tiler</Filter>
     </ClInclude>
-    <ClInclude Include="sources\GUI\basic tools\Tiler\TileSPG.h">
-      <Filter>GUI\basic tools\Tiler</Filter>
+    <ClInclude Include="sources\GUI\Tools\Chart tiler\Units\TileDPX.h">
+      <Filter>GUI\Tools\Chart tiler\Units</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\GUI\Tools\Chart tiler\Units\TileInterface.h">
+      <Filter>GUI\Tools\Chart tiler\Units</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\GUI\Tools\Chart tiler\Units\TileSPG.h">
+      <Filter>GUI\Tools\Chart tiler\Units</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\GUI\Tools\Chart drawers\AxisPainter.h">
+      <Filter>GUI\Tools\Chart drawers</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\GUI\Tools\Chart drawers\ImageBackGround.h">
+      <Filter>GUI\Tools\Chart drawers</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\GUI\Tools\Chart drawers\QimageZoomer.h">
+      <Filter>GUI\Tools\Chart drawers</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\GUI\Tools\Chart drawers\SelectionDrawer.h">
+      <Filter>GUI\Tools\Chart drawers</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\Utilities\aqua_array_queue.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\Utilities\aqua_obj_queue.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\Utilities\file_helpers.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\Utilities\parse_tools.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\Utilities\qt_utility.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\Utilities\utility_aqua.h">
+      <Filter>Utilities</Filter>
     </ClInclude>
   </ItemGroup>
   <!-- QtMoc (For Headers Requiring Moc) -->
@@ -473,9 +479,6 @@
     </QtMoc>
     <QtMoc Include="sources\GUI\Charts\Constel\ConstelChart.h">
       <Filter>GUI\Charts\Constel</Filter>
-    </QtMoc>
-    <QtMoc Include="sources\Tools\qt_utility.h">
-      <Filter>Tools</Filter>
     </QtMoc>
     <QtMoc Include="sources\Arks\Elements\Static SPG\requester\SpgRequester.h">
       <Filter>ARKS\Elements\Static SPG\requester</Filter>

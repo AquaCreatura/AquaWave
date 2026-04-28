@@ -4,10 +4,10 @@
 #include <qgraphicsview.h>
 #include <qevent.h>
 
-#include "GUI/Drawers/AxisPainter.h"
-#include "GUI/Drawers/ImageBackGround.h"
-#include "GUI/basic tools/PowerManager.h"
-#include "GUI/Drawers/SelectionDrawer.h"
+#include "GUI/Tools/Chart drawers/AxisPainter.h"
+#include "GUI/Tools/Chart drawers//ImageBackGround.h"
+#include "GUI/Tools/PowerManager.h"
+#include "GUI/Tools/Chart drawers//SelectionDrawer.h"
 #include <qlayout.h>
 using namespace aqua_gui;
 class ChartInterface : public QWidget

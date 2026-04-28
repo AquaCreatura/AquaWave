@@ -4,7 +4,7 @@ using namespace spg_core;
 
 spg_core::SpgRenderer::SpgRenderer(spg_data & init_val): spg_(init_val)
 {
-	data_update_timer_.start();
+	image_update_timer_.start();
 }
 
 QPixmap & spg_core::SpgRenderer::GetRelevantPixmap(const ChartScaleInfo & scale_info)
@@ -12,9 +12,9 @@ QPixmap & spg_core::SpgRenderer::GetRelevantPixmap(const ChartScaleInfo & scale_
 	const HorVerLim<double> &base_bounds	= scale_info.val_info_.min_max_bounds;
 	const HorVerLim<double> &target_bounds	= scale_info.val_info_.cur_bounds;
 
-	if (IsModeSwitched(target_bounds) || data_update_timer_.elapsed() >= 500  ) {
+	if (IsModeSwitched(target_bounds) || image_update_timer_.elapsed() >= 500  ) {
 		UpdateSpectrogramData();
-		data_update_timer_.restart();
+		image_update_timer_.restart();
 	}
     return zoomer_.GetPrecisedPart(last_val_bounds_, target_bounds, scale_info.pix_info_.chart_size_px);
 }

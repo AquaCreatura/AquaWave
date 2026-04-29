@@ -21,7 +21,7 @@ public:
 public:
 	std::atomic_bool	is_data_updated_;
 	tbb::spin_mutex		mutex_;
-private:
+protected:
 	HorVerLim<double>	val_bounds_;
 	HV_Info<size_t>		image_size_;
 	std::vector<bool>	relevant_vec;	// Актуальна ли колонка

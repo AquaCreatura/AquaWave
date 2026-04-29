@@ -1,8 +1,15 @@
 #include "ChartTiler.h"
-
+#include "Units/TileDPX.h"
+#include "Units/TileSPG.h"
 ChartTiler::ChartTiler(const ChartScaleInfo & scale_info) : scale_info_(scale_info)
 {
-	tiles_.resize(count_of_tiles_);	
+	const bool is_spg = (scale_info_.val_info_.domain_type == aqua_gui::ChartDomainType::kTimeFrequency);	
+	for (int i = 0; i < count_of_tiles_; i++) {
+		if (is_spg)
+			tiles_.push_back(std::make_unique<TileSPG>());
+		else
+			tiles_.push_back(std::make_unique<TileDPX>());
+	}
 }
 
 void ChartTiler::UpdateTileBase()

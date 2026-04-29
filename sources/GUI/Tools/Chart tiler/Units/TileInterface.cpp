@@ -23,7 +23,5 @@ HorVerLim<double> TileInterface::GetValBounds()
 	return val_bounds_;
 }
 
-void TileInterface::SetData(const draw_data & data)
-{
-}
+
 

@@ -140,7 +140,7 @@ bool SpectralViewer::Reload()
 		req_dove->target_ark = shared_from_this();
 		req_dove->time_bounds = { 0., 1. };
 		req_dove->setup.emplace();
-		req_dove->setup->chunk_size = n_fft_;
+		req_dove->setup->chunk_size = std::max(16i64, n_fft_.load());
 		req_dove->setup->carrier_hz = src_info_.descr.carrier_hz;
 		req_dove->setup->banwidth_hz = src_info_.descr.samplerate_hz * src_info_.descr.bw_ratio_;
 		req_dove->setup->samplerate_hz = src_info_.descr.samplerate_hz;

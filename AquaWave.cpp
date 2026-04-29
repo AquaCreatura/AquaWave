@@ -8,8 +8,22 @@
 AquaWave::AquaWave(QWidget *parent, const QString& file_path)
     : QMainWindow(parent)
 {
+
+
+
+
 	//(QString&)file_path = "D:\\signals\\17.10.2025 16_41_59 1875.300000MHz 12800.000KHz.pcm";
     ui.setupUi(this); 
+
+	//default_theme
+	//red_scheme
+	QFile file(":/AquaWave/sources/GUI/CSS_Themes/red_scheme.qss");
+	if (file.open(QFile::ReadOnly)) {
+		QString style = file.readAll();
+		setStyleSheet(style);
+	}
+
+
 	file_src_				= ship_builder_.BuildNewShip(fluctus::kFileSource, this);
 	spectral_viewer_	= ship_builder_.BuildNewShip(fluctus::kSpectralViewer);
 	scope_analyser_		= ship_builder_.BuildNewShip(fluctus::kScopeAnalyser);
@@ -18,11 +32,16 @@ AquaWave::AquaWave(QWidget *parent, const QString& file_path)
 	ShipBuilder::Bind_SrcSink(file_src_, scope_analyser_);
 	ShipBuilder::Bind_SrcSink(spectral_viewer_, scope_analyser_);
 
-	
+	{
+		auto file_window = ShipBuilder::GetWindow(file_src_);
+		qApp->setStyleSheet(styleSheet());
+		//file_window->setStyleSheet(styleSheet());
+	}
+
 	connect(ui.new_file_menu_action, &QAction::triggered, [this]()
 	{
 		auto file_window = ShipBuilder::GetWindow(file_src_);
-		file_window->setStyleSheet(styleSheet());
+		//file_window->setStyleSheet(styleSheet());
 		file_window->show();
 	});
 
@@ -51,13 +70,7 @@ AquaWave::AquaWave(QWidget *parent, const QString& file_path)
 	//this->ui.main_stacked->setCurrentWidget(ShipBuilder::GetWindow(spectral_viewer_));
 
 
-	//default_theme
-	//red_scheme
-	QFile file(":/AquaWave/sources/GUI/CSS_Themes/red_scheme.qss"); 
-	if (file.open(QFile::ReadOnly)) {
-		QString style = file.readAll();
-		setStyleSheet(style);
-	}
+
 
 
 	QIcon analyzeIcon = buildButtonIcon(

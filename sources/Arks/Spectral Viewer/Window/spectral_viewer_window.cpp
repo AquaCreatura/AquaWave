@@ -44,8 +44,13 @@ void SpectralViewerWindow::UpdateFFtCombobox(const int max_order, const int cur_
 		int target_fft = cur_fft_order;
 		int index = ui_.fft_combobox->findData(target_fft);
 		if (index != -1) {
-			ui_.fft_combobox->setCurrentIndex(index);  // גûחמגוע emit currentIndexChanged
+			{
+				QSignalBlocker blocker(ui_.fft_combobox);
+				ui_.fft_combobox->setCurrentIndex(index);  // גûחמגוע emit currentIndexChanged
+			}
+			emit ui_.fft_combobox->currentIndexChanged(index);
 		}
+		
 	}
 		
 

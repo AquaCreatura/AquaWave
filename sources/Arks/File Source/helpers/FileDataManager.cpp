@@ -215,7 +215,7 @@ void file_source::FileDataListener::ReadChunksInRangeProcess(const Limits<double
 void file_source::FileDataListener::LoopReadInRangeProcess(const Limits<double>& time_bounds)
 {
 	// Проверка на пустой диапазон
-	if (time_bounds.delta() <= 0)
+	if (time_bounds.delta() <= 0 || (block_size_ < 0))
 	{
 		state_ = kProcessStopped;
 		return;
@@ -322,7 +322,7 @@ void file_source::FileDataListener::LoopReadInRangeProcess(const Limits<double>&
 void file_source::FileDataListener::ReadAroundProcess(double pos_ratio, const int64_t chunk_size)
 {
 
-    if(!file_reader_.SetFileParams(file_params_))  // Настройка файлового читателя
+    if(!file_reader_.SetFileParams(file_params_) || (chunk_size <= 0))  // Настройка файлового читателя
     {
 		state_ = kProcessStopped;  // Ошибка чтения
         return;
@@ -364,6 +364,8 @@ void file_source::FileDataListener::LoopReadPointsProcess()
 	while (state_ != kNeedStop)
 	{
 		chunk_size = block_size_;
+		if (chunk_size < 0)
+			break;
 		double pos_ratio = 0.;
 		// Чтение данных вокруг позиции
 		if (!file_reader_.GetDataAround(pos_ratio, chunk_size, data_info_.data_vec) ||

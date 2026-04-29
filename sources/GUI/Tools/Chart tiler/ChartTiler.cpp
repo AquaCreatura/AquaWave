@@ -2,6 +2,7 @@
 
 ChartTiler::ChartTiler(const ChartScaleInfo & scale_info) : scale_info_(scale_info)
 {
+	tiles_.resize(count_of_tiles_);	
 }
 
 void ChartTiler::UpdateTileBase()
@@ -22,56 +23,66 @@ void ChartTiler::UpdateTileView()
 {
 	const auto &view_bounds = scale_info_.val_info_.cur_bounds;
 	const auto &base_bounds = scale_info_.val_info_.min_max_bounds;
-	std::unique_ptr<TileInterface> &used_tile = need_use_base_tile_ ? base_tile_ : cur_tile_;
-	const auto& cur_tile_bounds = used_tile->GetValBounds();
-	const bool is_out_of_cur_tile = (view_bounds.hor.low < cur_tile_bounds.hor.low) || (view_bounds.hor.high > cur_tile_bounds.hor.high);
-
-	//Если в результате зумминга мы всё ещё находимся в пределах текущего тайла
-	if (!is_out_of_cur_tile) {
-		HV_Info<double> view_ratio = { view_bounds.hor.delta() / cur_tile_bounds.hor.delta(),
-										view_bounds.vert.delta() / cur_tile_bounds.vert.delta() };
-		if (view_ratio.hor < zoom_step_sqrt_*zoom_step_sqrt_ && view_ratio.vert < zoom_step_sqrt_*zoom_step_sqrt_) {
-			return;
-		}
-	} 
-
 	
-	auto calculate_new_bounds = [&](const Limits<double>& passed, const Limits<double>& base) -> Limits<double> {
-		const double supposed_side_delta = passed.delta() * (zoom_step_sqrt_ - 1) / 2; //На сколько должно увеличиться с каждой стороны
-		Limits<double> new_bounds = { std::max((passed.mid() - supposed_side_delta), base.low),
-										std::min((passed.mid() + supposed_side_delta), base.high) };
-		return new_bounds;
-	};
-	//Определяем границы нового тайла
-	HorVerLim<double> new_bounds = { calculate_new_bounds(view_bounds.hor, base_bounds.hor),
-										calculate_new_bounds(view_bounds.vert, base_bounds.vert) };
+	//Факт того, что диапазон попадаетв тайл
+	auto is_tile_appopiate = [&](TileInterface::uptr& possible_tile) {
+		const auto& cur_tile_bounds = possible_tile->GetValBounds();
+		const bool is_out_of_cur_tile = (view_bounds.hor.low < cur_tile_bounds.hor.low) || (view_bounds.hor.high > cur_tile_bounds.hor.high);
 
-	//Если отзумились к базовым границам
-	if (new_bounds == base_bounds) {
-		need_use_base_tile_ = true;
+		//Если в результате зумминга мы всё ещё находимся в пределах текущего тайла
+		if (!is_out_of_cur_tile) {
+			HV_Info<double> view_ratio = { view_bounds.hor.delta() / cur_tile_bounds.hor.delta(),
+				view_bounds.vert.delta() / cur_tile_bounds.vert.delta() };
+			if (view_ratio.hor < zoom_step_sqrt_*zoom_step_sqrt_ && view_ratio.vert < zoom_step_sqrt_*zoom_step_sqrt_) {
+				return true;
+			}
+		}
+		return false;
+	};
+	if (is_tile_appopiate(tiles_[tile_id_])) //Если текущий тайл подходит - выходим! (лучший вариант)
 		return;
+
+	//Ищем тайл среди имеющихся, в который попадает запрашиваемый дипазон
+	int new_tile_id = -1;
+	for (int tile_counter = 0; tile_counter < count_of_tiles_; tile_counter++) {
+		//Не, ну а смысл проверять текущий тайл второй раз?)
+		if ((tile_counter != tile_id_) && is_tile_appopiate(tiles_[tile_id_])) {
+			new_tile_id = tile_counter;
+			break;
+		}
 	}
 
+	//Если нет подходящего тайла - создаём его...
+	if (new_tile_id == -1) {
+		auto calculate_new_bounds = [&](const Limits<double>& passed, const Limits<double>& base) -> Limits<double> {
+			const double supposed_side_delta = passed.delta() * (zoom_step_sqrt_ - 1) / 2; //На сколько должно увеличиться с каждой стороны
+			Limits<double> new_bounds = { std::max((passed.mid() - supposed_side_delta), base.low),
+				std::min((passed.mid() + supposed_side_delta), base.high) };
+			return new_bounds;
+		};
+		//Определяем границы нового тайла
+		HorVerLim<double> new_bounds = { calculate_new_bounds(view_bounds.hor, base_bounds.hor),
+											calculate_new_bounds(view_bounds.vert, base_bounds.vert) };
 
-
-	//Определяем тайл
-	buff_tile_->SetValBounds(new_bounds);
-	buff_tile_->Reset();
-
-	//Докидываем информацию из наших тайлов
-	if(!need_use_base_tile_)
-		buff_tile_->UpdateFromTile(cur_tile_); 
-	buff_tile_->UpdateFromTile(base_tile_);
-
-	std::swap(buff_tile_, cur_tile_);
-	need_use_base_tile_ = false;
-
-
+		if (new_bounds == base_bounds) { // Нулевой тайл у нас под базу
+			new_tile_id = 0;
+		}
+		else {
+			new_tile_id = 1 + (tile_id_) % (count_of_tiles_ - 1); //Выделяем элемент не под базу
+			tiles_[new_tile_id]->SetValBounds(new_bounds);
+		}
+	}
+	auto &new_use_tile = tiles_[new_tile_id];
+	for (int tile_counter = count_of_tiles_ - 1; tile_counter >= 0; tile_counter--) {
+		if (tile_counter == new_tile_id) continue;
+		new_use_tile->UpdateFromTile(tiles_[tile_counter]);
+	}
+	tile_id_ = new_tile_id;
 }
 
 void ChartTiler::UpdateImageFromTile()
 {
-	auto &used_tile = need_use_base_tile_ ? base_tile_ : cur_tile_;
+	auto &used_tile = tiles_[tile_id_];
 	//Приводим к размеру 1 к 1
 	if (dyn_qim_.size != used_tile->GetImageSize())
 	{
@@ -90,7 +101,7 @@ void ChartTiler::UpdateImageFromTile()
 
 bool ChartTiler::NeedUpdateImage()
 {
-	std::unique_ptr<TileInterface> &used_tile = need_use_base_tile_ ? base_tile_ : cur_tile_;
+	auto &used_tile = tiles_[tile_id_];
 	const auto &view_bounds = scale_info_.val_info_.cur_bounds;
 	const auto &cur_tile_bounds = used_tile->GetValBounds();
 	const bool is_out_of_cur_tile = (view_bounds.hor.low < cur_tile_bounds.hor.low) || (view_bounds.hor.high > cur_tile_bounds.hor.high);
@@ -98,17 +109,19 @@ bool ChartTiler::NeedUpdateImage()
 	return need_update;
 }
 
+
+
 void ChartTiler::SetData(const draw_data & data)
 {
-	cur_tile_->SetData(data);
-	base_tile_->SetData(data); //Только если вне границ у 'cur'
+	for (auto &it : tiles_) {
+		it->SetData(data);
+	}
 }
 
 void ChartTiler::Reset()
 {
-	cur_tile_->Reset();
-	base_tile_->Reset();
-	buff_tile_->Reset();
+	for (auto &it : tiles_)
+		it->Reset();
 }
 
 const QPixmap & ChartTiler::GetRelevantPixmap()
@@ -118,9 +131,7 @@ const QPixmap & ChartTiler::GetRelevantPixmap()
 	{
 		UpdateTileBase();//Обновляем тайлы
 		UpdateTileView();
-
 		UpdateImageFromTile(); //Обновляем нашу текущую картинку
-
 		image_update_timer_.restart(); //Перезапускаем таймер 
 	}
 

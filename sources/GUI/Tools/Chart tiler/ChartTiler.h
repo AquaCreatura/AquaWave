@@ -17,10 +17,10 @@ protected:
 	void			UpdateImageFromTile ();
 	bool			NeedUpdateImage		();
 protected:
-	std::unique_ptr<TileInterface>	cur_tile_;
-	std::unique_ptr<TileInterface>	buff_tile_;
-	std::unique_ptr<TileInterface>	base_tile_;
-	bool							need_use_base_tile_{ false };
+	int								 count_of_tiles_;
+	std::vector<TileInterface::uptr> tiles_;
+	std::atomic<int>				 tile_id_;
+	
 	const ChartScaleInfo&			scale_info_;
 	dynamic_qimage					dyn_qim_; //Структура для работы с QImage в качестве обёртки
 	QimageZoomer					zoomer_;

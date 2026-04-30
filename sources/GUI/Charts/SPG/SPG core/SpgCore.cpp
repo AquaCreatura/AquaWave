@@ -58,7 +58,7 @@ bool spg_core::SpgCore::AccumulateNewData(const std::vector<float>& passed_data,
 			size_t(std::llround(ratio_vert_bounds.low  * (passed_data.size() - 1))),
 			size_t(std::llround(ratio_vert_bounds.high * (passed_data.size() - 1)))
 		};
-		SetDataToColumn(passed_data, row_id_bounds, column_index, data_holder);
+		SetDataToRow(passed_data, row_id_bounds, column_index, data_holder);
 		return true;
 	};
 	SetRatioToMatrix(spg_.base_data	   );
@@ -76,7 +76,7 @@ spg_core::spg_data const & spg_core::SpgCore::GetSpectrogramInfo() const
     return spg_;
 }
 
-void spg_core::SpgCore::SetDataToColumn(const std::vector<float>& passed_data, Limits<size_t> row_id, size_t column_idx, spg_holder& passed_holder)
+void spg_core::SpgCore::SetDataToRow(const std::vector<float>& passed_data, Limits<size_t> row_id, size_t column_idx, spg_holder& passed_holder)
 {
 	if (passed_holder.relevant_vec[column_idx]) return; //if allready is relevant - do nothing
 	const auto height = passed_holder.size.vert;

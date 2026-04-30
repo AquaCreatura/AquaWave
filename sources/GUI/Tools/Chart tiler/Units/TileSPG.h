@@ -5,7 +5,9 @@ class TileSPG : public TileInterface
 	virtual void			SetData(const draw_data& data);
 	virtual void			UpdateFromTile(const TileInterface::uptr& passed_data); 	// + Update From current?...
 	virtual void			UpdateQimage(dynamic_qimage& dyn_qimage);
+protected:
+	void					SetDataToRow(const float* passed_data, int data_size, const size_t row_idx, const double time_pos, const Limits<size_t> start_end_idx );
 private:
-	//(Актуально для SPG) - SPG было бы хорошо перевести транспарентный вид, но пока что так....
-	std::vector<double> pos_vec;		// Вектор реальных позиций колонок
+	std::vector<double> pos_vec; // Вектор реальных позиций колонок
 };
+

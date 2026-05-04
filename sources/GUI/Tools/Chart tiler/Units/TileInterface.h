@@ -24,7 +24,7 @@ public:
 protected:
 	HorVerLim<double>	val_bounds_;
 	HV_Info<size_t>		image_size_;
-	std::vector<bool>	relevant_vec;	// Актуальна ли колонка
+	std::vector<bool>	relevant_vec_;	// Актуальна ли колонка
 	std::vector<int>	data_;			//наша карта плотностей
 
 

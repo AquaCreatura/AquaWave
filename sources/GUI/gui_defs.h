@@ -79,6 +79,7 @@ struct ChartScaleInfo
     };
     PixelScale pix_info_;
     ValueScale val_info_;
+	Limits<double> power_bounds_;
 };
 /*
 Когда qimage выступает в роли обёртки

@@ -1,5 +1,6 @@
 #include "TileDPX.h"
 #include "GUI/Tools/gui_helper.h"
+#include "GUI/Tools/gui_conversions.h"
 void TileDPX::SetData(const draw_data & passed_info)
 {
 	auto &draw_vec = passed_info.data;
@@ -7,12 +8,12 @@ void TileDPX::SetData(const draw_data & passed_info)
 		return;
 	
 	tbb::spin_mutex::scoped_lock scoped_locker(mutex_);
-	if (image_size_.hor == 0) {
+	if (data_size_.hor == 0) {
 		return;
 	}
 	is_data_updated_ = true;
 	
-	const double samples_per_pixel = double(draw_vec.size()) / image_size_.hor;
+	const double samples_per_pixel = double(draw_vec.size()) / data_size_.hor;
 	if (samples_per_pixel < 1.) {
 		return DrawInterpolated(draw_vec, passed_info.freq_bounds);
 	}
@@ -26,9 +27,51 @@ void TileDPX::UpdateFromTile(const TileInterface::uptr & passed_data)
 {
 }
 
-void TileDPX::UpdateQimage(dynamic_qimage & dyn_qimage)
+void TileDPX::UpdateQimage(dynamic_qimage& dyn_qimage, const Limits<double>&)
 {
+    double max_density = 0.0;
+    double sum_density = 0.0;
+    int64_t count = 0;
+
+    tbb::spin_mutex::scoped_lock lock(mutex_);
+
+    const int h = data_size_.vert;
+    const int w = data_size_.hor;
+
+    argb_t* rgb = dyn_qimage.data.data();
+
+    for (int y = 0; y < h; ++y)
+    {
+        const int row = (h - 1 - y) * w;
+        const int64_t* dpx = &data_[row];
+        const size_t* weights = column_weight.data();
+
+        for (int x = 0; x < w; ++x)
+        {
+            const double density = weights[x] ? dpx[x] / weights[x] : 0.0;
+
+            *rgb++ = GetNormColor(density);
+
+            if (density > 0.0)
+            {
+                max_density = std::max(max_density, density);
+                sum_density += density;
+                ++count;
+            }
+        }
+    }
+
+    const double avg = count ? sum_density / count : 0.0;
+
+    if (avg != last_average_density_)
+    {
+        last_average_density_ = avg;
+        is_data_updated_ = true;
+    }
+
+    last_max_density_ = max_density;
 }
+
 
 void TileDPX::DrawOnlyPoints(const std::vector<float>& data, const Limits<double>& x_limits)
 {
@@ -37,8 +80,8 @@ void TileDPX::DrawOnlyPoints(const std::vector<float>& data, const Limits<double
 	const double x_in_max = x_limits.high;
 
 	// Размер сетки (в пикселях)
-	const size_t width = static_cast<size_t>(image_size_.hor);
-	const size_t height = static_cast<size_t>(image_size_.vert);
+	const size_t width = static_cast<size_t>(data_size_.hor);
+	const size_t height = static_cast<size_t>(data_size_.vert);
 
 	// Границы данных по X
 	auto& x_val_bounds = val_bounds_.hor;
@@ -112,8 +155,8 @@ void TileDPX::DrawInterpolated(const std::vector<float>& vals, const Limits<doub
 	const auto& y_lim_dpx = val_bounds_.vert;
 
 	// Размер сетки
-	const int64_t w = static_cast<int64_t>(image_size_.hor);
-	const int64_t h = static_cast<int64_t>(image_size_.vert);
+	const int64_t w = static_cast<int64_t>(data_size_.hor);
+	const int64_t h = static_cast<int64_t>(data_size_.vert);
 
 	// Параметры сетки по X
 	const double x0_dpx = x_lim_dpx.low;
@@ -171,4 +214,10 @@ void TileDPX::DrawInterpolated(const std::vector<float>& vals, const Limits<doub
 			
 		}
 	}
+}
+
+argb_t TileDPX::GetNormColor(const double relative_density) const
+{
+	const double normalized_density = qBound(0.0, relative_density / (last_average_density_ * 3), 1.0);
+	return LUT_HSV_Instance::DensityToRGB(normalized_density);
 }

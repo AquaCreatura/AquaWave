@@ -101,7 +101,7 @@ void ChartTiler::UpdateImageFromTile()
 	}
 	if (used_tile->is_data_updated_) {
 		used_tile->is_data_updated_ = false; //Лучше лишний раз отобразить, чем пропустить данные
-		used_tile->UpdateQimage(dyn_qim_);
+		used_tile->UpdateQimage(dyn_qim_, scale_info_.power_bounds_);
 		zoomer_.MarkForUpdate();
 	}
 }

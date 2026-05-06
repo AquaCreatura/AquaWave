@@ -149,12 +149,6 @@
     <ClCompile Include="sources\DSP Tools\Resampler\ResamplerMan.cpp">
       <Filter>DSP Tools\Resampler</Filter>
     </ClCompile>
-    <ClCompile Include="sources\GUI\Charts\DPX\DPX core\DpxCore.cpp">
-      <Filter>GUI\Charts\DPX\DPX core</Filter>
-    </ClCompile>
-    <ClCompile Include="sources\GUI\Charts\DPX\DPX core\DpxRenderer.cpp">
-      <Filter>GUI\Charts\DPX\DPX core</Filter>
-    </ClCompile>
     <ClCompile Include="sources\GUI\Charts\DPX\DpxChart.cpp">
       <Filter>GUI\Charts\DPX</Filter>
     </ClCompile>
@@ -308,12 +302,6 @@
     <ClInclude Include="sources\GUI\Charts\DPX\DPX core\DPX_defs.h">
       <Filter>GUI\Charts\DPX\DPX core</Filter>
     </ClInclude>
-    <ClInclude Include="sources\GUI\Charts\DPX\DPX core\DpxCore.h">
-      <Filter>GUI\Charts\DPX\DPX core</Filter>
-    </ClInclude>
-    <ClInclude Include="sources\GUI\Charts\DPX\DPX core\DpxRenderer.h">
-      <Filter>GUI\Charts\DPX\DPX core</Filter>
-    </ClInclude>
     <ClInclude Include="sources\GUI\Charts\DPX\DpxChart.h">
       <Filter>GUI\Charts\DPX</Filter>
     </ClInclude>
@@ -435,9 +423,6 @@
     <ClInclude Include="sources\Utilities\parse_tools.h">
       <Filter>Utilities</Filter>
     </ClInclude>
-    <ClInclude Include="sources\Utilities\qt_utility.h">
-      <Filter>Utilities</Filter>
-    </ClInclude>
     <ClInclude Include="sources\Utilities\utility_aqua.h">
       <Filter>Utilities</Filter>
     </ClInclude>
@@ -483,6 +468,7 @@
     <QtMoc Include="sources\Arks\Elements\Static SPG\requester\SpgRequester.h">
       <Filter>ARKS\Elements\Static SPG\requester</Filter>
     </QtMoc>
+    <QtMoc Include="sources\Utilities\qt_utility.h" />
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="AquaWave.qrc" />

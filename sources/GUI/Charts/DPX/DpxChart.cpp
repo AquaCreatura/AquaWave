@@ -1,11 +1,11 @@
 #include "DpxChart.h"
-
+#include "GUI/Tools/gui_worker.h"
 ChartDPX::ChartDPX(QWidget * parrent, ChartDomainType domain, std::shared_ptr<SelectionHolder> selection_holder):
-    ChartInterface(parrent, selection_holder, domain), dpx_painter_(scale_info_)
+    ChartInterface(parrent, selection_holder, domain), tiler_(scale_info_)
 {
     Limits<double> random_bounds = {0, 100};
     SetHorizontalMinMaxBounds(random_bounds);
-    dpx_painter_.SetMinMax_X(random_bounds);
+    //dpx_painter_.SetMinMax_X(random_bounds);
     SetHorizontalSuffix("counts");
 
     SetVerticalSuffix("power");
@@ -21,7 +21,7 @@ void ChartDPX::DrawData(QPainter & passed_painter)
 {
     if(ShouldRedraw()) 
     {
-        cached_pixmap_ = dpx_painter_.GetRelevantPixmap();
+        cached_pixmap_ = tiler_.GetRelevantPixmap();
     }
     if(cached_pixmap_.isNull()) 
         return;
@@ -30,34 +30,40 @@ void ChartDPX::DrawData(QPainter & passed_painter)
 
 void ChartDPX::PushData(const draw_data& draw_data )
 {
-	auto &draw_bounds = draw_data.freq_bounds.delta() ? draw_data.freq_bounds : scale_info_.val_info_.min_max_bounds.hor;
-
-	bool need_reset = power_man_.NeedRelevantBounds();
-	power_man_.UpdateBounds(draw_data.data, draw_bounds);
-	if (need_reset) {
-		UpdateChartPowerBounds(); //Обновляем scale descr
-		dpx_painter_.SetPowerBounds(scale_info_.val_info_.min_max_bounds.vert); //Обновляем матрицу DPX
+	//Обновляем порог по мощности
+	{
+		power_man_.UpdateBounds(draw_data.data, draw_data.freq_bounds);
+		scale_info_.power_bounds_ = power_man_.GetPowerBounds();
+		if (power_man_.NeedRelevantBounds()) {
+			aqua_gui::AdaptVertPowerBounds(scale_info_);
+			tiler_.UpdateBounds();
+		}
 	}
-    dpx_painter_.AccumulateNewData(draw_data.data , draw_bounds); //Накапливаем новые данные
+	tiler_.SetData(draw_data);
 }
 
 void ChartDPX::ClearData()
 {
-    dpx_painter_.Emplace();
+	tiler_.Reset();
 	power_man_.ResetBounds();
 	scale_info_.val_info_.need_reset_scale = true;
 }
 
-void ChartDPX::SetPowerBounds(const Limits<double>& power_bounds, const bool is_adaptive)
-{
-    dpx_painter_.SetPowerBounds(power_bounds);
-    ChartInterface::SetPowerBounds(power_bounds, is_adaptive);
-}
 
 void ChartDPX::SetHorizontalMinMaxBounds(const Limits<double>& power_bounds)
 {
-	dpx_painter_.SetMinMax_X(power_bounds);
+	tiler_.Reset();
 	ChartInterface::SetHorizontalMinMaxBounds(power_bounds);
+}
+
+Limits<double> ChartDPX::GetHorizontalMinMaxBounds()
+{
+	return scale_info_.val_info_.min_max_bounds.hor;
+}
+
+void ChartDPX::SetHorizontalDiscretisation(const size_t hor_discretisation)
+{
+	scale_info_.val_info_.max_zoom_koeffs.hor = std::max(1., hor_discretisation / 20.);
 }
 
 

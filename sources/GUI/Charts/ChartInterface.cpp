@@ -5,6 +5,7 @@ ChartInterface::ChartInterface(QWidget* parent, std::shared_ptr<SelectionHolder>
     QWidget(parent), scale_info_(passed_domain), axis_man_(scale_info_), bg_image_(scale_info_), selection_drawer_(scale_info_),
 	mouse_man_(scale_info_)
 { 
+	power_man_.EnableAdaptiveMode(true);
 	selection_drawer_.SetSelectionHolder(selection_holder);
     // Our widget params
     this->setMouseTracking(true);
@@ -56,19 +57,6 @@ void ChartInterface::SetHorizontalSuffix(const QString & suffix)
     axis_man_.InitHorizontal(suffix);
 }
 
-
-// Установка границ по вертикали
-void ChartInterface::SetPowerBounds(const Limits<double>& power_bounds, const bool is_adaptive)
-{
-    power_man_.EnableAdaptiveMode(is_adaptive);
-    power_man_.SetPowerBounds(power_bounds);
-    if(scale_info_.val_info_.domain_type != ChartDomainType::kTimeFrequency) //В случае, когда мощность - это вертикальная шкала
-    {
-        SetVerticalMinMaxBounds(power_bounds);
-    }
-
-
-}
 
 void ChartInterface::SetVerticalSuffix(const QString & suffix)
 {
@@ -133,8 +121,10 @@ void ChartInterface::resizeEvent(QResizeEvent * resize_event)
 void ChartInterface::paintEvent(QPaintEvent * paint_event)
 {
     UpdateWidgetSizeInfo();     //if widget size was changed
-    if(scale_info_.val_info_.domain_type != ChartDomainType::kTimeFrequency) //Для линейно-частотной интерпретации не используем
-        UpdateChartPowerBounds(); //Необходимо знать акутальные границы мощности
+
+	//Для ЛЧМ не используем
+    if(false && scale_info_.val_info_.domain_type != ChartDomainType::kTimeFrequency) 
+		aqua_gui::AdaptVertPowerBounds(scale_info_);
 
     
     QPainter new_frame_painter(this);
@@ -173,16 +163,6 @@ void ChartInterface::enterEvent(QEvent * event)
 	mouse_man_.SetWidgetInsideState(true);
 }
 
-void ChartInterface::UpdateChartPowerBounds()
-{
-    // Получаем текущие "автоматические" границы мощности от отрисовщика DPX
-    auto new_bounds = power_man_.GetPowerBounds();
-	if (scale_info_.val_info_.domain_type != ChartDomainType::kTimeFrequency) //Для линейно-частотной интерпретации своя логика
-	{ 
-		aqua_gui::AdaptPowerBounds(scale_info_, new_bounds);
-	}
-    
-}
 
 void ChartInterface::UpdateWidgetSizeInfo()
 {

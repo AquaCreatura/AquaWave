@@ -147,8 +147,6 @@
     <ClCompile Include="sources\GUI\Charts\Constel\ConstelChart.cpp" />
     <ClCompile Include="sources\GUI\Charts\Constel\Core\ConstelCore.cpp" />
     <ClCompile Include="sources\GUI\Charts\Constel\Core\ConstelRenderer.cpp" />
-    <ClCompile Include="sources\GUI\Charts\DPX\DPX core\DpxCore.cpp" />
-    <ClCompile Include="sources\GUI\Charts\DPX\DPX core\DpxRenderer.cpp" />
     <ClCompile Include="sources\GUI\Charts\DPX\DPX core\DpxScaler.cpp" />
     <ClCompile Include="sources\GUI\Charts\DPX\DpxChart.cpp" />
     <ClCompile Include="sources\GUI\Charts\ChartInterface.cpp" />
@@ -233,8 +231,6 @@
     <ClInclude Include="sources\GUI\Tools\PowerManager.h" />
     <ClInclude Include="sources\GUI\gui_defs.h" />
     <ClInclude Include="sources\GUI\Charts\DPX\DPX core\DPX_defs.h" />
-    <ClInclude Include="sources\GUI\Charts\DPX\DPX core\DpxCore.h" />
-    <ClInclude Include="sources\GUI\Charts\DPX\DPX core\DpxRenderer.h" />
     <ClInclude Include="sources\GUI\Charts\DPX\DpxChart.h" />
   </ItemGroup>
   <ItemGroup>

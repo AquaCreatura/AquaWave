@@ -11,12 +11,12 @@ public:
 
 	void					SetImageSize			(const HV_Info<size_t>& size);
 	const HV_Info<size_t>	GetImageSize			();
-	virtual void			Reset();
-
+	
 	virtual void			SetData					( const draw_data& data							   ) = 0;
 	virtual void			UpdateFromTile			( const TileInterface::uptr& passed_data			) = 0; 	// + Update From current?...
 	virtual void			UpdateQimage			( dynamic_qimage& dyn_qimage, const Limits<double> &power_bounds) = 0;
-
+	virtual void			Reset					() = 0;
+protected:
 public:
 	std::atomic_bool	is_data_updated_;
 	tbb::spin_mutex		mutex_;

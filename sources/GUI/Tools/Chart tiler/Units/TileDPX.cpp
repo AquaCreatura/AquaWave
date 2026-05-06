@@ -27,50 +27,54 @@ void TileDPX::UpdateFromTile(const TileInterface::uptr & passed_data)
 {
 }
 
-void TileDPX::UpdateQimage(dynamic_qimage& dyn_qimage, const Limits<double>&)
+void TileDPX::UpdateQimage(dynamic_qimage & dyn_qimage, const Limits<double>& power_bounds)
 {
-    double max_density = 0.0;
-    double sum_density = 0.0;
-    int64_t count = 0;
+	double  max_density = 0;
+	double  summ_density = 0;
+	int64_t	density_counter = 0;
 
-    tbb::spin_mutex::scoped_lock lock(mutex_);
+	tbb::spin_mutex::scoped_lock scoped_locker(mutex_);
 
-    const int h = data_size_.vert;
-    const int w = data_size_.hor;
+	const int grid_height = data_size_.vert;
+	const int grid_width = data_size_.hor;
+	argb_t *rgb_iter = dyn_qimage.data.data();
+	for (int vert_number = 0; vert_number < grid_height; vert_number++)
+	{
+		const size_t* column_weight_iter = &column_weight[0]; //Reset for every row
+		const auto matrix_idx_y = grid_height - vert_number - 1; //We have inversed image
+		const int64_t* dpx_iter = &data_[matrix_idx_y * grid_width];
+		for (int hor_number = 0; hor_number < grid_width; hor_number++)
+		{
+			const double column_weight = *(column_weight_iter++);
+			const double density = column_weight ? *dpx_iter / column_weight : 0;
+			dpx_iter++;
+			argb_t color = GetNormColor(density);
+			*(rgb_iter++) = color;
+			//Собираем статистические данные
+			if (density > 0.)
+			{
+				max_density = std::max(max_density, density);
+				summ_density += density;
+				density_counter++;
+			}
+		}
+	}
+	const auto new_density = density_counter ? summ_density / density_counter : 0.;
+	if (new_density != last_average_density_) {
+		last_average_density_ = new_density;
+		is_data_updated_ = true;
+	}
 
-    argb_t* rgb = dyn_qimage.data.data();
-
-    for (int y = 0; y < h; ++y)
-    {
-        const int row = (h - 1 - y) * w;
-        const int64_t* dpx = &data_[row];
-        const size_t* weights = column_weight.data();
-
-        for (int x = 0; x < w; ++x)
-        {
-            const double density = weights[x] ? dpx[x] / weights[x] : 0.0;
-
-            *rgb++ = GetNormColor(density);
-
-            if (density > 0.0)
-            {
-                max_density = std::max(max_density, density);
-                sum_density += density;
-                ++count;
-            }
-        }
-    }
-
-    const double avg = count ? sum_density / count : 0.0;
-
-    if (avg != last_average_density_)
-    {
-        last_average_density_ = avg;
-        is_data_updated_ = true;
-    }
-
-    last_max_density_ = max_density;
+	last_max_density_ = max_density;
 }
+
+void TileDPX::Reset()
+{	
+	data_.resize(data_size_.hor * data_size_.vert);
+	column_weight.resize(data_size_.hor);
+	ippsZero_8u((Ipp8u*)column_weight.data(), column_weight.size() * sizeof(column_weight[0]));
+}
+
 
 
 void TileDPX::DrawOnlyPoints(const std::vector<float>& data, const Limits<double>& x_limits)

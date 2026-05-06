@@ -11,13 +11,14 @@ public:
 	void			SetData				(const draw_data& data);
 	void			Reset				();
 	const QPixmap&	GetRelevantPixmap	();
+	void			UpdateBounds		();
 protected:
 	void			UpdateTileBase		(); 	//Init bounds of base image	
 	void			UpdateTileView		();
 	void			UpdateImageFromTile ();
 	bool			NeedUpdateImage		();
 protected:
-	int								 count_of_tiles_;
+	int								 count_of_tiles_{ 3 };
 	std::vector<TileInterface::uptr> tiles_;
 	std::atomic<int>				 tile_id_;
 	
@@ -27,4 +28,5 @@ protected:
 	const double					zoom_step_sqrt_ = 1.5;
 
 	QElapsedTimer					image_update_timer_;
+	tbb::spin_mutex					update_bounds_mutex_; //обновлять границы можем из разных потоков
 };

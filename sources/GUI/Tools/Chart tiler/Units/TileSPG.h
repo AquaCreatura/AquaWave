@@ -11,6 +11,7 @@ protected:
 	void					UpdateQimageRotate(dynamic_qimage& dyn_qimage, const Limits<double> &power_bounds);
 	void					SetDataToRow(const float* passed_data, int data_size, const size_t row_idx, const Limits<size_t> start_end_idx );
 	argb_t					GetNormColor(const double density) const;
+	void					Reset() override;
 
 private:
 	std::vector<double> pos_vec_; // Вектор реальных позиций колонок

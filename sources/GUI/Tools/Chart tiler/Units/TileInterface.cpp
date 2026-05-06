@@ -2,18 +2,18 @@
 void TileInterface::SetValBounds(HorVerLim<double> bounds)
 {
 	val_bounds_ = bounds;
+	Reset();
 }
 
 void TileInterface::SetImageSize(const HV_Info<size_t>& size)
 {
-
 	if (!is_rotated_)
 		data_size_ = size;
 	else {
 		data_size_.hor	= size.vert;
 		data_size_.vert = size.hor;
-	}
-		
+	}		
+	Reset();
 }
 
 const HV_Info<size_t> TileInterface::GetImageSize()
@@ -24,9 +24,6 @@ const HV_Info<size_t> TileInterface::GetImageSize()
 		return { data_size_.vert, data_size_.hor };
 }
 
-void TileInterface::Reset()
-{
-}
 
 HorVerLim<double> TileInterface::GetValBounds()
 {

@@ -36,11 +36,6 @@ public:
     */
     virtual void                    SetHorizontalSuffix (const QString& suffix);
     /*
-        if "is_adaptive" factor is switched =>
-        We adapt Limits for passed values
-    */ 
-    virtual void                    SetPowerBounds   (const Limits<double>& power_bounds, const bool is_adaptive = true);
-    /*
         Set hor axis suffix
     */
     virtual void                    SetVerticalSuffix   (const QString& suffix);
@@ -94,8 +89,6 @@ protected slots:
 	
 
 protected:
-    // Update power bounds for chart scaling
-    virtual void UpdateChartPowerBounds();
 
     // Update widget size information
     void UpdateWidgetSizeInfo();

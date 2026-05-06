@@ -70,7 +70,7 @@ bool SpectrumDpx::SendData(fluctus::DataInfo const & data_info)
 	}
 	else
 	{
-		draw_data.freq_bounds = {0,0};
+		draw_data.freq_bounds = dpx_drawer_->GetHorizontalMinMaxBounds();
 	}
     
     draw_data.time_pos    = data_info.time_point;
@@ -165,6 +165,7 @@ void dpx_core::SpectrumDpx::SetNewFftOrder(int n_fft_order)
 	n_fft_ = 1 << n_fft_order;
 	UpdateAxisBounds();
 	dpx_drawer_->ClearData();
+	dpx_drawer_->SetHorizontalDiscretisation(n_fft_);
 }
 
 void dpx_core::SpectrumDpx::UpdateAxisBounds()

@@ -1,6 +1,6 @@
 #pragma once
 #include "GUI/Charts/ChartInterface.h"
-#include "DPX core/DpxCore.h"
+#include "GUI/Tools/Chart tiler/ChartTiler.h"
 using namespace aqua_gui;
 class ChartDPX : public ChartInterface
 {
@@ -10,13 +10,17 @@ public:
     virtual void DrawData                   (QPainter& painter          ) override;
     virtual void PushData                   (const draw_data& draw_data ) override;
     virtual void ClearData                  ()                            override;
-    virtual void SetPowerBounds             (const Limits<double>& power_bounds, const bool is_adaptive = true) override;
 	virtual void SetHorizontalMinMaxBounds	(const Limits<double>& power_bounds) override;
+
+	Limits<double> GetHorizontalMinMaxBounds();
+public:
+	void SetHorizontalDiscretisation (const size_t hor_discretisation);
 protected:
     bool ShouldRedraw();
 protected:
-    dpx_core::DpxCore   dpx_painter_;
+	ChartTiler			tiler_;
     QPixmap             cached_pixmap_;
+
     
 };
 

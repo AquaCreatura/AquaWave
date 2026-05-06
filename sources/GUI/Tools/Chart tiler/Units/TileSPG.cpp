@@ -170,3 +170,9 @@ argb_t TileSPG::GetNormColor(double relative_density) const
 	double normalized_density = (relative_density - last_average_density_) / delta;
 	return LUT_HSV_Instance::DensityToRGB(normalized_density);
 }
+
+void TileSPG::Reset()
+{
+}
+
+

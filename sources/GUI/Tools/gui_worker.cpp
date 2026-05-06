@@ -54,7 +54,7 @@ bool aqua_gui::ZoomFromWheelDelta(ChartScaleInfo & scale_info, const int wheel_d
                 new_high = std::min(new_high, min_max_hor.high);
 
                 // Проверяем минимальный размах (не меньше 1 единицы)
-                if (new_high - new_low >= 0.01)
+                if (new_high - new_low >= std::numeric_limits<double>::epsilon())
                 {
                     cur_hor = {new_low, new_high};
                     values_changed = true;
@@ -98,13 +98,17 @@ bool aqua_gui::ZoomFromWheelDelta(ChartScaleInfo & scale_info, const int wheel_d
     return values_changed;
 }
 
-void aqua_gui::AdaptPowerBounds(ChartScaleInfo & scale_info, const Limits<double>& new_bounds)
+void aqua_gui::AdaptVertPowerBounds(ChartScaleInfo & scale_info)
 {
+	auto new_bounds = scale_info.power_bounds_;
 	if (new_bounds.delta() == 0)
 		return;
 
     // Получаем ссылку на текущие максимально допустимые (автоматические) границы шкалы
     auto &vert_min_max = scale_info.val_info_.min_max_bounds.vert;
+
+	// Получаем ссылку на текущие отображаемые границы шкалы (которые видит пользователь)
+	auto &vert_cur = scale_info.val_info_.cur_bounds.vert;
 
 	const double min_epsilon = new_bounds.delta() * 0;
     // Если автоматические границы изменились, обновляем шкалу
@@ -112,8 +116,7 @@ void aqua_gui::AdaptPowerBounds(ChartScaleInfo & scale_info, const Limits<double
 		std::abs(vert_min_max.high - new_bounds.high) > min_epsilon )
     {
 
-        // Получаем ссылку на текущие отображаемые границы шкалы (которые видит пользователь)
-        auto &vert_cur = scale_info.val_info_.cur_bounds.vert;
+        
 		//Корретируем отображаемое
 		if (!scale_info.val_info_.need_reset_scale) {
 

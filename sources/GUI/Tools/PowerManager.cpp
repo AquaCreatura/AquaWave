@@ -88,14 +88,15 @@ void PowerLimitMan::UpdateBounds(const std::vector<float>& data, const Limits<do
     // Объединение с текущими границами: расширение только наружу
     Limits<double> current_bounds = power_bounds_.load();
 	if (!need_reset_bounds_) {
-		/*if(new_bounds.low < current_bounds.low)*/	new_bounds.low = current_bounds.low  ;
+		new_bounds.low	= std::min(new_bounds.low, current_bounds.low);
 		new_bounds.high = std::max(new_bounds.high, current_bounds.high);
 	}	
-    // Атомарное обновление границ мощности
-	if (max_val > current_bounds.high) {
+    // Превышение границ мощности
+	if (max_val > current_bounds.high) 
 		need_external_update_max_ = true;
-	}
-	else need_external_update_max_ = false;
+	else 
+		need_external_update_max_ = false;
+
     power_bounds_ = new_bounds;
 	need_reset_bounds_ = false;
 	

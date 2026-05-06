@@ -9,12 +9,18 @@ ChartTiler::ChartTiler(const ChartScaleInfo & scale_info) : scale_info_(scale_in
 			tiles_.push_back(std::make_unique<TileSPG>());
 		else
 			tiles_.push_back(std::make_unique<TileDPX>());
+		tiles_.back()->SetImageSize({ 1024ui64, 256ui64 });
 	}
+	tile_id_ = 0;
 }
 
 void ChartTiler::UpdateTileBase()
 {
-	//Обновить данные базовый порог
+	const auto &base_bounds = scale_info_.val_info_.min_max_bounds;
+	if (tiles_[0]->GetValBounds() != base_bounds) {
+		tiles_[0]->SetValBounds(base_bounds);
+	}
+		
 }
 
 /*
@@ -89,6 +95,8 @@ void ChartTiler::UpdateTileView()
 
 void ChartTiler::UpdateImageFromTile()
 {
+	tbb::spin_mutex::scoped_lock scoped_locker(update_bounds_mutex_);
+
 	auto &used_tile = tiles_[tile_id_];
 	//Приводим к размеру 1 к 1
 	if (dyn_qim_.size != used_tile->GetImageSize())
@@ -120,6 +128,7 @@ bool ChartTiler::NeedUpdateImage()
 
 void ChartTiler::SetData(const draw_data & data)
 {
+	
 	for (auto &it : tiles_) {
 		it->SetData(data);
 	}
@@ -136,8 +145,7 @@ const QPixmap & ChartTiler::GetRelevantPixmap()
 	//Обновляем при необходимости сами тайлы
 	if(NeedUpdateImage() || (image_update_timer_.elapsed() > 500))
 	{
-		UpdateTileBase();//Обновляем тайлы
-		UpdateTileView();
+		UpdateBounds();
 		UpdateImageFromTile(); //Обновляем нашу текущую картинку
 		image_update_timer_.restart(); //Перезапускаем таймер 
 	}
@@ -146,4 +154,11 @@ const QPixmap & ChartTiler::GetRelevantPixmap()
 									scale_info_.val_info_.cur_bounds,		//Границы отображаемые
 									scale_info_.pix_info_.chart_size_px);	//Размер графика
 		
+}
+
+void ChartTiler::UpdateBounds()
+{
+	tbb::spin_mutex::scoped_lock scoped_locker(update_bounds_mutex_);
+	UpdateTileBase();//Обновляем тайлы
+	UpdateTileView();
 }

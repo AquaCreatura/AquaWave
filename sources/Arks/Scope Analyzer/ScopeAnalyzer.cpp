@@ -53,9 +53,9 @@ ScopeAnalyzer::~ScopeAnalyzer()
 
 bool ScopeAnalyzer::SendData(fluctus::DataInfo const & passed_unit)
 {
-	if (passed_unit.data_vec.size() != n_fft_ * sizeof(Ipp32fc))
+	int cur_block_size = n_fft_;
+	if (passed_unit.data_vec.size() != cur_block_size * sizeof(Ipp32fc))
 		return false;
-
 	for (auto chart_iter : charts_) {
 		if(!chart_iter.second.need_resampler)
 			chart_iter.second->SendData(passed_unit);
@@ -66,9 +66,9 @@ bool ScopeAnalyzer::SendData(fluctus::DataInfo const & passed_unit)
 		auto &resampled = (std::vector<Ipp32fc>&)resampled_unit_.data_vec;
 		resampler_.ProcessData((std::vector<Ipp32fc>&)passed_unit.data_vec, resampled_buff_);
 		resampled_unit_.freq_info_.carrier_hz = passed_unit.freq_info_.carrier_hz;
-		const int count_of_parts = resampled_buff_.size() / n_fft_;
+		const int count_of_parts = resampled_buff_.size() / cur_block_size;
 		for (int part_counter = 0; part_counter < count_of_parts; part_counter++) {
-			resampled.assign(resampled_buff_.data() + n_fft_ * part_counter, resampled_buff_.data() + n_fft_ * (part_counter + 1));
+			resampled.assign(resampled_buff_.data() + cur_block_size * part_counter, resampled_buff_.data() + cur_block_size * (part_counter + 1));
 			for (auto chart_iter : charts_) {
 				if (chart_iter.second.need_resampler)
 					chart_iter.second->SendData(resampled_unit_);

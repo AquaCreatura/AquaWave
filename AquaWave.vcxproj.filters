@@ -14,9 +14,6 @@
     <Filter Include="GUI\Charts\DPX">
       <UniqueIdentifier>{ae13bdcc-f543-405e-8862-40ca30dc48f2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="GUI\Charts\DPX\DPX core">
-      <UniqueIdentifier>{d4e5f6a7-8b9c-0d1e-2f3a-4b5c6d7e8f9a}</UniqueIdentifier>
-    </Filter>
     <Filter Include="GUI\Charts\SPG">
       <UniqueIdentifier>{4b929b38-cf07-4ab7-ac5f-5b77484236e2}</UniqueIdentifier>
     </Filter>
@@ -158,9 +155,6 @@
     <ClCompile Include="sources\DSP Tools\FFT\FFT_Worker.cpp">
       <Filter>DSP Tools\FFT</Filter>
     </ClCompile>
-    <ClCompile Include="sources\GUI\Charts\DPX\DPX core\DpxScaler.cpp">
-      <Filter>GUI\Charts\DPX\DPX core</Filter>
-    </ClCompile>
     <ClCompile Include="sources\GUI\Charts\SPG\SPG core\SpgCore.cpp">
       <Filter>GUI\Charts\SPG\SPG core</Filter>
     </ClCompile>
@@ -299,9 +293,6 @@
     <ClInclude Include="sources\DSP Tools\Resampler\ResamplerMan.h">
       <Filter>DSP Tools\Resampler</Filter>
     </ClInclude>
-    <ClInclude Include="sources\GUI\Charts\DPX\DPX core\DPX_defs.h">
-      <Filter>GUI\Charts\DPX\DPX core</Filter>
-    </ClInclude>
     <ClInclude Include="sources\GUI\Charts\DPX\DpxChart.h">
       <Filter>GUI\Charts\DPX</Filter>
     </ClInclude>
@@ -312,9 +303,6 @@
       <Filter>GUI</Filter>
     </ClInclude>
     <ClInclude Include="sources\aqua_defines.h" />
-    <ClInclude Include="sources\GUI\Charts\DPX\DPX core\DpxScaler.h">
-      <Filter>GUI\Charts\DPX\DPX core</Filter>
-    </ClInclude>
     <ClInclude Include="sources\GUI\Charts\SPG\SPG core\spg_defs.h">
       <Filter>GUI\Charts\SPG\SPG core</Filter>
     </ClInclude>

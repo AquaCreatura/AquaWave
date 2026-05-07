@@ -44,9 +44,9 @@ void ChartTiler::UpdateTileView()
 
 		//Если в результате зумминга мы всё ещё находимся в пределах текущего тайла
 		if (!is_out_of_cur_tile) {
-			HV_Info<double> view_ratio = { view_bounds.hor.delta() / cur_tile_bounds.hor.delta(),
-				view_bounds.vert.delta() / cur_tile_bounds.vert.delta() };
-			if (view_ratio.hor < zoom_step_sqrt_*zoom_step_sqrt_ && view_ratio.vert < zoom_step_sqrt_*zoom_step_sqrt_) {
+			HV_Info<double> view_ratio = { cur_tile_bounds.hor.delta() / view_bounds.hor.delta(),
+				cur_tile_bounds.vert.delta() / view_bounds.vert.delta() };
+			if (view_ratio.hor < zoom_step_sqrt_*zoom_step_sqrt_ &&  view_ratio.vert < zoom_step_sqrt_*zoom_step_sqrt_) {
 				return true;
 			}
 		}
@@ -68,7 +68,7 @@ void ChartTiler::UpdateTileView()
 	//Если нет подходящего тайла - создаём его...
 	if (new_tile_id == -1) {
 		auto calculate_new_bounds = [&](const Limits<double>& passed, const Limits<double>& base) -> Limits<double> {
-			const double supposed_side_delta = passed.delta() * (zoom_step_sqrt_ - 1) / 2; //На сколько должно увеличиться с каждой стороны
+			const double supposed_side_delta = passed.delta() * (zoom_step_sqrt_) / 2; //На сколько должно увеличиться с каждой стороны
 			Limits<double> new_bounds = { std::max((passed.mid() - supposed_side_delta), base.low),
 				std::min((passed.mid() + supposed_side_delta), base.high) };
 			return new_bounds;
@@ -128,7 +128,8 @@ bool ChartTiler::NeedUpdateImage()
 
 void ChartTiler::SetData(const draw_data & data)
 {
-	
+	tiles_[tile_id_]->SetData(data);
+	return;
 	for (auto &it : tiles_) {
 		it->SetData(data);
 	}
@@ -143,14 +144,14 @@ void ChartTiler::Reset()
 const QPixmap & ChartTiler::GetRelevantPixmap()
 {
 	//Обновляем при необходимости сами тайлы
-	if(NeedUpdateImage() || (image_update_timer_.elapsed() > 500))
+	if(NeedUpdateImage() || (image_update_timer_.elapsed() > 5))
 	{
 		UpdateBounds();
 		UpdateImageFromTile(); //Обновляем нашу текущую картинку
 		image_update_timer_.restart(); //Перезапускаем таймер 
 	}
-
-	return zoomer_.GetPrecisedPart(	scale_info_.val_info_.min_max_bounds,	//Мин/Макс границы изображения 
+	auto tile_bounds = tiles_[tile_id_]->GetValBounds();
+	return zoomer_.GetPrecisedPart( tile_bounds,	//Мин/Макс границы изображения 
 									scale_info_.val_info_.cur_bounds,		//Границы отображаемые
 									scale_info_.pix_info_.chart_size_px);	//Размер графика
 		

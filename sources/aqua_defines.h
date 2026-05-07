@@ -38,6 +38,18 @@ namespace fluctus
         {
             return (low + high) / 2;
         }
+		double pos(const W& value) const
+		{
+			return (value - low) / delta();
+		}
+		bool has_inside(const W& value) const
+		{
+			return value >= low && value <= high;
+		}
+		W lerp(double t) const 
+		{
+			return low + delta() * t;
+		}
 
 		Limits<W> operator*(const W& value) const
 		{

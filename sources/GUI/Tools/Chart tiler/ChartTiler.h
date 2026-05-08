@@ -15,13 +15,13 @@ public:
 protected:
 	void			UpdateTileBase		(); 	//Init bounds of base image	
 	void			UpdateTileView		();
-	void			UpdateImageFromTile ();
-	bool			NeedUpdateImage		();
+	const QPixmap &UpdateQPixmap ();
+	bool			NeedUpdateTile		();
 protected:
 	int								 count_of_tiles_{ 3 };
 	std::vector<TileInterface::uptr> tiles_;
 	std::atomic<int>				 tile_id_;
-	
+	bool							 need_update_qimage_{false};
 	const ChartScaleInfo&			scale_info_;
 	dynamic_qimage					dyn_qim_; //Структура для работы с QImage в качестве обёртки
 	QimageZoomer					zoomer_;

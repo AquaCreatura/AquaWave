@@ -1,6 +1,7 @@
 #include "ChartTiler.h"
 #include "Units/TileDPX.h"
 #include "Units/TileSPG.h"
+#include <qdebug.h>
 ChartTiler::ChartTiler(const ChartScaleInfo & scale_info) : scale_info_(scale_info)
 {
 	const bool is_spg = (scale_info_.val_info_.domain_type == aqua_gui::ChartDomainType::kTimeFrequency);	
@@ -9,7 +10,7 @@ ChartTiler::ChartTiler(const ChartScaleInfo & scale_info) : scale_info_(scale_in
 			tiles_.push_back(std::make_unique<TileSPG>());
 		else
 			tiles_.push_back(std::make_unique<TileDPX>());
-		tiles_.back()->SetImageSize({ 1024ui64, 256ui64 });
+		tiles_.back()->SetImageSize({ 1024ui64 * 4, 256ui64 * 2 });
 	}
 	tile_id_ = 0;
 }
@@ -40,8 +41,8 @@ void ChartTiler::UpdateTileView()
 	//Факт того, что диапазон попадаетв тайл
 	auto is_tile_appopiate = [&](TileInterface::uptr& possible_tile) {
 		const auto& cur_tile_bounds = possible_tile->GetValBounds();
-		const bool is_out_of_cur_tile = (view_bounds.hor.low < cur_tile_bounds.hor.low) || (view_bounds.hor.high > cur_tile_bounds.hor.high);
-
+		bool is_out_of_cur_tile = (view_bounds.hor.low < cur_tile_bounds.hor.low) || (view_bounds.hor.high > cur_tile_bounds.hor.high) || 
+										(view_bounds.vert.low < cur_tile_bounds.vert.low) || (view_bounds.vert.high > cur_tile_bounds.vert.high);
 		//Если в результате зумминга мы всё ещё находимся в пределах текущего тайла
 		if (!is_out_of_cur_tile) {
 			HV_Info<double> view_ratio = { cur_tile_bounds.hor.delta() / view_bounds.hor.delta(),
@@ -59,7 +60,7 @@ void ChartTiler::UpdateTileView()
 	int new_tile_id = -1;
 	for (int tile_counter = 0; tile_counter < count_of_tiles_; tile_counter++) {
 		//Не, ну а смысл проверять текущий тайл второй раз?)
-		if ((tile_counter != tile_id_) && is_tile_appopiate(tiles_[tile_id_])) {
+		if ((tile_counter != tile_id_) && is_tile_appopiate(tiles_[tile_counter])) {
 			new_tile_id = tile_counter;
 			break;
 		}
@@ -90,36 +91,45 @@ void ChartTiler::UpdateTileView()
 		if (tile_counter == new_tile_id) continue;
 		new_use_tile->UpdateFromTile(tiles_[tile_counter]);
 	}
+	qDebug() << "new id: " << new_tile_id;
 	tile_id_ = new_tile_id;
+	
 }
 
-void ChartTiler::UpdateImageFromTile()
+const QPixmap & ChartTiler::UpdateQPixmap()
 {
 	tbb::spin_mutex::scoped_lock scoped_locker(update_bounds_mutex_);
-
 	auto &used_tile = tiles_[tile_id_];
-	//Приводим к размеру 1 к 1
-	if (dyn_qim_.size != used_tile->GetImageSize())
-	{
-		auto need_size = used_tile->GetImageSize();
-		dyn_qim_.data.resize(need_size.hor * need_size.vert);
-		dyn_qim_.qimage = QImage((uint8_t*)dyn_qim_.data.data(), need_size.hor, need_size.vert, QImage::Format::Format_ARGB32);
-		dyn_qim_.size = need_size;
-		zoomer_.SetNewBase(&dyn_qim_.qimage);
+	if (need_update_qimage_) {
+		need_update_qimage_ = false;
+		//Приводим к размеру 1 к 1
+		if (dyn_qim_.size != used_tile->GetImageSize())
+		{
+			auto need_size = used_tile->GetImageSize();
+			dyn_qim_.data.resize(need_size.hor * need_size.vert);
+			dyn_qim_.qimage = QImage((uint8_t*)dyn_qim_.data.data(), need_size.hor, need_size.vert, QImage::Format::Format_ARGB32);
+			dyn_qim_.size = need_size;
+			zoomer_.SetNewBase(&dyn_qim_.qimage);
+		}
+		if (used_tile->is_data_updated_) {
+			used_tile->is_data_updated_ = false; //Лучше лишний раз отобразить, чем пропустить данные
+			used_tile->UpdateQimage(dyn_qim_, scale_info_.power_bounds_);
+			zoomer_.MarkForUpdate();
+		}
 	}
-	if (used_tile->is_data_updated_) {
-		used_tile->is_data_updated_ = false; //Лучше лишний раз отобразить, чем пропустить данные
-		used_tile->UpdateQimage(dyn_qim_, scale_info_.power_bounds_);
-		zoomer_.MarkForUpdate();
-	}
+	return zoomer_.GetPrecisedPart(used_tile->GetValBounds(),	//Границы тайла
+									scale_info_.val_info_.cur_bounds,				//Границы отображаемые
+									scale_info_.pix_info_.chart_size_px);			//Размер графика
+
 }
 
-bool ChartTiler::NeedUpdateImage()
+bool ChartTiler::NeedUpdateTile()
 {
 	auto &used_tile = tiles_[tile_id_];
 	const auto &view_bounds = scale_info_.val_info_.cur_bounds;
 	const auto &cur_tile_bounds = used_tile->GetValBounds();
-	const bool is_out_of_cur_tile = (view_bounds.hor.low < cur_tile_bounds.hor.low) || (view_bounds.hor.high > cur_tile_bounds.hor.high);
+	bool is_out_of_cur_tile = (view_bounds.hor.low < cur_tile_bounds.hor.low) || (view_bounds.hor.high > cur_tile_bounds.hor.high) ||
+								(view_bounds.vert.low < cur_tile_bounds.vert.low) || (view_bounds.vert.high > cur_tile_bounds.vert.high);
 	const bool need_update = (is_out_of_cur_tile);
 	return need_update;
 }
@@ -128,8 +138,6 @@ bool ChartTiler::NeedUpdateImage()
 
 void ChartTiler::SetData(const draw_data & data)
 {
-	tiles_[tile_id_]->SetData(data);
-	return;
 	for (auto &it : tiles_) {
 		it->SetData(data);
 	}
@@ -144,16 +152,11 @@ void ChartTiler::Reset()
 const QPixmap & ChartTiler::GetRelevantPixmap()
 {
 	//Обновляем при необходимости сами тайлы
-	if(NeedUpdateImage() || (image_update_timer_.elapsed() > 5))
+	if(NeedUpdateTile() || (image_update_timer_.elapsed() > 500))
 	{
 		UpdateBounds();
-		UpdateImageFromTile(); //Обновляем нашу текущую картинку
-		image_update_timer_.restart(); //Перезапускаем таймер 
 	}
-	auto tile_bounds = tiles_[tile_id_]->GetValBounds();
-	return zoomer_.GetPrecisedPart( tile_bounds,	//Мин/Макс границы изображения 
-									scale_info_.val_info_.cur_bounds,		//Границы отображаемые
-									scale_info_.pix_info_.chart_size_px);	//Размер графика
+	return UpdateQPixmap();
 		
 }
 
@@ -162,4 +165,6 @@ void ChartTiler::UpdateBounds()
 	tbb::spin_mutex::scoped_lock scoped_locker(update_bounds_mutex_);
 	UpdateTileBase();//Обновляем тайлы
 	UpdateTileView();
+	image_update_timer_.restart(); //Перезапускаем таймер 
+	need_update_qimage_ = true;
 }

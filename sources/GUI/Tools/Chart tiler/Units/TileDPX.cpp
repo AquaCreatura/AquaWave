@@ -20,9 +20,9 @@ void TileDPX::SetData(const draw_data & passed_info)
 	
 	// „исло точек данных в видимой области
 	size_t n = passed_info.data.size();
-	auto count = static_cast<size_t>(full.pos(hi) * (n - 1)) - static_cast<size_t>(full.pos(lo) * (n - 1));
+	auto count = static_cast<int64_t>(full.pos(hi) * (n - 1)) - static_cast<int64_t>(full.pos(lo) * (n - 1));
 
-	const double samples_per_pixel = count / data_size_.hor;
+	const double samples_per_pixel = double(count) / data_size_.hor;
 	if (samples_per_pixel < 1.0)
 		DrawInterpolated(passed_info.data, passed_info.freq_bounds);
 	else
@@ -30,15 +30,19 @@ void TileDPX::SetData(const draw_data & passed_info)
 }
 void TileDPX::UpdateFromTile(const TileInterface::uptr& passed_data)
 {
+	tbb::spin_mutex::scoped_lock scoped_locker(mutex_);
 	auto* passed = dynamic_cast<TileDPX*>(passed_data.get());
-	if (!passed || passed->data_size_.hor == 0 || passed->data_size_.vert == 0)
+	if (!passed || passed->data_size_.hor == 0 || passed->data_size_.vert == 0 || passed_data->val_bounds_.hor.delta() == 0)
 		return;
+	double hor_ratio = passed_data->val_bounds_.hor.delta() / val_bounds_.hor.delta();
+
+	const bool is_relevant = hor_ratio >= 1.;
 
 	for (size_t x_idx = 0; x_idx < data_size_.hor; ++x_idx) {
 		if (column_weight[x_idx] != 0) continue;
-
+		if (passed->column_weight[x_idx] == 0) continue;
 		// 1. Ќаходим мировое значение (src_val_x) дл€ текущего x_idx
-		double src_val_x = val_bounds_.hor.lerp(static_cast<double>(x_idx) / data_size_.hor);
+		double src_val_x = val_bounds_.hor.lerp((x_idx + 0.5) / data_size_.hor);
 
 		if (!passed->val_bounds_.hor.has_inside(src_val_x)) continue;
 
@@ -48,7 +52,7 @@ void TileDPX::UpdateFromTile(const TileInterface::uptr& passed_data)
 
 		size_t sum = 0;
 		for (size_t y = 0; y < data_size_.vert; ++y) {
-			double wy = val_bounds_.vert.lerp(static_cast<double>(y) / data_size_.vert);
+			double wy = val_bounds_.vert.lerp(static_cast<double>(y + 0.5) / data_size_.vert);
 
 			if (!passed->val_bounds_.vert.has_inside(wy)) continue;
 
@@ -60,7 +64,9 @@ void TileDPX::UpdateFromTile(const TileInterface::uptr& passed_data)
 			sum += value;
 		}
 		column_weight[x_idx] = sum;
+		relevant_vec_[x_idx] = is_relevant;
 	}
+	is_data_updated_ = true;
 }
 void TileDPX::UpdateQimage(dynamic_qimage & dyn_qimage, const Limits<double>& power_bounds)
 {
@@ -175,7 +181,7 @@ void TileDPX::DrawInterpolated(const std::vector<float>& values,
 		if (x_end == 0 || x_begin >= width) continue;
 
 		for (size_t px = x_begin; px < x_end; ++px) {
-			const double x_world = xb.lerp(static_cast<double>(px) / width);
+			const double x_world = xb.lerp((px + 0.5) / width);
 			double t = (x_world - x0) / step;
 			if (t < 0.0) t = 0.0;
 			else if (t > 1.0) t = 1.0;

@@ -63,7 +63,7 @@ void spg_core::SpgRequester::LoopProcess()
 		// В конце участка
 		auto end = std::chrono::high_resolution_clock::now();
 		std::chrono::duration<double, std::micro> ms = end - start;
-		qDebug() << "Time: " << ms.count() << " microsec";
+		//qDebug() << "Time: " << ms.count() << " microsec";
 	}
 }
 

@@ -20,8 +20,8 @@ protected:
 public:
 	std::atomic_bool	is_data_updated_;
 	tbb::spin_mutex		mutex_;
-protected:
 	HorVerLim<double>	val_bounds_;
+protected:
 	HV_Info<size_t>		data_size_;
 	bool				is_rotated_{ false };
 	std::vector<bool>	relevant_vec_;	// Актуальна ли колонка

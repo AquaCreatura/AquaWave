@@ -4,13 +4,13 @@
 #include <qdebug.h>
 ChartTiler::ChartTiler(const ChartScaleInfo & scale_info) : scale_info_(scale_info)
 {
-	const bool is_spg = (scale_info_.val_info_.domain_type == aqua_gui::ChartDomainType::kTimeFrequency);	
+	is_spg_ = (scale_info_.val_info_.domain_type == aqua_gui::ChartDomainType::kTimeFrequency);	
 	for (int i = 0; i < count_of_tiles_; i++) {
-		if (is_spg)
+		if (is_spg_)
 			tiles_.push_back(std::make_unique<TileSPG>());
 		else
 			tiles_.push_back(std::make_unique<TileDPX>());
-		tiles_.back()->SetImageSize({ 1024ui64 * 4, 256ui64 * 2 });
+		tiles_.back()->SetImageSize({ 1024ui64, 256ui64 });
 	}
 	tile_id_ = 0;
 }
@@ -35,9 +35,9 @@ void ChartTiler::UpdateTileBase()
 */
 void ChartTiler::UpdateTileView()
 {
-	const auto &view_bounds = scale_info_.val_info_.cur_bounds;
+	auto view_bounds = scale_info_.val_info_.cur_bounds;
 	const auto &base_bounds = scale_info_.val_info_.min_max_bounds;
-	
+	if (!is_spg_) view_bounds.vert = base_bounds.vert;
 	//Факт того, что диапазон попадаетв тайл
 	auto is_tile_appopiate = [&](TileInterface::uptr& possible_tile) {
 		const auto& cur_tile_bounds = possible_tile->GetValBounds();

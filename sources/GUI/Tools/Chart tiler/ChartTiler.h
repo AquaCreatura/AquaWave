@@ -27,6 +27,7 @@ protected:
 	QimageZoomer					zoomer_;
 	const double					zoom_step_sqrt_ = 1.5;
 
+	bool							is_spg_{ false };
 	QElapsedTimer					image_update_timer_;
 	tbb::spin_mutex					update_bounds_mutex_; //обновлять границы можем из разных потоков
 };

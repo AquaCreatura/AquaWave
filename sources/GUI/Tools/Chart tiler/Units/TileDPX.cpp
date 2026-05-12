@@ -36,7 +36,7 @@ void TileDPX::UpdateFromTile(const TileInterface::uptr& passed_data)
 		return;
 	double hor_ratio = passed_data->val_bounds_.hor.delta() / val_bounds_.hor.delta();
 
-	const bool is_relevant = hor_ratio >= 1.;
+	const bool is_relevant = hor_ratio <= 1.;
 
 	for (size_t x_idx = 0; x_idx < data_size_.hor; ++x_idx) {
 		if (column_weight[x_idx] != 0) continue;

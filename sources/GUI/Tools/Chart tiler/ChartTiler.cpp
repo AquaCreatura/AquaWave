@@ -10,7 +10,7 @@ ChartTiler::ChartTiler(const ChartScaleInfo & scale_info) : scale_info_(scale_in
 			tiles_.push_back(std::make_unique<TileSPG>());
 		else
 			tiles_.push_back(std::make_unique<TileDPX>());
-		tiles_.back()->SetImageSize({ 1024ui64, 256ui64 });
+		tiles_.back()->SetImageSize({ 1024ui64 * 2, 256ui64 * 2 });
 	}
 	tile_id_ = 0;
 }

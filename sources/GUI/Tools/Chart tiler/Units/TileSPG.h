@@ -5,7 +5,7 @@ class TileSPG : public TileInterface
 public:
 	TileSPG();
 	void			SetData(const draw_data& data) override;
-	void			UpdateFromTile(const TileInterface::uptr& passed_data) override; 	// + Update From current?...
+	void			UpdateFromTile(const TileInterface* passed_data) override; 	// + Update From current?...
 	void			UpdateQimage(dynamic_qimage& dyn_qimage, const Limits<double> &power_bounds) override;
 protected:
 	void					UpdateQimageRotate(dynamic_qimage& dyn_qimage, const Limits<double> &power_bounds);

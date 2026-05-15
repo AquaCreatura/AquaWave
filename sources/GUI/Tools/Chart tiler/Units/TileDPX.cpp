@@ -1,11 +1,14 @@
 #include "TileDPX.h"
 #include "GUI/Tools/gui_helper.h"
 #include "GUI/Tools/gui_conversions.h"
+TileDPX::TileDPX()
+{
+	is_spg_ = false;
+}
 void TileDPX::SetData(const draw_data & passed_info)
 {
 	if (passed_info.data.empty() || data_size_.hor == 0) return;
 
-	tbb::spin_mutex::scoped_lock scoped_locker(mutex_);
 	is_data_updated_ = true;
 
 	PrepareForNewData(passed_info.freq_bounds);
@@ -28,10 +31,9 @@ void TileDPX::SetData(const draw_data & passed_info)
 	else
 		DrawOnlyPoints(passed_info.data, passed_info.freq_bounds);
 }
-void TileDPX::UpdateFromTile(const TileInterface::uptr& passed_data)
+void TileDPX::UpdateFromTile(const TileInterface* passed_data)
 {
-	tbb::spin_mutex::scoped_lock scoped_locker(mutex_);
-	auto* passed = dynamic_cast<TileDPX*>(passed_data.get());
+	auto* passed = dynamic_cast<const TileDPX*>(passed_data);
 	if (!passed || passed->data_size_.hor == 0 || passed->data_size_.vert == 0 || passed_data->val_bounds_.hor.delta() == 0)
 		return;
 	double hor_ratio = passed_data->val_bounds_.hor.delta() / val_bounds_.hor.delta();
@@ -67,14 +69,16 @@ void TileDPX::UpdateFromTile(const TileInterface::uptr& passed_data)
 		relevant_vec_[x_idx] = is_relevant;
 	}
 	is_data_updated_ = true;
+	if (is_relevant) {
+		last_average_density_ = passed_data->last_average_density_;
+		last_max_density_	  = passed_data->last_max_density_;
+	}
 }
 void TileDPX::UpdateQimage(dynamic_qimage & dyn_qimage, const Limits<double>& power_bounds)
 {
 	double  max_density = 0;
 	double  summ_density = 0;
 	int64_t	density_counter = 0;
-
-	tbb::spin_mutex::scoped_lock scoped_locker(mutex_);
 
 	const int grid_height = data_size_.vert;
 	const int grid_width = data_size_.hor;
@@ -111,13 +115,12 @@ void TileDPX::UpdateQimage(dynamic_qimage & dyn_qimage, const Limits<double>& po
 
 void TileDPX::Reset()
 {	
-	tbb::spin_mutex::scoped_lock scoped_locker(mutex_);
-
-	data_.resize(data_size_.hor * data_size_.vert);
+	data_.resize(data_size_.hor * data_size_.vert, 0);
 	column_weight.resize(data_size_.hor);
 	ippsZero_8u((Ipp8u*)column_weight.data(), column_weight.size() * sizeof(column_weight[0]));
 	relevant_vec_.assign(data_size_.hor, false);
 }
+
 
 
 

@@ -29,5 +29,6 @@ protected:
 
 	bool							is_spg_{ false };
 	QElapsedTimer					image_update_timer_;
-	tbb::spin_mutex					update_bounds_mutex_; //обновлять границы можем из разных потоков
+	tbb::spin_mutex					data_mutex_; //обновлять данные можем из разных потоков
+	tbb::spin_mutex					bounds_mutex_; //обновлять границы можем из разных потоков...
 };

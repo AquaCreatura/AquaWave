@@ -1,6 +1,7 @@
 #include "TileSPG.h"
 #include "GUI/Tools/gui_conversions.h"
 TileSPG::TileSPG() {
+	is_spg_ = true;
 	is_rotated_ = true;
 }
 
@@ -33,7 +34,7 @@ void TileSPG::SetData(const draw_data & passed_draw)
 				clamp_index(end, to_size - 1)
 		};
 	};
-	tbb::spin_mutex::scoped_lock guard_lock(mutex_);
+
 
 	auto src_range = make_range(val_bounds_.hor, src_bounds, src_data.size());
 	if (src_range.delta() <= 0) return;
@@ -52,7 +53,7 @@ void TileSPG::SetData(const draw_data & passed_draw)
 	pos_vec_[res_idx] = pos_ratio;
 }
 
-void TileSPG::UpdateFromTile(const TileInterface::uptr & passed_data)
+void TileSPG::UpdateFromTile(const TileInterface* passed_data)
 {
 }
 
@@ -61,7 +62,6 @@ void TileSPG::UpdateQimage(dynamic_qimage & dyn_qimage, const Limits<double> &po
 	if (is_rotated_)
 		return UpdateQimageRotate(dyn_qimage, power_bounds);
 
-	tbb::spin_mutex::scoped_lock guard_lock(mutex_);
 
 	//Здесь бы mutex по-хорошему
 	const int src_height = data_size_.vert;
@@ -104,8 +104,6 @@ void TileSPG::UpdateQimage(dynamic_qimage & dyn_qimage, const Limits<double> &po
 
 void TileSPG::UpdateQimageRotate(dynamic_qimage & dyn_qimage, const Limits<double>& power_bounds)
 {
-	tbb::spin_mutex::scoped_lock guard_lock(mutex_);
-
 	const int src_height = data_size_.vert;
 	const int src_width = data_size_.hor;
 

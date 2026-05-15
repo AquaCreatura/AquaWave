@@ -19,7 +19,7 @@ void ChartTiler::UpdateTileBase()
 {
 	const auto &base_bounds = scale_info_.val_info_.min_max_bounds;
 	if (tiles_[0]->GetValBounds() != base_bounds) {
-		tiles_[0]->SetValBounds(base_bounds);
+		tiles_[0] = tiles_[0]->RecreateWithBounds(base_bounds);
 	}
 		
 }
@@ -89,7 +89,7 @@ void ChartTiler::UpdateTileView()
 	auto &new_use_tile = tiles_[new_tile_id];
 	for (int tile_counter = count_of_tiles_ - 1; tile_counter >= 0; tile_counter--) {
 		if (tile_counter == new_tile_id) continue;
-		new_use_tile->UpdateFromTile(tiles_[tile_counter]);
+		new_use_tile->UpdateFromTile(tiles_[tile_counter].get());
 	}
 	qDebug() << "new id: " << new_tile_id;
 	tile_id_ = new_tile_id;
@@ -98,9 +98,10 @@ void ChartTiler::UpdateTileView()
 
 const QPixmap & ChartTiler::UpdateQPixmap()
 {
-	tbb::spin_mutex::scoped_lock scoped_locker(update_bounds_mutex_);
+	tbb::spin_mutex::scoped_lock scoped_locker(bounds_mutex_);
 	auto &used_tile = tiles_[tile_id_];
 	if (need_update_qimage_) {
+		tbb::spin_mutex::scoped_lock data_locker(data_mutex_);
 		need_update_qimage_ = false;
 		//Приводим к размеру 1 к 1
 		if (dyn_qim_.size != used_tile->GetImageSize())
@@ -138,6 +139,7 @@ bool ChartTiler::NeedUpdateTile()
 
 void ChartTiler::SetData(const draw_data & data)
 {
+	tbb::spin_mutex::scoped_lock scoped_locker(data_mutex_);
 	for (auto &it : tiles_) {
 		it->SetData(data);
 	}
@@ -145,6 +147,7 @@ void ChartTiler::SetData(const draw_data & data)
 
 void ChartTiler::Reset()
 {
+	tbb::spin_mutex::scoped_lock scoped_locker(data_mutex_);
 	for (auto &it : tiles_)
 		it->Reset();
 }
@@ -162,7 +165,8 @@ const QPixmap & ChartTiler::GetRelevantPixmap()
 
 void ChartTiler::UpdateBounds()
 {
-	tbb::spin_mutex::scoped_lock scoped_locker(update_bounds_mutex_);
+	tbb::spin_mutex::scoped_lock scoped_locker(bounds_mutex_);
+	tbb::spin_mutex::scoped_lock data_locker(data_mutex_);
 	UpdateTileBase();//Обновляем тайлы
 	UpdateTileView();
 	image_update_timer_.restart(); //Перезапускаем таймер 

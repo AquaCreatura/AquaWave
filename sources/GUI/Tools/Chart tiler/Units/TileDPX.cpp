@@ -49,7 +49,7 @@ void TileDPX::UpdateFromTile(const TileInterface* passed_data)
 		if (!passed->val_bounds_.hor.has_inside(src_val_x)) continue;
 
 		// 2. Находим индекс в исходном буфере через pos()
-		size_t sx = std::min(static_cast<size_t>(std::round(passed->val_bounds_.hor.pos(src_val_x) * passed->data_size_.hor)),
+		size_t sx = std::min(static_cast<size_t>(std::round(passed->val_bounds_.hor.pos(src_val_x) * passed->data_size_.hor - 0.5)),
 			passed->data_size_.hor - 1);
 
 		size_t sum = 0;
@@ -58,7 +58,7 @@ void TileDPX::UpdateFromTile(const TileInterface* passed_data)
 
 			if (!passed->val_bounds_.vert.has_inside(wy)) continue;
 
-			size_t sy = std::min(static_cast<size_t>(std::round(passed->val_bounds_.vert.pos(wy) * passed->data_size_.vert)),
+			size_t sy = std::min(static_cast<size_t>(std::round(passed->val_bounds_.vert.pos(wy) * passed->data_size_.vert - 0.5)),
 				passed->data_size_.vert - 1);
 
 			auto value = passed->data_[sy * passed->data_size_.hor + sx];

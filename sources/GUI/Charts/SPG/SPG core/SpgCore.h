@@ -18,6 +18,7 @@ public:
     bool Emplace            ();
     void Initialise         ( const freq_params& freq_params, const size_t samples_count = 1000);
     void SetTimeBounds      (const Limits<double>& power_bounds);
+	void MulBoundsByKoeff	(const double mul_koeff);
     void SetFreqBounds      (const Limits<double>& freq_bounds );
 	void SetNfftOrder		(int fft_order);
     bool AccumulateNewData  (const std::vector<float>& passed_data, const double pos_ratio = 0.5);

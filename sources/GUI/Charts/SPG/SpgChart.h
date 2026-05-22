@@ -20,8 +20,9 @@ public:
     spg_data const & GetSpectrogramInfo() const;
 protected:
     bool ShouldRedraw();
+	void ChangeTimeDomain();
 protected:
-   
+	bool				is_counts_mode_{ true };
     spg_core::SpgCore   spg_core_;
     QPixmap             cached_pixmap_;
     

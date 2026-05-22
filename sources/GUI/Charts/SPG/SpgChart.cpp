@@ -1,4 +1,5 @@
 #include "SpgChart.h"
+#include <qshortcut.h>
 using namespace spg_core;
 ChartSPG::ChartSPG(QWidget * parrent, std::shared_ptr<SelectionHolder> selection_holder):
     ChartInterface(parrent, selection_holder)
@@ -9,6 +10,8 @@ ChartSPG::ChartSPG(QWidget * parrent, std::shared_ptr<SelectionHolder> selection
     SetVerticalSuffix("power");
 	scale_info_.val_info_.domain_type = ChartDomainType::kTimeFrequency;
 	//SetBackgroundImage(":/AquaWave/third_party/background/black_forest.jpg");
+	auto* shortcut = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_T), this);
+	connect(shortcut, &QShortcut::activated, this, &ChartSPG::ChangeTimeDomain);
 }
 
 ChartSPG::~ChartSPG()
@@ -47,7 +50,7 @@ void ChartSPG::SetVerticalMinMaxBounds(const Limits<double>& vert_bounds)
 
 void ChartSPG::SetHorizontalMinMaxBounds(const Limits<double>& hor_bounds)
 {
-	scale_info_.val_info_.max_zoom_koeffs.hor = std::max(2., hor_bounds.delta() / 1000);
+	if (is_counts_mode_) scale_info_.val_info_.max_zoom_koeffs.hor = std::max(2., hor_bounds.delta() / 1000);
 	ChartInterface::SetHorizontalMinMaxBounds(hor_bounds);	
     spg_core_.SetTimeBounds(hor_bounds);
 }
@@ -67,4 +70,20 @@ spg_data const & ChartSPG::GetSpectrogramInfo() const
 bool ChartSPG::ShouldRedraw()
 {
     return true;
+}
+
+void spg_core::ChartSPG::ChangeTimeDomain()
+{
+	const auto need_count_mode = !is_counts_mode_;
+	auto& min_max = scale_info_.val_info_.min_max_bounds;
+	const double freq_bounds_hz = min_max.vert.delta()*1e6;
+	const double multiply_koeff = need_count_mode ? freq_bounds_hz : 1. / freq_bounds_hz;
+	min_max.hor  = min_max.hor * multiply_koeff;
+	scale_info_.val_info_.cur_bounds.hor = scale_info_.val_info_.cur_bounds.hor * multiply_koeff;
+
+	is_counts_mode_ = need_count_mode;
+	if (is_counts_mode_) scale_info_.val_info_.max_zoom_koeffs.hor = std::max(2., min_max.hor.delta() / 1000);
+	
+	spg_core_.SetTimeBounds(min_max.hor);
+	SetHorizontalSuffix(is_counts_mode_ ? "counts" : "time");
 }

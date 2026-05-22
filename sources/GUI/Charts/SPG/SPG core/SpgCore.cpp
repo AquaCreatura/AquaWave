@@ -15,6 +15,12 @@ void spg_core::SpgCore::SetTimeBounds(const Limits<double>& power_bounds)
 	Emplace();
 }
 
+void spg_core::SpgCore::MulBoundsByKoeff(const double mul_koeff)
+{
+	spg_.base_data.val_bounds.hor = spg_.base_data.val_bounds.hor * mul_koeff;
+	spg_.realtime_data.val_bounds.hor = spg_.realtime_data.val_bounds.hor * mul_koeff;
+}
+
 
 void spg_core::SpgCore::SetFreqBounds(const Limits<double>& freq_bounds)
 {

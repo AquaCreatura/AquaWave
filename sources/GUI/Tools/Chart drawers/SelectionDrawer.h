@@ -12,8 +12,10 @@ namespace aqua_gui
 class SelectionHolder {
 
 public:
-	selection_info GetCurrentSelection();
-	void		   SetCurrentSelection(selection_info sel_info);
+	selection_info GetSelection();
+	void		   ClearSelection();
+	void		   UpdateSelection(selection_info sel_info);
+	HorVerLim<double> GetHorVert(const ChartScaleInfo& scale_info);
 protected:
 	selection_info	cur_sel_;
 
@@ -37,13 +39,12 @@ public:
 		kReleased
 	};
 	SelectionDrawer		(const ChartScaleInfo& base_scale_info);
-	void SetSelectionHolder(std::shared_ptr<SelectionHolder> holder);
-	std::shared_ptr<SelectionHolder> GetSelectionHolder();
+	void SetHolder(std::shared_ptr<SelectionHolder> holder);
+	std::shared_ptr<SelectionHolder> GetHolder();
 	bool DrawSelections	(QPainter& painter);
 	void EditableEvent	(const QPoint& mouse_location, const mouse_event_type event_type);
 protected:
 	void ChangeCurSelection();
-	HorVerLim<double> GetHorVert(const selection_info& sel_info);
 protected: //Draw functions
 	bool DrawRectangles	(QPainter& painter, const HorVerLim<int>& user_rect);
 	bool DrawSizes		(QPainter& painter, const HorVerLim<int>& user_rect, const HorVerLim<double> &hv_val);

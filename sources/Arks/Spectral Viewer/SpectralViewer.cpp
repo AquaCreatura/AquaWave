@@ -181,7 +181,7 @@ void spectral_viewer::SpectralViewer::OnSelectionIsReady()
 	for (auto front_iter : front_arks) {
 		if (front_iter->GetArkType() == fluctus::kScopeAnalyser) {
 			auto analyze_dove = std::make_shared<analyzer::AnalyzeDove>(analyzer::AnalyzeDove::kStartFromFileSource);
-			auto cur_sel = selection_holder_->GetCurrentSelection();
+			auto cur_sel = selection_holder_->GetSelection();
 			if (cur_sel.freq_bounds.delta() < 0) std::swap(cur_sel.freq_bounds.low, cur_sel.freq_bounds.high);
 			if (cur_sel.time_bounds.delta() < 0) std::swap(cur_sel.time_bounds.low, cur_sel.time_bounds.high);
 			analyze_dove->freq_bounds_hz	= cur_sel.freq_bounds;

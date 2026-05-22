@@ -87,9 +87,9 @@ protected slots:
 
 	void enterEvent(QEvent *event) override;
 	
-
+	void ZoomToSelection(const bool is_zoom_in);
+	void keyPressEvent(QKeyEvent* e) override;
 protected:
-
     // Update widget size information
     void UpdateWidgetSizeInfo();
 

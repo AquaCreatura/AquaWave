@@ -10,6 +10,8 @@ ChartSPG::ChartSPG(QWidget * parrent, std::shared_ptr<SelectionHolder> selection
     SetVerticalSuffix("power");
 	scale_info_.val_info_.domain_type = ChartDomainType::kTimeFrequency;
 	//SetBackgroundImage(":/AquaWave/third_party/background/black_forest.jpg");
+
+
 	auto* shortcut = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_T), this);
 	connect(shortcut, &QShortcut::activated, this, &ChartSPG::ChangeTimeDomain);
 }

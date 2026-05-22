@@ -44,6 +44,15 @@ AquaWave::AquaWave(QWidget *parent, const QString& file_path)
 		//file_window->setStyleSheet(styleSheet());
 		file_window->show();
 	});
+	connect(ui.actionHot_keys, &QAction::triggered, [this]()
+	{
+		QMessageBox::information(this, "HotKeys",
+			"Enter - Zoom In\n"
+			"Backspace - Zoom Out\n"
+			"Ctrl+T - Change Time Domain");
+	});
+	//
+
 
 	if (!file_path.isEmpty()) //Если запускали через файл - инициализируем файловый источник
 	{

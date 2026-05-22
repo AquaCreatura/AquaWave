@@ -3,14 +3,36 @@
 using namespace aqua_gui;
 
 //============================ SelectionHolder ================================
-selection_info aqua_gui::SelectionHolder::GetCurrentSelection()
+selection_info aqua_gui::SelectionHolder::GetSelection()
 {
 	return cur_sel_;
 }
 
-void aqua_gui::SelectionHolder::SetCurrentSelection(selection_info sel_info)
+void aqua_gui::SelectionHolder::ClearSelection()
+{
+	cur_sel_.power_bounds.high = cur_sel_.power_bounds.low;
+	cur_sel_.time_bounds.high = cur_sel_.time_bounds.low;
+	cur_sel_.freq_bounds.high = cur_sel_.freq_bounds.low;
+}
+
+void aqua_gui::SelectionHolder::UpdateSelection(selection_info sel_info)
 {
 	cur_sel_ = sel_info;
+}
+
+HorVerLim<double> aqua_gui::SelectionHolder::GetHorVert(const ChartScaleInfo & scale_info)
+{
+	HorVerLim<double> hor_ver;
+	if (scale_info.val_info_.domain_type == ChartDomainType::kTimeFrequency) {
+		hor_ver.hor = cur_sel_.time_bounds * scale_info.val_info_.min_max_bounds.hor.delta();
+		hor_ver.vert = cur_sel_.freq_bounds;
+	}
+	else
+	{
+		hor_ver.hor = cur_sel_.freq_bounds;
+		hor_ver.vert = cur_sel_.power_bounds;
+	}
+	return hor_ver;
 }
 
 
@@ -24,13 +46,13 @@ aqua_gui::SelectionDrawer::SelectionDrawer(const ChartScaleInfo & base_scale_inf
 	sel_holder_ = std::make_shared<SelectionHolder>();
 }
 
-void aqua_gui::SelectionDrawer::SetSelectionHolder(std::shared_ptr<SelectionHolder> holder)
+void aqua_gui::SelectionDrawer::SetHolder(std::shared_ptr<SelectionHolder> holder)
 {
 	if(holder)
 		sel_holder_ = holder;
 }
 
-std::shared_ptr<SelectionHolder> aqua_gui::SelectionDrawer::GetSelectionHolder()
+std::shared_ptr<SelectionHolder> aqua_gui::SelectionDrawer::GetHolder()
 {
 	return sel_holder_;
 }
@@ -45,7 +67,7 @@ bool aqua_gui::SelectionDrawer::DrawSelections(QPainter & painter)
 	
 	//painter
 	{
-		auto val_hv = GetHorVert(sel_holder_->GetCurrentSelection());
+		auto val_hv = sel_holder_->GetHorVert(scale_info_);
 		auto &vert_sel = val_hv.vert;
 		if (domain == ChartDomainType::kAnalyzeDomain) //Ќе отрисовываем вертикальный selection при анализе
 			vert_sel.high = vert_sel.low;
@@ -120,22 +142,7 @@ void aqua_gui::SelectionDrawer::ChangeCurSelection()
 		sel_info.power_bounds = cur_hv_.vert;
 		sel_info.time_bounds  = {0, 1.};
 	}
-	sel_holder_->SetCurrentSelection(sel_info);
-}
-
-HorVerLim<double> aqua_gui::SelectionDrawer::GetHorVert(const selection_info & sel_info)
-{
-	HorVerLim<double> hor_ver;
-	if (scale_info_.val_info_.domain_type == ChartDomainType::kTimeFrequency) {
-		hor_ver.hor = sel_info.time_bounds * scale_info_.val_info_.min_max_bounds.hor.delta();
-		hor_ver.vert = sel_info.freq_bounds;
-	}
-	else
-	{
-		hor_ver.hor = sel_info.freq_bounds;
-		hor_ver.vert = sel_info.power_bounds;
-	}
-	return hor_ver;
+	sel_holder_->UpdateSelection(sel_info);
 }
 
 bool aqua_gui::SelectionDrawer::DrawRectangles(QPainter & painter, const HorVerLim<int>& user_rect)

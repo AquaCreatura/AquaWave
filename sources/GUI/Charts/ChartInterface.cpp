@@ -1,12 +1,13 @@
 #include "ChartInterface.h"
 #include <qsizepolicy.h>
 #include "GUI/Tools/gui_helper.h"
+#include <qshortcut.h>
 ChartInterface::ChartInterface(QWidget* parent, std::shared_ptr<SelectionHolder> selection_holder, ChartDomainType passed_domain) :
     QWidget(parent), scale_info_(passed_domain), axis_man_(scale_info_), bg_image_(scale_info_), selection_drawer_(scale_info_),
 	mouse_man_(scale_info_)
 { 
 	power_man_.EnableAdaptiveMode(true);
-	selection_drawer_.SetSelectionHolder(selection_holder);
+	selection_drawer_.SetHolder(selection_holder);
     // Our widget params
     this->setMouseTracking(true);
     // Set min max values for our chart
@@ -16,7 +17,6 @@ ChartInterface::ChartInterface(QWidget* parent, std::shared_ptr<SelectionHolder>
     SetVerticalSuffix("power");
     connect(&redraw_timer_, &QTimer::timeout, this, QOverload<>::of(&ChartInterface::update));
     SetBackgroundImage(":/AquaWave/third_party/background/black_mountain.jpg");
-
 }
 
 ChartInterface::~ChartInterface()
@@ -74,7 +74,7 @@ void ChartInterface::mousePressEvent(QMouseEvent * mouse_event)
 
 void ChartInterface::SetSelectionHolder(std::shared_ptr<SelectionHolder> selection_holder)
 {
-	selection_drawer_.SetSelectionHolder(selection_holder);
+	selection_drawer_.SetHolder(selection_holder);
 }
 
 void ChartInterface::ActivateChart(bool do_activate)
@@ -92,12 +92,14 @@ void ChartInterface::mouseMoveEvent(QMouseEvent * mouse_event)
 	selection_drawer_.EditableEvent(mouse_event->pos(), SelectionDrawer::kMove);
 	mouse_man_.MouseEvent(mouse_event->pos(), SelectionDrawer::kMove);
 	update();
+
+	setFocus();
 }
 
 void ChartInterface::mouseReleaseEvent(QMouseEvent * mouse_event)
 {
 	selection_drawer_.EditableEvent(mouse_event->pos(), SelectionDrawer::kReleased);
-	if (selection_drawer_.GetSelectionHolder()->GetCurrentSelection().is_finished)
+	if (selection_drawer_.GetHolder()->GetSelection().is_finished)
 		emit SelectionIsReady();
 }
 
@@ -161,6 +163,34 @@ void ChartInterface::enterEvent(QEvent * event)
 {
 	QWidget::enterEvent(event);
 	mouse_man_.SetWidgetInsideState(true);
+}
+
+void ChartInterface::ZoomToSelection(const bool is_zoom_in)
+{
+	if (is_zoom_in) {
+		auto sel_hv = selection_drawer_.GetHolder()->GetHorVert(scale_info_);
+		if (sel_hv.hor.delta()) scale_info_.val_info_.cur_bounds.hor = sel_hv.hor;
+		if (sel_hv.vert.delta() && (scale_info_.val_info_.domain_type == ChartDomainType::kTimeFrequency)) scale_info_.val_info_.cur_bounds.vert = sel_hv.vert;
+		selection_drawer_.GetHolder()->ClearSelection();
+	}
+	else {
+		scale_info_.val_info_.cur_bounds = scale_info_.val_info_.min_max_bounds;
+	}
+}
+
+void ChartInterface::keyPressEvent(QKeyEvent * e)
+{
+	if (e->key() == Qt::Key_Return) //Zoom in
+	{
+		ZoomToSelection(true);
+	}
+	else if (e->key() == Qt::Key_Backspace) //Zoom Out
+	{
+		ZoomToSelection(false);
+	}
+
+	QWidget::keyPressEvent(e);
+
 }
 
 

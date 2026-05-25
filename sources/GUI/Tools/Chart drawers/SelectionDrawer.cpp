@@ -22,17 +22,21 @@ void aqua_gui::SelectionHolder::UpdateSelection(selection_info sel_info)
 
 HorVerLim<double> aqua_gui::SelectionHolder::GetHorVert(const ChartScaleInfo & scale_info)
 {
-	HorVerLim<double> hor_ver;
+	HorVerLim<double> hv;
+	auto &vert_sel = hv.vert;
+	auto &hor_sel = hv.hor;
 	if (scale_info.val_info_.domain_type == ChartDomainType::kTimeFrequency) {
-		hor_ver.hor = cur_sel_.time_bounds * scale_info.val_info_.min_max_bounds.hor.delta();
-		hor_ver.vert = cur_sel_.freq_bounds;
+		hv.hor = cur_sel_.time_bounds * scale_info.val_info_.min_max_bounds.hor.delta();
+		hv.vert = cur_sel_.freq_bounds;
 	}
 	else
 	{
-		hor_ver.hor = cur_sel_.freq_bounds;
-		hor_ver.vert = cur_sel_.power_bounds;
+		hv.hor = cur_sel_.freq_bounds;
+		hv.vert = cur_sel_.power_bounds;
 	}
-	return hor_ver;
+	if (vert_sel.high < vert_sel.low) std::swap(vert_sel.low, vert_sel.high);
+	if (hor_sel.high < hor_sel.low) std::swap(hor_sel.low, hor_sel.high);
+	return hv;
 }
 
 
@@ -73,10 +77,6 @@ bool aqua_gui::SelectionDrawer::DrawSelections(QPainter & painter)
 			vert_sel.high = vert_sel.low;
 
 		auto &hor_sel = val_hv.hor;
-
-		if (vert_sel.high < vert_sel.low) std::swap(vert_sel.low, vert_sel.high);
-		if (hor_sel.high < hor_sel.low) std::swap(hor_sel.low, hor_sel.high);
-	
 		HorVerLim<int> user_rect = {
 			{ std::lround((hor_sel.low - cur_chart_val.hor.low) / cur_chart_val.hor.delta() * chart_size_px.hor),
 			std::lround((hor_sel.high - cur_chart_val.hor.low) / cur_chart_val.hor.delta() * chart_size_px.hor) },

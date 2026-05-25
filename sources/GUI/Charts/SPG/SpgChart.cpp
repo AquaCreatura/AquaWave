@@ -52,7 +52,8 @@ void ChartSPG::SetVerticalMinMaxBounds(const Limits<double>& vert_bounds)
 
 void ChartSPG::SetHorizontalMinMaxBounds(const Limits<double>& hor_bounds)
 {
-	if (is_counts_mode_) scale_info_.val_info_.max_zoom_koeffs.hor = std::max(2., hor_bounds.delta() / 1000);
+	if (!is_counts_mode_) ChangeTimeDomain();
+	scale_info_.val_info_.max_zoom_koeffs.hor = std::max(2., hor_bounds.delta() / 1000);
 	ChartInterface::SetHorizontalMinMaxBounds(hor_bounds);	
     spg_core_.SetTimeBounds(hor_bounds);
 }
@@ -78,7 +79,7 @@ void spg_core::ChartSPG::ChangeTimeDomain()
 {
 	const auto need_count_mode = !is_counts_mode_;
 	auto& min_max = scale_info_.val_info_.min_max_bounds;
-	const double freq_bounds_hz = min_max.vert.delta()*1e6;
+	const double freq_bounds_hz = min_max.vert.delta() * 1e6;
 	const double multiply_koeff = need_count_mode ? freq_bounds_hz : 1. / freq_bounds_hz;
 	min_max.hor  = min_max.hor * multiply_koeff;
 	scale_info_.val_info_.cur_bounds.hor = scale_info_.val_info_.cur_bounds.hor * multiply_koeff;

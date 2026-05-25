@@ -23,10 +23,10 @@ public:
 	double last_max_density_{ 1.0 };
 	double last_average_density_{ 1.0 };
 
+	std::vector<bool>	relevant_vec_;	// Актуальна ли колонка
 protected:
 	HV_Info<size_t>		data_size_;
 	bool				is_rotated_{ false };
-	std::vector<bool>	relevant_vec_;	// Актуальна ли колонка
 	bool				is_spg_{false};
 
 };

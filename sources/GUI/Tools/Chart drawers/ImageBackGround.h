@@ -39,7 +39,7 @@ private:
     bool ShouldRedraw() const;
 
     // Calculates the value bounds for the currently displayed portion of the chart.
-    // This is derived from the ChartScaleInfo's cur_bounds.
+    // This is derived from the ChartScaleInfo's view_bounds.
     HorVerLim<double> CalculateTargetDisplayValueBounds() const;
     
     // Resets state flags after redraw.

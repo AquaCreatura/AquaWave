@@ -12,8 +12,8 @@ ChartConstel::ChartConstel(QWidget * parrent):
 	scale_info_.val_info_.min_max_bounds.hor = { 0,1 };
 	scale_info_.val_info_.min_max_bounds.vert = { 0,1 };
 	
-	scale_info_.val_info_.cur_bounds.hor = { 0,1 };
-	scale_info_.val_info_.cur_bounds.vert = { 0,1 };
+	scale_info_.val_info_.view_bounds.hor = { 0,1 };
+	scale_info_.val_info_.view_bounds.vert = { 0,1 };
 
 	connect(&redraw_timer_, &QTimer::timeout, this, QOverload<>::of(&ChartConstel::update));
 	redraw_timer_.start(100);

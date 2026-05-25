@@ -63,7 +63,7 @@ std::shared_ptr<SelectionHolder> aqua_gui::SelectionDrawer::GetHolder()
 
 bool aqua_gui::SelectionDrawer::DrawSelections(QPainter & painter)
 {
-	auto &cur_chart_val = scale_info_.val_info_.cur_bounds;
+	auto &cur_chart_val = scale_info_.val_info_.view_bounds;
 	auto &base_chart_val = scale_info_.val_info_.min_max_bounds;
 	auto &chart_size_px = scale_info_.pix_info_.chart_size_px;
 	auto domain = scale_info_.val_info_.domain_type;
@@ -94,7 +94,7 @@ bool aqua_gui::SelectionDrawer::DrawSelections(QPainter & painter)
 
 void aqua_gui::SelectionDrawer::EditableEvent(const QPoint& mouse_location, const mouse_event_type event_type)
 {
-	auto &cur_chart_val = scale_info_.val_info_.cur_bounds;
+	auto &cur_chart_val = scale_info_.val_info_.view_bounds;
 	auto &chart_size_px = scale_info_.pix_info_.chart_size_px;
 
 	const HV_Info<double> ratio_pos = {
@@ -345,7 +345,7 @@ bool aqua_gui::SelectionDrawer::DrawSizes(
 
 bool aqua_gui::SelectionDrawer::DrawMarks(QPainter & painter, const HorVerLim<int>& user_rect, const HorVerLim<double>& hv_val)
 {
-	auto &cur_chart_val = scale_info_.val_info_.cur_bounds;
+	auto &cur_chart_val = scale_info_.val_info_.view_bounds;
 	auto &chart_size_px = scale_info_.pix_info_.chart_size_px;
 	auto domain = scale_info_.val_info_.domain_type;
 
@@ -433,7 +433,7 @@ bool aqua_gui::MouseDrawer::Draw(QPainter & painter)
 	if (!is_inside_widget_)
 		return true;
 
-	auto &cur_chart_val = scale_info_.val_info_.cur_bounds;
+	auto &cur_chart_val = scale_info_.val_info_.view_bounds;
 	auto &chart_size_px = scale_info_.pix_info_.chart_size_px;
 	auto hor_px = pos_.x();
 	auto vert_px = pos_.y();

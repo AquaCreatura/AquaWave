@@ -6,8 +6,8 @@
 #include <thread>
 using namespace spg_core; // Используем пространство имён dpx_core
 
-spg_core::SpgRequester::SpgRequester(const spg_data & spg) : 
-    spg_(spg)
+spg_core::SpgRequester::SpgRequester(const ChartTiler& tiler, const ChartScaleInfo& scale_info) :
+    tiler_(tiler), scale_info_(scale_info)
 {
 }
 
@@ -82,7 +82,8 @@ bool spg_core::SpgRequester::SendRequestDove(const request_params & req_info)
     auto req_dove = std::make_shared<FileSrcDove>(FileSrcDove::kInitiate | FileSrcDove::kAskChunkAround);
     req_dove->target_ark        = base_ark;
 	req_dove->time_bounds = { req_info.time_point, req_info.time_point };
-	auto freq_bounds = spg_.base_data.val_bounds.vert * 1.e6;
+	
+	auto freq_bounds = scale_info_.val_info_.min_max_bounds.vert * 1.e6;
 	auto &setup = *req_dove->setup.emplace();
 	setup.chunk_size = req_info.data_size;
 	setup.carrier_hz = freq_bounds.mid();
@@ -97,34 +98,11 @@ bool spg_core::SpgRequester::SendRequestDove(const request_params & req_info)
 SpgRequester::request_params SpgRequester::GetRequestParams() {
     request_params req_info; // Initialize request parameters structure
 	
-	if (spg_.realtime_data.state & kRequestStation) { //Сообщаем, что начали подготовку
-		tbb::spin_mutex::scoped_lock guard_lock(spg_.rw_mutex_);
-		if (spg_.realtime_data.state & kRequestStation)
-		{
-			spg_.realtime_data.state = (spg_.realtime_data.state ^ kRequestStation) | kPreparingStation;
-		}
-	};
-	if (spg_.base_data.state & kRequestStation) { //Сообщаем, что начали подготовку
-		tbb::spin_mutex::scoped_lock guard_lock(spg_.rw_mutex_);
-		if (spg_.base_data.state & kRequestStation)
-		{
-			spg_.base_data.state = (spg_.base_data.state ^ kRequestStation) | kPreparingStation;
-		}
-	};
-
-
-
-
-	if (spg_.base_data.state == spg_core::kFullData && spg_.realtime_data.state == spg_core::kFullData)
-		return req_info;
-
-
-	bool need_request_base = (spg_.realtime_data.state == spg_core::kFullData);
-	auto &holder_to_request = need_request_base ? spg_.base_data : spg_.realtime_data;
+	auto &cur_tile = tiler_.SpgGetTile();
 
 	
-    const auto &hor_bounds = holder_to_request.val_bounds.hor; // Horizontal value bounds
-    const auto &src_bounds = spg_.base_data.val_bounds.hor; // Source time bounds
+	const auto &hor_bounds = cur_tile->GetValBounds().hor; // Horizontal value bounds
+    const auto &src_bounds = scale_info_.val_info_.min_max_bounds.hor; // Source time bounds
 
     // Calculate normalized request bounds relative to source time bounds
     const Limits<double> req_bounds = {
@@ -133,17 +111,17 @@ SpgRequester::request_params SpgRequester::GetRequestParams() {
     };
 
 
-	req_info.data_size = spg_.n_fft_;
+	req_info.data_size = scale_info_.n_fft_;
 	
-    const int hor_size = holder_to_request.size.hor; // Horizontal data size
-    const auto &relevant_vec = holder_to_request.relevant_vec; // Vector indicating relevant data points
+    const int hor_size = cur_tile->GetImageSize().hor; // Horizontal data size
+    const auto &relevant_vec = cur_tile->relevant_vec_; // Vector indicating relevant data points
 
     // Generate pixel locations if not already computed for hor size
     if (base_draw_locations_.size() != hor_size) {
         base_draw_locations_ = GetAssimLocationsVec(hor_size);
     }
 
-    int res_draw_location = -1; // Initialize result pixel location as not found
+    int res_draw_location = -1; // Initialize result pixel location as not defined
 
 	auto IsLocationUsed = [&](int location) -> bool {
 		for (auto it : last_sent_positions_)
@@ -165,29 +143,9 @@ SpgRequester::request_params SpgRequester::GetRequestParams() {
 
     // If all data is relevant, no request needed
     if (res_draw_location < 0) {
-		tbb::spin_mutex::scoped_lock guard_lock(spg_.rw_mutex_);
-		if (!(holder_to_request.state & kRequestStation))
-		{
-			holder_to_request.state = kFullData;
-		}
         return req_info;
     }
 
-	if (holder_to_request.state & kPreparingStation)
-	{
-
-		int relevant_counter = 0;
-		for (auto rel_iter : relevant_vec) {
-			relevant_counter += rel_iter;
-			if (relevant_counter > holder_to_request.ready_threshold) {
-				tbb::spin_mutex::scoped_lock guard_lock(spg_.rw_mutex_);
-				holder_to_request.state = spg_core::kReadyToUse;
-				break;
-			}
-		}
-		
-
-	}
     // Calculate time point for request based on pixel position
     const double draw_pos_ratio = static_cast<double>(res_draw_location + 0.5) / hor_size;
 	req_info.time_point = (req_bounds.low + draw_pos_ratio * req_bounds.delta()); // src_bounds.delta();

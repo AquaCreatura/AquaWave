@@ -12,6 +12,7 @@ public:
 	void			Reset				();
 	const QPixmap&	GetRelevantPixmap	();
 	void			UpdateBounds		();
+	TileInterface::uptr const & SpgGetTile() const;
 protected:
 	void			UpdateTileBase		(); 	//Init bounds of base image	
 	void			UpdateTileView		();

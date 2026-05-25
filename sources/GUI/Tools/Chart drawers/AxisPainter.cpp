@@ -47,7 +47,7 @@ bool AxisManager::DrawAxis(QPainter& passed_painter)
     cache_pixmap_.fill(Qt::transparent);
     // Привязываем QPainter к Pixmap
     QPainter cur_painter(&cache_pixmap_);
-	if(scale_info_.val_info_.cur_bounds.vert.high == 100) 
+	if(scale_info_.val_info_.view_bounds.vert.high == 100) 
 		cache_pixmap_.fill(Qt::transparent);
     // Инициализация перьев
     QPen text_pen;
@@ -64,7 +64,7 @@ bool AxisManager::DrawAxis(QPainter& passed_painter)
 
     // Горизонтальная ось
     {
-        Limits<double> scaled_bounds = scale_info_.val_info_.cur_bounds.hor; 
+        Limits<double> scaled_bounds = scale_info_.val_info_.view_bounds.hor; 
 
         axis_.hor.grid_info.FillLineVectors(scale_info_.pix_info_.chart_size_px.hor, scaled_bounds);
         
@@ -112,7 +112,7 @@ bool AxisManager::DrawAxis(QPainter& passed_painter)
     // Вертикальная ось
     {
         axis_.vert.grid_info.FillLineVectors(scale_info_.pix_info_.chart_size_px.vert, 
-                                                        scale_info_.val_info_.cur_bounds.vert);
+                                                        scale_info_.val_info_.view_bounds.vert);
         auto& cur_line_info = axis_.vert.grid_info;
         const int axis_height = scale_info_.pix_info_.chart_size_px.vert;
         const int axis_width = scale_info_.pix_info_.chart_size_px.hor;
@@ -155,14 +155,14 @@ bool AxisManager::DrawAxis(QPainter& passed_painter)
 
     passed_painter.drawPixmap(0, 0, cache_pixmap_);
     need_be_updated_        = false;
-    last_val_scaled_bounds_ = scale_info_.val_info_.cur_bounds;
+    last_val_scaled_bounds_ = scale_info_.val_info_.view_bounds;
     return true;
 }
 
 bool aqua_gui::AxisManager::ShouldRedraw() const
 {
     return need_be_updated_ || last_widget_size_!=scale_info_.pix_info_.widget_size_px 
-                || last_val_scaled_bounds_ != scale_info_.val_info_.cur_bounds;
+                || last_val_scaled_bounds_ != scale_info_.val_info_.view_bounds;
 }
 
 bool AxisManager::DrawMarginBackGround(QPainter& passed_painter, const QPen& frame_pen)

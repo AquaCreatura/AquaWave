@@ -16,11 +16,6 @@ public:
 public:
 	void SetHorizontalDiscretisation (const size_t hor_discretisation);
 protected:
-    bool ShouldRedraw();
-protected:
 	ChartTiler			tiler_;
-    QPixmap             cached_pixmap_;
-
-    
 };
 

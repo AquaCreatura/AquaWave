@@ -74,7 +74,7 @@ bool ImageBG::DrawImage(QPainter& passed_painter)
 bool ImageBG::ShouldRedraw() const
 {
     return need_redraw_ || last_pixmap_size_!=scale_info_.pix_info_.chart_size_px || 
-            last_scaled_val_bounds_ != scale_info_.val_info_.cur_bounds || last_base_val_bounds_ != scale_info_.val_info_.min_max_bounds; //
+            last_scaled_val_bounds_ != scale_info_.val_info_.view_bounds || last_base_val_bounds_ != scale_info_.val_info_.min_max_bounds; //
 }
 
 template <typename T>
@@ -98,8 +98,8 @@ constexpr const T& clamp(const T& val, const T& low, const T& high) {
 HorVerLim<double> ImageBG::CalculateTargetDisplayValueBounds() const
 {
     // 1. Определяем центр текущего отображения
-    const auto& current_h_bounds = scale_info_.val_info_.cur_bounds.hor;
-    const auto& current_v_bounds = scale_info_.val_info_.cur_bounds.vert;
+    const auto& current_h_bounds = scale_info_.val_info_.view_bounds.hor;
+    const auto& current_v_bounds = scale_info_.val_info_.view_bounds.vert;
     double center_x = current_h_bounds.mid(); // Предполагаем наличие метода mid()
     double center_y = current_v_bounds.mid(); // Предполагаем наличие метода mid()
 
@@ -162,7 +162,7 @@ void ImageBG::ResetRedrawFlags()
 {
     need_redraw_            = false; //
     last_pixmap_size_       = scale_info_.pix_info_.chart_size_px;
-    last_scaled_val_bounds_ = scale_info_.val_info_.cur_bounds;
+    last_scaled_val_bounds_ = scale_info_.val_info_.view_bounds;
     last_base_val_bounds_   = scale_info_.val_info_.min_max_bounds;
 }
 

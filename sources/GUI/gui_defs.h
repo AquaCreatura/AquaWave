@@ -72,13 +72,15 @@ struct ChartScaleInfo
     {
         //if bounds are changed
         HorVerLim<double>                    min_max_bounds;
-        HorVerLim<double>                    cur_bounds;
+		HorVerLim<double>                    work_bounds;
+        HorVerLim<double>                    view_bounds;
 		bool								 need_reset_scale{false};
 		HV_Info<double>						 max_zoom_koeffs{20., 20.};
 		ChartDomainType						 domain_type;
     };
     PixelScale pix_info_;
     ValueScale val_info_;
+	int64_t	   n_fft_;
 	Limits<double> power_bounds_;
 };
 /*

@@ -17,9 +17,6 @@
     <Filter Include="GUI\Charts\SPG">
       <UniqueIdentifier>{4b929b38-cf07-4ab7-ac5f-5b77484236e2}</UniqueIdentifier>
     </Filter>
-    <Filter Include="GUI\Charts\SPG\SPG core">
-      <UniqueIdentifier>{d36f039a-e8a2-4222-a607-4e0330f39b7b}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ARKS">
       <UniqueIdentifier>{3455a1c7-18f8-4a95-b3ce-ddf375df08c4}</UniqueIdentifier>
     </Filter>
@@ -154,15 +151,6 @@
     </ClCompile>
     <ClCompile Include="sources\DSP Tools\FFT\FFT_Worker.cpp">
       <Filter>DSP Tools\FFT</Filter>
-    </ClCompile>
-    <ClCompile Include="sources\GUI\Charts\SPG\SPG core\SpgCore.cpp">
-      <Filter>GUI\Charts\SPG\SPG core</Filter>
-    </ClCompile>
-    <ClCompile Include="sources\GUI\Charts\SPG\SPG core\SpgRenderer.cpp">
-      <Filter>GUI\Charts\SPG\SPG core</Filter>
-    </ClCompile>
-    <ClCompile Include="sources\GUI\Charts\SPG\SPG core\SpgScaler.cpp">
-      <Filter>GUI\Charts\SPG\SPG core</Filter>
     </ClCompile>
     <ClCompile Include="sources\GUI\Charts\SPG\SpgChart.cpp">
       <Filter>GUI\Charts\SPG</Filter>
@@ -303,15 +291,6 @@
       <Filter>GUI</Filter>
     </ClInclude>
     <ClInclude Include="sources\aqua_defines.h" />
-    <ClInclude Include="sources\GUI\Charts\SPG\SPG core\spg_defs.h">
-      <Filter>GUI\Charts\SPG\SPG core</Filter>
-    </ClInclude>
-    <ClInclude Include="sources\GUI\Charts\SPG\SPG core\SpgRenderer.h">
-      <Filter>GUI\Charts\SPG\SPG core</Filter>
-    </ClInclude>
-    <ClInclude Include="sources\GUI\Charts\SPG\SPG core\SpgScaler.h">
-      <Filter>GUI\Charts\SPG\SPG core</Filter>
-    </ClInclude>
     <ClInclude Include="sources\Arks\File Source\FileSource.h">
       <Filter>ARKS\File Source</Filter>
     </ClInclude>
@@ -437,9 +416,6 @@
     </QtMoc>
     <QtMoc Include="sources\Arks\Interfaces\ark_interface.h">
       <Filter>ARKS\Interfaces</Filter>
-    </QtMoc>
-    <QtMoc Include="sources\GUI\Charts\SPG\SPG core\SpgCore.h">
-      <Filter>GUI\Charts\SPG\SPG core</Filter>
     </QtMoc>
     <QtMoc Include="sources\Arks\Spectral Viewer\Window\spectral_viewer_window.h">
       <Filter>ARKS\Spectral Viewer\window</Filter>

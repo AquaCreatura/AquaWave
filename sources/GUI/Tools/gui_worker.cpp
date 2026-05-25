@@ -5,7 +5,7 @@
 bool aqua_gui::ZoomFromWheelDelta(ChartScaleInfo & scale_info, const int wheel_delta, const QPoint scale_point)
 {
     auto& min_max_bounds         = scale_info.val_info_.min_max_bounds;
-    auto& cur_bounds      = scale_info.val_info_.cur_bounds;
+    auto& cur_bounds      = scale_info.val_info_.view_bounds;
     auto& px_info = scale_info.pix_info_;
 
     bool is_y_scale = scale_point.x() > px_info.chart_size_px.hor;
@@ -108,7 +108,7 @@ void aqua_gui::AdaptVertPowerBounds(ChartScaleInfo & scale_info)
     auto &vert_min_max = scale_info.val_info_.min_max_bounds.vert;
 
 	// Получаем ссылку на текущие отображаемые границы шкалы (которые видит пользователь)
-	auto &vert_cur = scale_info.val_info_.cur_bounds.vert;
+	auto &vert_cur = scale_info.val_info_.view_bounds.vert;
 
 	const double min_epsilon = new_bounds.delta() * 0;
     // Если автоматические границы изменились, обновляем шкалу

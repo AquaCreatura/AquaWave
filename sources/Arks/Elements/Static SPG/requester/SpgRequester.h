@@ -1,6 +1,7 @@
 #pragma once
 #include "Arks/Interfaces/ark_interface.h"
-#include "GUI/Charts/SPG/SPG core/spg_defs.h"
+#include "GUI/Tools/Chart tiler/ChartTiler.h"
+
 #include <future>
 #include <qtimer.h>
 
@@ -12,7 +13,7 @@ class SpgRequester : public QObject
 {
     Q_OBJECT
 public:
-    SpgRequester(const spg_data& spg);
+    SpgRequester(const ChartTiler& tiler, const ChartScaleInfo& scale_info);
 	~SpgRequester();
     void Initialise	 (const ArkWptr& file_source, const ArkWptr& ark_spg);
 	void StartProcess(bool do_start);
@@ -29,7 +30,8 @@ protected:
 protected:
     ArkWptr                     ark_spg_;
     ArkWptr                     ark_file_src_;
-    const spg_data&             spg_;
+	const ChartScaleInfo&		scale_info_;
+    const ChartTiler&           tiler_;
     std::vector<int>            base_draw_locations_;
     std::vector<int>            spec_draw_locations_;
 

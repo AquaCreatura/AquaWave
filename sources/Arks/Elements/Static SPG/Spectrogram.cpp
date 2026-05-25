@@ -8,7 +8,7 @@ using namespace pipes;
 // parrent: ”казатель на родительский QWidget.
 StaticSpg::StaticSpg(QWidget * parrent) : 
     spg_drawer_(new spg_core::ChartSPG()),
-    requester_(spg_drawer_->GetSpectrogramInfo()) 
+    requester_(spg_drawer_->GetTiler(), spg_drawer_->GetScaleInfo())
 {
 	{
 		pipe_line_.AddNextPipe(std::make_shared<FFtPipe>());

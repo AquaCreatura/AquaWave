@@ -2,7 +2,7 @@
 #include <qshortcut.h>
 using namespace spg_core;
 ChartSPG::ChartSPG(QWidget * parrent, std::shared_ptr<SelectionHolder> selection_holder):
-    ChartInterface(parrent, selection_holder)
+    ChartInterface(parrent, selection_holder), tiler_(scale_info_)
 {
     SetHorizontalMinMaxBounds({0, 1});
     SetHorizontalSuffix("counts");
@@ -23,23 +23,20 @@ ChartSPG::~ChartSPG()
 
 void ChartSPG::DrawData(QPainter & passed_painter)
 {
-    if(ShouldRedraw()) 
-    {
-        cached_pixmap_ = spg_core_.GetRelevantPixmap(scale_info_);
-    }
-    if(!cached_pixmap_.isNull()) 
-        passed_painter.drawPixmap(0, 0, cached_pixmap_);
+	auto relevant_pixmap = tiler_.GetRelevantPixmap();
+	if (relevant_pixmap.isNull()) return;
+	passed_painter.drawPixmap(0, 0, relevant_pixmap);
 }
 
 void ChartSPG::PushData(const draw_data & draw_data)
 {
     power_man_.UpdateBounds(draw_data.data, scale_info_.val_info_.min_max_bounds.hor /*data_bounds*/);
-    spg_core_.AccumulateNewData(draw_data.data,draw_data.time_pos);
+	tiler_.SetData(draw_data);
 }
 
 void spg_core::ChartSPG::ClearData()
 {
-    spg_core_.Emplace();
+	tiler_.Reset();
 	power_man_.ResetBounds();
 }
 
@@ -47,7 +44,7 @@ void spg_core::ChartSPG::ClearData()
 void ChartSPG::SetVerticalMinMaxBounds(const Limits<double>& vert_bounds)
 {
     ChartInterface::SetVerticalMinMaxBounds(vert_bounds);
-	spg_core_.SetFreqBounds(vert_bounds);
+	tiler_.Reset();
 }
 
 void ChartSPG::SetHorizontalMinMaxBounds(const Limits<double>& hor_bounds)
@@ -55,25 +52,22 @@ void ChartSPG::SetHorizontalMinMaxBounds(const Limits<double>& hor_bounds)
 	if (!is_counts_mode_) ChangeTimeDomain();
 	scale_info_.val_info_.max_zoom_koeffs.hor = std::max(2., hor_bounds.delta() / 1000);
 	ChartInterface::SetHorizontalMinMaxBounds(hor_bounds);	
-    spg_core_.SetTimeBounds(hor_bounds);
+	tiler_.Reset();
 }
 
 void spg_core::ChartSPG::SetFftOrder(int fft_order)
 {
 	scale_info_.val_info_.max_zoom_koeffs.vert = std::max(1., (1 << fft_order) / 20.);
-	spg_core_.SetNfftOrder(fft_order);
+	tiler_.Reset();
 }
 
-spg_data const & ChartSPG::GetSpectrogramInfo() const
+ChartTiler const & spg_core::ChartSPG::GetTiler() const
 {
-    return spg_core_.GetSpectrogramInfo();
+	return tiler_;
 }
 
 
-bool ChartSPG::ShouldRedraw()
-{
-    return true;
-}
+
 
 void spg_core::ChartSPG::ChangeTimeDomain()
 {
@@ -82,11 +76,11 @@ void spg_core::ChartSPG::ChangeTimeDomain()
 	const double freq_bounds_hz = min_max.vert.delta() * 1e6;
 	const double multiply_koeff = need_count_mode ? freq_bounds_hz : 1. / freq_bounds_hz;
 	min_max.hor  = min_max.hor * multiply_koeff;
-	scale_info_.val_info_.cur_bounds.hor = scale_info_.val_info_.cur_bounds.hor * multiply_koeff;
+	scale_info_.val_info_.view_bounds.hor = scale_info_.val_info_.view_bounds.hor * multiply_koeff;
 
 	is_counts_mode_ = need_count_mode;
 	if (is_counts_mode_) scale_info_.val_info_.max_zoom_koeffs.hor = std::max(2., min_max.hor.delta() / 1000);
 	
-	spg_core_.SetTimeBounds(min_max.hor);
+	//spg_core_.SetTimeBounds(min_max.hor);
 	SetHorizontalSuffix(is_counts_mode_ ? "counts" : "time");
 }

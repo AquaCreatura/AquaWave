@@ -35,7 +35,7 @@ void ChartTiler::UpdateTileBase()
 */
 void ChartTiler::UpdateTileView()
 {
-	auto view_bounds = scale_info_.val_info_.cur_bounds;
+	auto view_bounds = scale_info_.val_info_.view_bounds;
 	const auto &base_bounds = scale_info_.val_info_.min_max_bounds;
 	if (!is_spg_) view_bounds.vert = base_bounds.vert;
 	//Факт того, что диапазон попадаетв тайл
@@ -119,7 +119,7 @@ const QPixmap & ChartTiler::UpdateQPixmap()
 		}
 	}
 	return zoomer_.GetPrecisedPart(used_tile->GetValBounds(),	//Границы тайла
-									scale_info_.val_info_.cur_bounds,				//Границы отображаемые
+									scale_info_.val_info_.view_bounds,				//Границы отображаемые
 									scale_info_.pix_info_.chart_size_px);			//Размер графика
 
 }
@@ -127,7 +127,7 @@ const QPixmap & ChartTiler::UpdateQPixmap()
 bool ChartTiler::NeedUpdateTile()
 {
 	auto &used_tile = tiles_[tile_id_];
-	const auto &view_bounds = scale_info_.val_info_.cur_bounds;
+	const auto &view_bounds = scale_info_.val_info_.view_bounds;
 	const auto &cur_tile_bounds = used_tile->GetValBounds();
 	bool is_out_of_cur_tile = (view_bounds.hor.low < cur_tile_bounds.hor.low) || (view_bounds.hor.high > cur_tile_bounds.hor.high) ||
 								(view_bounds.vert.low < cur_tile_bounds.vert.low) || (view_bounds.vert.high > cur_tile_bounds.vert.high);
@@ -172,3 +172,9 @@ void ChartTiler::UpdateBounds()
 	image_update_timer_.restart(); //Перезапускаем таймер 
 	need_update_qimage_ = true;
 }
+
+TileInterface::uptr const & ChartTiler::SpgGetTile() const
+{
+	return tiles_[tile_id_];
+}
+

@@ -1,6 +1,6 @@
 #pragma once
 #include "GUI/Charts/ChartInterface.h"
-#include "SPG core/SpgCore.h"
+#include "GUI/Tools/Chart tiler/ChartTiler.h"
 namespace spg_core
 {
 class ChartSPG : public ChartInterface
@@ -17,14 +17,13 @@ public:
 
 //Requests for core
 	void			 SetFftOrder(int fft_order);
-    spg_data const & GetSpectrogramInfo() const;
+	ChartTiler const &GetTiler() const;
+
 protected:
-    bool ShouldRedraw();
 	void ChangeTimeDomain();
 protected:
 	bool				is_counts_mode_{ true };
-    spg_core::SpgCore   spg_core_;
-    QPixmap             cached_pixmap_;
+	ChartTiler			tiler_;
     
 };
 

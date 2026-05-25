@@ -19,13 +19,9 @@ ChartDPX::~ChartDPX()
 
 void ChartDPX::DrawData(QPainter & passed_painter)
 {
-    if(ShouldRedraw()) 
-    {
-        cached_pixmap_ = tiler_.GetRelevantPixmap();
-    }
-    if(cached_pixmap_.isNull()) 
-        return;
-    passed_painter.drawPixmap(0, 0, cached_pixmap_);
+	auto relevant_pixmap = tiler_.GetRelevantPixmap();
+	if (relevant_pixmap.isNull()) return;
+    passed_painter.drawPixmap(0, 0, relevant_pixmap);
 }
 
 void ChartDPX::PushData(const draw_data& draw_data )
@@ -64,11 +60,4 @@ Limits<double> ChartDPX::GetHorizontalMinMaxBounds()
 void ChartDPX::SetHorizontalDiscretisation(const size_t hor_discretisation)
 {
 	scale_info_.val_info_.max_zoom_koeffs.hor = std::max(1., hor_discretisation / 20.);
-}
-
-
-
-bool ChartDPX::ShouldRedraw()
-{
-    return true;
 }

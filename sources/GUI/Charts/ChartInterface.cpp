@@ -36,7 +36,7 @@ void ChartInterface::SetVerticalMinMaxBounds(const Limits<double>& vertical_boun
     if (cur_min_max == vertical_bounds) return;
 
     cur_min_max = vertical_bounds;
-    scale_info_.val_info_.cur_bounds.vert = vertical_bounds;
+    scale_info_.val_info_.view_bounds.vert = vertical_bounds;
 }
 
 // Установка границ по горизонтали
@@ -47,7 +47,7 @@ void ChartInterface::SetHorizontalMinMaxBounds(const Limits<double>& hor_bounds)
     if (cur_val_info == hor_bounds) return;
 
     cur_val_info = hor_bounds;
-    scale_info_.val_info_.cur_bounds.hor = hor_bounds;
+    scale_info_.val_info_.view_bounds.hor = hor_bounds;
     power_man_.SetNewViewBounds(hor_bounds);
 }
 
@@ -83,6 +83,11 @@ void ChartInterface::ActivateChart(bool do_activate)
 		redraw_timer_.start(50);
 	else
 		redraw_timer_.stop();
+}
+
+aqua_gui::ChartScaleInfo const & ChartInterface::GetScaleInfo()
+{
+	return scale_info_;
 }
 
 
@@ -169,12 +174,12 @@ void ChartInterface::ZoomToSelection(const bool is_zoom_in)
 {
 	if (is_zoom_in) {
 		auto sel_hv = selection_drawer_.GetHolder()->GetHorVert(scale_info_);
-		if (sel_hv.hor.delta()) scale_info_.val_info_.cur_bounds.hor = sel_hv.hor;
-		if (sel_hv.vert.delta() && (scale_info_.val_info_.domain_type == ChartDomainType::kTimeFrequency)) scale_info_.val_info_.cur_bounds.vert = sel_hv.vert;
+		if (sel_hv.hor.delta()) scale_info_.val_info_.view_bounds.hor = sel_hv.hor;
+		if (sel_hv.vert.delta() && (scale_info_.val_info_.domain_type == ChartDomainType::kTimeFrequency)) scale_info_.val_info_.view_bounds.vert = sel_hv.vert;
 		selection_drawer_.GetHolder()->ClearSelection();
 	}
 	else {
-		scale_info_.val_info_.cur_bounds = scale_info_.val_info_.min_max_bounds;
+		scale_info_.val_info_.view_bounds = scale_info_.val_info_.min_max_bounds;
 	}
 }
 

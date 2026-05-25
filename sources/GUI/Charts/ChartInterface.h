@@ -56,6 +56,8 @@ public:
 	virtual void					SetSelectionHolder	(std::shared_ptr<SelectionHolder> selection_holder);
 
 	virtual void					ActivateChart		(bool do_activate);
+
+	aqua_gui::ChartScaleInfo const& GetScaleInfo		();
 signals:
 	void					SelectionIsReady();
 protected slots:

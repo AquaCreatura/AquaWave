@@ -50,7 +50,7 @@ bool SpectralViewer::SendData(fluctus::DataInfo const & data_info)
 {
     // Если входные данные пусты, выходим.
     if(data_info.data_vec.empty()) return true;
-	//spg_->SendData	(data_info);
+	//tiler_->SendData	(data_info);
 	spectrum_->SendData	(data_info);
     return true; // Успех.
 }

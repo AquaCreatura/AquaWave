@@ -21,7 +21,7 @@ protected:
     bool Reload();
 protected:
     QPointer<ChartSPG>          spg_drawer_;
-    SourceArk                  src_info_;
+    SourceArk					src_info_;
     SpgRequester                requester_;
 	std::shared_ptr<aqua_gui::SelectionHolder> selection_holder_;
 	double						freq_divider_{ 1. };

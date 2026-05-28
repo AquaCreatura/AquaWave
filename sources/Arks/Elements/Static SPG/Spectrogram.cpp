@@ -41,7 +41,7 @@ bool StaticSpg::SendData(fluctus::DataInfo const & data_info)
     
     // Отправляем вычисленные магнитуды и частотные границы в отрисовщик.
     draw_data draw_data;
-    draw_data.freq_bounds = freq_bounds;
+    draw_data.freq_bounds = freq_bounds / freq_divider_;
     draw_data.time_pos    = data_info.time_point;
 	draw_data.data	      = pipe_line_.meta->float_data;
     spg_drawer_->PushData(draw_data);

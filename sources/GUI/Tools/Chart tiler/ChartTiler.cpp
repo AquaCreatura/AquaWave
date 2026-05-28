@@ -91,6 +91,7 @@ void ChartTiler::UpdateTileView()
 		if (tile_counter == new_tile_id) continue;
 		new_use_tile->UpdateFromTile(tiles_[tile_counter].get());
 	}
+	new_use_tile->is_data_updated_ = true;
 	qDebug() << "new id: " << new_tile_id;
 	tile_id_ = new_tile_id;
 	

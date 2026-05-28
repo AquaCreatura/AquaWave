@@ -71,7 +71,6 @@ void TileDPX::UpdateFromTile(const TileInterface* passed_data)
 	is_data_updated_ = true;
 	if (is_relevant) {
 		last_average_density_ = passed_data->last_average_density_;
-		last_max_density_	  = passed_data->last_max_density_;
 	}
 }
 void TileDPX::UpdateQimage(dynamic_qimage & dyn_qimage, const Limits<double>& power_bounds)
@@ -109,8 +108,6 @@ void TileDPX::UpdateQimage(dynamic_qimage & dyn_qimage, const Limits<double>& po
 		last_average_density_ = new_density;
 		is_data_updated_ = true;
 	}
-
-	last_max_density_ = max_density;
 }
 
 void TileDPX::Reset()

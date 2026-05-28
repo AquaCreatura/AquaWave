@@ -27,7 +27,7 @@ public:
     Limits<double> GetPowerBounds() const;
 
     // Обновление границ мощности на основе данных и их диапазона
-    void UpdateBounds(const std::vector<float>& data, const Limits<double>& data_bounds);
+    void Process(const std::vector<float>& data, const Limits<double>& data_bounds);
 
     // Проверка, включён ли адаптивный режим
     bool IsAdaptiveMode() const;

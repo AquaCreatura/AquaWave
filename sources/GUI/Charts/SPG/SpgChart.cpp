@@ -2,13 +2,13 @@
 #include <qshortcut.h>
 using namespace spg_core;
 ChartSPG::ChartSPG(QWidget * parrent, std::shared_ptr<SelectionHolder> selection_holder):
-    ChartInterface(parrent, selection_holder), tiler_(scale_info_)
+    ChartInterface(parrent, selection_holder, ChartDomainType::kTimeFrequency), tiler_(scale_info_)
 {
     SetHorizontalMinMaxBounds({0, 1});
     SetHorizontalSuffix("counts");
 
     SetVerticalSuffix("power");
-	scale_info_.val_info_.domain_type = ChartDomainType::kTimeFrequency;
+	
 	//SetBackgroundImage(":/AquaWave/third_party/background/black_forest.jpg");
 
 
@@ -28,10 +28,14 @@ void ChartSPG::DrawData(QPainter & passed_painter)
 	passed_painter.drawPixmap(0, 0, relevant_pixmap);
 }
 
-void ChartSPG::PushData(const draw_data & draw_data)
+void ChartSPG::PushData(const draw_data & passed_data)
 {
-    power_man_.UpdateBounds(draw_data.data, scale_info_.val_info_.min_max_bounds.hor /*data_bounds*/);
-	tiler_.SetData(draw_data);
+	((draw_data&)passed_data).time_pos *= scale_info_.val_info_.min_max_bounds.hor.delta();
+
+    power_man_.Process(passed_data.data, scale_info_.val_info_.min_max_bounds.hor);
+	tiler_.SetData(passed_data);
+
+	((draw_data&)passed_data).time_pos /= scale_info_.val_info_.min_max_bounds.hor.delta();
 }
 
 void spg_core::ChartSPG::ClearData()
@@ -57,7 +61,8 @@ void ChartSPG::SetHorizontalMinMaxBounds(const Limits<double>& hor_bounds)
 
 void spg_core::ChartSPG::SetFftOrder(int fft_order)
 {
-	scale_info_.val_info_.max_zoom_koeffs.vert = std::max(1., (1 << fft_order) / 20.);
+	scale_info_.n_fft_ = 1 << fft_order;
+	scale_info_.val_info_.max_zoom_koeffs.vert = std::max(1., scale_info_.n_fft_ / 20.);
 	tiler_.Reset();
 }
 

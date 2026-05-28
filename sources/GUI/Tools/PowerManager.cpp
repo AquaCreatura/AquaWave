@@ -30,7 +30,7 @@ Limits<double> PowerLimitMan::GetPowerBounds() const {
     return power_bounds_.load();           // Получение текущих границ мощности
 }
 
-void PowerLimitMan::UpdateBounds(const std::vector<float>& data, const Limits<double>& data_bounds) {
+void PowerLimitMan::Process(const std::vector<float>& data, const Limits<double>& data_bounds) {
     if (!IsAdaptiveMode() || data.empty()) {
         return;                            // Выход, если режим не адаптивный или данные пусты
     }

@@ -28,7 +28,7 @@ void ChartDPX::PushData(const draw_data& draw_data )
 {
 	//Обновляем порог по мощности
 	{
-		power_man_.UpdateBounds(draw_data.data, draw_data.freq_bounds);
+		power_man_.Process(draw_data.data, draw_data.freq_bounds);
 		scale_info_.power_bounds_ = power_man_.GetPowerBounds();
 		if (power_man_.NeedRelevantBounds()) {
 			aqua_gui::AdaptVertPowerBounds(scale_info_);

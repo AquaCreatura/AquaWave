@@ -4,17 +4,18 @@
 void TileInterface::SetValBounds(HorVerLim<double> bounds)
 {
 	val_bounds_ = bounds;
+	if (is_rotated_) {
+		std::swap(val_bounds_.hor, val_bounds_.vert);
+	}
 	Reset();
 }
 
 void TileInterface::SetImageSize(const HV_Info<size_t> size)
 {
-	if (!is_rotated_)
-		data_size_ = size;
-	else {
-		data_size_.hor	= size.vert;
-		data_size_.vert = size.hor;
-	}		
+	data_size_ = size;
+	if (is_rotated_) {
+		std::swap(data_size_.hor, data_size_.vert);
+	}	
 	Reset();
 }
 
@@ -43,7 +44,10 @@ std::unique_ptr<TileInterface> TileInterface::RecreateWithBounds(const HorVerLim
 
 HorVerLim<double> TileInterface::GetValBounds()
 {
-	return val_bounds_;
+	if (!is_rotated_)
+		return val_bounds_;
+	else
+		return { val_bounds_.vert, val_bounds_.hor };
 }
 
 

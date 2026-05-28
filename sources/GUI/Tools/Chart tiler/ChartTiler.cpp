@@ -141,10 +141,10 @@ bool ChartTiler::NeedUpdateTile()
 void ChartTiler::SetData(const draw_data & data)
 {
 	tbb::spin_mutex::scoped_lock scoped_locker(data_mutex_);
-	tiles_[tile_id_]->SetData(data); return;
-	for (auto &it : tiles_) {
-		it->SetData(data);
-	}
+	tiles_[tile_id_]->SetData(data); return; //ѕока достаточно запушить в один единственный
+	//for (auto &it : tiles_) {
+	//	it->SetData(data);
+	//}
 }
 
 void ChartTiler::Reset()

@@ -131,6 +131,7 @@ void TileSPG::SetDataToRow(const float * passed_data, int data_size, const Limit
 
 	const double norm_koeff = double(data_size) / (dst_bounds.delta() - 1);
 	float* raw_ptr = &data_[res_idx * img_width];
+	ippsZero_32f(raw_ptr, img_width);
 	for (int x_idx = dst_bounds.low; x_idx < dst_bounds.high; x_idx++)
 	{
 		const auto passed_data_index = int((x_idx - dst_bounds.low) * norm_koeff);
@@ -143,7 +144,7 @@ void TileSPG::SetDataToRow(const float * passed_data, int data_size, const Limit
 
 argb_t TileSPG::GetNormColor(double relative_density) const
 {
-	double delta = (last_average_density_ * 0.5);
+	double delta = (last_average_density_ * 0.7);
 	double normalized_density = (relative_density - last_average_density_) / delta;
 	return LUT_HSV_Instance::DensityToRGB(normalized_density);
 }

@@ -87,7 +87,7 @@ void ChartTiler::UpdateTileView()
 		}
 	}
 	auto &new_use_tile = tiles_[new_tile_id];
-	for (int tile_counter = count_of_tiles_ - 1; tile_counter >= 0; tile_counter--) {
+	for (int tile_counter = count_of_tiles_; tile_counter-- > 0;) {
 		if (tile_counter == new_tile_id) continue;
 		new_use_tile->UpdateFromTile(tiles_[tile_counter].get());
 	}
@@ -141,6 +141,7 @@ bool ChartTiler::NeedUpdateTile()
 void ChartTiler::SetData(const draw_data & data)
 {
 	tbb::spin_mutex::scoped_lock scoped_locker(data_mutex_);
+	tiles_[tile_id_]->SetData(data); return;
 	for (auto &it : tiles_) {
 		it->SetData(data);
 	}

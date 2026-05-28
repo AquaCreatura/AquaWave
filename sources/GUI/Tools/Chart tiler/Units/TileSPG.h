@@ -8,8 +8,7 @@ public:
 	void			UpdateFromTile(const TileInterface* passed_data) override; 	// + Update From current?...
 	void			UpdateQimage(dynamic_qimage& dyn_qimage, const Limits<double> &power_bounds) override;
 protected:
-	void					UpdateQimageRotate(dynamic_qimage& dyn_qimage, const Limits<double> &power_bounds);
-	void					SetDataToRow(const float* passed_data, int data_size, const size_t row_idx, const Limits<size_t> start_end_idx );
+	void					SetDataToRow(const float * passed_data, int data_size, const Limits<size_t> dst_bounds, double time_pos, const bool is_relevant);
 	argb_t					GetNormColor(const double density) const;
 	void					Reset() override;
 

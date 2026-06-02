@@ -20,7 +20,8 @@ protected:
 public:
 	std::atomic_bool	is_data_updated_;
 	HorVerLim<double>	val_bounds_; 
-	double last_average_density_{ 1.0 };
+	double last_average_density_{ 0.0 };
+	double max_density_{ 0.0 };
 
 	std::vector<bool>	relevant_vec_;	// Актуальна ли колонка
 protected:

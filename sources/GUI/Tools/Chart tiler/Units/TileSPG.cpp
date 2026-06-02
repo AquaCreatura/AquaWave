@@ -39,7 +39,7 @@ void TileSPG::UpdateFromTile(const TileInterface* passed_tile) {
 	bool is_good_density = false;
 	const bool is_relevant = passed_tile->val_bounds_.hor == val_bounds_.hor;
 	for (size_t src_row = 0; src_row < src->data_size_.vert; ++src_row) {
-		if (!src->pos_vec_[src_row] < 0.f) continue;
+		if (src->pos_vec_[src_row] < 0.f) continue;
 
 		double time = src->pos_vec_[src_row];
 		if (!val_bounds_.vert.has_inside(time)) continue;
@@ -67,8 +67,10 @@ void TileSPG::UpdateFromTile(const TileInterface* passed_tile) {
 		const float* src_data_ptr = src->data_.data() + src_row * src->data_size_.hor + src_indices.low;
 		SetDataToRow(src_data_ptr, src_indices.delta(), dst_indices, time, is_relevant);
 	}
-	if (is_good_density && last_average_density_ == 1.0f)
+	if (is_good_density && last_average_density_ == 0.0f) {
 		last_average_density_ = src->last_average_density_;
+		max_density_ = src->max_density_;
+	}
 }
 
 void TileSPG::UpdateQimage(dynamic_qimage & dyn_qimage, const Limits<double> &power_bounds)
@@ -114,6 +116,7 @@ void TileSPG::UpdateQimage(dynamic_qimage & dyn_qimage, const Limits<double> &po
 	if (new_density != last_average_density_) {
 		last_average_density_ = new_density;
 		is_data_updated_ = true;
+		max_density_ = std::max(max_density, max_density_);
 	}
 
 }
@@ -144,7 +147,7 @@ void TileSPG::SetDataToRow(const float * passed_data, int data_size, const Limit
 
 argb_t TileSPG::GetNormColor(double relative_density) const
 {
-	double delta = (last_average_density_ * 0.7);
+	double delta = (max_density_ - last_average_density_ ) * 0.8;
 	double normalized_density = (relative_density - last_average_density_) / delta;
 	return LUT_HSV_Instance::DensityToRGB(normalized_density);
 }

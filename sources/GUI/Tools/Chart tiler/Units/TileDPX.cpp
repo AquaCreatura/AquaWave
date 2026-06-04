@@ -4,6 +4,10 @@
 TileDPX::TileDPX()
 {
 	is_spg_ = false;
+	max_column_weight_		= 200'000;
+	max_trans_column_weight_= 20'000;
+	trans_decrease_counter_	= 0;
+
 }
 void TileDPX::SetData(const draw_data & passed_info)
 {
@@ -11,7 +15,7 @@ void TileDPX::SetData(const draw_data & passed_info)
 
 	is_data_updated_ = true;
 
-	PrepareForNewData(passed_info.freq_bounds);
+	PrepareForNewData();
 
 	const auto& vis = val_bounds_.hor;
 	const auto& full = passed_info.freq_bounds;
@@ -37,20 +41,19 @@ void TileDPX::UpdateFromTile(const TileInterface* passed_data)
 	if (!passed || passed->data_size_.hor == 0 || passed->data_size_.vert == 0 || passed_data->val_bounds_.hor.delta() == 0)
 		return;
 	double hor_ratio = passed_data->val_bounds_.hor.delta() / val_bounds_.hor.delta();
-
 	const bool is_relevant = hor_ratio <= 1.;
-
+	int64_t new_max_trans_density = 0;
 	for (size_t x_idx = 0; x_idx < data_size_.hor; ++x_idx) {
 		if (column_weight[x_idx] != 0) continue;
 		if (passed->column_weight[x_idx] == 0) continue;
 		// 1. Находим мировое значение (src_val_x) для текущего x_idx
 		double src_val_x = val_bounds_.hor.lerp((x_idx + 0.5) / data_size_.hor);
-
 		if (!passed->val_bounds_.hor.has_inside(src_val_x)) continue;
 
 		// 2. Находим индекс в исходном буфере через pos()
 		size_t sx = std::min(static_cast<size_t>(std::round(passed->val_bounds_.hor.pos(src_val_x) * passed->data_size_.hor - 0.5)),
 			passed->data_size_.hor - 1);
+		double norm_koeff = double(max_trans_column_weight_) /  std::max(passed->column_weight[x_idx], max_trans_column_weight_);
 
 		size_t sum = 0;
 		for (size_t y = 0; y < data_size_.vert; ++y) {
@@ -61,15 +64,20 @@ void TileDPX::UpdateFromTile(const TileInterface* passed_data)
 			size_t sy = std::min(static_cast<size_t>(std::round(passed->val_bounds_.vert.pos(wy) * passed->data_size_.vert - 0.5)),
 				passed->data_size_.vert - 1);
 
-			auto value = passed->data_[sy * passed->data_size_.hor + sx];
-			data_[y * data_size_.hor + x_idx] = value;
-			sum += value;
+			auto cur_val = passed->data_[sy * passed->data_size_.hor + sx];
+			cur_val = std::ceil(cur_val * norm_koeff); //Нормируем
+			new_max_trans_density = std::max<int64_t>(new_max_trans_density, cur_val);
+			data_[y * data_size_.hor + x_idx] = cur_val;
+			sum += cur_val;
 		}
 		column_weight[x_idx] = sum;
-		relevant_vec_[x_idx] = is_relevant;
+		//relevant_vec_[x_idx] = is_relevant;
 	}
+	if(new_max_trans_density)
+		trans_decrease_counter_ = new_max_trans_density;
+
 	is_data_updated_ = true;
-	if (is_relevant) {
+	if (is_relevant || (last_average_density_ == 0.0f)) {
 		last_average_density_ = passed_data->last_average_density_;
 	}
 }
@@ -171,10 +179,9 @@ void TileDPX::DrawInterpolated(const std::vector<float>& values,
 
 		double p0 = xb.pos(x0) * width;
 		double p1 = xb.pos(x1) * width;
-		if (p0 > p1) std::swap(p0, p1);
 
-		size_t x_begin = static_cast<size_t>(std::floor(p0));
-		size_t x_end = static_cast<size_t>(std::ceil(p1));
+		int64_t x_begin = static_cast<int64_t>(std::floor(p0));
+		int64_t x_end = static_cast<int64_t>(std::ceil(p1));
 
 		if (x_begin >= width) x_begin = width - 1;
 		if (x_end > width)    x_end = width;
@@ -202,33 +209,52 @@ argb_t TileDPX::GetNormColor(const double relative_density) const
 	const double normalized_density = qBound(0.0, relative_density / (last_average_density_ * 3), 1.0);
 	return LUT_HSV_Instance::DensityToRGB(normalized_density);
 }
-void TileDPX::PrepareForNewData(const Limits<double>& freq_bounds)
+
+void TileDPX::PrepareForNewData()
 {
-	const size_t width = data_size_.hor;
-	if (width == 0 || data_size_.vert == 0 || val_bounds_.hor.delta() <= 0)
+	const int width	= data_size_.hor;
+	const int height = data_size_.vert;
+
+	if (width == 0 || height == 0 || val_bounds_.hor.delta() <= 0)
 		return;
+	const bool is_trans = trans_decrease_counter_ > 0;
+	const double max_deviation = 0.15;
+	const int64_t max_column_size = is_trans ? max_trans_column_weight_ : max_column_weight_;
 
-	// 1. Используем pos() для получения относительных координат [0.0 ... 1.0]
-	// 2. Умножаем на ширину, чтобы получить индексы
-	int64_t x_begin = static_cast<int64_t>(std::floor(val_bounds_.hor.pos(freq_bounds.low) * width));
-	int64_t x_end = static_cast<int64_t>(std::floor(val_bounds_.hor.pos(freq_bounds.high) * width));
-
-	// Обрезка границ (заменяет проверку на пересечение и clamp)
-	x_begin = std::max<int64_t>(0, x_begin);
-	x_end = std::min<int64_t>(static_cast<int64_t>(width) - 1, x_end);
-
-	if (x_begin > x_end)
-		return;
-
-	for (int64_t x = x_begin; x <= x_end; ++x) {
-		if (relevant_vec_[x]) continue;
-
-		// Обнуление столбца
-		for (size_t y = 0; y < data_size_.vert; ++y) {
-			data_[y * width + x] = 0;
+	// Сначала смотрим - а надо ли вообще что-то делать
+	{
+		bool is_all_relevant = true;
+		bool small_values = false;
+		for (int64_t x = 0; x < width; x++) {
+			if (relevant_vec_[x]) continue;
+			is_all_relevant = false;
+			if (column_weight[x] < max_column_size*(1 + max_deviation)) {
+				small_values = true;
+				break;
+			}
 		}
-
-		column_weight[x] = 0;
-		relevant_vec_[x] = true;
+		//Если нет необходимости суетиться - выходим
+		if (is_all_relevant || small_values) {
+			return;
+		}
+	}
+	//Нормируем, приводим к среднему значению
+	{
+		double trans_norm_koeff = 0.01;
+		for (int64_t x = 0; x < width; x++) {
+			if (relevant_vec_[x]) continue;
+			int cur_col_decrease = 0;
+			const double norm_koeff = double(std::min<int64_t>(column_weight[x], max_column_size)) / column_weight[x];
+			trans_norm_koeff = std::max(trans_norm_koeff, norm_koeff);
+			size_t new_column_weight = 0;
+			for (size_t y = 0; y < data_size_.vert; ++y) {
+				const int64_t new_weight = data_[y * width + x] * norm_koeff;
+				new_column_weight += new_weight;
+				data_[y * width + x] = new_weight;
+			}
+			column_weight[x] = new_column_weight;
+		}
+		trans_decrease_counter_ *= trans_norm_koeff;
+		is_data_updated_ = true;
 	}
 }

@@ -48,6 +48,7 @@ protected:
     std::atomic<Limits<double>> power_bounds_;        // Актуальные границы мощности
     std::atomic<Limits<double>> view_bounds_;         // Видимые границы (используются при адаптации)
     Limits<double> power_margins_;                    // Запасы (margins) для изменения границ мощности
+	std::vector<float> percentile_vec_;
 };
 
 }

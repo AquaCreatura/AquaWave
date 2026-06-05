@@ -130,7 +130,7 @@ void ChartInterface::paintEvent(QPaintEvent * paint_event)
     UpdateWidgetSizeInfo();     //if widget size was changed
 
 	//Для ЛЧМ не используем
-    if(false && scale_info_.val_info_.domain_type != ChartDomainType::kTimeFrequency) 
+    if(scale_info_.val_info_.domain_type != ChartDomainType::kTimeFrequency) 
 		aqua_gui::AdaptVertPowerBounds(scale_info_);
 
     

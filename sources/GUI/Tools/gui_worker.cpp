@@ -110,13 +110,13 @@ void aqua_gui::AdaptVertPowerBounds(ChartScaleInfo & scale_info)
 	// ѕолучаем ссылку на текущие отображаемые границы шкалы (которые видит пользователь)
 	auto &vert_cur = scale_info.val_info_.view_bounds.vert;
 
-	const double min_epsilon = new_bounds.delta() * 0;
+	const double min_epsilon = new_bounds.delta() * 0.05;
     // ≈сли автоматические границы изменились, обновл€ем шкалу
-    if(std::abs(vert_min_max.low - new_bounds.low) > min_epsilon || 
-		std::abs(vert_min_max.high - new_bounds.high) > min_epsilon )
-    {
+	if (std::abs(vert_min_max.low - new_bounds.low) > min_epsilon ||
+		std::abs(vert_min_max.high - new_bounds.high) > min_epsilon)
+	{
 
-        
+
 		// орретируем отображаемое
 		if (!scale_info.val_info_.need_reset_scale) {
 
@@ -139,7 +139,9 @@ void aqua_gui::AdaptVertPowerBounds(ChartScaleInfo & scale_info)
 			vert_min_max = new_bounds;
 			vert_cur = new_bounds;
 			scale_info.val_info_.need_reset_scale = false;
-		}        
-    }
+		}
+	}
+	else
+		int a = 1;
 }
 

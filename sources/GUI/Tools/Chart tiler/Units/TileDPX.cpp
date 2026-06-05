@@ -41,11 +41,11 @@ void TileDPX::UpdateFromTile(const TileInterface* passed_data)
 	if (!passed || passed->data_size_.hor == 0 || passed->data_size_.vert == 0 || passed_data->val_bounds_.hor.delta() == 0)
 		return;
 	double hor_ratio = passed_data->val_bounds_.hor.delta() / val_bounds_.hor.delta();
-	const bool is_relevant = hor_ratio <= 1.;
+	const bool is_relevant = false;  hor_ratio <= 1.;
 	int64_t new_max_trans_density = 0;
 	for (size_t x_idx = 0; x_idx < data_size_.hor; ++x_idx) {
-		if (column_weight[x_idx] != 0) continue;
-		if (passed->column_weight[x_idx] == 0) continue;
+		if (column_weight_vec_[x_idx] != 0) continue;
+		if (passed->column_weight_vec_[x_idx] == 0) continue;
 		// 1. Находим мировое значение (src_val_x) для текущего x_idx
 		double src_val_x = val_bounds_.hor.lerp((x_idx + 0.5) / data_size_.hor);
 		if (!passed->val_bounds_.hor.has_inside(src_val_x)) continue;
@@ -53,7 +53,7 @@ void TileDPX::UpdateFromTile(const TileInterface* passed_data)
 		// 2. Находим индекс в исходном буфере через pos()
 		size_t sx = std::min(static_cast<size_t>(std::round(passed->val_bounds_.hor.pos(src_val_x) * passed->data_size_.hor - 0.5)),
 			passed->data_size_.hor - 1);
-		double norm_koeff = double(max_trans_column_weight_) /  std::max(passed->column_weight[x_idx], max_trans_column_weight_);
+		double norm_koeff = double(max_trans_column_weight_) /  std::max(passed->column_weight_vec_[x_idx], max_trans_column_weight_);
 
 		size_t sum = 0;
 		for (size_t y = 0; y < data_size_.vert; ++y) {
@@ -70,11 +70,11 @@ void TileDPX::UpdateFromTile(const TileInterface* passed_data)
 			data_[y * data_size_.hor + x_idx] = cur_val;
 			sum += cur_val;
 		}
-		column_weight[x_idx] = sum;
+		column_weight_vec_[x_idx] = sum;
 		//relevant_vec_[x_idx] = is_relevant;
 	}
 	if(new_max_trans_density)
-		trans_decrease_counter_ = new_max_trans_density;
+		trans_decrease_counter_ = std::max(trans_decrease_counter_, new_max_trans_density);
 
 	is_data_updated_ = true;
 	if (is_relevant || (last_average_density_ == 0.0f)) {
@@ -92,7 +92,7 @@ void TileDPX::UpdateQimage(dynamic_qimage & dyn_qimage, const Limits<double>& po
 	argb_t *rgb_iter = dyn_qimage.data.data();
 	for (int vert_number = 0; vert_number < grid_height; vert_number++)
 	{
-		const size_t* column_weight_iter = &column_weight[0]; //Reset for every row
+		const size_t* column_weight_iter = &column_weight_vec_[0]; //Reset for every row
 		const auto matrix_idx_y = grid_height - vert_number - 1; //We have inversed image
 		const int64_t* dpx_iter = &data_[matrix_idx_y * grid_width];
 		for (int hor_number = 0; hor_number < grid_width; hor_number++)
@@ -121,9 +121,10 @@ void TileDPX::UpdateQimage(dynamic_qimage & dyn_qimage, const Limits<double>& po
 void TileDPX::Reset()
 {	
 	data_.resize(data_size_.hor * data_size_.vert, 0);
-	column_weight.resize(data_size_.hor);
-	ippsZero_8u((Ipp8u*)column_weight.data(), column_weight.size() * sizeof(column_weight[0]));
+	column_weight_vec_.resize(data_size_.hor);
+	ippsZero_8u((Ipp8u*)column_weight_vec_.data(), column_weight_vec_.size() * sizeof(column_weight_vec_[0]));
 	relevant_vec_.assign(data_size_.hor, false);
+	trans_decrease_counter_ = 0;
 }
 
 
@@ -156,7 +157,7 @@ void TileDPX::DrawOnlyPoints(const std::vector<float>& data,
 		if (yi == height) --yi;
 
 		data_[yi * width + xi] += 1;
-		column_weight[xi] += 1;
+		column_weight_vec_[xi] += 1;
 	}
 }
 void TileDPX::DrawInterpolated(const std::vector<float>& values,
@@ -200,7 +201,7 @@ void TileDPX::DrawInterpolated(const std::vector<float>& values,
 			if (py >= height) py = height - 1;
 
 			data_[py * width + px] += 1;
-			column_weight[px] += 1;
+			column_weight_vec_[px] += 1;
 		}
 	}
 }
@@ -228,7 +229,7 @@ void TileDPX::PrepareForNewData()
 		for (int64_t x = 0; x < width; x++) {
 			if (relevant_vec_[x]) continue;
 			is_all_relevant = false;
-			if (column_weight[x] < max_column_size*(1 + max_deviation)) {
+			if (column_weight_vec_[x] < max_column_size*(1 + max_deviation)) {
 				small_values = true;
 				break;
 			}
@@ -240,11 +241,11 @@ void TileDPX::PrepareForNewData()
 	}
 	//Нормируем, приводим к среднему значению
 	{
-		double trans_norm_koeff = 0.01;
+		double trans_norm_koeff = 0.0;
 		for (int64_t x = 0; x < width; x++) {
 			if (relevant_vec_[x]) continue;
 			int cur_col_decrease = 0;
-			const double norm_koeff = double(std::min<int64_t>(column_weight[x], max_column_size)) / column_weight[x];
+			const double norm_koeff = double(std::min<int64_t>(column_weight_vec_[x], max_column_size)) / column_weight_vec_[x];
 			trans_norm_koeff = std::max(trans_norm_koeff, norm_koeff);
 			size_t new_column_weight = 0;
 			for (size_t y = 0; y < data_size_.vert; ++y) {
@@ -252,7 +253,7 @@ void TileDPX::PrepareForNewData()
 				new_column_weight += new_weight;
 				data_[y * width + x] = new_weight;
 			}
-			column_weight[x] = new_column_weight;
+			column_weight_vec_[x] = new_column_weight;
 		}
 		trans_decrease_counter_ *= trans_norm_koeff;
 		is_data_updated_ = true;

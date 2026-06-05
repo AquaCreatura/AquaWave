@@ -393,6 +393,9 @@
     <ClInclude Include="sources\Utilities\utility_aqua.h">
       <Filter>Utilities</Filter>
     </ClInclude>
+    <ClInclude Include="sources\Utilities\percentile_helper.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
   </ItemGroup>
   <!-- QtMoc (For Headers Requiring Moc) -->
   <ItemGroup>
@@ -432,7 +435,9 @@
     <QtMoc Include="sources\Arks\Elements\Static SPG\requester\SpgRequester.h">
       <Filter>ARKS\Elements\Static SPG\requester</Filter>
     </QtMoc>
-    <QtMoc Include="sources\Utilities\qt_utility.h" />
+    <QtMoc Include="sources\Utilities\qt_utility.h">
+      <Filter>Utilities</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="AquaWave.qrc" />

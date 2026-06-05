@@ -172,6 +172,7 @@
     <ClInclude Include="sources\Utilities\file_helpers.h" />
     <ClInclude Include="sources\Utilities\parse_tools.h" />
     <QtMoc Include="sources\Utilities\qt_utility.h" />
+    <ClInclude Include="sources\Utilities\percentile_helper.h" />
     <ClInclude Include="sources\Utilities\utility_aqua.h" />
     <QtMoc Include="sources\Arks\Elements\DPX Spectrum\SpectrumDPX.h" />
     <ClInclude Include="sources\Arks\Elements\Constellation\Constellation.h" />

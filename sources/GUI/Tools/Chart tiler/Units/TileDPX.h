@@ -15,7 +15,7 @@ private:
 	argb_t					GetNormColor		(const double density) const;
 	void					PrepareForNewData	();
 	//(Актуально для DPX)
-	std::vector<size_t>		column_weight; //Вес каждой колонки 
+	std::vector<size_t>		column_weight_vec_; //Вес каждой колонки 
 	std::vector<int64_t>	data_;			//наша карта плотностей
 	size_t					max_column_weight_;			//Максимальный вес колонки, относительно которого храним данные
 	size_t					max_trans_column_weight_;	//Максимальный вес, относительно которого минусуем при переходном процессе

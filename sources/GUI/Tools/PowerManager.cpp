@@ -1,7 +1,7 @@
 #include "PowerManager.h"
 #include <ipp.h>
 #include <algorithm>
-#include "Utilities/percentile_helper.h"
+#include "Utilities/calc_tools.h"
 using namespace aqua_gui;
 
 PowerLimitMan::PowerLimitMan()

@@ -163,6 +163,7 @@
     <ClCompile Include="sources\GUI\Tools\gui_worker.cpp" />
     <ClCompile Include="sources\GUI\Tools\PowerManager.cpp" />
     <ClCompile Include="sources\Utilities\file_helpers.cpp" />
+    <ClCompile Include="sources\Utilities\calc_tools.cpp" />
     <ClCompile Include="sources\Utilities\qt_utility.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -172,7 +173,7 @@
     <ClInclude Include="sources\Utilities\file_helpers.h" />
     <ClInclude Include="sources\Utilities\parse_tools.h" />
     <QtMoc Include="sources\Utilities\qt_utility.h" />
-    <ClInclude Include="sources\Utilities\percentile_helper.h" />
+    <ClInclude Include="sources\Utilities\calc_tools.h" />
     <ClInclude Include="sources\Utilities\utility_aqua.h" />
     <QtMoc Include="sources\Arks\Elements\DPX Spectrum\SpectrumDPX.h" />
     <ClInclude Include="sources\Arks\Elements\Constellation\Constellation.h" />

@@ -1,11 +1,11 @@
 #include "TileDPX.h"
 #include "GUI/Tools/gui_helper.h"
 #include "GUI/Tools/gui_conversions.h"
-TileDPX::TileDPX()
+TileDPX::TileDPX() : data_speedometer_(2'000)
 {
 	is_spg_ = false;
-	max_column_weight_		= 200'000;
-	max_trans_column_weight_= 20'000;
+	max_life_time_ms_		= 10'000;
+	max_trans_life_time_ms_ = 2'000;
 	trans_decrease_counter_	= 0;
 
 }
@@ -30,10 +30,13 @@ void TileDPX::SetData(const draw_data & passed_info)
 	auto count = static_cast<int64_t>(full.pos(hi) * (n - 1)) - static_cast<int64_t>(full.pos(lo) * (n - 1));
 
 	const double samples_per_pixel = double(count) / data_size_.hor;
+	data_speedometer_.Process(std::ceil(samples_per_pixel));
 	if (samples_per_pixel < 1.0)
 		DrawInterpolated(passed_info.data, passed_info.freq_bounds);
 	else
 		DrawOnlyPoints(passed_info.data, passed_info.freq_bounds);
+	if (data_[0] > 1'000'000 || data_[0] < -1'000'000)
+		int a = 9;
 }
 void TileDPX::UpdateFromTile(const TileInterface* passed_data)
 {
@@ -43,6 +46,7 @@ void TileDPX::UpdateFromTile(const TileInterface* passed_data)
 	double hor_ratio = passed_data->val_bounds_.hor.delta() / val_bounds_.hor.delta();
 	const bool is_relevant = false;  hor_ratio <= 1.;
 	int64_t new_max_trans_density = 0;
+	const size_t trans_column_size = 5'000; passed->data_speedometer_;// .GetSamplesPerSec() * 2;
 	for (size_t x_idx = 0; x_idx < data_size_.hor; ++x_idx) {
 		if (column_weight_vec_[x_idx] != 0) continue;
 		if (passed->column_weight_vec_[x_idx] == 0) continue;
@@ -53,7 +57,7 @@ void TileDPX::UpdateFromTile(const TileInterface* passed_data)
 		// 2. Находим индекс в исходном буфере через pos()
 		size_t sx = std::min(static_cast<size_t>(std::round(passed->val_bounds_.hor.pos(src_val_x) * passed->data_size_.hor - 0.5)),
 			passed->data_size_.hor - 1);
-		double norm_koeff = double(max_trans_column_weight_) /  std::max(passed->column_weight_vec_[x_idx], max_trans_column_weight_);
+		double norm_koeff = double(trans_column_size) /  std::max(passed->column_weight_vec_[x_idx], trans_column_size);
 
 		size_t sum = 0;
 		for (size_t y = 0; y < data_size_.vert; ++y) {
@@ -125,6 +129,7 @@ void TileDPX::Reset()
 	ippsZero_8u((Ipp8u*)column_weight_vec_.data(), column_weight_vec_.size() * sizeof(column_weight_vec_[0]));
 	relevant_vec_.assign(data_size_.hor, false);
 	trans_decrease_counter_ = 0;
+	data_speedometer_.Reset();
 }
 
 
@@ -167,9 +172,8 @@ void TileDPX::DrawInterpolated(const std::vector<float>& values,
 
 	const auto& xb = val_bounds_.hor;
 	const auto& yb = val_bounds_.vert;
-	const size_t width = data_size_.hor, height = data_size_.vert;
+	const int64_t width = data_size_.hor, height = data_size_.vert;
 	const double step = x_range.delta() / (values.size() - 1);
-
 	for (size_t i = 0; i + 1 < values.size(); ++i) {
 		const double x0 = x_range.low + i * step;
 		const double x1 = x0 + step;
@@ -182,6 +186,7 @@ void TileDPX::DrawInterpolated(const std::vector<float>& values,
 		double p1 = xb.pos(x1) * width;
 
 		int64_t x_begin = static_cast<int64_t>(std::floor(p0));
+		x_begin = std::max(x_begin, 0i64);
 		int64_t x_end = static_cast<int64_t>(std::ceil(p1));
 
 		if (x_begin >= width) x_begin = width - 1;
@@ -219,9 +224,12 @@ void TileDPX::PrepareForNewData()
 	if (width == 0 || height == 0 || val_bounds_.hor.delta() <= 0)
 		return;
 	const bool is_trans = trans_decrease_counter_ > 0;
+	const size_t life_time = is_trans ? max_trans_life_time_ms_ : max_life_time_ms_;
 	const double max_deviation = 0.15;
-	const int64_t max_column_size = is_trans ? max_trans_column_weight_ : max_column_weight_;
-
+	int64_t max_column_size = (data_speedometer_.GetSamplesPerSec() * life_time) / 1'000;
+	if (max_column_size == 0) return;
+	if (max_column_size < 200)
+		max_column_size = max_column_size;
 	// Сначала смотрим - а надо ли вообще что-то делать
 	{
 		bool is_all_relevant = true;
@@ -259,3 +267,4 @@ void TileDPX::PrepareForNewData()
 		is_data_updated_ = true;
 	}
 }
+

@@ -257,6 +257,9 @@
     <ClCompile Include="sources\Utilities\qt_utility.cpp">
       <Filter>Utilities</Filter>
     </ClCompile>
+    <ClCompile Include="sources\Utilities\calc_tools.cpp">
+      <Filter>Utilities</Filter>
+    </ClCompile>
   </ItemGroup>
   <!-- ClInclude (H Files) -->
   <ItemGroup>
@@ -393,7 +396,7 @@
     <ClInclude Include="sources\Utilities\utility_aqua.h">
       <Filter>Utilities</Filter>
     </ClInclude>
-    <ClInclude Include="sources\Utilities\percentile_helper.h">
+    <ClInclude Include="sources\Utilities\calc_tools.h">
       <Filter>Utilities</Filter>
     </ClInclude>
   </ItemGroup>

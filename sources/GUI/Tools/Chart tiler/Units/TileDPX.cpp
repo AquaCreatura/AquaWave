@@ -87,6 +87,8 @@ void TileDPX::UpdateFromTile(const TileInterface* passed_data)
 }
 void TileDPX::UpdateQimage(dynamic_qimage & dyn_qimage, const Limits<double>& power_bounds)
 {
+	UpdateDensityPivot();
+
 	double  max_density = 0;
 	double  summ_density = 0;
 	int64_t	density_counter = 0;
@@ -106,19 +108,7 @@ void TileDPX::UpdateQimage(dynamic_qimage & dyn_qimage, const Limits<double>& po
 			dpx_iter++;
 			argb_t color = GetNormColor(density);
 			*(rgb_iter++) = color;
-			//Собираем статистические данные
-			if (density > 0.)
-			{
-				max_density = std::max(max_density, density);
-				summ_density += density;
-				density_counter++;
-			}
 		}
-	}
-	const auto new_density = density_counter ? summ_density / density_counter : 0.;
-	if (new_density != last_average_density_) {
-		last_average_density_ = new_density;
-		is_data_updated_ = true;
 	}
 }
 
@@ -200,7 +190,9 @@ void TileDPX::DrawInterpolated(const std::vector<float>& values,
 			else if (t > 1.0) t = 1.0;
 
 			const double y_interp = interp.Interpolate(t);
-			if (!yb.has_inside(y_interp)) continue;
+			if (!yb.has_inside(y_interp)) {
+				continue;
+			}
 
 			size_t py = static_cast<size_t>(std::round(yb.pos(y_interp) * height));
 			if (py >= height) py = height - 1;
@@ -212,7 +204,7 @@ void TileDPX::DrawInterpolated(const std::vector<float>& values,
 }
 argb_t TileDPX::GetNormColor(const double relative_density) const
 {
-	const double normalized_density = qBound(0.0, relative_density / (last_average_density_ * 3), 1.0);
+	const double normalized_density = qBound(0.0, relative_density / max_density_, 1.0);
 	return LUT_HSV_Instance::DensityToRGB(normalized_density);
 }
 
@@ -266,5 +258,12 @@ void TileDPX::PrepareForNewData()
 		trans_decrease_counter_ *= trans_norm_koeff;
 		is_data_updated_ = true;
 	}
+}
+
+void TileDPX::UpdateDensityPivot()
+{
+	
+	last_average_density_ = 0.05;
+	max_density_ = 1. / data_size_.vert * 3;
 }
 

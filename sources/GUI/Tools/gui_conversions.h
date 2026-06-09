@@ -22,6 +22,7 @@ public:
         
     // Функция конвертации HSV в RGB (H: 0-360, S/H: 0.0-1.0)
     static void     HSV_2_RGB       (float h, float s, float v, Ipp8u & r, Ipp8u & g, Ipp8u & b);
+
     argb_t arr[hsv_table_size_c];
 };
 

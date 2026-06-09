@@ -15,6 +15,7 @@ private:
 	void					DrawInterpolated	(const std::vector<float> &passed_data, const Limits<double>& x_bounds);
 	argb_t					GetNormColor		(const double density) const;
 	void					PrepareForNewData	();
+	void					UpdateDensityPivot  ();
 	//(Актуально для DPX)
 	utility_aqua::DataSpeedEstimator data_speedometer_;
 	std::vector<size_t>		column_weight_vec_; //Вес каждой колонки 

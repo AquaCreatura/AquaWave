@@ -1,0 +1,386 @@
+﻿/* ============================================
+   Abyssal Marine Theme | Бездна океана
+   Предельно тёмно-синий, глубокий как марианская впадина
+   Для Qt 5.14.2 | Абсолютная тьма и свет звёзд над водой
+   ============================================ */
+
+/* ---------- Глобальный фон: ночной океан ---------- */
+QWidget {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+        stop:0 #000814,
+        stop:0.3 #001022,
+        stop:0.7 #001A33,
+        stop:1 #000511);
+    color: #B8D4E8;
+    font-family: "Courier New", "MS Gothic", "Consolas", monospace;
+    font-size: 12px;
+    font-weight: 500;
+    selection-background-color: #F39C12;
+    selection-color: #000000;
+}
+
+/* ---------- Панели и карточки: как иллюминаторы батискафа ---------- */
+QMainWindow, QDialog, QFrame {
+    background: transparent;
+}
+
+QFrame[class="glassCard"], QGroupBox {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+        stop:0 rgba(0, 20, 40, 0.9),
+        stop:0.5 rgba(0, 15, 35, 0.87),
+        stop:1 rgba(0, 10, 28, 0.95));
+    border: 1px solid rgba(20, 100, 150, 0.4);
+    border-radius: 8px;
+    margin: 5px;
+}
+
+/* ---------- Кнопки: как свет в глубине ---------- */
+QPushButton {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 #1C5A7A,
+        stop:0.4 #0F3E5A,
+        stop:0.6 #082C40,
+        stop:1 #041C2C);
+    border: 1px solid #2E86C1;
+    border-radius: 6px;
+    padding: 5px 12px;
+    color: #EAF9FF;
+    font-weight: bold;
+    font-family: "Courier New", monospace;
+}
+
+QPushButton:hover {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 #2E86C1,
+        stop:0.5 #1C5A7A,
+        stop:1 #0F3E5A);
+    border-color: #5DADE2;
+    color: #FFFFFF;
+}
+
+QPushButton:pressed {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 #041C2C,
+        stop:1 #010C18);
+}
+
+/* Акцентная кнопка (оранжевый - как сигнальный огонь) */
+QPushButton[class="primary"] {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+        stop:0 #E67E22,
+        stop:0.5 #D35400,
+        stop:1 #A04000);
+    border: 1px solid #F9E79F;
+    color: #FFF5E6;
+}
+
+QPushButton[class="primary"]:hover {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+        stop:0 #F39C12,
+        stop:1 #E67E22);
+}
+
+/* ---------- Поля ввода: как водная гладь в ночи ---------- */
+QLineEdit, QTextEdit, QPlainTextEdit, QSpinBox, QDoubleSpinBox, QComboBox {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 #061A2C,
+        stop:1 #020E1C);
+    border: 1px solid #1C5A7A;
+    border-radius: 5px;
+    padding: 5px 8px;
+    color: #DCEEF5;
+    font-family: "Courier New", monospace;
+    selection-background-color: #F39C12;
+    selection-color: #000000;
+}
+
+QLineEdit:focus, QTextEdit:focus, QPlainTextEdit:focus, QSpinBox:focus, QDoubleSpinBox:focus, QComboBox:focus {
+    border-color: #F5B041;
+    background: #082438;
+}
+
+QComboBox::drop-down {
+    border: none;
+    width: 24px;
+}
+
+QComboBox::down-arrow {
+    image: none;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 5px solid #5DADE2;
+    width: 0;
+    height: 0;
+}
+
+QComboBox QAbstractItemView {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 #061A2C,
+        stop:1 #010C18);
+    border: 1px solid #1C5A7A;
+    selection-background-color: #F39C12;
+    selection-color: #000000;
+}
+
+/* ---------- Вкладки: как отблески на волнах ---------- */
+QTabWidget::pane {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 #001A33,
+        stop:1 #000814);
+    border: 1px solid #1C5A7A;
+    border-radius: 6px;
+    top: -1px;
+}
+
+QTabBar::tab {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 #082C40,
+        stop:1 #031824);
+    border: 1px solid #1C5A7A;
+    border-bottom: none;
+    border-top-left-radius: 6px;
+    border-top-right-radius: 6px;
+    padding: 6px 18px;
+    margin-right: 4px;
+    color: #C8E2F0;
+    font-family: "Courier New", monospace;
+    font-weight: bold;
+}
+
+QTabBar::tab:selected {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 #0F3E5A,
+        stop:1 #051E30);
+    border-bottom-color: transparent;
+    color: #F0F8FF;
+}
+
+QTabBar::tab:hover:!selected {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 #0F4A6E,
+        stop:1 #052438);
+    border-color: #2E86C1;
+}
+
+/* ---------- Чекбоксы и радио: как якоря во тьме ---------- */
+QCheckBox::indicator, QRadioButton::indicator {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:1,
+        stop:0 #061A2C,
+        stop:1 #020E1C);
+    border: 1px solid #1C5A7A;
+}
+
+QCheckBox::indicator:checked {
+    background: qradialgradient(cx:0.5, cy:0.5, radius: 0.5,
+        stop:0 #F5B041,
+        stop:0.6 #E67E22,
+        stop:1 #A04000);
+    border-color: #F9E79F;
+}
+
+QRadioButton::indicator {
+    border-radius: 9px;
+}
+
+QRadioButton::indicator:checked {
+    background: qradialgradient(cx:0.5, cy:0.5, radius: 0.5,
+        stop:0 #5DADE2,
+        stop:1 #2E86C1);
+    border-color: #F5B041;
+}
+
+/* ---------- Скроллбары: как стальные канаты ---------- */
+QScrollBar:vertical {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop:0 #001A33,
+        stop:1 #000814);
+    width: 14px;
+    border-radius: 4px;
+    margin: 0px;
+}
+
+QScrollBar::handle:vertical {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop:0 #1C5A7A,
+        stop:0.5 #0F3E5A,
+        stop:1 #082C40);
+    border-radius: 4px;
+    min-height: 30px;
+}
+
+QScrollBar::handle:vertical:hover {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop:0 #2E86C1,
+        stop:1 #1C5A7A);
+}
+
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+    height: 0px;
+}
+
+QScrollBar:horizontal {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 #001A33,
+        stop:1 #000814);
+    height: 14px;
+    border-radius: 4px;
+    margin: 0px;
+}
+
+QScrollBar::handle:horizontal {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 #1C5A7A,
+        stop:0.5 #0F3E5A,
+        stop:1 #082C40);
+    border-radius: 4px;
+    min-width: 30px;
+}
+
+/* ---------- Меню: как рубка субмарины ---------- */
+QMenuBar {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 #061A2C,
+        stop:1 #010C18);
+    border-bottom: 1px solid #1C5A7A;
+}
+
+QMenuBar::item:selected {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 #E67E22,
+        stop:1 #D35400);
+    border-radius: 4px;
+    color: #000000;
+}
+
+QMenu {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 #061A2C,
+        stop:1 #000814);
+    border: 1px solid #1C5A7A;
+    border-radius: 5px;
+    padding: 5px;
+}
+
+QMenu::item:selected {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop:0 #F39C12,
+        stop:1 #D35400);
+    color: #000000;
+    border-radius: 4px;
+}
+
+/* ---------- Таблицы: как карта глубин ---------- */
+QTableView, QListWidget, QTreeView {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 #061A2C,
+        stop:1 #000814);
+    border: 1px solid #1C5A7A;
+    border-radius: 6px;
+    alternate-background-color: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 #0A2840,
+        stop:1 #031424);
+    gridline-color: #0F3E5A;
+}
+
+QHeaderView::section {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 #082C40,
+        stop:1 #031824);
+    padding: 8px;
+    border: none;
+    border-right: 1px solid #1C5A7A;
+    border-bottom: 1px solid #1C5A7A;
+    font-weight: bold;
+    color: #C8E2F0;
+}
+
+QTableView::item:selected, QListWidget::item:selected, QTreeView::item:selected {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop:0 #F39C12,
+        stop:1 #E67E22);
+    color: #000000;
+}
+
+/* ---------- Прогресс-бар: как волна эхолота ---------- */
+QProgressBar {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 #001A33,
+        stop:1 #000814);
+    border: 1px solid #1C5A7A;
+    border-radius: 6px;
+    text-align: center;
+    height: 14px;
+    color: #DCEEF5;
+    font-weight: bold;
+}
+
+QProgressBar::chunk {
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop:0 #1C5A7A,
+        stop:0.4 #2E86C1,
+        stop:0.6 #5DADE2,
+        stop:1 #7FB3D5);
+    border-radius: 5px;
+}
+
+/* ---------- Слайдер: как штурвал в кромешной тьме ---------- */
+QSlider::groove:horizontal {
+    height: 6px;
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 #001A33,
+        stop:1 #000814);
+    border-radius: 3px;
+}
+
+QSlider::handle:horizontal {
+    background: qradialgradient(cx:0.5, cy:0.5, radius: 0.5,
+        stop:0 #FEF5E7,
+        stop:0.3 #F5B041,
+        stop:0.6 #E67E22,
+        stop:1 #D35400);
+    width: 16px;
+    height: 16px;
+    margin: -5px 0;
+    border-radius: 8px;
+    border: 1px solid #F9E79F;
+}
+
+QSlider::handle:horizontal:hover {
+    background: #FAD7A0;
+}
+
+/* ---------- Группировка ---------- */
+QGroupBox {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 rgba(0, 20, 40, 0.8),
+        stop:1 rgba(0, 8, 20, 0.9));
+    border: 1px solid #1C5A7A;
+    border-radius: 8px;
+    margin-top: 16px;
+    padding-top: 14px;
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    left: 12px;
+    padding: 0 10px;
+    color: #5DADE2;
+    font-family: "Courier New", monospace;
+    font-weight: bold;
+    background: qlineargradient(x1:0, y1:0, x2:1, y2:0,
+        stop:0 #061A2C,
+        stop:1 #010C18);
+    border-radius: 4px;
+}
+
+/* ---------- Строка состояния: как последний луч фонаря ---------- */
+QStatusBar {
+    background: qlineargradient(x1:0, y1:0, x2:0, y2:1,
+        stop:0 #001A33,
+        stop:1 #000511);
+    border-top: 1px solid #1C5A7A;
+    color: #7FB3D5;
+}

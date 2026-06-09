@@ -17,7 +17,7 @@ AquaWave::AquaWave(QWidget *parent, const QString& file_path)
 
 	//default_theme
 	//red_scheme
-	QFile file(":/AquaWave/sources/GUI/CSS_Themes/red_scheme.qss");
+	QFile file(":/AquaWave/sources/GUI/CSS_Themes/blue_scheme.qss");
 	if (file.open(QFile::ReadOnly)) {
 		QString style = file.readAll();
 		setStyleSheet(style);

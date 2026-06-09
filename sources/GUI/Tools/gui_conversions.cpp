@@ -3,15 +3,16 @@
 #include <cmath>
 using namespace aqua_gui;
 
+
 LUT_HSV_Instance::LUT_HSV_Core::LUT_HSV_Core()
 {
     argb_t* palette = &arr[0];
     const int count_of_channels = 4;
-
+#if 0
     for(int i = 0; i < hsv_table_size_c; i ++) 
     {
         float t = static_cast<float>(i) / (hsv_table_size_c - 1);
-        
+		t = pow(t, 0.7);;
         // Плавное изменение оттенка от 240° (синий) до 0° (красный)
         float hue = 240.0f * (1.0f - t);
         float saturation = 1.0f; // Максимальная насыщенность
@@ -29,6 +30,108 @@ LUT_HSV_Instance::LUT_HSV_Core::LUT_HSV_Core()
         HSV_2_RGB(hue, saturation, value, 
                     red, green, blue);
     }
+#elif 0
+	const int table_size = hsv_table_size_c; // например, 256
+
+	for (int i = 0; i < table_size; i++)
+	{
+		// Нормировка от 0 до 1
+		float t = static_cast<float>(i) / (table_size - 1);
+
+		// Логарифмическое распределение (имитация dB)
+		// При t=0 → результат 0, при t=1 → результат 1
+		// Параметр "крутизны" 0.3 даёт больше градаций в области слабых сигналов
+		float log_t = (t < 0.001f) ? 0.0f : (log10f(1.0f + 9.0f * t) / log10f(10.0f));
+		// Для ещё большей гибкости можно применить гамму
+		float mapped = powf(log_t, 0.7f);
+
+		// Оттенок: синий (240°) → красный (0°)
+		float hue = 240.0f * (1.0f - mapped);
+		float saturation = 1.0f;
+		float value = 1.0f;
+
+		uint8_t* cur_color = (uint8_t*)&palette[i];
+		auto &opacity = cur_color[3];
+		auto &red = cur_color[2];
+		auto &green = cur_color[1];
+		auto &blue = cur_color[0];
+
+		opacity = (i == 0) ? 0 : 255;
+		HSV_2_RGB(hue, saturation, value, red, green, blue);
+	}
+#else
+	struct ColorNode {
+		float t;
+		uint8_t r, g, b;
+	};
+	//const int num_nodes = 11;
+	//const ColorNode nodes[num_nodes] = {
+	//	{ 0.00f,   0,   0,   5 },   // почти чёрный, лёгкий синий оттенок
+	//	{ 0.10f,   0,   0,  40 },   // тёмно-синий
+	//	{ 0.20f,   0,   0,  90 },   // синий
+	//	{ 0.30f,   0,   0, 140 },   // насыщенный синий
+	//	{ 0.40f,   0,   0, 190 },   // яркий синий
+	//	{ 0.50f,   0,   0, 235 },   // очень яркий синий
+	//	{ 0.60f,   0,  20, 255 },   // синий с лёгкой зеленью
+	//	{ 0.70f,   0,  80, 255 },   // сине-зелёный (marine)
+	//	{ 0.80f,   0, 160, 240 },   // голубой
+	//	{ 0.90f,  60, 220, 150 },   // бирюзово-жёлтый оттенок
+	//	{ 1.00f, 255, 255,   0 }    // ЖЁЛТЫЙ пик (перегруз)
+	//};
+
+	const int num_nodes = 11;
+	const ColorNode nodes[num_nodes] = {
+		{ 0.0f,   0,   0,   4 }, // Уровень шума (глубокий чёрно-синий)
+		{ 0.1f,  22,  11,  57 }, // Тёмно-фиолетовый
+		{ 0.2f,  66,  10, 104 }, // Фиолетовый
+		{ 0.3f, 106,  23, 110 }, // Пурпурный
+		{ 0.4f, 147,  38, 103 }, // Малиновый
+		{ 0.5f, 188,  55,  84 }, // Тёмно-красный
+		{ 0.6f, 225,  81,  64 }, // Красно-оранжевый
+		{ 0.7f, 248, 122,  42 }, // Оранжевый
+		{ 0.8f, 252, 174,  18 }, // Жёлто-оранжевый
+		{ 0.9f, 240, 229,  27 }, // Жёлтый
+		{ 1.0f, 255, 255, 255 }  // Перегруз / Пик (чистый белый)
+	};
+
+	for (int i = 0; i < hsv_table_size_c; i++)
+	{
+		// Базовая нормировка от 0.0 до 1.0
+		float t = static_cast<float>(i) / (hsv_table_size_c - 1);
+		t = pow(t,0.85);
+
+		// Защита от выхода за границы при математических погрешностях
+		if (t <= 0.0f) t = 0.0f;
+		if (t >= 1.0f) t = 1.0f;
+
+		// Поиск интервала между опорными точками
+		int idx = 0;
+		for (int j = 0; j < num_nodes - 1; ++j) {
+			if (t >= nodes[j].t && t <= nodes[j + 1].t) {
+				idx = j;
+				break;
+			}
+		}
+
+		// Линейная интерполяция внутри найденного интервала
+		float t_low = nodes[idx].t;
+		float t_high = nodes[idx + 1].t;
+		float factor = (t - t_low) / (t_high - t_low);
+
+		uint8_t r = static_cast<uint8_t>(nodes[idx].r + factor * (nodes[idx + 1].r - nodes[idx].r));
+		uint8_t g = static_cast<uint8_t>(nodes[idx].g + factor * (nodes[idx + 1].g - nodes[idx].g));
+		uint8_t b = static_cast<uint8_t>(nodes[idx].b + factor * (nodes[idx + 1].b - nodes[idx].b));
+
+		// Прямая запись в память цвета
+		uint8_t* cur_color = (uint8_t*)&palette[i];
+
+		// Формат Little Endian (BGRA в памяти)
+		cur_color[0] = b; // Синий
+		cur_color[1] = g; // Зелёный
+		cur_color[2] = r; // Красный
+		cur_color[3] = (i == 0) ? 0 : 255; // Непрозрачность (полностью прозрачный для абсолютного нуля)
+	}
+#endif
 }
 
 

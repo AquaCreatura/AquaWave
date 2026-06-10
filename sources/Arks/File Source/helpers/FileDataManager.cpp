@@ -24,19 +24,19 @@ void file_source::FileDataManager::UpdateChunkSize(const fluctus::ArkWptr & read
 	listener.SetChunkSize(chunk_size);
 }
 
-void file_source::FileDataManager::StartReading(const fluctus::ArkWptr & reader, Limits<double> time_bounds, const FileSrcDove::FileSrcDoveThought read_type)
+void file_source::FileDataManager::StartReading(const fluctus::ArkWptr & reader, Limits<double> time_bounds, const FileSrcDove::SpecThought read_type)
 {
 	auto& listener = listeners_.try_emplace(reader, reader, params_).first->second;  // Получает listener (должен быть инициализирован)
 	// Асинхронный запуск чтения
 	switch (read_type)
 	{
-	case FileSrcDove::FileSrcDoveThought::kAskChunkAround: // Запуск чтения вокруг позиции 
+	case FileSrcDove::SpecThought::kAskChunkAround: // Запуск чтения вокруг позиции 
 		listener.StartSingleAround(time_bounds.low);
 		break;
-	case FileSrcDove::FileSrcDoveThought::kAskChunksInRange:
+	case FileSrcDove::SpecThought::kAskChunksInRange:
 		listener.StartSingleInRange(time_bounds);
 		break;
-	case FileSrcDove::FileSrcDoveThought::kAskLoopInRange:
+	case FileSrcDove::SpecThought::kAskLoopInRange:
 		listener.StartLoopInRange(time_bounds);
 		break;
 	default:

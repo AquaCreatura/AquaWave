@@ -1,6 +1,7 @@
 #include "SpectralViewer.h"
 #include "special_defs/file_souce_defs.h"
 #include "special_defs/analyzer_defs.h"
+#include "special_defs/file_writer_defs.h"
 #include "Arks/ShipBuilder.h"
 #include <qmessagebox.h>
 
@@ -28,14 +29,14 @@ SpectralViewer::SpectralViewer()
 		window_->SetSpectrogramWindow(spg_window);
 
 
-		if (QPointer<ChartInterface> derivedPtr = qobject_cast<ChartInterface*>(dpx_window.data()) ) {
-			connect(derivedPtr, &ChartInterface::SelectionIsReady, this, &SpectralViewer::OnSelectionIsReady);
-		}
-		if (QPointer<ChartInterface> derivedPtr = qobject_cast<ChartInterface*>(spg_window.data())) {
-			connect(derivedPtr, &ChartInterface::SelectionIsReady, this, &SpectralViewer::OnSelectionIsReady);
+		for (const auto& window : { dpx_window, spg_window }) {
+			if (QPointer<ChartInterface> derivedPtr = qobject_cast<ChartInterface*>(window.data())) {
+				connect(derivedPtr, &ChartInterface::SelectionIsReady, this, &SpectralViewer::OnSelectionIsReady);
+			}
 		}
 	}
 	connect(window_, &SpectralViewerWindow::FftChangeNeed, this, &SpectralViewer::SetNewFftOrder);
+	connect(window_, &SpectralViewerWindow::RecordSelectionNeed, this, &SpectralViewer::StartSelectionRecord);
 }
 
 SpectralViewer::~SpectralViewer()
@@ -67,7 +68,7 @@ bool SpectralViewer::PostDove(fluctus::DoveSptr const & sent_dove)
     auto base_thought = sent_dove->base_thought;
     
     // Если "мысль" - запрос на диалог.
-    if (base_thought & fluctus::DoveParrent::DoveThought::kGetDialog)
+    if (base_thought & fluctus::DoveParrent::DoveThought::kGetWindow)
     {
         // Прикрепляем отрисовщик спектра к виджету сообщения.
         sent_dove->show_widget = window_;
@@ -159,7 +160,7 @@ void SpectralViewer::SetNewFftOrder(int n_fft_order)
 	auto file_src = src_info_.ark.lock();
 	if (!file_src) return;
 
-	auto spectral_dove = std::make_shared<SpectralDove>(SpectralDove::SpectralThought::kSetFFtOrder);
+	auto spectral_dove = std::make_shared<SpectralDove>(SpectralDove::SpecThought::kSetFFtOrder);
 	spectral_dove->fft_order_ = n_fft_order;
 	spg_->PostDove(spectral_dove);
 	spectrum_->PostDove(spectral_dove);
@@ -172,6 +173,22 @@ void SpectralViewer::SetNewFftOrder(int n_fft_order)
 	file_src_dove->setup.emplace()->chunk_size = n_fft_;
 	if (!file_src->PostDove(file_src_dove)) {
 		QMessageBox::warning(nullptr, "Cannot Send Data", "Do something with DPX or file source, or..."  );
+	}
+}
+
+void spectral_viewer::SpectralViewer::StartSelectionRecord()
+{
+	auto front_arks = GetFrontArks();
+	for (auto front_iter : front_arks) {
+		if (front_iter->GetArkType() == fluctus::kSelectionWriter) {
+			auto analyze_dove = std::make_shared<file_writer::FileWriterDove>(file_writer::FileWriterDove::kRecordSelection);
+			auto cur_sel = selection_holder_->GetSelection();
+			if (cur_sel.freq_bounds.delta() < 0) std::swap(cur_sel.freq_bounds.low, cur_sel.freq_bounds.high);
+			if (cur_sel.time_bounds.delta() < 0) std::swap(cur_sel.time_bounds.low, cur_sel.time_bounds.high);
+			analyze_dove->freq_bounds_hz = cur_sel.freq_bounds;
+			analyze_dove->file_bounds_ratio = cur_sel.time_bounds;
+			front_iter->PostDove(analyze_dove);
+		}
 	}
 }
 

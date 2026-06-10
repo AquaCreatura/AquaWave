@@ -1,7 +1,8 @@
 #include "ShipBuilder.h"
-#include "Arks\Spectral Viewer\SpectralViewer.h"
-#include "Arks\File Source\FileSource.h"
-#include "Arks\Scope Analyzer\ScopeAnalyzer.h"
+#include "Arks/Spectral Viewer/SpectralViewer.h"
+#include "Arks/File Source/FileSource.h"
+#include "Arks/Scope Analyzer/ScopeAnalyzer.h"
+#include "Arks/SelectionWriter/SelectionWriter.h"
 fluctus::ArkSptr ShipBuilder::BuildNewShip(fluctus::ArkType ship_type, QWidget* main)
 {
 	fluctus::ArkSptr ark;
@@ -12,6 +13,8 @@ fluctus::ArkSptr ShipBuilder::BuildNewShip(fluctus::ArkType ship_type, QWidget* 
 	case fluctus::kSpectralViewer:	ark = std::make_shared<spectral_viewer::SpectralViewer>();
 		break;
 	case fluctus::kScopeAnalyser:	ark = std::make_shared<scope_analyzer::ScopeAnalyzer>();
+		break;
+	case fluctus::kSelectionWriter:	ark = std::make_shared<file_writer::SelectionWriter>();
 		break;
 	default:
 		break;
@@ -39,7 +42,7 @@ bool ShipBuilder::Bind_SrcSink(fluctus::ArkSptr source_ark, fluctus::ArkSptr sin
 QPointer<QWidget> ShipBuilder::GetWindow(fluctus::ArkSptr ship)
 {
 	fluctus::DoveSptr req_dove = std::make_shared<fluctus::DoveParrent>(); 
-	req_dove->base_thought = fluctus::DoveParrent::kGetDialog; 
+	req_dove->base_thought = fluctus::DoveParrent::kGetWindow; 
 	ship->PostDove(req_dove);
 	return req_dove->show_widget;
 }

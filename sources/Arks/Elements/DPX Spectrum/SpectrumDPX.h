@@ -1,10 +1,10 @@
 #pragma once
 #include <qpointer.h>
-#include "Arks\Interfaces\base_impl\ark_base.h"
+#include "Arks/Interfaces/base_impl/ark_base.h"
 #include "GUI/Charts/DPX/DpxChart.h"
 #include "DSP Tools/Pipelines/BasePipes.h"
 
-#include "special_defs\spectral_viewer_defs.h"
+#include "special_defs/spectral_viewer_defs.h"
 namespace dpx_core
 {
 enum class kDpxChartType {

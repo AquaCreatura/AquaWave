@@ -10,12 +10,9 @@ namespace spectral_viewer
 
     struct SpectralDove : public fluctus::DoveParrent
     {
-		SpectralDove() { base_thought = fluctus::DoveParrent::kSpecialThought; };
-		SpectralDove(int passed_thought) { 
-			base_thought = fluctus::DoveParrent::kSpecialThought;
-			special_thought = passed_thought;
-		};
-        enum SpectralThought : int64_t
+		SpectralDove() = default;
+		SpectralDove(int passed_thought) { special_thought = passed_thought; };
+        enum SpecThought : int64_t
         {
             kUnknown = 0, 
             kSetFFtOrder = 1,

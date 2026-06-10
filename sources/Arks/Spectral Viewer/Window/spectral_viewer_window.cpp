@@ -9,6 +9,7 @@ SpectralViewerWindow::SpectralViewerWindow()
 			int fft_id = ui_.fft_combobox->itemData(index).toInt();
 			emit FftChangeNeed(fft_id);
 		});
+		connect(ui_.record_button, &QPushButton::clicked, this, &SpectralViewerWindow::RecordSelectionNeed);
 		UpdateFFtCombobox(21, 10);
 	}
 	

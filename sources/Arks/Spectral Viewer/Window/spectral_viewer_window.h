@@ -17,6 +17,7 @@ public:
 	void SetMaxFFtOrder(int n_fft_order);
 signals:
 	void FftChangeNeed(int new_fft);
+	void RecordSelectionNeed();
 protected:
 	void UpdateFFtCombobox(const int max_order, const int cur_fft_order);
 protected:

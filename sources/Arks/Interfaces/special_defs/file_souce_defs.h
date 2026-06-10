@@ -4,14 +4,14 @@
 #include <ipps.h>
 #include <stdint.h>
 #include <qstring.h>
-#include "Arks\Interfaces\ark_interface.h"
+#include "Arks/Interfaces/ark_interface.h"
 using namespace utility_aqua;
 namespace file_source
 {
 
     struct FileSrcDove : public fluctus::DoveParrent
     {
-        enum FileSrcDoveThought : int64_t
+        enum SpecThought : int64_t
         {
             kUnknown = 0, 
             kInitiate			= 1 << 0, //To init new reader with passed samplerate_hz and carrier_hz
@@ -22,13 +22,8 @@ namespace file_source
 
             kSetFileName        = 1 << 20, //To set file from command line
         };
-		FileSrcDove() {
-			base_thought = fluctus::DoveParrent::kSpecialThought;
-		};
-		FileSrcDove(thoughts_list passed_thought) { 
-			base_thought = fluctus::DoveParrent::kSpecialThought; 
-			special_thought = passed_thought; 
-		};
+		FileSrcDove() = default;
+		FileSrcDove(thoughts_list passed_thought) {  special_thought = passed_thought;};
 
 		fluctus::Limits<double> time_bounds{ 0., 1. }; //For file source
 		aqua_opt<fluctus::InitParams>	setup;

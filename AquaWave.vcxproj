@@ -133,6 +133,7 @@
     <ClCompile Include="sources\Arks\Scope Analyzer\ScopeAnalyzer.cpp" />
     <ClCompile Include="sources\Arks\Scope Analyzer\window\scope_analyzer_window.cpp" />
     <ClCompile Include="sources\Arks\SelectionWriter\SelectionWriter.cpp" />
+    <ClCompile Include="sources\Arks\SelectionWriter\window\selection_writer_window.cpp" />
     <ClCompile Include="sources\Arks\ShipBuilder.cpp" />
     <ClCompile Include="sources\Arks\Spectral Viewer\SpectralViewer.cpp" />
     <ClCompile Include="sources\Arks\Spectral Viewer\Window\spectral_viewer_window.cpp" />
@@ -170,7 +171,9 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="sources\aqua_defines.h" />
+    <ClInclude Include="sources\Arks\Interfaces\special_defs\file_writer_defs.h" />
     <ClInclude Include="sources\Arks\SelectionWriter\SelectionWriter.h" />
+    <QtMoc Include="sources\Arks\SelectionWriter\window\selection_writer_window.h" />
     <ClInclude Include="sources\Utilities\aqua_array_queue.h" />
     <ClInclude Include="sources\Utilities\aqua_obj_queue.h" />
     <ClInclude Include="sources\Utilities\file_helpers.h" />
@@ -237,6 +240,7 @@
     <QtUic Include="AquaWave.ui" />
     <QtUic Include="sources\Arks\File Source\window\file_settings_dialog.ui" />
     <QtUic Include="sources\Arks\Scope Analyzer\window\scope_analyzer_window.ui" />
+    <QtUic Include="sources\Arks\SelectionWriter\window\selection_writer_window.ui" />
     <QtUic Include="sources\Arks\Spectral Viewer\Window\spectral_viewer_window.ui" />
   </ItemGroup>
   <ItemGroup>

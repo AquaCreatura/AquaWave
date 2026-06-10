@@ -92,7 +92,7 @@ bool dpx_core::SpectrumDpx::PostDove(fluctus::DoveSptr const & sent_dove)
     auto base_thought = sent_dove->base_thought;
     
     // Если "мысль" - запрос на диалог.
-    if (base_thought & fluctus::DoveParrent::DoveThought::kGetDialog)
+    if (base_thought & fluctus::DoveParrent::DoveThought::kGetWindow)
     {
         // Прикрепляем отрисовщик спектра к виджету сообщения.
         sent_dove->show_widget = dpx_drawer_;

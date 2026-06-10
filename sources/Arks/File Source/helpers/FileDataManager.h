@@ -1,13 +1,13 @@
 #include <future>       // Для std::future и асинхронных операций
 #include <functional>   // Для std::bind и функторов
 #include <thread>       // Для работы с потоками
-#include <tbb\spin_mutex.h>
+#include <tbb/spin_mutex.h>
 #include <unordered_map> // Для хранения слушателей
 
 #include "DSP Tools/Resampler/ResamplerMan.h" // Менеджер ресемплера
 #include "FileReadCore.h"
 #include "ark_interface.h"
-#include "special_defs\file_souce_defs.h"
+#include "special_defs/file_souce_defs.h"
 #include "ark_defs.h"
 using namespace fluctus;
 
@@ -99,7 +99,7 @@ namespace file_source
 		void UpdateChunkSize(const fluctus::ArkWptr& reader, const int chunk_size);
         
         // Запуск чтения вокруг позиции для указанного ARK
-        void StartReading(const fluctus::ArkWptr& reader, Limits<double> time_bounds, const FileSrcDove::FileSrcDoveThought read_type);
+        void StartReading(const fluctus::ArkWptr& reader, Limits<double> time_bounds, const FileSrcDove::SpecThought read_type);
 
         // Удаление слушателя для указанного ARK
         void DeleteReader(const fluctus::ArkWptr& reader);

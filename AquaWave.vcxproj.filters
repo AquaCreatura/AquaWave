@@ -122,6 +122,9 @@
     <Filter Include="ARKS\SelectionWriter">
       <UniqueIdentifier>{fe4ca99f-1b07-4fe1-84d3-49a50d046a43}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ARKS\SelectionWriter\window">
+      <UniqueIdentifier>{2871d8fc-ee44-4282-bbbb-d89b6dcc24ab}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <!-- ClCompile (CPP Files) -->
   <ItemGroup>
@@ -269,6 +272,9 @@
     <ClCompile Include="sources\Arks\SelectionWriter\SelectionWriter.cpp">
       <Filter>ARKS\SelectionWriter</Filter>
     </ClCompile>
+    <ClCompile Include="sources\Arks\SelectionWriter\window\selection_writer_window.cpp">
+      <Filter>ARKS\SelectionWriter\window</Filter>
+    </ClCompile>
   </ItemGroup>
   <!-- ClInclude (H Files) -->
   <ItemGroup>
@@ -414,6 +420,12 @@
     <ClInclude Include="sources\Arks\SelectionWriter\SelectionWriter.h">
       <Filter>ARKS\SelectionWriter</Filter>
     </ClInclude>
+    <ClInclude Include="sources\Arks\Interfaces\special_defs\file_writer_defs.h">
+      <Filter>ARKS\Interfaces\special_defs</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\Arks\SelectionWriter\window\selection_writer_window.h">
+      <Filter>ARKS\SelectionWriter\window</Filter>
+    </ClInclude>
   </ItemGroup>
   <!-- QtMoc (For Headers Requiring Moc) -->
   <ItemGroup>
@@ -473,6 +485,9 @@
     </QtUic>
     <QtUic Include="sources\Arks\Spectral Viewer\Window\spectral_viewer_window.ui">
       <Filter>ARKS\Spectral Viewer\window</Filter>
+    </QtUic>
+    <QtUic Include="sources\Arks\SelectionWriter\window\selection_writer_window.ui">
+      <Filter>ARKS\SelectionWriter\window</Filter>
     </QtUic>
   </ItemGroup>
   <ItemGroup>

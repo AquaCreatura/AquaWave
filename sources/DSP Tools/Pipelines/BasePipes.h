@@ -1,7 +1,7 @@
 #pragma once
 #include "PipeInterface.h"
-#include "DSP Tools\FFT\FFT_Worker.h"
-#include "DSP Tools\basic\acf_worker.h"
+#include "DSP Tools/FFT/FFT_Worker.h"
+#include "DSP Tools/basic/acf_worker.h"
 namespace pipes {
 
 

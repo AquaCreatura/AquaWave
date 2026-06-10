@@ -41,7 +41,7 @@ bool file_source::FileSourceArk::PostDove(fluctus::DoveSptr const& sent_dove)
     }
     
     // Запрос диалогового окна
-    if (parrent_type & fluctus::DoveParrent::kGetDialog)
+    if (parrent_type & fluctus::DoveParrent::kGetWindow)
     {
         sent_dove->show_widget = dialog_;  // Возвращаем указатель на диалог
     }
@@ -62,11 +62,11 @@ bool file_source::FileSourceArk::PostDove(fluctus::DoveSptr const& sent_dove)
         const auto file_src_thought = file_src_dove->special_thought;
         
         // Инициализация читателя
-		if (file_src_thought & FileSrcDove::FileSrcDoveThought::kInitiate)
+		if (file_src_thought & FileSrcDove::SpecThought::kInitiate)
 		{
 			listener_man_.InitReader(target_ark, *file_src_dove->setup);
 		}
-        if (file_src_thought & FileSrcDove::FileSrcDoveThought::kSetChunkSize)
+        if (file_src_thought & FileSrcDove::SpecThought::kSetChunkSize)
         {
             listener_man_.UpdateChunkSize(target_ark, file_src_dove->setup->chunk_size);
         }
@@ -78,7 +78,7 @@ bool file_source::FileSourceArk::PostDove(fluctus::DoveSptr const& sent_dove)
 			}
 		}
 
-        if (file_src_thought & FileSrcDove::FileSrcDoveThought::kSetFileName)
+        if (file_src_thought & FileSrcDove::SpecThought::kSetFileName)
         {
             const QString file_name = file_src_dove->description->file_name_;
 			UpdateSource();

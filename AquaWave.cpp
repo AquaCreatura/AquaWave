@@ -24,13 +24,18 @@ AquaWave::AquaWave(QWidget *parent, const QString& file_path)
 	}
 
 
-	file_src_				= ship_builder_.BuildNewShip(fluctus::kFileSource, this);
+	file_src_			= ship_builder_.BuildNewShip(fluctus::kFileSource, this);
 	spectral_viewer_	= ship_builder_.BuildNewShip(fluctus::kSpectralViewer);
 	scope_analyser_		= ship_builder_.BuildNewShip(fluctus::kScopeAnalyser);
+	selection_writer_	= ship_builder_.BuildNewShip(fluctus::kSelectionWriter);
 
 	ShipBuilder::Bind_SrcSink(file_src_, spectral_viewer_);
 	ShipBuilder::Bind_SrcSink(file_src_, scope_analyser_);
+	ShipBuilder::Bind_SrcSink(file_src_, selection_writer_);
 	ShipBuilder::Bind_SrcSink(spectral_viewer_, scope_analyser_);
+	ShipBuilder::Bind_SrcSink(spectral_viewer_, selection_writer_);
+
+	
 
 	{
 		auto file_window = ShipBuilder::GetWindow(file_src_);

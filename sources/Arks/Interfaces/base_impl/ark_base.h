@@ -1,7 +1,7 @@
 #pragma once
 #include <mutex>
 #include <QWidget>
-#include "..\ark_interface.h"
+#include "../ark_interface.h"
 
 namespace fluctus
 {

@@ -1,4 +1,4 @@
-#include "Interfaces\ark_interface.h"
+#include "Interfaces/ark_interface.h"
 #include <qwindow.h>
 class ShipBuilder {
 

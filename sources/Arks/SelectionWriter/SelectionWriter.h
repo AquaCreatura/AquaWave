@@ -1,16 +1,14 @@
-#include <qdialog.h>
-
-
-#include "Arks\Interfaces\base_impl\ark_base.h"
-
-namespace file_source
+#include "window/selection_writer_window.h"
+#include "Arks/Interfaces/base_impl/ark_base.h"
+using namespace fluctus;
+namespace file_writer
 {
 	// Ark implementation for sending data from a file source
-	class FileSourceArk : public fluctus::ArkBase
+	class SelectionWriter : public fluctus::ArkBase
 	{
 	public:
-		FileSourceArk(QWidget *main_window = nullptr);  // Constructor
-		~FileSourceArk(); // Destructor
+		SelectionWriter();  // Constructor
+		~SelectionWriter(); // Destructor
 
 						  // Sends data information to the destination
 		virtual bool SendData(fluctus::DataInfo const & data_info) override;
@@ -20,7 +18,9 @@ namespace file_source
 		fluctus::ArkType GetArkType() const override;
 	protected:
 		void UpdateSource();
+		bool StartSelectionRecord(fluctus::Limits<double> freq_bounds_hz, fluctus::Limits<double> time_bounds);
 	protected:
-		QWidget *qmain_window_ = nullptr; //Pointer to main to change tittles
+		SourceArk	src_info_;
+		SelectionWriterWindow window_;
 	};
 };

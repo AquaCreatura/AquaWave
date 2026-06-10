@@ -1,6 +1,6 @@
 #pragma once
 #include <qpointer.h>
-#include "Arks\Interfaces\base_impl\ark_base.h"
+#include "Arks/Interfaces/base_impl/ark_base.h"
 
 #include "Elements/DPX Spectrum/SpectrumDPX.h"
 #include "Elements/Static SPG/Spectrogram.h"
@@ -19,6 +19,7 @@ namespace spectral_viewer {
 	protected:
 		bool Reload();
 		void SetNewFftOrder(int n_fft_order);
+		void StartSelectionRecord();
 		void OnSelectionIsReady();
 
 	protected:

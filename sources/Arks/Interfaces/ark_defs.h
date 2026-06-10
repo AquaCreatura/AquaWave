@@ -47,7 +47,8 @@ namespace fluctus
         kStaticSpg		= 3,
 		kSpectralViewer	= 4,
 		kScopeAnalyser	= 5,
-		kConstellation  = 6
+		kConstellation  = 6,
+		kSelectionWriter = 7,
     };
 
 
@@ -104,7 +105,7 @@ namespace fluctus
 		{
 			kNothing = 0,                                //Ignore thought
 			kTieSource = 1 << 0, kTieSink = 1 << 1, kUntieFront = 1 << 2, kUntieBehind = 1 << 3,   
-			kGetDialog = 1 << 5, kReset = 1 << 6, kGetDescription = 1 << 7, kActivate = 1 << 8,
+			kGetWindow = 1 << 5, kReset = 1 << 6, kGetDescription = 1 << 7, kActivate = 1 << 8,
 			kDeactivate = 1 << 9, 
 
 			kSpecialThought = 1 << 31

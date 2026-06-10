@@ -5,6 +5,7 @@
 #include "Utilities/parse_tools.h"
 #include <QtConcurrent/qtconcurrent_global.h>
 #include <qfuture.h>
+#include "Utilities/wav_tools.h"
 using namespace file_source;
 
 // ============================== FileSourceDialog ===================================
@@ -117,7 +118,7 @@ void file_source::FileSourceDialog::OnChooseFilePath()
 
 void file_source::FileSourceDialog::ParseWavHeader(const QString & file_name)
 {
-	aqua_parse_tools::WavInfo info;
+	utility_aqua::WavInfo info;
 	if (get_wav_info(file_name.toLocal8Bit().constData(), info))
 	{
 		if (info.sample_rate && info.data_offset)
@@ -214,8 +215,6 @@ void file_source::FileSourceDialog::OnOkButton()
 			tr("Can not find specified file!\n\"%1\"").arg(edit_file_info_.file_name_));
 		return;
 	}
-	aqua_parse_tools::WavInfo info;
-
 	edit_file_info_.count_of_samples = (QFile(edit_file_info_.file_name_).size() - edit_file_info_.first_sample_offset) / GetSampleSize(edit_file_info_.data_type_);
 
 	RememberFilePath();

@@ -119,6 +119,9 @@
     <Filter Include="Utilities">
       <UniqueIdentifier>{eab120ec-b203-42ef-bc9a-7e9fd2255896}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ARKS\SelectionWriter">
+      <UniqueIdentifier>{fe4ca99f-1b07-4fe1-84d3-49a50d046a43}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <!-- ClCompile (CPP Files) -->
   <ItemGroup>
@@ -260,6 +263,12 @@
     <ClCompile Include="sources\Utilities\calc_tools.cpp">
       <Filter>Utilities</Filter>
     </ClCompile>
+    <ClCompile Include="sources\Utilities\wav_tools.cpp">
+      <Filter>Utilities</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\Arks\SelectionWriter\SelectionWriter.cpp">
+      <Filter>ARKS\SelectionWriter</Filter>
+    </ClCompile>
   </ItemGroup>
   <!-- ClInclude (H Files) -->
   <ItemGroup>
@@ -398,6 +407,12 @@
     </ClInclude>
     <ClInclude Include="sources\Utilities\calc_tools.h">
       <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\Utilities\wav_tools.h">
+      <Filter>Utilities</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\Arks\SelectionWriter\SelectionWriter.h">
+      <Filter>ARKS\SelectionWriter</Filter>
     </ClInclude>
   </ItemGroup>
   <!-- QtMoc (For Headers Requiring Moc) -->

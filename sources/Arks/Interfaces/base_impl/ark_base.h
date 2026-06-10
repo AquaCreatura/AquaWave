@@ -13,7 +13,7 @@ namespace fluctus
         virtual ~ArkBase() = default;
 
         //Main function, which allow arks to communicate
-        virtual bool           SendDove     (DoveSptr const & sent_dove) override;
+        virtual bool           PostDove     (DoveSptr const & sent_dove) override;
         virtual StrongFleet    GetBehindArks()  override;
         virtual StrongFleet    GetFrontArks ()  override;
         virtual ArkType        GetArkType   () const  override;

@@ -148,7 +148,7 @@ void TileSPG::SetDataToRow(const float * passed_data, int data_size, const Limit
 argb_t TileSPG::GetNormColor(double relative_density) const
 {
 	const auto decrease_const = last_average_density_ * 0.79;
-	double delta = (max_density_ - decrease_const) * 0.99;
+	double delta = (max_density_ - decrease_const) * 0.9;
 	double normalized_density = (relative_density - decrease_const) / delta;
 	return LUT_HSV_Instance::DensityToRGB(normalized_density);
 }

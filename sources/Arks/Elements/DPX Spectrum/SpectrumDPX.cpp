@@ -82,7 +82,7 @@ bool SpectrumDpx::SendData(fluctus::DataInfo const & data_info)
 
 // Обрабатывает сообщения "Dove".
 // sent_dove: Умный указатель на сообщение Dove.
-bool dpx_core::SpectrumDpx::SendDove(fluctus::DoveSptr const & sent_dove)
+bool dpx_core::SpectrumDpx::PostDove(fluctus::DoveSptr const & sent_dove)
 {
     // Если сообщение недействительно, выбрасываем исключение.
     if (!sent_dove) throw std::invalid_argument("Not created message sent!");
@@ -130,7 +130,7 @@ bool dpx_core::SpectrumDpx::SendDove(fluctus::DoveSptr const & sent_dove)
 		};
 	}
     // Передаём сообщение базовому классу для дальнейшей обработки.
-    return ArkBase::SendDove(sent_dove);
+    return ArkBase::PostDove(sent_dove);
 }
 
 ArkType dpx_core::SpectrumDpx::GetArkType() const
@@ -147,7 +147,7 @@ bool dpx_core::SpectrumDpx::Reload()
     
 	auto req_dove = std::make_shared<fluctus::DoveParrent>(fluctus::DoveParrent::kGetDescription);
 	req_dove->sender = shared_from_this();
-    if (!file_src->SendDove(req_dove) || !req_dove->description)
+    if (!file_src->PostDove(req_dove) || !req_dove->description)
     {
         return false;
     }

@@ -82,7 +82,7 @@ bool ScopeAnalyzer::SendData(fluctus::DataInfo const & passed_unit)
 
 // Обрабатывает сообщения "Dove".
 // sent_dove: Умный указатель на сообщение Dove.
-bool ScopeAnalyzer::SendDove(fluctus::DoveSptr const & sent_dove)
+bool ScopeAnalyzer::PostDove(fluctus::DoveSptr const & sent_dove)
 {
     // Если сообщение недействительно, выбрасываем исключение.
     if (!sent_dove) throw std::invalid_argument("Not created message sent!");
@@ -142,7 +142,7 @@ bool ScopeAnalyzer::SendDove(fluctus::DoveSptr const & sent_dove)
 
 	}
     // Передаём сообщение базовому классу для дальнейшей обработки.
-    return ArkBase::SendDove(sent_dove);
+    return ArkBase::PostDove(sent_dove);
 }
 
 ArkType ScopeAnalyzer::GetArkType() const
@@ -157,7 +157,7 @@ bool ScopeAnalyzer::Reload()
 	if (!file_src) return true;	
 	{
 		auto req_dove = std::make_shared<fluctus::DoveParrent>(fluctus::DoveParrent::kGetDescription);
-		if (!file_src->SendDove(req_dove) || !req_dove->description) {
+		if (!file_src->PostDove(req_dove) || !req_dove->description) {
 			return false;
 		}
 		source_info_.descr = *req_dove->description;
@@ -192,7 +192,7 @@ bool ScopeAnalyzer::Restart(Limits<double> freq_bounds_Mhz, Limits<double> time_
 		setup->banwidth_hz	 = selection_bounds_.delta();
 		setup->samplerate_hz = setup->banwidth_hz / source_info_.descr.bw_ratio_;
 
-		if (!file_src_->SendDove(req_dove))
+		if (!file_src_->PostDove(req_dove))
 		{
 			QMessageBox::warning( nullptr, "Cannot Send Data", "Do something with DPX or file source, or...");
 			return false;
@@ -216,7 +216,7 @@ bool ScopeAnalyzer::Restart(Limits<double> freq_bounds_Mhz, Limits<double> time_
 	auto req_dove = std::make_shared<spectral_viewer::SpectralDove>();
 	req_dove->base_thought = DoveParrent::kReset;
 	for (auto chart_iter : charts_)
-		chart_iter.second->SendDove(req_dove);
+		chart_iter.second->PostDove(req_dove);
 
 	if(max_order > 0)
 		window_->SetMaxFFtOrder(max_order);
@@ -237,7 +237,7 @@ void scope_analyzer::ScopeAnalyzer::SetNewFftOrder(int need_order)
 		req_dove->special_thought = spectral_viewer::SpectralDove::kSetFFtOrder;
 		req_dove->fft_order_ = log2(n_fft_);
 		for (auto chart_iter : charts_) 
-			chart_iter.second->SendDove(req_dove);
+			chart_iter.second->PostDove(req_dove);
 
 	}
 	if (time_bounds_.delta() == 0) return;
@@ -246,7 +246,7 @@ void scope_analyzer::ScopeAnalyzer::SetNewFftOrder(int need_order)
 	req_dove->special_thought = file_source::FileSrcDove::kSetChunkSize;
 	req_dove->target_ark = shared_from_this();	
 	req_dove->setup.emplace()->chunk_size = n_fft_;
-	if (!file_src_->SendDove(req_dove))
+	if (!file_src_->PostDove(req_dove))
 	{
 		QMessageBox::warning(nullptr, "Cannot Send Data", "Do something with DPX or file source, or...");
 		return;

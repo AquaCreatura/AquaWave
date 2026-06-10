@@ -18,8 +18,8 @@ SpectralViewer::SpectralViewer()
 
 		auto req_dove = std::make_shared<SpectralDove>(SpectralDove::kSetSelectionHolder);
 		req_dove->sel_holder = selection_holder_;
-		spectrum_->SendDove(req_dove);
-		spg_->SendDove(req_dove);
+		spectrum_->PostDove(req_dove);
+		spg_->PostDove(req_dove);
 
 		auto dpx_window = ShipBuilder::GetWindow(spectrum_);
 		auto spg_window = ShipBuilder::GetWindow(spg_);
@@ -57,7 +57,7 @@ bool SpectralViewer::SendData(fluctus::DataInfo const & data_info)
 
 // Обрабатывает сообщения "Dove".
 // sent_dove: Умный указатель на сообщение Dove.
-bool SpectralViewer::SendDove(fluctus::DoveSptr const & sent_dove)
+bool SpectralViewer::PostDove(fluctus::DoveSptr const & sent_dove)
 {
     // Если сообщение недействительно, выбрасываем исключение.
     if (!sent_dove) throw std::invalid_argument("Not created message sent!");
@@ -81,21 +81,21 @@ bool SpectralViewer::SendDove(fluctus::DoveSptr const & sent_dove)
 		{
 			fluctus::DoveSptr req_dove = std::make_shared<fluctus::DoveParrent>(fluctus::DoveParrent::kTieSource);
 			req_dove->target_ark = target_val;
-			spg_->SendDove(req_dove);
-			spectrum_->SendDove(req_dove);
+			spg_->PostDove(req_dove);
+			spectrum_->PostDove(req_dove);
 		}
     }
 	if (base_thought & fluctus::DoveParrent::DoveThought::kActivate)
 	{
 		fluctus::DoveSptr req_dove = std::make_shared<fluctus::DoveParrent>(fluctus::DoveParrent::kActivate);
-		spg_->SendDove(req_dove);
-		spectrum_->SendDove(req_dove);
+		spg_->PostDove(req_dove);
+		spectrum_->PostDove(req_dove);
 	}
 	if (base_thought & fluctus::DoveParrent::DoveThought::kDeactivate)
 	{
 		fluctus::DoveSptr req_dove = std::make_shared<fluctus::DoveParrent>(fluctus::DoveParrent::kDeactivate);
-		spg_->SendDove(req_dove);
-		spectrum_->SendDove(req_dove);
+		spg_->PostDove(req_dove);
+		spectrum_->PostDove(req_dove);
 	}
 
     //
@@ -105,7 +105,7 @@ bool SpectralViewer::SendDove(fluctus::DoveSptr const & sent_dove)
     }
 
     // Передаём сообщение базовому классу для дальнейшей обработки.
-    return ArkBase::SendDove(sent_dove);
+    return ArkBase::PostDove(sent_dove);
 }
 
 
@@ -123,7 +123,7 @@ bool SpectralViewer::Reload()
 
 	
 	auto parrent_dove = std::make_shared<fluctus::DoveParrent>(fluctus::DoveParrent::kGetDescription);
-	if (!file_src->SendDove(parrent_dove) || !parrent_dove->description) {
+	if (!file_src->PostDove(parrent_dove) || !parrent_dove->description) {
 		return false;
 	}
 	src_info_.descr = *parrent_dove->description;
@@ -131,8 +131,8 @@ bool SpectralViewer::Reload()
 	window_->SetMaxFFtOrder(max_order);
 	
 	parrent_dove->base_thought = fluctus::DoveParrent::DoveThought::kReset;
-	spg_->SendDove(parrent_dove);
-	spectrum_->SendDove(parrent_dove);
+	spg_->PostDove(parrent_dove);
+	spectrum_->PostDove(parrent_dove);
 
 	{
 		using namespace file_source;
@@ -144,7 +144,7 @@ bool SpectralViewer::Reload()
 		req_dove->setup->carrier_hz = src_info_.descr.carrier_hz;
 		req_dove->setup->banwidth_hz = src_info_.descr.samplerate_hz * src_info_.descr.bw_ratio_;
 		req_dove->setup->samplerate_hz = src_info_.descr.samplerate_hz;
-		if (!file_src->SendDove(req_dove)) {
+		if (!file_src->PostDove(req_dove)) {
 			QMessageBox::warning(nullptr, "Cannot Send Data", "Do something with DPX or file source, or...");
 		}
 	}
@@ -161,8 +161,8 @@ void SpectralViewer::SetNewFftOrder(int n_fft_order)
 
 	auto spectral_dove = std::make_shared<SpectralDove>(SpectralDove::SpectralThought::kSetFFtOrder);
 	spectral_dove->fft_order_ = n_fft_order;
-	spg_->SendDove(spectral_dove);
-	spectrum_->SendDove(spectral_dove);
+	spg_->PostDove(spectral_dove);
+	spectrum_->PostDove(spectral_dove);
 
 	
 
@@ -170,7 +170,7 @@ void SpectralViewer::SetNewFftOrder(int n_fft_order)
 	file_src_dove->target_ark = shared_from_this();
 	file_src_dove->time_bounds = { 0., 1. };
 	file_src_dove->setup.emplace()->chunk_size = n_fft_;
-	if (!file_src->SendDove(file_src_dove)) {
+	if (!file_src->PostDove(file_src_dove)) {
 		QMessageBox::warning(nullptr, "Cannot Send Data", "Do something with DPX or file source, or..."  );
 	}
 }
@@ -186,7 +186,7 @@ void spectral_viewer::SpectralViewer::OnSelectionIsReady()
 			if (cur_sel.time_bounds.delta() < 0) std::swap(cur_sel.time_bounds.low, cur_sel.time_bounds.high);
 			analyze_dove->freq_bounds_hz	= cur_sel.freq_bounds;
 			analyze_dove->file_bounds_ratio = cur_sel.time_bounds;
-			front_iter->SendDove(analyze_dove);
+			front_iter->PostDove(analyze_dove);
 		}
 	}
 }

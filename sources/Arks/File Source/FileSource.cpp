@@ -20,7 +20,7 @@ file_source::FileSourceArk::~FileSourceArk()
 }
 
 // Обработчик сообщений (Dove - "голубь" как сообщение)
-bool file_source::FileSourceArk::SendDove(fluctus::DoveSptr const& sent_dove)
+bool file_source::FileSourceArk::PostDove(fluctus::DoveSptr const& sent_dove)
 {
     if (!sent_dove)
         throw std::invalid_argument("empty dove sent!");
@@ -32,12 +32,12 @@ bool file_source::FileSourceArk::SendDove(fluctus::DoveSptr const& sent_dove)
     {
         fluctus::DoveSptr message   = std::make_shared<fluctus::DoveParrent>();
         message->base_thought       = DoveParrent::kReset;
-        target_ark->SendDove(message);
-        return ArkBase::SendDove(sent_dove);
+        target_ark->PostDove(message);
+        return ArkBase::PostDove(sent_dove);
     }
     if (parrent_type & fluctus::DoveParrent::kUntieFront)
     {
-        return ArkBase::SendDove(sent_dove);
+        return ArkBase::PostDove(sent_dove);
     }
     
     // Запрос диалогового окна
@@ -88,7 +88,7 @@ bool file_source::FileSourceArk::SendDove(fluctus::DoveSptr const& sent_dove)
 			dialog_->exec();
         }//kSetFile
     }
-    return ArkBase::SendDove(sent_dove);
+    return ArkBase::PostDove(sent_dove);
 }
 
 fluctus::ArkType file_source::FileSourceArk::GetArkType() const
@@ -107,7 +107,7 @@ void file_source::FileSourceArk::UpdateSource()
         auto out_fleet   = GetFrontArks();
         fluctus::DoveSptr message   = std::make_shared<fluctus::DoveParrent>();
         message->base_thought       = DoveParrent::kReset;
-        for(auto &out_ark: out_fleet) out_ark->SendDove(message);
+        for(auto &out_ark: out_fleet) out_ark->PostDove(message);
     }
 }
 

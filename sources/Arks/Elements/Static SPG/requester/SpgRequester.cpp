@@ -88,7 +88,7 @@ bool spg_core::SpgRequester::SendRequestDove(const request_params & req_info)
 	setup.chunk_size = req_info.data_size;
 	setup.carrier_hz = freq_bounds.mid();
 	setup.samplerate_hz = freq_bounds.delta();
-    if (!file_src->SendDove(req_dove))
+    if (!file_src->PostDove(req_dove))
     {
         return false;
     }

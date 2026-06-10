@@ -18,7 +18,7 @@ bool constel::Constellation::SendData(fluctus::DataInfo const & data_info)
 	return true;
 }
 
-bool constel::Constellation::SendDove(fluctus::DoveSptr const & sent_dove)
+bool constel::Constellation::PostDove(fluctus::DoveSptr const & sent_dove)
 {
 	// Если сообщение недействительно, выбрасываем исключение.
 	if (!sent_dove) throw std::invalid_argument("Not created message sent!");
@@ -53,7 +53,7 @@ bool constel::Constellation::SendDove(fluctus::DoveSptr const & sent_dove)
 		};
 	}
 	// Передаём сообщение базовому классу для дальнейшей обработки.
-	return ArkBase::SendDove(sent_dove);
+	return ArkBase::PostDove(sent_dove);
 	
 }
 

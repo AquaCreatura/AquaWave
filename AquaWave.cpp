@@ -59,20 +59,20 @@ AquaWave::AquaWave(QWidget *parent, const QString& file_path)
 		auto file_dove = std::make_shared<file_source::FileSrcDove>(file_source::FileSrcDove::kSetFileName);
 		file_dove->description = fluctus::SourceDescription();
 		file_dove->description->file_name_ = file_path;
-		file_src_->SendDove(file_dove);
+		file_src_->PostDove(file_dove);
 	}
 
 	this->ui.main_stacked->addWidget(ShipBuilder::GetWindow(spectral_viewer_));
 	this->ui.main_stacked->addWidget(ShipBuilder::GetWindow(scope_analyser_));
 	connect(ui.spectral_viewer_navigate_button, &QPushButton::clicked, [this](){
 		ui.main_stacked->setCurrentWidget(ShipBuilder::GetWindow(spectral_viewer_));
-		spectral_viewer_->SendDove(std::make_shared<fluctus::DoveParrent>(fluctus::DoveParrent::kActivate));
-		scope_analyser_->SendDove(std::make_shared<fluctus::DoveParrent>(fluctus::DoveParrent::kDeactivate));
+		spectral_viewer_->PostDove(std::make_shared<fluctus::DoveParrent>(fluctus::DoveParrent::kActivate));
+		scope_analyser_->PostDove(std::make_shared<fluctus::DoveParrent>(fluctus::DoveParrent::kDeactivate));
 	});
 	connect(ui.analyze_navigate_button, &QPushButton::clicked, [this]() {
 		ui.main_stacked->setCurrentWidget(ShipBuilder::GetWindow(scope_analyser_));
-		scope_analyser_->SendDove(std::make_shared<fluctus::DoveParrent>(fluctus::DoveParrent::kActivate));
-		spectral_viewer_->SendDove(std::make_shared<fluctus::DoveParrent>(fluctus::DoveParrent::kDeactivate));
+		scope_analyser_->PostDove(std::make_shared<fluctus::DoveParrent>(fluctus::DoveParrent::kActivate));
+		spectral_viewer_->PostDove(std::make_shared<fluctus::DoveParrent>(fluctus::DoveParrent::kDeactivate));
 	});
 	ui.spectral_viewer_navigate_button->click();
 	//connect

@@ -17,8 +17,8 @@ namespace utility_aqua
 				val = new W();
 			return val;
 		}
-        const    W value() { return (val ? *val: W());  };
-		const    W value_or(const W or_passed) { return (val ? *val : or_passed); };
+        const    W value() const  { return (val ? *val: W());  }  ;
+		const    W value_or (const W or_passed) const { return (val ? *val : or_passed); };
         operator W* () { return val; };
 
 		W* operator->()

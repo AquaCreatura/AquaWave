@@ -1,6 +1,6 @@
 #include "ark_base.h"
 using namespace fluctus;
-bool fluctus::ArkBase::SendDove(DoveSptr const & sent_dove)
+bool fluctus::ArkBase::PostDove(DoveSptr const & sent_dove)
 {
     if (!sent_dove)
         throw std::invalid_argument("Not created message sent!");

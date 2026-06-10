@@ -51,7 +51,7 @@ bool StaticSpg::SendData(fluctus::DataInfo const & data_info)
 
 // Обрабатывает сообщения "Dove".
 // sent_dove: Умный указатель на сообщение Dove.
-bool StaticSpg::SendDove(fluctus::DoveSptr const & sent_dove)
+bool StaticSpg::PostDove(fluctus::DoveSptr const & sent_dove)
 {
     // Если сообщение недействительно, выбрасываем исключение.
     if (!sent_dove) throw std::invalid_argument("Not created message sent!");
@@ -98,7 +98,7 @@ bool StaticSpg::SendDove(fluctus::DoveSptr const & sent_dove)
 		};
 
 	}
-    return ArkBase::SendDove(sent_dove);
+    return ArkBase::PostDove(sent_dove);
 }
 
 ArkType spg_core::StaticSpg::GetArkType() const
@@ -116,7 +116,7 @@ bool spg_core::StaticSpg::Reload()
     requester_.Initialise(file_src, this->shared_from_this());
 
 	auto req_dove = std::make_shared<fluctus::DoveParrent>(fluctus::DoveParrent::kGetDescription);
-    if (!file_src->SendDove(req_dove) || !req_dove->description) {
+    if (!file_src->PostDove(req_dove) || !req_dove->description) {
         return false;
     }
     src_info_.descr = (*req_dove->description);

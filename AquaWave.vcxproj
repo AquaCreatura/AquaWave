@@ -132,6 +132,7 @@
     <ClCompile Include="sources\Arks\Interfaces\base_impl\ark_base.cpp" />
     <ClCompile Include="sources\Arks\Scope Analyzer\ScopeAnalyzer.cpp" />
     <ClCompile Include="sources\Arks\Scope Analyzer\window\scope_analyzer_window.cpp" />
+    <ClCompile Include="sources\Arks\SelectionWriter\SelectionWriter.cpp" />
     <ClCompile Include="sources\Arks\ShipBuilder.cpp" />
     <ClCompile Include="sources\Arks\Spectral Viewer\SpectralViewer.cpp" />
     <ClCompile Include="sources\Arks\Spectral Viewer\Window\spectral_viewer_window.cpp" />
@@ -165,13 +166,16 @@
     <ClCompile Include="sources\Utilities\file_helpers.cpp" />
     <ClCompile Include="sources\Utilities\calc_tools.cpp" />
     <ClCompile Include="sources\Utilities\qt_utility.cpp" />
+    <ClCompile Include="sources\Utilities\wav_tools.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="sources\aqua_defines.h" />
+    <ClInclude Include="sources\Arks\SelectionWriter\SelectionWriter.h" />
     <ClInclude Include="sources\Utilities\aqua_array_queue.h" />
     <ClInclude Include="sources\Utilities\aqua_obj_queue.h" />
     <ClInclude Include="sources\Utilities\file_helpers.h" />
     <ClInclude Include="sources\Utilities\parse_tools.h" />
+    <ClInclude Include="sources\Utilities\wav_tools.h" />
     <QtMoc Include="sources\Utilities\qt_utility.h" />
     <ClInclude Include="sources\Utilities\calc_tools.h" />
     <ClInclude Include="sources\Utilities\utility_aqua.h" />

@@ -14,7 +14,7 @@ namespace constel
 		Constellation(QWidget *parrent = nullptr);
 		~Constellation();
 		virtual bool SendData(fluctus::DataInfo const& data_info) override;
-		virtual bool SendDove(fluctus::DoveSptr const & sent_dove) override;
+		virtual bool PostDove(fluctus::DoveSptr const & sent_dove) override;
 		ArkType GetArkType() const override;
 	protected:
 		bool Reload();

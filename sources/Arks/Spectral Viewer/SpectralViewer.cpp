@@ -185,7 +185,7 @@ void spectral_viewer::SpectralViewer::StartSelectionRecord()
 			auto cur_sel = selection_holder_->GetSelection();
 			if (cur_sel.freq_bounds.delta() < 0) std::swap(cur_sel.freq_bounds.low, cur_sel.freq_bounds.high);
 			if (cur_sel.time_bounds.delta() < 0) std::swap(cur_sel.time_bounds.low, cur_sel.time_bounds.high);
-			analyze_dove->freq_bounds_hz = cur_sel.freq_bounds;
+			analyze_dove->freq_bounds_hz = cur_sel.freq_bounds * 1e6;
 			analyze_dove->file_bounds_ratio = cur_sel.time_bounds;
 			front_iter->PostDove(analyze_dove);
 		}

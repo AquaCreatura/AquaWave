@@ -145,8 +145,9 @@ bool FileWriter::CaptureFile(const std::string& file_path, bool do_rewrite)
 	file_stream_.open(file_path, mode);
 	if (!file_stream_.is_open())
 		return false;
-
+	
 	file_path_ = std::move(file_path);
+	bytes_written_ = FsHelper::GetFileSize(file_path);
 	return true;
 }
 
@@ -164,7 +165,7 @@ bool FileWriter::WriteData(const char * data, int data_size)
 {
 	if (!IsCaptured())
 		return false;
-
+	bytes_written_ += data_size;
 	file_stream_.write(data, data_size);
 	return file_stream_.good();
 }
@@ -183,6 +184,11 @@ std::string FileWriter::ReleaseFile()
 	std::string released_path = std::move(file_path_);
 	file_path_.clear();
 	return released_path;
+}
+
+size_t FileWriter::GetCurSizeBytes() const
+{
+	return bytes_written_;
 }
 
 bool FileWriter::DeleteCurrentFile()

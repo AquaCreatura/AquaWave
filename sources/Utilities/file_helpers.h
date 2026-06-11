@@ -27,8 +27,10 @@ public:
 	bool WriteData(const char* data, int data_size);
 	std::string GetFilePath();
 	std::string ReleaseFile();
+	size_t GetCurSizeBytes() const;
 	bool DeleteCurrentFile();
 private:
 	std::string file_path_;
 	std::ofstream file_stream_;
+	size_t		 bytes_written_{ 0 };
 };

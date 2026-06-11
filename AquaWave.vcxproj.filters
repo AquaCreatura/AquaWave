@@ -423,9 +423,6 @@
     <ClInclude Include="sources\Arks\Interfaces\special_defs\file_writer_defs.h">
       <Filter>ARKS\Interfaces\special_defs</Filter>
     </ClInclude>
-    <ClInclude Include="sources\Arks\SelectionWriter\window\selection_writer_window.h">
-      <Filter>ARKS\SelectionWriter\window</Filter>
-    </ClInclude>
   </ItemGroup>
   <!-- QtMoc (For Headers Requiring Moc) -->
   <ItemGroup>
@@ -467,6 +464,9 @@
     </QtMoc>
     <QtMoc Include="sources\Utilities\qt_utility.h">
       <Filter>Utilities</Filter>
+    </QtMoc>
+    <QtMoc Include="sources\Arks\SelectionWriter\window\selection_writer_window.h">
+      <Filter>ARKS\SelectionWriter\window</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>

@@ -1,16 +1,49 @@
 #include "SelectionWriter.h"
+#include <qmessagebox.h>
 #include "Arks/Interfaces/special_defs/file_writer_defs.h"
+#include "Arks/Interfaces/special_defs/file_souce_defs.h"
+constexpr int c_expr_read_chunk_size_ = 4096;
 file_writer::SelectionWriter::SelectionWriter()
 {
-}
+	connect(&window_, &SelectionWriterWindow::StartNeed, this, &SelectionWriter::StartRecording);
+	connect(&window_, &SelectionWriterWindow::StopNeed, this, &SelectionWriter::StopRecording);
+	connect(&window_, &SelectionWriterWindow::IsStarted, [this]()->bool {return is_started_.load(); });
 
+
+	{ //Таймер
+		connect(&stop_timer_, &QTimer::timeout,this, &SelectionWriter::OnStopTimerEvent);
+		stop_timer_.setInterval(interval_stop_msec_);
+		stop_timer_.setSingleShot(true);
+	}
+}
 file_writer::SelectionWriter::~SelectionWriter()
 {
 }
 
-bool file_writer::SelectionWriter::SendData(fluctus::DataInfo const & data_info)
+bool file_writer::SelectionWriter::SendData(fluctus::DataInfo const & data_info) //Вызывается асинхронно не в потоке GUI
 {
-	return false;
+	//Закидываем данные
+	{
+		std::vector<Ipp32fc>& passed_32fc = (std::vector<Ipp32fc>&)data_info.data_vec;
+		casted_16sc_.resize(passed_32fc.size());
+		ippsConvert_32f16s_Sfs((Ipp32f*)passed_32fc.data(), (Ipp16s*)casted_16sc_.data(), casted_16sc_.size() * 2, IppRoundMode::ippRndNear, 0);
+		if (!writer_.WriteData((std::vector<uint8_t>&)casted_16sc_))
+		{
+			window_.Stop();
+			return false;
+		}
+	}
+	//Обновляем статус
+	if (status_update_timer_.elapsed() > 0) {
+		double passed_ratio = data_info.time_point; time_bounds_.pos(data_info.time_point);
+		QMetaObject::invokeMethod(&window_, [=]() {
+			window_.UpdateProgressRatio(passed_ratio);
+			window_.UpdateBytesWritten(writer_.GetCurSizeBytes());
+		}, Qt::QueuedConnection);
+		status_update_timer_.start();
+	}
+
+	return true;
 }
 
 bool file_writer::SelectionWriter::PostDove(fluctus::DoveSptr const & sent_dove)
@@ -21,7 +54,8 @@ bool file_writer::SelectionWriter::PostDove(fluctus::DoveSptr const & sent_dove)
 
 	if (base_thought == fluctus::DoveParrent::DoveThought::kTieSource)
 	{		
-		src_info_.ark = target_val;
+		if (target_val->GetArkType() == ArkType::kFileSource)
+			src_info_.ark = target_val;
 	}
 	if (base_thought == fluctus::DoveParrent::DoveThought::kReset)
 	{
@@ -32,7 +66,7 @@ bool file_writer::SelectionWriter::PostDove(fluctus::DoveSptr const & sent_dove)
 		if (auto fw_dove = std::dynamic_pointer_cast<FileWriterDove>(sent_dove)) {
 
 			if (special_thought & file_writer::FileWriterDove::SpecThought::kRecordSelection) {
-				return StartSelectionRecord(fw_dove->freq_bounds_hz,fw_dove->file_bounds_ratio);
+				return InitSelectionRecord(fw_dove->freq_bounds_hz,fw_dove->file_bounds_ratio);
 			}
 		};
 	}
@@ -61,8 +95,73 @@ void file_writer::SelectionWriter::UpdateSource()
 	return;
 }
 
-bool file_writer::SelectionWriter::StartSelectionRecord(fluctus::Limits<double> freq_bounds_hz, fluctus::Limits<double> time_bounds)
+bool file_writer::SelectionWriter::InitSelectionRecord(fluctus::Limits<double> freq_bounds_hz, fluctus::Limits<double> time_bounds)
 {
+	time_bounds_ = time_bounds;
+	freq_bounds_hz_ = freq_bounds_hz;
+	window_.SetFreqparams(freq_bounds_hz.mid(), freq_bounds_hz.delta());
+	window_.UpdateProgressRatio(0.);
+	window_.UpdateBytesWritten(0);
+
 	window_.exec();
 	return true;
+}
+
+bool file_writer::SelectionWriter::StartRecording(const std::string file_path)
+{
+	int a = 1;
+
+	window_.UpdateProgressRatio(0.);
+	window_.UpdateBytesWritten(0);
+	if (!writer_.CaptureFile(file_path, true))
+		return false;
+	{
+		auto file_src = src_info_.ark.lock();
+		auto req_dove = std::make_shared<file_source::FileSrcDove>();
+		req_dove->sender = shared_from_this();
+		req_dove->special_thought = file_source::FileSrcDove::kInitiate | file_source::FileSrcDove::kAskChunksInRange;
+		req_dove->target_ark = shared_from_this();
+
+		req_dove->time_bounds = time_bounds_;
+
+		req_dove->setup.emplace();
+		auto &setup = req_dove->setup;
+		setup->carrier_hz = freq_bounds_hz_.mid();
+		setup->chunk_size = c_expr_read_chunk_size_;
+		setup->banwidth_hz = freq_bounds_hz_.delta();
+		setup->samplerate_hz = setup->banwidth_hz / src_info_.descr.bw_ratio_;
+		if (!file_src->PostDove(req_dove))
+		{
+			QMessageBox::warning(nullptr, "Error", "Can not start recording");
+			return false;
+		}
+	}
+
+
+
+	is_started_ = true;
+	status_update_timer_.start();
+	stop_timer_.start();
+	return true;
+}
+
+bool file_writer::SelectionWriter::StopRecording()
+{
+	is_started_ = false;
+	QMetaObject::invokeMethod(&window_, [=]() {
+		window_.UpdateProgressRatio(1.);
+		window_.UpdateBytesWritten(writer_.GetCurSizeBytes());
+	}, Qt::QueuedConnection);
+
+	writer_.ReleaseFile();
+	return true;
+}
+
+void file_writer::SelectionWriter::OnStopTimerEvent()
+{
+	if (status_update_timer_.elapsed() > 300) { 
+		window_.Stop();
+	}
+	else 
+		stop_timer_.start();
 }

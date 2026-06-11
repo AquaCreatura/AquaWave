@@ -169,16 +169,15 @@ bool ScopeAnalyzer::Restart(Limits<double> freq_bounds_Mhz, Limits<double> time_
 {
 	time_bounds_ = time_bounds;
 	selection_bounds_ = freq_bounds_Mhz * 1.e6;
+	auto file_src = source_info_.ark.lock();
 	if (time_bounds_.delta() == 0) return false;
-	auto arks = GetBehindArks();
-	if (arks.empty()) return false;
+	if (!file_src) return false;
 
 	selection_descr_.bw_ratio_ = source_info_.descr.bw_ratio_;
 	selection_descr_.carrier_hz = selection_bounds_.mid();
 
 
 	{
-		auto file_src_ = arks.front();
 		auto req_dove = std::make_shared<file_source::FileSrcDove>();
 		req_dove->special_thought = file_source::FileSrcDove::kInitiate | file_source::FileSrcDove::kAskLoopInRange;
 		req_dove->target_ark = shared_from_this();
@@ -192,7 +191,7 @@ bool ScopeAnalyzer::Restart(Limits<double> freq_bounds_Mhz, Limits<double> time_
 		setup->banwidth_hz	 = selection_bounds_.delta();
 		setup->samplerate_hz = setup->banwidth_hz / source_info_.descr.bw_ratio_;
 
-		if (!file_src_->PostDove(req_dove))
+		if (!file_src->PostDove(req_dove))
 		{
 			QMessageBox::warning( nullptr, "Cannot Send Data", "Do something with DPX or file source, or...");
 			return false;

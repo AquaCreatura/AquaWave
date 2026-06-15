@@ -15,6 +15,7 @@ public:
 	static bool CreateDirectories(const std::string& dirPath);
 	static bool CopyPrecisedFile(const std::string& from, const std::string& to);
 	static int64_t GetFileSize(const std::string& file_path);
+	static bool  IsFileExist(const std::string& file_path);
 
 };
 

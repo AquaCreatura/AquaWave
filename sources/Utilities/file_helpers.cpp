@@ -101,6 +101,12 @@ int64_t FsHelper::GetFileSize(const std::string & file_path)
 	return -1; // ошибка
 }
 
+bool FsHelper::IsFileExist(const std::string& file_path)
+{
+	std::ifstream file(file_path);
+	return file.good();
+}
+
 bool FsHelper::CopyPrecisedFile(const std::string & from, const std::string & to)
 
 {

@@ -1,10 +1,20 @@
 #include "selection_writer_window.h"
+#include <QFileDialog>
+#include <QFile>
+#include <QTextStream>
 
+const char* txt_name = "out_folder_path.txt";
 SelectionWriterWindow::SelectionWriterWindow()
 {
 	ui_.setupUi(this);
 	connect(ui_.start_record_button, &QPushButton::clicked, this, &SelectionWriterWindow::OnStartButtonClicked);
+	connect(ui_.file_path_choose_button, &QPushButton::clicked, this, &SelectionWriterWindow::OnChoosePathButton);
 
+	{
+		QFile file(QCoreApplication::applicationDirPath() + "/" + txt_name);
+		if (file.open(QIODevice::ReadOnly | QIODevice::Text))
+			ui_.file_path_line_edit->setText(QTextStream(&file).readAll().trimmed());
+	}
 }
 
 void SelectionWriterWindow::SetFreqparams(int64_t carrier_hz, int64_t samplerate_hz)
@@ -27,6 +37,29 @@ void SelectionWriterWindow::UpdateProgressRatio(const double status_ratio)
 void SelectionWriterWindow::UpdateBytesWritten(size_t bytes_written)
 {
 	ui_.mbytes_written_spinbox->setValue(bytes_written / 1.e6);
+}
+
+void SelectionWriterWindow::OnChoosePathButton()
+{
+	const QString currentPath = ui_.file_path_line_edit->text();
+
+	const QString selectedDir = QFileDialog::getExistingDirectory(
+		this,
+		tr("Choose folder"),
+		currentPath,
+		QFileDialog::ShowDirsOnly | QFileDialog::DontResolveSymlinks);
+
+	if (!selectedDir.isEmpty())
+	{
+		ui_.file_path_line_edit->setText(selectedDir);
+	}
+
+
+	{
+		QFile file(QCoreApplication::applicationDirPath() + "/" + txt_name);
+		if (file.open(QIODevice::WriteOnly | QIODevice::Text))
+			QTextStream(&file) << selectedDir;
+	}
 }
 
 void SelectionWriterWindow::OnStartButtonClicked()

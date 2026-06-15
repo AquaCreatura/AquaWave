@@ -37,7 +37,7 @@ inline bool get_samplerate_from_filename(const std::string& filename, int64_t &s
 inline bool get_carrier_from_filename(const std::string& filename, int64_t &carrier_hz)
 {
     static const std::regex carrier_regex(
-        R"((\d+(?:\.\d+)?)\s*MHz)",
+		R"(([+-]?\d+(?:\.\d+)?)\s*MHz)",
         std::regex_constants::icase
     );
     std::smatch match;

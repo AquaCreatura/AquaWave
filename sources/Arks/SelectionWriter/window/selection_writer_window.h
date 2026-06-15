@@ -17,6 +17,7 @@ signals:
 	bool StopNeed();
 	bool IsStarted();
 protected:
+	void OnChoosePathButton();
 	void OnStartButtonClicked();
 protected:
 	Ui::SelectionWriterWindow ui_;

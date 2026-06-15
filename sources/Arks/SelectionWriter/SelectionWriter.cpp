@@ -2,6 +2,7 @@
 #include <qmessagebox.h>
 #include "Arks/Interfaces/special_defs/file_writer_defs.h"
 #include "Arks/Interfaces/special_defs/file_souce_defs.h"
+#include "Utilities/parse_tools.h"
 constexpr int c_expr_read_chunk_size_ = 4096;
 file_writer::SelectionWriter::SelectionWriter()
 {
@@ -107,14 +108,72 @@ bool file_writer::SelectionWriter::InitSelectionRecord(fluctus::Limits<double> f
 	return true;
 }
 
-bool file_writer::SelectionWriter::StartRecording(const std::string file_path)
+//folder_path может прийти в любом формате, в том числе и пустой, может с /,а может и с \\, может иметь в конце слэш, а может нет.
+bool file_writer::SelectionWriter::StartRecording(const std::string folder_path)
 {
-	int a = 1;
-
 	window_.UpdateProgressRatio(0.);
 	window_.UpdateBytesWritten(0);
-	if (!writer_.CaptureFile(file_path, true))
+
+
+	// 1. Normalize folder path (handle / vs \, trailing separator, empty case)
+	std::string base_folder = folder_path;
+
+	if (base_folder.empty()) {
+		base_folder = ".";  // current directory
+	}
+
+	// Normalize separators to '/' (most cross-platform friendly)
+	for (char& c : base_folder) {
+		if (c == '\\') c = '/';
+	}
+
+	// Ensure trailing slash
+	if (!base_folder.empty() && base_folder.back() != '/') {
+		base_folder += '/';
+	}
+
+	// 2. Generate base filename
+	auto time_string = aqua_parse_tools::gen_time_string();
+	std::string file_name = aqua_parse_tools::generate_filename(
+		freq_bounds_hz_.mid(),
+		freq_bounds_hz_.delta(),
+		time_string,
+		"pcm"
+	);
+
+	// 3. Find unique filename with postfix if needed
+	std::string file_full_path;
+	std::string postfix = "";
+
+	for (int i = 0; i < 3; ++i) { 
+		std::string candidate = base_folder + file_name;
+
+		if (!postfix.empty()) {
+			// Insert postfix before extension
+			size_t dot_pos = candidate.find_last_of('.');
+			if (dot_pos != std::string::npos) {
+				candidate.insert(dot_pos, postfix);
+			}
+			else {
+				candidate += postfix;
+			}
+		}
+
+		if (!FsHelper::IsFileExist(candidate)) {
+			file_full_path = std::move(candidate);
+			break;
+		}
+		postfix += '_';
+	}
+	if (file_full_path.empty()) {
+		QMessageBox::warning(nullptr, "Error", "Could not create unique filename");
 		return false;
+	}
+	if (!writer_.CaptureFile(file_full_path, true)) {
+		QMessageBox::warning(nullptr, "Error", "Wrong folder path");
+		return false;
+	}
+		
 	{
 		auto file_src = src_info_.ark.lock();
 		auto req_dove = std::make_shared<file_source::FileSrcDove>();

@@ -22,7 +22,7 @@ namespace file_writer
 	protected:
 		void UpdateSource();
 		bool InitSelectionRecord(fluctus::Limits<double> freq_bounds_hz, fluctus::Limits<double> time_bounds);
-		bool StartRecording(const std::string file_path);
+		bool StartRecording(const std::string folder_path);
 		bool StopRecording();
 		void OnStopTimerEvent();
 	protected:

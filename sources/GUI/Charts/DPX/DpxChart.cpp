@@ -9,7 +9,7 @@ ChartDPX::ChartDPX(QWidget * parrent, ChartDomainType domain, std::shared_ptr<Se
     SetHorizontalSuffix("counts");
 
     SetVerticalSuffix("power");
-	//SetBackgroundImage(":/AquaWave/third_party/background/dark_sky.jpg");
+	SetBackgroundImage(":/AquaWave/third_party/background/water.png");
 }
 
 ChartDPX::~ChartDPX()

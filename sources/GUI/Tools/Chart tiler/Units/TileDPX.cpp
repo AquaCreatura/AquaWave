@@ -35,8 +35,6 @@ void TileDPX::SetData(const draw_data & passed_info)
 		DrawInterpolated(passed_info.data, passed_info.freq_bounds);
 	else
 		DrawOnlyPoints(passed_info.data, passed_info.freq_bounds);
-	if (data_[0] > 1'000'000 || data_[0] < -1'000'000)
-		int a = 9;
 }
 void TileDPX::UpdateFromTile(const TileInterface* passed_data)
 {
@@ -220,8 +218,6 @@ void TileDPX::PrepareForNewData()
 	const double max_deviation = 0.15;
 	int64_t max_column_size = (data_speedometer_.GetSamplesPerSec() * life_time) / 1'000;
 	if (max_column_size == 0) return;
-	if (max_column_size < 200)
-		max_column_size = max_column_size;
 	// Сначала смотрим - а надо ли вообще что-то делать
 	{
 		bool is_all_relevant = true;

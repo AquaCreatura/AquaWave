@@ -4,6 +4,8 @@
         <file>third_party/background/black_forest.jpg</file>
         <file>third_party/background/black_mountain.jpg</file>
         <file>third_party/background/sym_sky.jpg</file>
+        <file>third_party/background/water.jpg</file>
+        <file>third_party/background/water.png</file>
         <file>sources/GUI/CSS_Themes/default_theme.qss</file>
         <file>sources/GUI/CSS_Themes/red_scheme.qss</file>
         <file>sources/GUI/CSS_Themes/blue_scheme.qss</file>

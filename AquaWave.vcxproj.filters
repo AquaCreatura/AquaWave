@@ -489,6 +489,9 @@
     <QtUic Include="sources\Arks\SelectionWriter\window\selection_writer_window.ui">
       <Filter>ARKS\SelectionWriter\window</Filter>
     </QtUic>
+    <QtUic Include="sources\Arks\SelectionWriter\window\file_saved_dialog.ui">
+      <Filter>ARKS\SelectionWriter\window</Filter>
+    </QtUic>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="AquaWave.rc" />

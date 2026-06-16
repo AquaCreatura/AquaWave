@@ -1,5 +1,6 @@
 #include "spectral_viewer_window.h"
 #include "Utilities/parse_tools.h"
+#include <qshortcut.h>
 SpectralViewerWindow::SpectralViewerWindow()
 {
     ui_.setupUi(this);
@@ -10,6 +11,9 @@ SpectralViewerWindow::SpectralViewerWindow()
 			emit FftChangeNeed(fft_id);
 		});
 		connect(ui_.record_button, &QPushButton::clicked, this, &SpectralViewerWindow::RecordSelectionNeed);
+		QShortcut* saveShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_S), this);
+		connect(saveShortcut, &QShortcut::activated, this, &SpectralViewerWindow::RecordSelectionNeed);
+
 		UpdateFFtCombobox(21, 10);
 	}
 	

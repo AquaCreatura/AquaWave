@@ -23,13 +23,15 @@ namespace file_writer
 		void UpdateSource();
 		bool InitSelectionRecord(fluctus::Limits<double> freq_bounds_hz, fluctus::Limits<double> time_bounds);
 		bool StartRecording(const std::string folder_path);
+		bool CaptureFile(const std::string folder_path);
 		bool StopRecording();
 		void OnStopTimerEvent();
 	protected:
 		SourceArk				src_info_;
 		SelectionWriterWindow	window_;
 		Limits<double>			time_bounds_;
-		Limits<double>			freq_bounds_hz_;
+		Limits<double>			selection_bound_hz_;
+		int64_t					work_samplerate_hz_;
 		FileWriter				writer_;
 		std::vector<Ipp16sc>	casted_16sc_;
 		std::atomic<bool>		is_started_{false};

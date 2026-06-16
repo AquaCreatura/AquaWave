@@ -49,12 +49,20 @@ AquaWave::AquaWave(QWidget *parent, const QString& file_path)
 		//file_window->setStyleSheet(styleSheet());
 		file_window->show();
 	});
-	connect(ui.actionHot_keys, &QAction::triggered, [this]()
+	connect(ui.actionHot_keys, &QAction::triggered, this, [this]()
 	{
-		QMessageBox::information(this, "HotKeys",
-			"Enter - Zoom In\n"
-			"Backspace - Zoom Out\n"
-			"Ctrl+T - Change Time Domain");
+		QMessageBox::information(
+			this,
+			tr("Hot Keys"),
+			tr(
+				"<pre>"
+				"Enter      - Zoom In\n"
+				"Backspace  - Zoom Out\n"
+				"Ctrl+T     - Change Time Domain\n"
+				"Ctrl+S     - Save Precise Selection"
+				"</pre>"
+			)
+		);
 	});
 	//
 

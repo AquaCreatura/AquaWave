@@ -50,7 +50,7 @@
         </sizepolicy>
        </property>
        <property name="text">
-        <string>Start</string>
+        <string>Save</string>
        </property>
        <property name="checkable">
         <bool>true</bool>

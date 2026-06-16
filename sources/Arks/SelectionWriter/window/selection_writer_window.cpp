@@ -39,6 +39,7 @@ void SelectionWriterWindow::UpdateBytesWritten(size_t bytes_written)
 	ui_.mbytes_written_spinbox->setValue(bytes_written / 1.e6);
 }
 
+
 void SelectionWriterWindow::OnChoosePathButton()
 {
 	const QString currentPath = ui_.file_path_line_edit->text();
@@ -66,7 +67,7 @@ void SelectionWriterWindow::OnStartButtonClicked()
 {
 	const bool need_start = (IsStarted() == false);
 	if (need_start) {
-		const auto line_edit_text = ui_.file_path_line_edit->text().toUtf8();
+		const auto line_edit_text = ui_.file_path_line_edit->text().toLocal8Bit();
 		std::string file_path(line_edit_text.data(), line_edit_text.data() + line_edit_text.size());
 		StartNeed(file_path);
 	}
@@ -77,4 +78,28 @@ void SelectionWriterWindow::OnStartButtonClicked()
 	ui_.start_record_button->setChecked(is_started);
 	ui_.start_record_button->setText(is_started ? "Stop" : "Start");
 
+}
+//=========================================== FileSavedDialog ======================================
+FileSavedDialog::FileSavedDialog(const std::string& file_path,
+	const size_t file_size_bytes)
+{
+	ui_.setupUi(this);
+	ui_.file_size_mbyte_spinbox->setValue( static_cast<double>(file_size_bytes) / 1.e6);
+
+	QString path(file_path.c_str());
+
+	ui_.file_path_label->setText(path);
+
+	// Разрешаем выделение и копирование
+	ui_.file_path_label->setTextInteractionFlags(
+		Qt::TextSelectableByMouse |
+		Qt::TextSelectableByKeyboard);
+
+	// Показываем полный путь во всплывающей подсказке
+	ui_.file_path_label->setToolTip(path);
+
+	// Подгоняем ширину под текст, но не более 400 px
+	int width = ui_.file_path_label->sizeHint().width();
+	ui_.file_path_label->setFixedWidth(std::min(width, 400));
+	ui_.file_path_label->setWordWrap(true);
 }

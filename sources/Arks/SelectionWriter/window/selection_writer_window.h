@@ -1,5 +1,6 @@
 #pragma once
 #include "ui_selection_writer_window.h"
+#include "ui_file_saved_dialog.h"
 #include <qdialog.h>
 
 
@@ -22,4 +23,16 @@ protected:
 protected:
 	Ui::SelectionWriterWindow ui_;
 };
+
+
+class FileSavedDialog : public QDialog
+{
+	Q_OBJECT
+public:
+	FileSavedDialog(const std::string& file_path, const size_t file_size_bytes);
+protected:
+	Ui::file_saved_dialog ui_;
+};
+
+
 

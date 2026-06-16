@@ -99,7 +99,7 @@ void file_writer::SelectionWriter::UpdateSource()
 bool file_writer::SelectionWriter::InitSelectionRecord(fluctus::Limits<double> freq_bounds_hz, fluctus::Limits<double> time_bounds)
 {
 	time_bounds_ = time_bounds;
-	freq_bounds_hz_ = freq_bounds_hz;
+	selection_bound_hz_ = freq_bounds_hz;
 	window_.SetFreqparams(freq_bounds_hz.mid(), freq_bounds_hz.delta());
 	window_.UpdateProgressRatio(0.);
 	window_.UpdateBytesWritten(0);
@@ -115,6 +115,43 @@ bool file_writer::SelectionWriter::StartRecording(const std::string folder_path)
 	window_.UpdateBytesWritten(0);
 
 
+	{
+		auto file_src = src_info_.ark.lock();
+		auto req_dove = std::make_shared<file_source::FileSrcDove>();
+		req_dove->sender = shared_from_this();
+		req_dove->special_thought = file_source::FileSrcDove::kInitiate | file_source::FileSrcDove::kAskChunksInRange;
+		req_dove->target_ark = shared_from_this();
+
+		req_dove->time_bounds = time_bounds_;
+
+		req_dove->setup.emplace();
+		auto &setup = req_dove->setup;
+		setup->carrier_hz = selection_bound_hz_.mid();
+		setup->chunk_size = c_expr_read_chunk_size_;
+		setup->banwidth_hz = selection_bound_hz_.delta();
+		setup->samplerate_hz = setup->banwidth_hz / src_info_.descr.bw_ratio_;
+		if (!file_src->PostDove(req_dove))
+		{
+			QMessageBox::warning(nullptr, "Error", "Can not start recording");
+			return false;
+		}
+		work_samplerate_hz_ = req_dove->setup->samplerate_hz;
+	}
+
+	if (!CaptureFile(folder_path)) {
+		return false;
+	}
+
+
+
+	is_started_ = true;
+	status_update_timer_.start();
+	stop_timer_.start();
+	return true;
+}
+
+bool file_writer::SelectionWriter::CaptureFile(const std::string folder_path)
+{
 	// 1. Normalize folder path (handle / vs \, trailing separator, empty case)
 	std::string base_folder = folder_path;
 
@@ -135,8 +172,8 @@ bool file_writer::SelectionWriter::StartRecording(const std::string folder_path)
 	// 2. Generate base filename
 	auto time_string = aqua_parse_tools::gen_time_string();
 	std::string file_name = aqua_parse_tools::generate_filename(
-		freq_bounds_hz_.mid(),
-		freq_bounds_hz_.delta(),
+		selection_bound_hz_.mid(),
+		work_samplerate_hz_,
 		time_string,
 		"pcm"
 	);
@@ -145,7 +182,7 @@ bool file_writer::SelectionWriter::StartRecording(const std::string folder_path)
 	std::string file_full_path;
 	std::string postfix = "";
 
-	for (int i = 0; i < 3; ++i) { 
+	for (int i = 0; i < 3; ++i) {
 		std::string candidate = base_folder + file_name;
 
 		if (!postfix.empty()) {
@@ -166,41 +203,12 @@ bool file_writer::SelectionWriter::StartRecording(const std::string folder_path)
 		postfix += '_';
 	}
 	if (file_full_path.empty()) {
-		QMessageBox::warning(nullptr, "Error", "Could not create unique filename");
 		return false;
 	}
 	if (!writer_.CaptureFile(file_full_path, true)) {
 		QMessageBox::warning(nullptr, "Error", "Wrong folder path");
 		return false;
 	}
-		
-	{
-		auto file_src = src_info_.ark.lock();
-		auto req_dove = std::make_shared<file_source::FileSrcDove>();
-		req_dove->sender = shared_from_this();
-		req_dove->special_thought = file_source::FileSrcDove::kInitiate | file_source::FileSrcDove::kAskChunksInRange;
-		req_dove->target_ark = shared_from_this();
-
-		req_dove->time_bounds = time_bounds_;
-
-		req_dove->setup.emplace();
-		auto &setup = req_dove->setup;
-		setup->carrier_hz = freq_bounds_hz_.mid();
-		setup->chunk_size = c_expr_read_chunk_size_;
-		setup->banwidth_hz = freq_bounds_hz_.delta();
-		setup->samplerate_hz = setup->banwidth_hz / src_info_.descr.bw_ratio_;
-		if (!file_src->PostDove(req_dove))
-		{
-			QMessageBox::warning(nullptr, "Error", "Can not start recording");
-			return false;
-		}
-	}
-
-
-
-	is_started_ = true;
-	status_update_timer_.start();
-	stop_timer_.start();
 	return true;
 }
 
@@ -211,7 +219,8 @@ bool file_writer::SelectionWriter::StopRecording()
 		window_.UpdateProgressRatio(1.);
 		window_.UpdateBytesWritten(writer_.GetCurSizeBytes());
 	}, Qt::QueuedConnection);
-
+	window_.close();
+	FileSavedDialog(writer_.GetFilePath(), writer_.GetCurSizeBytes()).exec();
 	writer_.ReleaseFile();
 	return true;
 }

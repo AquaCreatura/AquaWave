@@ -181,8 +181,8 @@ void file_source::FileDataListener::ReadChunksInRangeProcess(const Limits<double
 	while (state_ != kNeedStop) {
 		if (!reader.ReadStream(read_data, block_size_))
 			break;
-		if (read_data.size() != 1 << int(log2(read_data.size())))
-			break;
+		const bool is_last_block = (read_data.size() != 1 << int(log2(read_data.size())));
+		
 		ippsConvert_16s32f(reinterpret_cast<Ipp16s*>(read_data.data()),
 			reinterpret_cast<Ipp32f*>(casted_vec.data()),
 			chunk_size * 2);
@@ -199,7 +199,9 @@ void file_source::FileDataListener::ReadChunksInRangeProcess(const Limits<double
 			processed_idx += to_copy;
 			
 			samples_processed += to_copy;
-			if (chunk_pos == chunk_size) {
+			if (is_last_block)
+				chunk_to_send.resize(chunk_pos);
+			if (chunk_pos == chunk_to_send.size()) {
 				data_info_.time_point = (samples_processed - chunk_size / 2) / supposed_samples;
 
 				data_info_.data_vec.swap(reinterpret_cast<std::vector<uint8_t>&>(chunk_to_send));

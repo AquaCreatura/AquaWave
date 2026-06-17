@@ -63,8 +63,22 @@ AquaWave::AquaWave(QWidget *parent, const QString& file_path)
 				"</pre>"
 			)
 		);
+	}); //actionContact_us
+	connect(ui.actionContact_us, &QAction::triggered, this, [this]()
+	{
+		QMessageBox::information(
+			this,
+			tr("Contact us"),
+			tr(
+				"<pre>"
+				"e-mail : AquaCreatura@gmail.com\n"
+				"tg     : @AquaCreatura\n"
+				"Phone  : +7 (921) - 6453 - 763\n"
+				"If you have any problems or ideas\n - send request in text view"
+				"</pre>"
+			)
+		);
 	});
-	//
 
 
 	if (!file_path.isEmpty()) //Если запускали через файл - инициализируем файловый источник

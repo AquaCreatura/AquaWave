@@ -155,6 +155,7 @@
      <string>Help</string>
     </property>
     <addaction name="actionHot_keys"/>
+    <addaction name="actionContact_us"/>
    </widget>
    <addaction name="menu_file"/>
    <addaction name="menuHelp"/>
@@ -172,6 +173,11 @@
   <action name="actionHot_keys">
    <property name="text">
     <string>Hot keys</string>
+   </property>
+  </action>
+  <action name="actionContact_us">
+   <property name="text">
+    <string>Contact us</string>
    </property>
   </action>
  </widget>

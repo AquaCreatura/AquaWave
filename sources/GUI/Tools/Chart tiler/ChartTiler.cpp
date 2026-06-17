@@ -157,7 +157,7 @@ void ChartTiler::Reset()
 const QPixmap & ChartTiler::GetRelevantPixmap()
 {
 	//Обновляем при необходимости сами тайлы
-	if(NeedUpdateTile() || (image_update_timer_.elapsed() > 500))
+	if(NeedUpdateTile() || (image_update_timer_.elapsed() > 50))
 	{
 		UpdateBounds();
 	}

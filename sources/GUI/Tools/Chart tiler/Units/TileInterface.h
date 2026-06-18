@@ -16,6 +16,8 @@ public:
 	virtual void			UpdateFromTile			(const TileInterface* passed_data) = 0; 	// + Update From current?...
 	virtual void			UpdateQimage			( dynamic_qimage& dyn_qimage, const Limits<double> &power_bounds) = 0;
 	virtual void			Reset					() = 0;
+	virtual	void			SetDpxParams			(const double fps, const double time_hold_sec);
+
 protected:
 public:
 	std::atomic_bool	is_data_updated_;

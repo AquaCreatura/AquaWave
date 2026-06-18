@@ -4,14 +4,18 @@
 #include <qdebug.h>
 ChartTiler::ChartTiler(const ChartScaleInfo & scale_info) : scale_info_(scale_info)
 {
+	fps_ = 20;
 	is_spg_ = (scale_info_.val_info_.domain_type == aqua_gui::ChartDomainType::kTimeFrequency);	
 	for (int i = 0; i < count_of_tiles_; i++) {
-		if (is_spg_)
+		if (is_spg_) {
 			tiles_.push_back(std::make_unique<TileSPG>());
-		else
+		}
+		else {
 			tiles_.push_back(std::make_unique<TileDPX>());
+		}
 		tiles_.back()->SetImageSize({ 1024ui64 * 2, 256ui64 * 2 });
 	}
+	SetLifeTime(1.);
 	tile_id_ = 0;
 }
 
@@ -20,6 +24,8 @@ void ChartTiler::UpdateTileBase()
 	const auto &base_bounds = scale_info_.val_info_.min_max_bounds;
 	if (tiles_[0]->GetValBounds() != base_bounds) {
 		tiles_[0] = tiles_[0]->RecreateWithBounds(base_bounds);
+		if(!is_spg_)
+			tiles_[0]->SetDpxParams(fps_,life_time_sec_);
 	}
 		
 }
@@ -136,6 +142,16 @@ bool ChartTiler::NeedUpdateTile()
 	return need_update;
 }
 
+bool ChartTiler::SetLifeTime(const double passed_life_time_sec)
+{
+	life_time_sec_ = passed_life_time_sec;
+	if (is_spg_) return false;
+	for (auto &tile_iter: tiles_) {
+		tile_iter->SetDpxParams(fps_, life_time_sec_);
+	}
+	return true;
+}
+
 
 
 void ChartTiler::SetData(const draw_data & data)
@@ -157,7 +173,7 @@ void ChartTiler::Reset()
 const QPixmap & ChartTiler::GetRelevantPixmap()
 {
 	//Обновляем при необходимости сами тайлы
-	if(NeedUpdateTile() || (image_update_timer_.elapsed() > 50))
+	if(NeedUpdateTile() || (image_update_timer_.elapsed() > 1000 / fps_))
 	{
 		UpdateBounds();
 	}

@@ -6,11 +6,9 @@
 TileDPX::TileDPX() : data_speedometer_(2'000)
 {
 	is_spg_ = false;
-	max_life_time_ms_ = 10'000;
-	max_trans_life_time_ms_ = 2'000;
 	trans_decrease_counter_ = 0;
 	// Базовая скорость затухания – эмпирически подобрана для плавного угасания
-	base_decay_rate_ = 0.99;
+	base_decay_rate_ = 1.0;
 	decay_factor_ = 1.0;
 }
 
@@ -22,9 +20,6 @@ void TileDPX::SetData(const draw_data& passed_info)
 	if (passed_info.data.empty() || data_size_.hor == 0) return;
 
 	is_data_updated_ = true;
-
-	// Не вызываем ApplyDecay() здесь – данные должны быть свежими
-	// (затухание будет применено перед отрисовкой)
 
 	const auto& vis = val_bounds_.hor;
 	const auto& full = passed_info.freq_bounds;
@@ -50,9 +45,9 @@ void TileDPX::SetData(const draw_data& passed_info)
 // ------------------------------------------------------------------
 void TileDPX::UpdateFromTile(const TileInterface* passed_data)
 {
-	auto* passed = dynamic_cast<const TileDPX*>(passed_data);
-	if (!passed || passed->data_size_.hor == 0 || passed->data_size_.vert == 0
-		|| passed_data->val_bounds_.hor.delta() == 0)
+	auto* casted_past = dynamic_cast<const TileDPX*>(passed_data);
+	if (!casted_past) return;
+	if(casted_past->data_size_.hor == 0 || casted_past->data_size_.vert == 0 || passed_data->val_bounds_.hor.delta() == 0)
 		return;
 
 	// 1. Применяем затухание к текущим данным, чтобы они «постарели»
@@ -62,36 +57,36 @@ void TileDPX::UpdateFromTile(const TileInterface* passed_data)
 	double hor_ratio = passed_data->val_bounds_.hor.delta() / val_bounds_.hor.delta();
 	const bool is_relevant = (hor_ratio <= 1.0);   // для возможного использования в будущем
 
-												   // Размер «окна» для нормировки (можно взять из passed->data_speedometer_)
-	const size_t trans_column_size = 5'000; // 
+												   // Размер «окна» для нормировки (можно взять из casted_past->data_speedometer_)
+	const size_t trans_column_size = 500'000; // 
 
 	int64_t new_max_trans_density = 0;
 
 	for (size_t x_idx = 0; x_idx < data_size_.hor; ++x_idx) {
 		// Заполняем только те колонки, которые полностью пусты (вес == 0)
 		if (column_weight_vec_[x_idx] != 0) continue;
-		if (passed->column_weight_vec_[x_idx] == 0) continue;
+		if (casted_past->column_weight_vec_[x_idx] == 0) continue;
 
 		// Мировое значение X для текущего пикселя
 		double src_val_x = val_bounds_.hor.lerp((x_idx + 0.5) / data_size_.hor);
-		if (!passed->val_bounds_.hor.has_inside(src_val_x)) continue;
+		if (!casted_past->val_bounds_.hor.has_inside(src_val_x)) continue;
 
 		// Индекс в буфере вышестоящего тайла
-		size_t sx = static_cast<size_t>(std::round(passed->val_bounds_.hor.pos(src_val_x) * passed->data_size_.hor - 0.5));
-		sx = std::min(sx, passed->data_size_.hor - 1);
+		size_t sx = static_cast<size_t>(std::round(casted_past->val_bounds_.hor.pos(src_val_x) * casted_past->data_size_.hor - 0.5));
+		sx = std::min(sx, casted_past->data_size_.hor - 1);
 
 		// Нормировочный коэффициент для приведения плотностей к текущему разрешению
-		double norm_koeff = double(trans_column_size) / std::max(passed->column_weight_vec_[x_idx], trans_column_size);
+		double norm_koeff = double(trans_column_size) / std::max(casted_past->column_weight_vec_[x_idx], trans_column_size);
 
 		size_t sum = 0;
 		for (size_t y = 0; y < data_size_.vert; ++y) {
 			double wy = val_bounds_.vert.lerp((y + 0.5) / data_size_.vert);
-			if (!passed->val_bounds_.vert.has_inside(wy)) continue;
+			if (!casted_past->val_bounds_.vert.has_inside(wy)) continue;
 
-			size_t sy = static_cast<size_t>(std::round(passed->val_bounds_.vert.pos(wy) * passed->data_size_.vert - 0.5));
-			sy = std::min(sy, passed->data_size_.vert - 1);
+			size_t sy = static_cast<size_t>(std::round(casted_past->val_bounds_.vert.pos(wy) * casted_past->data_size_.vert - 0.5));
+			sy = std::min(sy, casted_past->data_size_.vert - 1);
 
-			auto cur_val = passed->data_[sy * passed->data_size_.hor + sx];
+			auto cur_val = casted_past->data_[sy * casted_past->data_size_.hor + sx];
 			cur_val = static_cast<int64_t>(std::ceil(cur_val * norm_koeff));
 			new_max_trans_density = std::max<int64_t>(new_max_trans_density, cur_val);
 
@@ -160,6 +155,39 @@ void TileDPX::Reset()
 	last_average_density_ = 0.0;
 }
 
+void TileDPX::SetDpxParams(const double fps, const double time_hold_sec)
+{
+	// Время одного кадра в секундах
+	const double frame_time_sec = 1.0 / fps;
+	double trans_life_time_sec = 1;
+	if (time_hold_sec <= 0) trans_life_time_sec = 1;
+	else trans_life_time_sec = time_hold_sec;
+
+	trans_decay_rate_ = std::exp(-frame_time_sec / trans_life_time_sec);
+	// Защита от некорректных значений
+	if (time_hold_sec <= 0.0) {
+		// Если параметры некорректны — устанавливаем "бесконечное" время жизни
+		base_decay_rate_ = 1.0;
+
+		return;
+	}
+
+
+
+	// Время жизни в секундах (сколько должен жить сигнал до падения до ~36.8%)
+	const double persistence_time_sec = time_hold_sec;
+
+	// Рассчитываем коэффициент затухания за один кадр
+	// Экспоненциальное затухание — классика DPX
+	base_decay_rate_ = std::exp(-frame_time_sec / persistence_time_sec);
+	// Дополнительная защита от слишком быстрого затухания
+	// (чтобы данные не исчезали мгновенно при очень малом time_hold_sec)
+	if (base_decay_rate_ < 0.01) {
+		base_decay_rate_ = 0.01;
+	}
+
+}
+
 // ------------------------------------------------------------------
 // Вспомогательные методы рисования (без изменений, но с уточнениями)
 // ------------------------------------------------------------------
@@ -182,8 +210,8 @@ void TileDPX::DrawOnlyPoints(const std::vector<float>& data, const Limits<double
 		if (xi == width)  --xi;
 		if (yi == height) --yi;
 
-		data_[yi * width + xi] += 1;
-		column_weight_vec_[xi] += 1;
+		data_[yi * width + xi] += 100;
+		column_weight_vec_[xi] += 100;
 	}
 }
 
@@ -224,8 +252,8 @@ void TileDPX::DrawInterpolated(const std::vector<float>& values, const Limits<do
 			size_t py = static_cast<size_t>(std::round(yb.pos(y_interp) * height));
 			if (py >= height) py = height - 1;
 
-			data_[py * width + px] += 1;
-			column_weight_vec_[px] += 1;
+			data_[py * width + px] += 100;
+			column_weight_vec_[px] += 100;
 		}
 	}
 }
@@ -254,10 +282,9 @@ void TileDPX::ApplyDecay()
 	double additional_decay = 1.0;
 	if (trans_decrease_counter_ > 0) {
 		// Чем больше счётчик, тем быстрее затухание (эмпирическая формула)
-		additional_decay = std::max(0.99, 1.0 - 0.01 * trans_decrease_counter_);
+		additional_decay = trans_decay_rate_;  std::max(0.999, 1.0 - 0.01 * trans_decrease_counter_);
 		// Уменьшаем счётчик с каждым кадром
-		trans_decrease_counter_ = static_cast<int64_t>(trans_decrease_counter_ * 0.95);
-		if (trans_decrease_counter_ < 0) trans_decrease_counter_ = 0;
+		trans_decrease_counter_ = static_cast<int64_t>(trans_decrease_counter_ * trans_decay_rate_);
 	}
 
 	// Общий множитель затухания за этот кадр

@@ -13,6 +13,7 @@ public:
 	const QPixmap&	GetRelevantPixmap	();
 	void			UpdateBounds		();
 	TileInterface::uptr const & SpgGetTile() const;
+	bool			SetLifeTime(const double life_time_sec);
 protected:
 	void			UpdateTileBase		(); 	//Init bounds of base image	
 	void			UpdateTileView		();
@@ -32,4 +33,6 @@ protected:
 	QElapsedTimer					image_update_timer_;
 	tbb::spin_mutex					data_mutex_; //обновлять данные можем из разных потоков
 	tbb::spin_mutex					bounds_mutex_; //обновлять границы можем из разных потоков...
+	double							fps_;
+	double							life_time_sec_;
 };

@@ -37,8 +37,11 @@ std::unique_ptr<TileInterface> TileInterface::RecreateWithBounds(const HorVerLim
 	new_tile->SetImageSize(GetImageSize());
 	new_tile->SetValBounds(bounds);
 	new_tile->UpdateFromTile(this);
-
 	return new_tile;
+}
+
+void TileInterface::SetDpxParams(const double fps, const double time_hold_sec)
+{
 }
 
 

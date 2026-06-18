@@ -3,6 +3,8 @@
 ChartDPX::ChartDPX(QWidget * parrent, ChartDomainType domain, std::shared_ptr<SelectionHolder> selection_holder):
     ChartInterface(parrent, selection_holder, domain), tiler_(scale_info_)
 {
+	const bool is_analyze = (scale_info_.val_info_.domain_type == ChartDomainType::kAnalyzeDomain);
+	tiler_.SetLifeTime(is_analyze ? -1 : -1);
     Limits<double> random_bounds = {0, 100};
     SetHorizontalMinMaxBounds(random_bounds);
     //dpx_painter_.SetMinMax_X(random_bounds);

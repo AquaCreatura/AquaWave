@@ -11,7 +11,7 @@ public:
 	virtual void UpdateFromTile(const TileInterface* passed_data) override;
 	virtual void UpdateQimage(dynamic_qimage& dyn_qimage, const Limits<double>& power_bounds) override;
 	void Reset() override;
-
+	virtual	void SetDpxParams(const double fps, const double time_hold_sec);
 private:
 	// ќтрисовка точек и интерпол€ци€
 	void DrawOnlyPoints(const std::vector<float>& passed_data, const Limits<double>& x_bounds);
@@ -31,15 +31,14 @@ private:
 	std::vector<int64_t>  data_;                // карта плотностей (height * width)
 
 												// ѕараметры времени жизни (используютс€ дл€ расчЄта скорости затухани€)
-	size_t  max_life_time_ms_ = 10'000;        // обычное врем€ жизни (мс)
-	size_t  max_trans_life_time_ms_ = 2'000;   // врем€ жизни в режиме перехода (зум)
 
 											   // —чЄтчик, активирующий ускоренное затухание (например, при зуме)
 	int64_t trans_decrease_counter_ = 0;
 
 	// ѕараметры затухани€
 	double  decay_factor_ = 1.0;       // текущий множитель затухани€ (примен€етс€ за кадр)
-	double  base_decay_rate_ = 0.99;   // базова€ скорость затухани€ (1.0 Ц без затухани€)
+	double  base_decay_rate_ = 1.0;   // базова€ скорость затухани€ (1.0 Ц без затухани€)
+	double  trans_decay_rate_ = 1.0;   // переходна€ скорость затухани€ (1.0 Ц без затухани€)
 
 									   // »змеритель скорости поступлени€ данных (опционально, дл€ статистики)
 	utility_aqua::DataSpeedEstimator data_speedometer_;

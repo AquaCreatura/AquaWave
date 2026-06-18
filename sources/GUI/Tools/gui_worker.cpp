@@ -98,6 +98,109 @@ bool aqua_gui::ZoomFromWheelDelta(ChartScaleInfo & scale_info, const int wheel_d
     return values_changed;
 }
 
+bool aqua_gui::PanFromMouse(ChartScaleInfo& scale_info,
+	const QPoint /*start_mouse_point*/,               // не используется, но оставлен для интерфейса
+	const HV_Info<double, double>& world_pos,        // зафиксированная мировая точка
+	const QPoint end_mouse_point)
+{
+	auto& min_max_bounds = scale_info.val_info_.min_max_bounds;
+	auto& cur_bounds = scale_info.val_info_.view_bounds;
+	const auto& px_info = scale_info.pix_info_;
+
+	bool changed = false;
+
+	// --- Ось X ---
+	{
+		auto& cur_limits = cur_bounds.hor;
+		const auto& min_limits = min_max_bounds.hor;
+		const double width = px_info.chart_size_px.hor;
+		const double delta = cur_limits.delta(); // длина интервала не меняется
+
+												 // Вычисляем положение курсора в долях от ширины (от 0 до 1)
+		double t_x = std::clamp(double(end_mouse_point.x()) / width, 0.0, 1.0);
+
+		// Новая нижняя граница: чтобы world_pos.hor соответствовало пикселю t_x
+		double new_low = world_pos.hor - t_x * delta;
+		double new_high = new_low + delta;
+
+		// Ограничиваем, чтобы не выйти за глобальные пределы
+		const double min_low = min_limits.low;
+		const double max_high = min_limits.high;
+		if (new_low < min_low) {
+			new_low = min_low;
+			new_high = min_low + delta;
+		}
+		if (new_high > max_high) {
+			new_high = max_high;
+			new_low = max_high - delta;
+		}
+		// Если new_low всё ещё меньше min_low или new_high больше max_high – корректируем
+		if (new_low < min_low) {
+			new_low = min_low;
+			new_high = min_low + delta;
+		}
+		if (new_high > max_high) {
+			new_high = max_high;
+			new_low = max_high - delta;
+		}
+
+		// Применяем изменения
+		if (std::abs(cur_limits.low - new_low) > std::numeric_limits<double>::epsilon() ||
+			std::abs(cur_limits.high - new_high) > std::numeric_limits<double>::epsilon())
+		{
+			cur_limits.low = new_low;
+			cur_limits.high = new_high;
+			changed = true;
+		}
+	}
+
+	// --- Ось Y ---
+	{
+		auto& cur_limits = cur_bounds.vert;
+		const auto& min_limits = min_max_bounds.vert;
+		const double height = px_info.chart_size_px.vert;
+		const double delta = cur_limits.delta();
+
+		// Положение курсора по Y: y=0 соответствует high, y=height соответствует low
+		double t_y = std::clamp(double(end_mouse_point.y()) / height, 0.0, 1.0);
+		// Доля от low до high: (1 - t_y) – при t_y=0 (верх) это 1 (high), при t_y=1 (низ) это 0 (low)
+		double fraction_from_low = 1.0 - t_y;
+
+		// Новая нижняя граница: world_pos.vert = new_low + fraction_from_low * delta
+		double new_low = world_pos.vert - fraction_from_low * delta;
+		double new_high = new_low + delta;
+
+		// Ограничиваем
+		const double min_low = min_limits.low;
+		const double max_high = min_limits.high;
+		if (new_low < min_low) {
+			new_low = min_low;
+			new_high = min_low + delta;
+		}
+		if (new_high > max_high) {
+			new_high = max_high;
+			new_low = max_high - delta;
+		}
+		if (new_low < min_low) {
+			new_low = min_low;
+			new_high = min_low + delta;
+		}
+		if (new_high > max_high) {
+			new_high = max_high;
+			new_low = max_high - delta;
+		}
+
+		if (std::abs(cur_limits.low - new_low) > std::numeric_limits<double>::epsilon() ||
+			std::abs(cur_limits.high - new_high) > std::numeric_limits<double>::epsilon())
+		{
+			cur_limits.low = new_low;
+			cur_limits.high = new_high;
+			changed = true;
+		}
+	}
+
+	return changed;
+}
 void aqua_gui::AdaptVertPowerBounds(ChartScaleInfo & scale_info)
 {
 	auto new_bounds = scale_info.power_bounds_;

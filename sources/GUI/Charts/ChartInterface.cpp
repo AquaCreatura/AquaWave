@@ -66,10 +66,6 @@ void ChartInterface::SetVerticalSuffix(const QString & suffix)
 
 
 
-void ChartInterface::mousePressEvent(QMouseEvent * mouse_event)
-{
-	selection_drawer_.EditableEvent(mouse_event->pos(), SelectionDrawer::kPressed);
-}
 
 
 void ChartInterface::SetSelectionHolder(std::shared_ptr<SelectionHolder> selection_holder)
@@ -89,23 +85,62 @@ aqua_gui::ChartScaleInfo const & ChartInterface::GetScaleInfo()
 {
 	return scale_info_;
 }
-
-
-
-void ChartInterface::mouseMoveEvent(QMouseEvent * mouse_event)
+void ChartInterface::mousePressEvent(QMouseEvent* mouse_event)
 {
-	selection_drawer_.EditableEvent(mouse_event->pos(), SelectionDrawer::kMove);
-	mouse_man_.MouseEvent(mouse_event->pos(), SelectionDrawer::kMove);
-	update();
+	mouse_event_type type;
+	if (mouse_event->button() == Qt::LeftButton) {
+		type = mouse_event_type::kPressedLeft;
+	}
+	else if (mouse_event->button() == Qt::RightButton) {
+		type = mouse_event_type::kPressedRight;
+	}
+	else {
+		return;
+	}
 
+	selection_drawer_.EditableEvent(mouse_event->pos(), type);
+	mouse_man_.MouseEvent(mouse_event->pos(), type);
+
+	// Обновляем курсор после обработки (может стать ClosedHandCursor)
+	setCursor(mouse_man_.GetCursor());
+}
+
+void ChartInterface::mouseMoveEvent(QMouseEvent* mouse_event)
+{
+	selection_drawer_.EditableEvent(mouse_event->pos(), mouse_event_type::kMove);
+	mouse_man_.MouseEvent(mouse_event->pos(), mouse_event_type::kMove);
+
+	// Обновляем курсор в зависимости от состояния панорамирования
+	setCursor(mouse_man_.GetCursor());
+
+	update();
 	setFocus();
 }
 
-void ChartInterface::mouseReleaseEvent(QMouseEvent * mouse_event)
+void ChartInterface::mouseReleaseEvent(QMouseEvent* mouse_event)
 {
-	selection_drawer_.EditableEvent(mouse_event->pos(), SelectionDrawer::kReleased);
-	if (selection_drawer_.GetHolder()->GetSelection().is_finished)
-		emit SelectionIsReady();
+	mouse_event_type type;
+	if (mouse_event->button() == Qt::LeftButton) {
+		type = mouse_event_type::kReleasedLeft;
+	}
+	else if (mouse_event->button() == Qt::RightButton) {
+		type = mouse_event_type::kReleasedRight;
+	}
+	else {
+		return;
+	}
+
+	selection_drawer_.EditableEvent(mouse_event->pos(), type);
+	mouse_man_.MouseEvent(mouse_event->pos(), type);
+
+	// После отпускания правой кнопки курсор должен стать открытой рукой
+	setCursor(mouse_man_.GetCursor());
+
+	if (mouse_event->button() == Qt::LeftButton) {
+		if (selection_drawer_.GetHolder()->GetSelection().is_finished) {
+			emit SelectionIsReady();
+		}
+	}
 }
 
 void ChartInterface::wheelEvent(QWheelEvent* wheel_event)
@@ -161,12 +196,14 @@ void ChartInterface::paintEvent(QPaintEvent * paint_event)
 void ChartInterface::leaveEvent(QEvent * event)
 {
 	QWidget::leaveEvent(event); // вызов базового метода
+	setCursor(Qt::ArrowCursor);
 	mouse_man_.SetWidgetInsideState(false);
 }
 
 void ChartInterface::enterEvent(QEvent * event)
 {
 	QWidget::enterEvent(event);
+	setCursor(mouse_man_.GetCursor());
 	mouse_man_.SetWidgetInsideState(true);
 }
 

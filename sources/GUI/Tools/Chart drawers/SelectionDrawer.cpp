@@ -1,5 +1,6 @@
 #include "SelectionDrawer.h"
 #include "Utilities/parse_tools.h"
+#include "GUI/Tools/gui_worker.h"
 using namespace aqua_gui;
 
 //============================ SelectionHolder ================================
@@ -107,19 +108,19 @@ void aqua_gui::SelectionDrawer::EditableEvent(const QPoint& mouse_location, cons
 	};
 	switch (event_type)
 	{
-	case aqua_gui::SelectionDrawer::kMove:		
+	case aqua_gui::mouse_event_type::kMove:
 		if (!is_pressed_) return; //Выходим при пустой отрисовке.
 		
 		cur_hv_.hor.high = value_pos.hor;
 		cur_hv_.vert.high   = value_pos.vert;
 		
 		break;
-	case aqua_gui::SelectionDrawer::kPressed:	//Начинаем
+	case aqua_gui::mouse_event_type::kPressedLeft:	//Начинаем
 		is_pressed_ = true;
 		cur_hv_.hor = { value_pos.hor,value_pos.hor };
 		cur_hv_.vert	  =	{ value_pos.vert  ,value_pos.vert };
 		break;
-	case aqua_gui::SelectionDrawer::kReleased:	//Заканчиваем
+	case aqua_gui::mouse_event_type::kReleasedLeft:	//Заканчиваем
 		is_pressed_ = false;
 		break;
 	default:
@@ -411,25 +412,79 @@ bool aqua_gui::SelectionDrawer::DrawMarks(QPainter & painter, const HorVerLim<in
 
 
 //============================================ MouseDrawer ====================================================
-
-aqua_gui::MouseDrawer::MouseDrawer(const ChartScaleInfo& base_scale_info)
-	:scale_info_(base_scale_info)
+// ---- Конструктор ----
+aqua_gui::MouseDrawer::MouseDrawer(ChartScaleInfo& base_scale_info)
+	: scale_info_(base_scale_info)
 {
 }
 
-void aqua_gui::MouseDrawer::MouseEvent(const QPoint & mouse_location, const SelectionDrawer::mouse_event_type event_type)
+// ---- Обработка событий мыши ----
+void aqua_gui::MouseDrawer::MouseEvent(const QPoint& mouse_location, mouse_event_type event_type)
 {
 	pos_ = mouse_location;
+
+	switch (event_type) {
+	case mouse_event_type::kPressedRight:
+		if (is_inside_widget_) {
+			is_panning_ = true;
+			pan_start_pos_ = mouse_location;
+
+			// Вычисляем мировые координаты в точке клика
+			const auto& cur_bounds = scale_info_.val_info_.view_bounds;
+			const auto& px_info = scale_info_.pix_info_;
+
+			double t_x = double(mouse_location.x()) / px_info.chart_size_px.hor;
+			double world_x = cur_bounds.hor.low + t_x * cur_bounds.hor.delta();
+
+			double t_y = double(mouse_location.y()) / px_info.chart_size_px.vert;
+			double world_y = cur_bounds.vert.high - t_y * cur_bounds.vert.delta();
+
+			pan_world_pos_.hor = world_x;
+			pan_world_pos_.vert = world_y;
+		}
+		break;
+
+	case mouse_event_type::kMove:
+		if (is_panning_ && is_inside_widget_) {
+			PanFromMouse(scale_info_, pan_start_pos_, pan_world_pos_, mouse_location);
+		}
+		break;
+
+	case mouse_event_type::kReleasedRight:
+		is_panning_ = false;
+		break;
+
+	default:
+		break;
+	}
 }
 
-void aqua_gui::MouseDrawer::SetWidgetInsideState(const bool is_enter)
+// ---- Установка состояния "внутри виджета" ----
+void aqua_gui::MouseDrawer::SetWidgetInsideState(bool is_enter)
 {
 	is_inside_widget_ = is_enter;
+	if (!is_enter) {
+		is_panning_ = false;   // если мышь вышла, прерываем панорамирование
+	}
 }
 
-bool aqua_gui::MouseDrawer::Draw(QPainter & painter)
+// ---- Возврат формы курсора ----
+Qt::CursorShape aqua_gui::MouseDrawer::GetCursor() const
+{
+	if (is_panning_) {
+		return Qt::ClosedHandCursor;   // зажатая рука – перетаскивание активно
+	}
+	if (is_inside_widget_) {
+		return Qt::ArrowCursor;     // открытая рука – можно перетаскивать
+	}
+	return Qt::ArrowCursor;
+}
+
+// ---- Отрисовка (без изменений) ----
+bool aqua_gui::MouseDrawer::Draw(QPainter& painter)
 {
 	using namespace aqua_parse_tools;
+
 	if (!is_inside_widget_)
 		return true;
 
@@ -437,88 +492,63 @@ bool aqua_gui::MouseDrawer::Draw(QPainter & painter)
 	auto &chart_size_px = scale_info_.pix_info_.chart_size_px;
 	auto hor_px = pos_.x();
 	auto vert_px = pos_.y();
+
 	if (hor_px < 0 || hor_px > chart_size_px.hor) return true;
 	if (vert_px < 0 || vert_px > chart_size_px.vert) return true;
 
 	auto val_hor = cur_chart_val.hor.low + double(hor_px) / chart_size_px.hor * cur_chart_val.hor.delta();
-	auto val_vert = cur_chart_val.vert.low + (1 - double(vert_px) / chart_size_px.vert) * cur_chart_val.vert.delta();
+	auto val_vert = cur_chart_val.vert.low + (1.0 - double(vert_px) / chart_size_px.vert) * cur_chart_val.vert.delta();
 
-	// Настройка пера для линий
 	QPen dashPen(QColor(200, 200, 200));
 	dashPen.setDashPattern({ 7, 7 });
 	painter.setPen(dashPen);
 
-	// Рисуем перекрестие
 	painter.drawLine(hor_px, 0, hor_px, chart_size_px.vert);
 	painter.drawLine(0, vert_px, chart_size_px.hor, vert_px);
 
-	// Лямбда для отрисовки текстовой плашки
 	auto drawValueLabel = [&](const QString& text, int ref_x, int ref_y, bool isBottomAxis, bool draw_inside) {
 		QFontMetrics fm = painter.fontMetrics();
 		int padding_h = 6;
 		int padding_v = 2;
-		int margin_offset = 5; // Отступ от линии графика (чтобы не прилипало)
+		int margin_offset = 5;
 
 		QRect text_rect = fm.boundingRect(text);
 		int w = text_rect.width() + padding_h * 2;
 		int h = text_rect.height() + padding_v * 2;
 
-		int final_x = 0;
-		int final_y = 0;
+		int final_x = 0, final_y = 0;
 
 		if (isBottomAxis) {
-			// --- НИЖНЯЯ ОСЬ ---
-			// По X: всегда центрируем относительно засечки (ref_x)
 			final_x = ref_x - w / 2;
-
 			if (draw_inside) {
-				// Рисуем ВНУТРИ: поднимаем плашку вверх над линией (ref_y)
 				final_y = ref_y - h;
 			}
 			else {
-				// Рисуем СНАРУЖИ: опускаем плашку вниз под линию
 				final_y = ref_y + margin_offset;
 			}
 		}
 		else {
-			// --- БОКОВАЯ ОСЬ ---
-			// По Y: всегда центрируем относительно засечки (ref_y)
 			final_y = ref_y - h / 2;
-
 			if (draw_inside) {
-				// Рисуем ВНУТРИ: сдвигаем влево от края (ref_x)
 				final_x = ref_x - w;
 			}
 			else {
-				// Рисуем СНАРУЖИ: сдвигаем вправо от края
 				final_x = ref_x + margin_offset;
 			}
 		}
 
 		QRect bgRect(final_x, final_y, w, h);
-
 		painter.fillRect(bgRect, QColor(0, 0, 125));
 		painter.setPen(Qt::white);
 		painter.drawText(bgRect, Qt::AlignCenter, text);
 	};
 
-	// --- ИСПОЛЬЗОВАНИЕ ---
-
-	// 1. Вертикальная ось (сбоку)
 	QString vert_text = ValueToString(val_vert, GetPrecission(cur_chart_val.vert.delta())).c_str();
-
-	// Если марджина нет (<=0), рисуем внутри
 	bool vert_inside = (scale_info_.pix_info_.margin_px.hor <= 0);
-	// Передаем chart_size_px.hor как линию границы графика
 	drawValueLabel(vert_text, chart_size_px.hor, vert_px, false, vert_inside);
 
-
-	// 2. Горизонтальная ось (снизу)
 	QString hor_text = ValueToString(val_hor, GetPrecission(cur_chart_val.hor.delta())).c_str();
-
-	// Если марджина нет (<=0), рисуем внутри
 	bool hor_inside = (scale_info_.pix_info_.margin_px.vert <= 0);
-	// Передаем chart_size_px.vert как линию границы графика
 	drawValueLabel(hor_text, hor_px, chart_size_px.vert, true, hor_inside);
 
 	return true;

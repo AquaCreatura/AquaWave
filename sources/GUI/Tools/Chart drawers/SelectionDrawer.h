@@ -29,15 +29,17 @@ Class, which works with selections
 	|   QPSK	  |
 	|_____________|
 */
+enum class mouse_event_type {
+	kMove,
+	kPressedLeft,
+	kPressedRight,
+	kReleasedLeft,
+	kReleasedRight
+};
 class SelectionDrawer 
 {
 	
 public:
-	enum mouse_event_type {
-		kMove,
-		kPressed,
-		kReleased
-	};
 	SelectionDrawer		(const ChartScaleInfo& base_scale_info);
 	void SetHolder(std::shared_ptr<SelectionHolder> holder);
 	std::shared_ptr<SelectionHolder> GetHolder();
@@ -56,16 +58,27 @@ private:
 	bool							 is_pressed_{ false };
 };
 
+
+
 class MouseDrawer
 {
 public:
-	MouseDrawer(const ChartScaleInfo& base_scale_info);
-	void MouseEvent(const QPoint& mouse_location, const SelectionDrawer::mouse_event_type event_type);
-	void SetWidgetInsideState(const bool is_enter);
+	MouseDrawer(ChartScaleInfo& base_scale_info);
+
+	void MouseEvent(const QPoint& mouse_location, mouse_event_type event_type);
+	void SetWidgetInsideState(bool is_enter);
 	bool Draw(QPainter& painter);
+
+	// Возвращает форму курсора в зависимости от состояния
+	Qt::CursorShape GetCursor() const;
+
 protected:
 	QPoint pos_;
 	bool is_inside_widget_{ false };
-	const ChartScaleInfo& scale_info_;
+	ChartScaleInfo& scale_info_;
+
+	bool is_panning_ = false;
+	QPoint pan_start_pos_;
+	HV_Info<double, double> pan_world_pos_;   // точка в мировых координатах, за которую схватились
 };
 }

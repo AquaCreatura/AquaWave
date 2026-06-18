@@ -124,6 +124,7 @@ void aqua_gui::SelectionDrawer::EditableEvent(const QPoint& mouse_location, cons
 		is_pressed_ = false;
 		break;
 	default:
+		return;
 		break;
 	}
 	ChangeCurSelection();

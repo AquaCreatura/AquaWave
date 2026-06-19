@@ -1,6 +1,5 @@
 #pragma once
 #include "TileInterface.h"
-#include "Utilities/calc_tools.h"
 
 class TileDPX : public TileInterface
 {
@@ -39,7 +38,4 @@ private:
 	double  decay_factor_ = 1.0;       // текущий множитель затухания (применяется за кадр)
 	double  base_decay_rate_ = 1.0;   // базовая скорость затухания (1.0 – без затухания)
 	double  trans_decay_rate_ = 1.0;   // переходная скорость затухания (1.0 – без затухания)
-
-									   // Измеритель скорости поступления данных (опционально, для статистики)
-	utility_aqua::DataSpeedEstimator data_speedometer_;
 };

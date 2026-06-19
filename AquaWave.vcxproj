@@ -159,6 +159,7 @@
     <ClCompile Include="sources\GUI\Tools\Chart tiler\ChartTiler.cpp" />
     <ClCompile Include="sources\GUI\Tools\Chart tiler\Units\TileDPX.cpp" />
     <ClCompile Include="sources\GUI\Tools\Chart tiler\Units\TileInterface.cpp" />
+    <ClCompile Include="sources\GUI\Tools\Chart tiler\Units\TileLine.cpp" />
     <ClCompile Include="sources\GUI\Tools\Chart tiler\Units\TileSPG.cpp" />
     <ClCompile Include="sources\GUI\Tools\gui_conversions.cpp" />
     <ClCompile Include="sources\GUI\Tools\gui_helper.cpp" />
@@ -174,6 +175,7 @@
     <ClInclude Include="sources\Arks\Interfaces\special_defs\file_writer_defs.h" />
     <ClInclude Include="sources\Arks\SelectionWriter\SelectionWriter.h" />
     <QtMoc Include="sources\Arks\SelectionWriter\window\selection_writer_window.h" />
+    <ClInclude Include="sources\GUI\Tools\Chart tiler\Units\TileLine.h" />
     <ClInclude Include="sources\Utilities\aqua_array_queue.h" />
     <ClInclude Include="sources\Utilities\aqua_obj_queue.h" />
     <ClInclude Include="sources\Utilities\file_helpers.h" />

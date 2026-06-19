@@ -3,7 +3,7 @@
 #include "GUI/Tools/gui_conversions.h"
 
 // Конструктор
-TileDPX::TileDPX() : data_speedometer_(2'000)
+TileDPX::TileDPX()
 {
 	is_spg_ = false;
 	trans_decrease_counter_ = 0;
@@ -31,8 +31,6 @@ void TileDPX::SetData(const draw_data& passed_info)
 	size_t n = passed_info.data.size();
 	auto count = static_cast<int64_t>(full.pos(hi) * (n - 1)) - static_cast<int64_t>(full.pos(lo) * (n - 1));
 	const double samples_per_pixel = double(count) / data_size_.hor;
-
-	data_speedometer_.Process(std::ceil(samples_per_pixel));
 
 	if (samples_per_pixel < 1.0)
 		DrawInterpolated(passed_info.data, passed_info.freq_bounds);
@@ -150,7 +148,6 @@ void TileDPX::Reset()
 	ippsZero_8u((Ipp8u*)column_weight_vec_.data(), column_weight_vec_.size() * sizeof(column_weight_vec_[0]));
 
 	trans_decrease_counter_ = 0;
-	data_speedometer_.Reset();
 	decay_factor_ = 1.0;
 	last_average_density_ = 0.0;
 }

@@ -275,6 +275,9 @@
     <ClCompile Include="sources\Arks\SelectionWriter\window\selection_writer_window.cpp">
       <Filter>ARKS\SelectionWriter\window</Filter>
     </ClCompile>
+    <ClCompile Include="sources\GUI\Tools\Chart tiler\Units\TileLine.cpp">
+      <Filter>GUI\Tools\Chart tiler\Units</Filter>
+    </ClCompile>
   </ItemGroup>
   <!-- ClInclude (H Files) -->
   <ItemGroup>
@@ -422,6 +425,9 @@
     </ClInclude>
     <ClInclude Include="sources\Arks\Interfaces\special_defs\file_writer_defs.h">
       <Filter>ARKS\Interfaces\special_defs</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\GUI\Tools\Chart tiler\Units\TileLine.h">
+      <Filter>GUI\Tools\Chart tiler\Units</Filter>
     </ClInclude>
   </ItemGroup>
   <!-- QtMoc (For Headers Requiring Moc) -->

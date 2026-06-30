@@ -108,28 +108,33 @@ inline double GetPrecission(double value) {
 }
 
 inline std::string ValueToString(double v, int precision, const char* divider = ",") {
-
 	if (precision < 0) precision = GetPrecission(v);
 	bool neg = v < 0;
 	if (neg) v = -v;
-	long long int_part = static_cast<long long>(v);
 
-	double frac = v - int_part;
-	// --- ‘орматируем целую часть ---
+	// ќкругление до заданной точности (умножение, прибавление 0.5, приведение к целому)
+	double scale = std::pow(10.0, precision);
+	long long scaled = static_cast<long long>(v * scale + 0.5);
+
+	// –азделение на целую и дробную части
+	long long int_part = scaled / static_cast<long long>(scale);
+	long long frac_part = scaled % static_cast<long long>(scale);
+
+	// ‘орматирование целой части с разделител€ми тыс€ч
 	std::string s = std::to_string(int_part);
 	int n = static_cast<int>(s.size());
 	for (int i = n - 3; i > 0; i -= 3)
 		s.insert(i, divider);
-	// --- ‘орматируем дробную часть ---
+
+	// ƒобавление дробной части (если точность > 0)
 	if (precision > 0) {
 		s += '.';
-		double scale = std::pow(10, precision);
-		long long frac_part = static_cast<long long>(frac * scale + 0.5);
-		auto frac_str = std::to_string(frac_part);
+		std::string frac_str = std::to_string(frac_part);
 		if (frac_str.size() < static_cast<size_t>(precision))
 			frac_str.insert(0, precision - frac_str.size(), '0');
 		s += frac_str;
 	}
+
 	if (neg) s.insert(0, "-");
 	return s;
 }

@@ -12,8 +12,8 @@ int main(int argc, char *argv[])
     QString file_path;
 	if (argc >= 2) {
 		file_path = QString::fromLocal8Bit(argv[1]);
-		
-		{// 2. Стучимся в Total Commander за активным путем
+		//Надо просто передавать %P%N
+		{// Стучимся в Total Commander за активным путем
 			wchar_t b[512] = { 0 };
 			GetWindowTextW((HWND)SendMessage(FindWindowA("TTOTAL_CMD", nullptr), 1074, 21, 0), b, 512);
 			QString tcDir = QString::fromWCharArray(b).split('>')[0].remove('*').trimmed();

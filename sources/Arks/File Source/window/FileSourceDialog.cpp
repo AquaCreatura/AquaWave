@@ -6,6 +6,7 @@
 #include <QtConcurrent/qtconcurrent_global.h>
 #include <qfuture.h>
 #include "Utilities/wav_tools.h"
+#include "Utilities/file_helpers.h"
 using namespace file_source;
 
 // ============================== FileSourceDialog ===================================
@@ -159,6 +160,13 @@ bool file_source::FileSourceDialog::ParseFileName(const QString& file_name)
 	{
 		edit_file_info_.count_of_samples = QFile(edit_file_info_.file_name_).size() / GetSampleSize(edit_file_info_.data_type_);
 	}
+
+	if (FsHelper::IsFile32Float(file_name.toLocal8Bit().constData()))
+		ui_.float32_radio_button->setChecked(true);
+	else
+		ui_.int16_radio_button->setChecked(true);
+	OnDataTypeChanged();
+	
 	return is_succesfully_parsed;
 	
 

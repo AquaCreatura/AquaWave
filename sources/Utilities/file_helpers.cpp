@@ -3,6 +3,7 @@
 #include <string>
 #include <vector>
 #include <algorithm>
+#include <ipps.h>
 
 static const char* TEMP_PREFIX = "tmp";
 
@@ -107,6 +108,23 @@ bool FsHelper::IsFileExist(const std::string& file_path)
 	return file.good();
 }
 
+bool FsHelper::IsFile32Float(const std::string & file_path, int samples_to_check)
+{
+	std::ifstream f(file_path, std::ios::binary);
+	if (!f) return false;
+
+	int64_t file_size = GetFileSize(file_path);
+	int count = std::min<int64_t>(samples_to_check, file_size / sizeof(float));
+	if (count <= 0) return false;
+
+	std::vector<float> buf(count);
+	f.read(reinterpret_cast<char*>(buf.data()), count * sizeof(float));
+
+	float mn, mx;
+	ippsMinMax_32f(buf.data(), count, &mn, &mx);
+	const bool is_ok = (mx < 32768.0f && mn > -32768.0f);
+	return is_ok;
+}
 bool FsHelper::CopyPrecisedFile(const std::string & from, const std::string & to)
 
 {

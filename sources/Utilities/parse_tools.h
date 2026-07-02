@@ -104,7 +104,7 @@ inline std::string gen_time_string(const std::string& comment = "") {
 }
 
 inline double GetPrecission(double value) {
-	return std::max(0., -1 * log10(value) + 3);
+	return std::max(0., -1 * log10(value + std::numeric_limits<double>::epsilon()) + 3);
 }
 
 inline std::string ValueToString(double v, int precision, const char* divider = ",") {

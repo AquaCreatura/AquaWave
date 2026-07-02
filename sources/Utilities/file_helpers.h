@@ -16,7 +16,7 @@ public:
 	static bool CopyPrecisedFile(const std::string& from, const std::string& to);
 	static int64_t GetFileSize(const std::string& file_path);
 	static bool  IsFileExist(const std::string& file_path);
-	static bool IsFile32Float(const std::string& file_path, int samples_to_check = 1'000);
+	static bool IsFile32Float(const std::string& file_path);
 };
 
 class FileWriter

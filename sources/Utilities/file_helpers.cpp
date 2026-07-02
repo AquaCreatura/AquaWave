@@ -108,22 +108,44 @@ bool FsHelper::IsFileExist(const std::string& file_path)
 	return file.good();
 }
 
-bool FsHelper::IsFile32Float(const std::string & file_path, int samples_to_check)
+bool FsHelper::IsFile32Float(const std::string & file_path)
 {
+	constexpr int kBlockSize = 256;
+
 	std::ifstream f(file_path, std::ios::binary);
-	if (!f) return false;
+	if (!f)
+		return false;
 
-	int64_t file_size = GetFileSize(file_path);
-	int count = std::min<int64_t>(samples_to_check, file_size / sizeof(float));
-	if (count <= 0) return false;
+	std::vector<float> buf(kBlockSize);
+	int valid_blocks = 0;
 
-	std::vector<float> buf(count);
-	f.read(reinterpret_cast<char*>(buf.data()), count * sizeof(float));
+	while (true)
+	{
+		f.read(reinterpret_cast<char*>(buf.data()), kBlockSize * sizeof(float));
 
-	float mn, mx;
-	ippsMinMax_32f(buf.data(), count, &mn, &mx);
-	const bool is_ok = (mx < 32768.0f && mn > -32768.0f);
-	return is_ok;
+		const int bytes_read = static_cast<int>(f.gcount());
+		const int floats_read = bytes_read / sizeof(float);
+
+		if (floats_read <= 0)
+			break;
+
+		float mn, mx;
+		ippsMinMax_32f(buf.data(), floats_read, &mn, &mx);
+
+		// Встретилось значение вне допустимого диапазона.
+		if (mx >= 32768.0f || mn <= -32768.0f)
+			return false;
+
+		// Ненулевой блок.
+		if (mx != 0.0f && mn != 0.0f)
+		{
+			++valid_blocks;
+			if (valid_blocks >= 3)
+				return true;
+		}
+	}
+
+	return false;
 }
 bool FsHelper::CopyPrecisedFile(const std::string & from, const std::string & to)
 

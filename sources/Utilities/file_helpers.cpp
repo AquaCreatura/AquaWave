@@ -133,11 +133,12 @@ bool FsHelper::IsFile32Float(const std::string & file_path)
 		ippsMinMax_32f(buf.data(), floats_read, &mn, &mx);
 
 		// Встретилось значение вне допустимого диапазона.
-		if (mx >= 32768.0f || mn <= -32768.0f)
+		if (mx > 32768.0f || mn < -32768.0f || !std::isfinite(mn) || !std::isfinite(mx))
 			return false;
-
+		if (std::abs(mx) < 1.e-20 && std::abs(mn) < 1.e-20)
+			return false;
 		// Ненулевой блок.
-		if (mx != 0.0f && mn != 0.0f)
+		if (std::abs(mx) > 1.e-5 && std::abs(mn) > 1.e-5)
 		{
 			++valid_blocks;
 			if (valid_blocks >= 3)

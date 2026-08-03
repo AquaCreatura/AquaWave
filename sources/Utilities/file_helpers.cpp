@@ -57,43 +57,13 @@ std::string FsHelper::GetTempFileDirectory() {
 		return std::string(tempPath);
 	return "";
 }
-
-bool FsHelper::CreateDirectories(const std::string& dirPath)
+#include <qdir.h>
+bool FsHelper::CreateDirectories(const std::string& dir_path)
 {
-	if (dirPath.empty())
+	if (dir_path.empty())
 		return false;
 
-	bool result = true;
-
-	// Пропускаем префикс "C:"
-	size_t pos = 0;
-	if (dirPath.size() >= 2 && dirPath[1] == ':')
-		pos = 2;
-
-	while ((pos = dirPath.find_first_of("\\/", pos + 1)) != std::string::npos)
-	{
-		const std::string subDir = dirPath.substr(0, pos);
-
-		if (subDir.empty())
-			continue;
-
-		if (!CreateDirectoryA(subDir.c_str(), nullptr))
-		{
-			const DWORD err = GetLastError();
-			if (err != ERROR_ALREADY_EXISTS)
-				result = false;
-		}
-	}
-
-	// Создаем конечную директорию
-	if (!CreateDirectoryA(dirPath.c_str(), nullptr))
-	{
-		const DWORD err = GetLastError();
-		if (err != ERROR_ALREADY_EXISTS)
-			result = false;
-	}
-
-	return result;
+	return QDir().mkpath(QString::fromLocal8Bit(dir_path.c_str()));
 }
 
 int64_t FsHelper::GetFileSize(const std::string & file_path)

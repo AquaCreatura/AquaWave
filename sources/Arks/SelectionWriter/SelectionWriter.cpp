@@ -3,7 +3,8 @@
 #include "Arks/Interfaces/special_defs/file_writer_defs.h"
 #include "Arks/Interfaces/special_defs/file_souce_defs.h"
 #include "Utilities/parse_tools.h"
-constexpr int c_expr_read_chunk_size_ = 4096;
+#include <qfile.h>
+constexpr int c_expr_read_chunk_size_ = 128;
 file_writer::SelectionWriter::SelectionWriter()
 {
 	connect(&window_, &SelectionWriterWindow::StartNeed, this, &SelectionWriter::StartRecording);
@@ -215,13 +216,30 @@ bool file_writer::SelectionWriter::CaptureFile(const std::string folder_path)
 bool file_writer::SelectionWriter::StopRecording()
 {
 	is_started_ = false;
+
 	QMetaObject::invokeMethod(&window_, [=]() {
 		window_.UpdateProgressRatio(1.);
 		window_.UpdateBytesWritten(writer_.GetCurSizeBytes());
 	}, Qt::QueuedConnection);
+
 	window_.close();
-	FileSavedDialog(writer_.GetFilePath(), writer_.GetCurSizeBytes()).exec();
+
+	const auto file_size = writer_.GetCurSizeBytes();
+	const auto file_path = writer_.GetFilePath();
+
 	writer_.ReleaseFile();
+
+	if (file_size == 0)
+	{
+		QFile::remove(QString::fromLocal8Bit(file_path.c_str()));
+
+		QMessageBox::information( nullptr, tr("Empty file"), tr("The recording did not contain any data.\n\n" "The empty file has been deleted."));
+	}
+	else
+	{
+		FileSavedDialog(file_path, file_size).exec();
+	}
+
 	return true;
 }
 

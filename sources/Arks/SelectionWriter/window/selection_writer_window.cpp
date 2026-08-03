@@ -84,9 +84,23 @@ FileSavedDialog::FileSavedDialog(const std::string& file_path,
 	const size_t file_size_bytes)
 {
 	ui_.setupUi(this);
-	ui_.file_size_mbyte_spinbox->setValue( static_cast<double>(file_size_bytes) / 1.e6);
+	{
+		const double size_mb = static_cast<double>(file_size_bytes) / 1.e6;
 
-	QString path(file_path.c_str());
+		int decimals = 0;
+		if (size_mb > 0.0)
+		{
+			decimals = std::clamp(
+				3 - static_cast<int>(std::floor(std::log10(size_mb))) - 1,
+				0, 3);
+		}
+
+		ui_.file_size_mbyte_spinbox->setDecimals(decimals);
+		ui_.file_size_mbyte_spinbox->setValue(size_mb);
+	}
+	//ui_.file_size_mbyte_spinbox->setValue( static_cast<double>(file_size_bytes) / 1.e6);
+
+	QString path = QString::fromLocal8Bit(file_path.c_str());
 
 	ui_.file_path_label->setText(path);
 

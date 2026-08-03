@@ -82,12 +82,17 @@ void file_source::FileDataListener::SetBaseParams(InitParams &setup)
 
 	resampler_.SetBaseParams(file_params_.carrier_hz, file_params_.samplerate_hz);
 	resampler_.SetTargetParams(setup.carrier_hz, setup.samplerate_hz, setup.banwidth_hz);
+	resample_ratio_ = setup.samplerate_hz / double(file_params_.samplerate_hz);
     block_size_ = setup.chunk_size;                     // Сохранение размера блока
+	const double supposed_size = 8. / resample_ratio_;
+	read_block_size_ = std::max<int>(1 << std::lround(log2(supposed_size)), block_size_);
 }
 
 void file_source::FileDataListener::SetChunkSize(const int chunk_size)
 {
 	block_size_ = chunk_size;
+	const double supposed_size = 8. / resample_ratio_;
+	read_block_size_ = std::max<int>(1 << std::lround(log2(supposed_size)), block_size_);
 }
 
 // Остановка текущего асинхронного процесса
@@ -161,6 +166,7 @@ const file_source::FileDataListener::ListenerState file_source::FileDataListener
 void file_source::FileDataListener::ReadChunksInRangeProcess(const Limits<double>& time_bounds)
 {
 	const auto chunk_size = block_size_;
+	const auto read_chunk_size  = read_block_size_;
 	StreamReader reader;
 	if (!reader.SetFileParams(file_params_))  // Настройка файлового читателя
 	{
@@ -173,19 +179,19 @@ void file_source::FileDataListener::ReadChunksInRangeProcess(const Limits<double
 												file_params_.samplerate_hz * data_info_.freq_info_.samplerate_hz;
 
 
-	std::vector<Ipp32fc> casted_vec(chunk_size);
+	std::vector<Ipp32fc> casted_vec(read_chunk_size);
 	std::vector<Ipp32fc> chunk_to_send(chunk_size);
 	std::vector<uint8_t> read_data;
 	size_t chunk_pos = 0;
 	int64_t samples_processed = 0;
 	while (state_ != kNeedStop) {
-		if (!reader.ReadStream(read_data, block_size_))
+		if (!reader.ReadStream(read_data, read_chunk_size))
 			break;
 		const bool is_last_block = (read_data.size() != 1 << int(log2(read_data.size())));
 		
 		ippsConvert_16s32f(reinterpret_cast<Ipp16s*>(read_data.data()),
 			reinterpret_cast<Ipp32f*>(casted_vec.data()),
-			chunk_size * 2);
+			read_chunk_size * 2);
 
 		resampler_.ProcessBlock(casted_vec.data(), casted_vec.size());
 		auto& processed_data = resampler_.GetProcessedData();
@@ -236,8 +242,9 @@ void file_source::FileDataListener::LoopReadInRangeProcess(const Limits<double>&
 		data_info_.freq_info_.samplerate_hz;
 	
 	auto chunk_size = block_size_;	
+	auto read_chunk_size = read_block_size_;
 	reader.InitStartEndRatio(time_bounds);
-	std::vector<Ipp32fc> casted_vec(chunk_size);
+	std::vector<Ipp32fc> casted_vec(read_chunk_size);
 	std::vector<Ipp32fc> chunk_to_send(chunk_size);
 	std::vector<uint8_t> read_data;
 	size_t chunk_pos = 0;               // текущая позиция в выходном чанке
@@ -247,7 +254,9 @@ void file_source::FileDataListener::LoopReadInRangeProcess(const Limits<double>&
 	{
 		if (block_size_ != chunk_size) {
 			chunk_size = block_size_;
-			casted_vec.resize(chunk_size);
+			read_chunk_size = read_block_size_;
+
+			casted_vec.resize(read_chunk_size);
 			chunk_to_send.resize(chunk_size);
 
 			chunk_pos = 0;               // текущая позиция в выходном чанке

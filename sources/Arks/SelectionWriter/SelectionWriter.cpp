@@ -206,8 +206,13 @@ bool file_writer::SelectionWriter::CaptureFile(const std::string folder_path)
 	if (file_full_path.empty()) {
 		return false;
 	}
-	if (!writer_.CaptureFile(file_full_path, true)) {
-		QMessageBox::warning(nullptr, "Error", "Wrong folder path");
+	if (!writer_.CaptureFile(file_full_path, true))
+	{
+		QMessageBox::warning(
+			nullptr,
+			tr("Error"),
+			tr("Failed to create or open the file:\n\n%1")
+			.arg(QString::fromLocal8Bit(file_full_path.c_str())));
 		return false;
 	}
 	return true;

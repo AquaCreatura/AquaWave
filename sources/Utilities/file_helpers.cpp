@@ -58,40 +58,42 @@ std::string FsHelper::GetTempFileDirectory() {
 	return "";
 }
 
-bool FsHelper::CreateDirectories(const std::string & dirPath)
+bool FsHelper::CreateDirectories(const std::string& dirPath)
 {
-
-	
 	if (dirPath.empty())
 		return false;
 
-	size_t pos = 0;
 	bool result = true;
+
+	// Пропускаем префикс "C:"
+	size_t pos = 0;
+	if (dirPath.size() >= 2 && dirPath[1] == ':')
+		pos = 2;
 
 	while ((pos = dirPath.find_first_of("\\/", pos + 1)) != std::string::npos)
 	{
-		std::string subDir = dirPath.substr(0, pos);
+		const std::string subDir = dirPath.substr(0, pos);
+
 		if (subDir.empty())
 			continue;
 
-		if (!CreateDirectoryA(subDir.c_str(), NULL))
+		if (!CreateDirectoryA(subDir.c_str(), nullptr))
 		{
-			DWORD err = GetLastError();
+			const DWORD err = GetLastError();
 			if (err != ERROR_ALREADY_EXISTS)
 				result = false;
 		}
 	}
 
-	// Создать последнюю папку
-	if (!CreateDirectoryA(dirPath.c_str(), NULL))
+	// Создаем конечную директорию
+	if (!CreateDirectoryA(dirPath.c_str(), nullptr))
 	{
-		DWORD err = GetLastError();
+		const DWORD err = GetLastError();
 		if (err != ERROR_ALREADY_EXISTS)
 			result = false;
 	}
 
 	return result;
-	
 }
 
 int64_t FsHelper::GetFileSize(const std::string & file_path)
@@ -172,7 +174,6 @@ bool FileWriter::CaptureFile(const std::string& file_path, bool do_rewrite)
 {
 	if (IsCaptured())
 		return false;   // уже захвачен другой файл
-
 						// Извлечь директорию из пути
 	size_t pos = file_path.find_last_of("/\\");
 	if (pos != std::string::npos)
@@ -192,7 +193,6 @@ bool FileWriter::CaptureFile(const std::string& file_path, bool do_rewrite)
 	file_stream_.open(file_path, mode);
 	if (!file_stream_.is_open())
 		return false;
-	
 	file_path_ = std::move(file_path);
 	bytes_written_ = FsHelper::GetFileSize(file_path);
 	return true;

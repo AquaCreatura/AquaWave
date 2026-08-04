@@ -26,6 +26,8 @@ private:
     std::vector<Ipp8u> spec_buffer_;
     std::vector<Ipp8u> work_buffer_;
     std::vector<Ipp32fc> delay_line_;
+	std::vector<Ipp32fc> decim_tail_buffer_;
+	std::vector<Ipp32fc> merged_data_;
     int up_factor_;
     int down_factor_;
     int64_t base_rate_;

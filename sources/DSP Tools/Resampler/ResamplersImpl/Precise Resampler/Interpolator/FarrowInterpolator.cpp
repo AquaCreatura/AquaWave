@@ -9,7 +9,7 @@ FarrowInterpolator::FarrowInterpolator() : ratio_(1.0), virtual_index_(0.0) {
 }
 //Перед резамплингом отрабатывает КИХ фильтр
 void FarrowInterpolator::SetResampleRatio(double resample_ratio) {
-	if (resample_ratio <= 0.0 || resample_ratio > 200.0) {
+	if (resample_ratio <= 0.0 || resample_ratio > 2000.0) {
 		throw std::invalid_argument("Invalid resample ratio");
 	}
 	ratio_ = resample_ratio; //По факту резамплер для уменьшения ЧД, в иной концепции не предполагается

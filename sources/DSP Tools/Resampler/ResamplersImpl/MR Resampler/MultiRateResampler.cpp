@@ -93,36 +93,55 @@ bool MultiRateResampler::Init(const int64_t base_fs_hz, int64_t& tgt_sr_hz, cons
     // Инициализация линии задержки
     delay_line_.resize(fir_len + up_factor_ - 1, {0,0});
 	need_reset_ = false;
+	decim_tail_buffer_.clear();
+	merged_data_.clear();
     return (status == ippStsNoErr);
 }
 
-bool MultiRateResampler::ProcessData(const Ipp32fc* passed_data, const size_t passed_size, std::vector<Ipp32fc>& res_vec) 
+bool MultiRateResampler::ProcessData(const Ipp32fc* passed_data,
+	const size_t passed_size,
+	std::vector<Ipp32fc>& res_vec)
 {
-    if (!passed_data || passed_size < down_factor_) 
-        return false;
+	if (!passed_data || passed_size == 0 || !pSpec_)
+		return false;
 
-	if (up_factor_ == down_factor_ && down_factor_ == 1) {
-		res_vec.resize(passed_size);
-		ippsCopy_32fc(passed_data, res_vec.data(), passed_size);
+	if (up_factor_ == 1 && down_factor_ == 1)
+	{
+		res_vec.assign(passed_data, passed_data + passed_size);
 		return true;
 	}
-	if (!pSpec_)
-		return false;
-    const int numIters = static_cast<int>(passed_size) / down_factor_;
-    const int outSize = numIters * up_factor_;
-    res_vec.resize(outSize);
 
-    IppStatus status = ippsFIRMR_32fc(
-        passed_data,                        // входные данные
-        res_vec.data(),              // выходной буфер
-        numIters,                    // количество входных блоков
-        pSpec_, // спецификация
-        delay_line_.data(),          // исходное состояние
-        delay_line_.data(),          // обновлённое состояние
-        work_buffer_.data()          // временный буфер
-    );
-    
-    return (status == ippStsNoErr);
+	// Объединяем хвост с новыми данными.
+	merged_data_ = decim_tail_buffer_;
+	merged_data_.insert(merged_data_.end(), passed_data, passed_data + passed_size);
+
+	const int num_iters = static_cast<int>(merged_data_.size()) / down_factor_;
+	if (num_iters == 0)
+	{
+		decim_tail_buffer_.swap(merged_data_);
+		res_vec.clear();
+		return true;
+	}
+
+	const size_t processed = static_cast<size_t>(num_iters) * down_factor_;
+
+	res_vec.resize(num_iters * up_factor_);
+
+	const IppStatus status = ippsFIRMR_32fc(
+		merged_data_.data(),
+		res_vec.data(),
+		num_iters,
+		pSpec_,
+		delay_line_.data(),
+		delay_line_.data(),
+		work_buffer_.data());
+
+	if (status != ippStsNoErr)
+		return false;
+
+	decim_tail_buffer_.assign( merged_data_.begin() + processed, merged_data_.end());
+
+	return true;
 }
 
 bool aqua_resampler::MultiRateResampler::ProcessData(const std::vector<Ipp32fc>& passed_data, std::vector<Ipp32fc>& res_data)
@@ -142,6 +161,12 @@ void MultiRateResampler::Clear()
 
     delay_line_.clear();
     delay_line_.shrink_to_fit();
+
+	decim_tail_buffer_.clear();
+	decim_tail_buffer_.shrink_to_fit();
+
+	merged_data_.clear();
+	merged_data_.shrink_to_fit();
 
 
     up_factor_ = down_factor_ = 0;

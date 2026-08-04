@@ -55,7 +55,8 @@ void constel::ConstelCore::SetNewMaximum(const Ipp32f max_value)
 	const int size = constel_.side_size;
 
 	std::vector<int> new_data(constel_.data.size(), 0);
-
+	if (new_data.empty())
+		return;
 	tbb::spin_mutex::scoped_lock lock(constel_.redraw_mutex);
 	constel_.count_of_points = 0;
 

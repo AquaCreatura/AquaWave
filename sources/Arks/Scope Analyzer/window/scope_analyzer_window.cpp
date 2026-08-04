@@ -86,6 +86,28 @@ void scope_analyzer::ScopeAnalyzerWindow::SetMaxFFtOrder(int max_fft_order)
 	UpdateFFtCombobox(max_fft_order, cur_fft);
 }
 
+void scope_analyzer::ScopeAnalyzerWindow::UpdateHarmonicResult(QString result_info, scope_chart_type type_of_chart)
+{
+	auto get_label = [this](scope_chart_type type) -> QLabel*
+	{
+		switch (type)
+		{
+		case scope_chart_type::kPowerSpectrum:    return ui_.carrier_value_label;
+		case scope_chart_type::kEnvelopeSpectrum: return ui_.symbol_rate_am_label;
+		case scope_chart_type::kPhasorSpectrum:   return ui_.symbol_rate_psk_label;
+		case scope_chart_type::kAcf:              return ui_.acf_value_label;
+		case scope_chart_type::kBandwidth:        return ui_.bandwidth_value_label;
+		case scope_chart_type::kConstellation:    return ui_.modulation_label;
+		default:                                 return nullptr;
+		}
+	};
+
+	if (auto* label = get_label(type_of_chart))
+		label->setText(result_info);
+
+
+}
+
 void scope_analyzer::ScopeAnalyzerWindow::UpdateFFtCombobox(const int max_order, const int cur_fft_order)
 {
 	{

@@ -1,4 +1,5 @@
 #include "Constellation.h"
+#include "special_defs/analyzer_defs.h"
 using namespace constel;
 using namespace fluctus;
 constel::Constellation::Constellation(QWidget * parrent):
@@ -49,6 +50,14 @@ bool constel::Constellation::PostDove(fluctus::DoveSptr const & sent_dove)
 
 			if (special_thought & spectral_viewer::SpectralDove::kSetFFtOrder) {
 				Reload();
+			}
+		};
+		if (auto analyze_dove = std::dynamic_pointer_cast<analyzer::AnalyzeDove>(sent_dove)) {
+			if (special_thought & analyzer::AnalyzeDove::kGetHarmonicResult) {
+				analyze_dove->text_result = "Unknown modulation";
+			}
+			if (special_thought & analyzer::AnalyzeDove::kSetHarmonicInfo) {
+				analyze_dove->carrier_hz; analyze_dove->symbol_rate_hz;
 			}
 		};
 	}

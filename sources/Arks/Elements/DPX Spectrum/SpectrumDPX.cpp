@@ -1,5 +1,6 @@
 #include "SpectrumDPX.h" // ¬ключаем заголовок класса SpectrumDpx
 #include "special_defs/file_souce_defs.h"
+#include "special_defs/analyzer_defs.h"
 #include <ippvm.h>
 
 #include <qmessagebox.h>
@@ -126,6 +127,11 @@ bool dpx_core::SpectrumDpx::PostDove(fluctus::DoveSptr const & sent_dove)
 			if (special_thought & spectral_viewer::SpectralDove::kSetSelectionHolder) {
 				selection_holder_ = *spectral_dove->sel_holder;
 				dpx_drawer_->SetSelectionHolder(selection_holder_);
+			}
+		};
+		if (auto analyze_dove = std::dynamic_pointer_cast<analyzer::AnalyzeDove>(sent_dove)) {
+			if (special_thought & analyzer::AnalyzeDove::kGetHarmonicResult) {
+				//SetNewFftOrder(*spectral_dove->fft_order_);
 			}
 		};
 	}

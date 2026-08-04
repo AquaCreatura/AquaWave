@@ -351,7 +351,7 @@
               </widget>
              </item>
              <item row="0" column="3">
-              <widget class="QLabel" name="label_2">
+              <widget class="QLabel" name="modulation_label">
                <property name="text">
                 <string>APSK 64</string>
                </property>

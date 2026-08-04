@@ -19,6 +19,8 @@ public:
 	virtual bool		PostDove(fluctus::DoveSptr const & sent_dove) override;
 	fluctus::ArkType	GetArkType() const override;
 protected:
+	
+	void UpdateHarmonicInfo();
 	bool Reload();
 	bool Restart(fluctus::Limits<double> freq_bounds_hz, fluctus::Limits<double> time_bounds);
 	void SetNewFftOrder(int n_fft_order);
@@ -35,7 +37,7 @@ protected:
 	Limits<double>					selection_bounds_;
 	SourceDescription				selection_descr_;
 	int64_t							resampled_samplerate_;
-
+	QTimer							info_timer_;
 
 	QPointer<ScopeAnalyzerWindow>	window_;
 	int64_t							n_fft_{ 1024 * 2 };

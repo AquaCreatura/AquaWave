@@ -68,6 +68,7 @@ struct GridInfo
     const ChartScaleInfo&   scale_info_;
     HV_Info<Limits<double>> last_val_scaled_bounds_;
     HV_Info<int>            last_widget_size_;
+	HV_Info<int>            last_chart_size_;
 };
 
 }

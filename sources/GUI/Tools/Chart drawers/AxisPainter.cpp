@@ -37,11 +37,12 @@ bool AxisManager::DrawAxis(QPainter& passed_painter)
     }
 
     // Пересоздаём Pixmap, если размеры изменились
-    if (last_widget_size_ != scale_info_.pix_info_.widget_size_px)
+    if (last_widget_size_ != scale_info_.pix_info_.widget_size_px || last_chart_size_!= scale_info_.pix_info_.chart_size_px)
     {
         cache_pixmap_ = QPixmap(scale_info_.pix_info_.widget_size_px.hor,
                                 scale_info_.pix_info_.widget_size_px.vert);
         last_widget_size_ = scale_info_.pix_info_.widget_size_px;
+		last_chart_size_  = scale_info_.pix_info_.chart_size_px;
     }
     // Заполняем прозрачным фоном
     cache_pixmap_.fill(Qt::transparent);
@@ -161,7 +162,7 @@ bool AxisManager::DrawAxis(QPainter& passed_painter)
 
 bool aqua_gui::AxisManager::ShouldRedraw() const
 {
-    return need_be_updated_ || last_widget_size_!=scale_info_.pix_info_.widget_size_px 
+    return need_be_updated_ || last_widget_size_!=scale_info_.pix_info_.widget_size_px || last_chart_size_ != scale_info_.pix_info_.chart_size_px
                 || last_val_scaled_bounds_ != scale_info_.val_info_.view_bounds;
 }
 

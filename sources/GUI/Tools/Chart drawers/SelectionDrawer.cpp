@@ -536,6 +536,10 @@ bool aqua_gui::MouseDrawer::Draw(QPainter& painter)
 			else {
 				final_x = ref_x + margin_offset;
 			}
+			if (w != scale_info_.pix_info_.margin_px.hor && scale_info_.pix_info_.margin_px.hor != 0) {
+				scale_info_.pix_info_.margin_px.hor = std::max(scale_info_.pix_info_.margin_px.hor, w);
+				scale_info_.pix_info_.chart_size_px = scale_info_.pix_info_.widget_size_px - scale_info_.pix_info_.margin_px;
+			}
 		}
 
 		QRect bgRect(final_x, final_y, w, h);

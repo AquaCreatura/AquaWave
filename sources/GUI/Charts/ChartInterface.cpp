@@ -246,11 +246,14 @@ void ChartInterface::UpdateWidgetSizeInfo()
 	if(cur_size.hor > 0)
 	{
 		static const HV_Info<int> need_margin_px{ 50, 30 };
-		pix_info.margin_px = need_margin_px;
-		if (double(need_margin_px.hor) / cur_size.hor > 0.3)
+
+		if (double(need_margin_px.hor) / cur_size.hor > 0.1)
 			pix_info.margin_px.hor = 0;
+		else if (pix_info.margin_px.hor == 0) pix_info.margin_px.hor = need_margin_px.hor;
+
 		if (double(need_margin_px.vert) / cur_size.vert > 0.3)
 			pix_info.margin_px.vert = 0;
+		else if (pix_info.margin_px.vert == 0) pix_info.margin_px.vert = need_margin_px.vert;
 	}
 
     pix_info.widget_size_px = cur_size;

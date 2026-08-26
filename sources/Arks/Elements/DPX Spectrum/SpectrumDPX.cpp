@@ -4,6 +4,7 @@
 #include <ippvm.h>
 
 #include <qmessagebox.h>
+using namespace spectral_viewer;
 using namespace dpx_core; // Используем пространство имён dpx_core
 using namespace pipes; 
 // Конструктор: Инициализирует компонент для отрисовки спектра.
@@ -17,21 +18,21 @@ dpx_core::SpectrumDpx::SpectrumDpx(kDpxChartType chart_type)
 		const auto chart_type = is_analyze_chart ? aqua_gui::ChartDomainType::kAnalyzeDomain : aqua_gui::ChartDomainType::kFreqDomain;
 		dpx_drawer_ = new ChartDPX(nullptr, chart_type); // Создаём указатель на объект DpxChart для отрисовки.
 	}
-	
+	detector_.Init(chart_type, 10'000);
 	switch (chart_type)
 	{
-	case dpx_core::kDpxChartType::kFFT:
+	case kDpxChartType::kFFT:
 		pipe_line_.AddNextPipe(std::make_shared<FFtPipe>());
 		pipe_line_.AddNextPipe(std::make_shared<PowerToDbPipe>());
 		break;
-	case dpx_core::kDpxChartType::kACF: 
+	case kDpxChartType::kACF: 
 		pipe_line_.AddNextPipe(std::make_shared<AcfPipe>());
 		break;	
 	case dpx_core::kDpxChartType::kEnvelope: 
 		pipe_line_.AddNextPipe(std::make_shared<EnvelopePipe>());
 		pipe_line_.AddNextPipe(std::make_shared<FFtPipe>());
 		pipe_line_.AddNextPipe(std::make_shared<PrecisedPartSaver>(2, 1));
-		pipe_line_.AddNextPipe(std::make_shared<ZeroFirstSamples>(0.05)); //Обнуляем нулевую гармониу
+		pipe_line_.AddNextPipe(std::make_shared<ZeroFirstSamples>(0.05)); //Обнуляем нулевые гармоники
 		break;	
 	case dpx_core::kDpxChartType::kPhasor: 
 		pipe_line_.AddNextPipe(std::make_shared<SamplesDiffPipe>());
@@ -72,6 +73,7 @@ bool SpectrumDpx::SendData(fluctus::DataInfo const & data_info)
 	else
 	{
 		draw_data.freq_bounds = dpx_drawer_->GetHorizontalMinMaxBounds();
+		detector_.Process(pipe_line_.meta->float_data.data(), pipe_line_.meta->float_data.size());
 	}
     
     draw_data.time_pos    = data_info.time_point;
@@ -131,6 +133,8 @@ bool dpx_core::SpectrumDpx::PostDove(fluctus::DoveSptr const & sent_dove)
 		};
 		if (auto analyze_dove = std::dynamic_pointer_cast<analyzer::AnalyzeDove>(sent_dove)) {
 			if (special_thought & analyzer::AnalyzeDove::kGetHarmonicResult) {
+				if(detector_.IsValid()) 
+					analyze_dove->peak_value = detector_.GetPeak();
 				//SetNewFftOrder(*spectral_dove->fft_order_);
 			}
 		};
@@ -225,7 +229,7 @@ void dpx_core::SpectrumDpx::UpdateAxisBounds()
 
 	freq_divider_ = divider;
 	bounds = bounds / freq_divider_;
-
 	dpx_drawer_->SetHorizontalMinMaxBounds(bounds);
 	dpx_drawer_->SetHorizontalSuffix(suffix.c_str());
+	detector_.Init(chart_type_, SR, Fc);
 }

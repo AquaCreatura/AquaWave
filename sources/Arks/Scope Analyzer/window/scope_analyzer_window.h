@@ -31,7 +31,7 @@ public:
 	void ActivateWindow(scope_chart_type type_of_chart);
 	scope_chart_type GetCurrentChart();
 	void SetMaxFFtOrder(int max_fft_order);
-	void UpdateHarmonicResult(QString result_info, scope_chart_type type_of_chart);
+	void UpdateHarmonicResult(scope_chart_type type_of_chart, double value, QString modulation);
 	void UpdateFFtCombobox(const int max_order, const int cur_fft_order);
 signals:
 	void FftChangeNeed(int new_fft);

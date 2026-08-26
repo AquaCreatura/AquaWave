@@ -54,7 +54,7 @@ bool constel::Constellation::PostDove(fluctus::DoveSptr const & sent_dove)
 		};
 		if (auto analyze_dove = std::dynamic_pointer_cast<analyzer::AnalyzeDove>(sent_dove)) {
 			if (special_thought & analyzer::AnalyzeDove::kGetHarmonicResult) {
-				analyze_dove->text_result = "Unknown modulation";
+				analyze_dove->text_result = "NaN";
 			}
 			if (special_thought & analyzer::AnalyzeDove::kSetHarmonicInfo) {
 				analyze_dove->carrier_hz; analyze_dove->symbol_rate_hz;

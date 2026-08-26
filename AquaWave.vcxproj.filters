@@ -125,6 +125,9 @@
     <Filter Include="ARKS\SelectionWriter\window">
       <UniqueIdentifier>{2871d8fc-ee44-4282-bbbb-d89b6dcc24ab}</UniqueIdentifier>
     </Filter>
+    <Filter Include="DSP Tools\Localiser">
+      <UniqueIdentifier>{20cbb596-0184-47e5-b331-acce182f9592}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <!-- ClCompile (CPP Files) -->
   <ItemGroup>
@@ -278,6 +281,9 @@
     <ClCompile Include="sources\GUI\Tools\Chart tiler\Units\TileLine.cpp">
       <Filter>GUI\Tools\Chart tiler\Units</Filter>
     </ClCompile>
+    <ClCompile Include="sources\DSP Tools\Localiser\PeakDetection.cpp">
+      <Filter>DSP Tools\Localiser</Filter>
+    </ClCompile>
   </ItemGroup>
   <!-- ClInclude (H Files) -->
   <ItemGroup>
@@ -428,6 +434,9 @@
     </ClInclude>
     <ClInclude Include="sources\GUI\Tools\Chart tiler\Units\TileLine.h">
       <Filter>GUI\Tools\Chart tiler\Units</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\DSP Tools\Localiser\PeakDetection.h">
+      <Filter>DSP Tools\Localiser</Filter>
     </ClInclude>
   </ItemGroup>
   <!-- QtMoc (For Headers Requiring Moc) -->

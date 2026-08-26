@@ -5,15 +5,9 @@
 #include "DSP Tools/Pipelines/BasePipes.h"
 
 #include "special_defs/spectral_viewer_defs.h"
+#include "DSP Tools/Localiser/PeakDetection.h"
 namespace dpx_core
 {
-enum class kDpxChartType {
-	kFFT = 0,
-	kACF = 1,
-	kEnvelope = 2,
-	kPhasor   = 3,
-	kPower4x = 4
-};
 class SpectrumDpx : public fluctus::ArkBase
 {
 Q_OBJECT
@@ -30,11 +24,12 @@ protected:
 protected:
     SourceArk                  src_info_;
 	std::shared_ptr<aqua_gui::SelectionHolder> selection_holder_;
-    QPointer<ChartDPX>          dpx_drawer_;
-	double						freq_divider_ = 1.;
-	int64_t						n_fft_{1024};
-	kDpxChartType				chart_type_;
-	pipes::SimplePipeLine		pipe_line_;
+    QPointer<ChartDPX>           dpx_drawer_;
+	double						 freq_divider_ = 1.;
+	int64_t						 n_fft_{1024};
+	kDpxChartType				 chart_type_;
+	pipes::SimplePipeLine		 pipe_line_;
+	peak_detection::PeakDetector detector_;
 };
 
 }

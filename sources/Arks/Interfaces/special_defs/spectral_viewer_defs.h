@@ -5,8 +5,19 @@
 #include "Arks/Interfaces/ark_interface.h"
 #include "GUI/Tools/Chart drawers//SelectionDrawer.h"
 using namespace utility_aqua;
+namespace dpx_core {
+	enum class kDpxChartType {
+		kFFT = 0,
+		kACF = 1,
+		kEnvelope = 2,
+		kPhasor = 3,
+		kPower4x = 4,
+		kHarmonic = 5
+	};
+}
 namespace spectral_viewer
 {
+
 
     struct SpectralDove : public fluctus::DoveParrent
     {

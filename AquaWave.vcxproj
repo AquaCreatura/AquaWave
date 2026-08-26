@@ -140,6 +140,7 @@
     <ClCompile Include="sources\DSP Tools\basic\acf_worker.cpp" />
     <ClCompile Include="sources\DSP Tools\basic\freq_shifter.cpp" />
     <ClCompile Include="sources\DSP Tools\FFT\FFT_Worker.cpp" />
+    <ClCompile Include="sources\DSP Tools\Localiser\PeakDetection.cpp" />
     <ClCompile Include="sources\DSP Tools\Pipelines\BasePipes.cpp" />
     <ClCompile Include="sources\DSP Tools\Pipelines\PipeInterface.cpp" />
     <ClCompile Include="sources\DSP Tools\Resampler\ResamplersImpl\MR Resampler\MultiRateResampler.cpp" />
@@ -175,6 +176,7 @@
     <ClInclude Include="sources\Arks\Interfaces\special_defs\file_writer_defs.h" />
     <ClInclude Include="sources\Arks\SelectionWriter\SelectionWriter.h" />
     <QtMoc Include="sources\Arks\SelectionWriter\window\selection_writer_window.h" />
+    <ClInclude Include="sources\DSP Tools\Localiser\PeakDetection.h" />
     <ClInclude Include="sources\GUI\Tools\Chart tiler\Units\TileLine.h" />
     <ClInclude Include="sources\Utilities\aqua_array_queue.h" />
     <ClInclude Include="sources\Utilities\aqua_obj_queue.h" />

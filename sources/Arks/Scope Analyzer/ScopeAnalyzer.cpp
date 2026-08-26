@@ -159,19 +159,17 @@ void scope_analyzer::ScopeAnalyzer::UpdateHarmonicInfo()
 {
 	auto req_dove = std::make_shared<analyzer::AnalyzeDove>(analyzer::AnalyzeDove::kGetHarmonicResult);
 	for (auto chart_iter : charts_) {
-		QString show_text = "Unknown";
 		chart_iter.second->PostDove(req_dove);
-		if (chart_iter.first == scope_chart_type::kConstellation) {
-			if(req_dove->text_result) show_text = QString(req_dove->text_result->c_str());
+		if (req_dove->peak_value) {
+			if (chart_iter.first == scope_chart_type::kPowerSpectrum) {
+				req_dove->carrier_hz = (*req_dove->peak_value); 
+			}
+			if (chart_iter.first == scope_chart_type::kEnvelopeSpectrum || chart_iter.first == scope_chart_type::kPhasorSpectrum) {
+				req_dove->symbol_rate_hz = std::max<double>(req_dove->symbol_rate_hz.value_or(0), *req_dove->peak_value);
+			}
 		}
-		else if (req_dove->peak_value) {
-			show_text = QString::number(*req_dove->peak_value);
-			if (chart_iter.first == scope_chart_type::kPowerSpectrum) 
-				req_dove->carrier_hz	 = *req_dove->peak_value;
-			if (chart_iter.first == scope_chart_type::kEnvelopeSpectrum || chart_iter.first == scope_chart_type::kPhasorSpectrum)
-				req_dove->symbol_rate_hz = std::max<double>(*req_dove->symbol_rate_hz, *req_dove->peak_value);
-		}
-		window_->UpdateHarmonicResult(show_text, chart_iter.first);
+		window_->UpdateHarmonicResult(chart_iter.first, req_dove->peak_value.value(), req_dove->text_result.value().c_str());
+		req_dove->peak_value.reset();
 	}
 	req_dove->special_thought = analyzer::AnalyzeDove::kSetHarmonicInfo;
 	charts_[scope_chart_type::kConstellation]->PostDove(req_dove);

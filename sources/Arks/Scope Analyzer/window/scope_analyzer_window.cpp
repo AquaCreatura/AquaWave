@@ -85,27 +85,39 @@ void scope_analyzer::ScopeAnalyzerWindow::SetMaxFFtOrder(int max_fft_order)
 	const auto cur_fft = ui_.fft_order_combobox->currentData().toInt();
 	UpdateFFtCombobox(max_fft_order, cur_fft);
 }
-
-void scope_analyzer::ScopeAnalyzerWindow::UpdateHarmonicResult(QString result_info, scope_chart_type type_of_chart)
+void scope_analyzer::ScopeAnalyzerWindow::UpdateHarmonicResult(scope_chart_type type_of_chart, double value, QString modulation)
 {
-	auto get_label = [this](scope_chart_type type) -> QLabel*
+	QLabel* label = nullptr;
+	double divider = 1.0;
+	QString suffix;
+	int precision = 0;
+
+	switch (type_of_chart)
 	{
-		switch (type)
-		{
-		case scope_chart_type::kPowerSpectrum:    return ui_.carrier_value_label;
-		case scope_chart_type::kEnvelopeSpectrum: return ui_.symbol_rate_am_label;
-		case scope_chart_type::kPhasorSpectrum:   return ui_.symbol_rate_psk_label;
-		case scope_chart_type::kAcf:              return ui_.acf_value_label;
-		case scope_chart_type::kBandwidth:        return ui_.bandwidth_value_label;
-		case scope_chart_type::kConstellation:    return ui_.modulation_label;
-		default:                                 return nullptr;
-		}
-	};
+	case scope_chart_type::kPowerSpectrum:
+		label = ui_.carrier_value_label; divider = 1e6; suffix = " MHz"; precision = 6; break;
 
-	if (auto* label = get_label(type_of_chart))
-		label->setText(result_info);
+	case scope_chart_type::kEnvelopeSpectrum:
+		label = ui_.symbol_rate_am_label; divider = 1e3; suffix = " kHz"; precision = 3; break;
 
+	case scope_chart_type::kPhasorSpectrum:
+		label = ui_.symbol_rate_psk_label; divider = 1e3; suffix = " kHz"; precision = 3; break;
 
+	case scope_chart_type::kAcf:
+		label = ui_.acf_value_label; suffix = " ms"; precision = 3; break;
+
+	case scope_chart_type::kBandwidth:
+		label = ui_.bandwidth_value_label; divider = 1e3; suffix = " kHz"; precision = 3; break;
+
+	case scope_chart_type::kConstellation:
+		ui_.modulation_label->setText(modulation);
+		return;
+
+	default:
+		return;
+	}
+
+	label->setText(QString::number(value / divider, 'f', precision) + suffix);
 }
 
 void scope_analyzer::ScopeAnalyzerWindow::UpdateFFtCombobox(const int max_order, const int cur_fft_order)

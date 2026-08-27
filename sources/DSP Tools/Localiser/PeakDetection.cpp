@@ -237,9 +237,10 @@ double PeakDetector::GetPeakSpectrumSymmetry() const
 		sum += GetInterpolatedPeak(p, max_hold_);
 
 	double bin_delta = sum / sorted_peaks.size()- n_fft_ / 2;
+	int power_divider = 1;
+	if (data_type_ == kDpxChartType::kPower4x) power_divider = 4;
 
-
-	double freq_hz = carrier_hz_ + bin_delta * sample_rate_hz_ / n_fft_ / 4;
+	double freq_hz = carrier_hz_ + (bin_delta * (sample_rate_hz_ / n_fft_)) / (power_divider);
 	return freq_hz;
 }
 
@@ -305,7 +306,7 @@ double PeakDetector::GetPeakSymbolRate() const
 		fundamental = *max_amp_iter;
 	}
 
-	double freq_hz = GetInterpolatedPeak(fundamental, max_hold_) * sample_rate_hz_ / n_fft_;
+	double freq_hz = GetInterpolatedPeak(fundamental, max_hold_) * sample_rate_hz_ / n_fft_ / 2;
 	return freq_hz;
 }
 

@@ -160,7 +160,7 @@ void TileDPX::SetDpxParams(const double fps, const double time_hold_sec)
 	if (time_hold_sec <= 0) trans_life_time_sec = 1;
 	else trans_life_time_sec = time_hold_sec;
 
-	trans_decay_rate_ = std::exp(-frame_time_sec / trans_life_time_sec);
+	trans_decay_rate_ = std::exp(-2 * frame_time_sec / trans_life_time_sec);
 	// Защита от некорректных значений
 	if (time_hold_sec <= 0.0) {
 		// Если параметры некорректны — устанавливаем "бесконечное" время жизни

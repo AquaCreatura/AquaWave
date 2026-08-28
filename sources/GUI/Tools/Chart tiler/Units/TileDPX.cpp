@@ -206,7 +206,6 @@ void TileDPX::DrawOnlyPoints(const std::vector<float>& data, const Limits<double
 		size_t yi = static_cast<size_t>(yb.pos(y) * height);
 		if (xi == width)  --xi;
 		if (yi == height) --yi;
-
 		data_[yi * width + xi] += 100;
 		column_weight_vec_[xi] += 100;
 	}

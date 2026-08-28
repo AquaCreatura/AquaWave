@@ -14,7 +14,7 @@ bool AcfWorker::UpdateBufferSize(int src_len, int dst_len, IppEnum acf_flags)
 // Pointer interface
 // =======================================================
 
-bool AcfWorker::Process_32fc_32fc(const Ipp32fc* src, std::size_t size, Ipp32fc* dst, IppEnum acf_flags)
+bool AcfWorker::Process32fc(const Ipp32fc* src, std::size_t size, Ipp32fc* dst, IppEnum acf_flags)
 {
 	if (!src || !dst || size == 0)
 		return false;
@@ -26,36 +26,36 @@ bool AcfWorker::Process_32fc_32fc(const Ipp32fc* src, std::size_t size, Ipp32fc*
 	return ippsAutoCorrNorm_32fc(src, len, dst, len, acf_flags, main_buff_.data()) == ippStsNoErr;
 }
 
-bool AcfWorker::Process_32fc_32f(const Ipp32fc* src, std::size_t size, Ipp32f* dst, IppEnum acf_flags)
+bool AcfWorker::AbsProcess32fc(const Ipp32fc* src, std::size_t size, Ipp32f* dst, IppEnum acf_flags)
 {
 	if (!src || !dst || size == 0)
 		return false;
 
 	calc_buff_.resize(size);
-	if (!Process_32fc_32fc(src, size, calc_buff_.data(), acf_flags))
+	if (!Process32fc(src, size, calc_buff_.data(), acf_flags))
 		return false;
 
-	return ippsMagnitude_32fc(calc_buff_.data(), dst, static_cast<int>(size)) == ippStsNoErr;
+	return ippsPowerSpectr_32fc(calc_buff_.data(), dst, static_cast<int>(size)) == ippStsNoErr;
 }
 
 // =======================================================
 // std::vector interface
 // =======================================================
 
-bool AcfWorker::Process_32fc_32fc(const std::vector<Ipp32fc>& src, std::vector<Ipp32fc>& dst, IppEnum acf_flags)
+bool AcfWorker::Process32fc(const std::vector<Ipp32fc>& src, std::vector<Ipp32fc>& dst, IppEnum acf_flags)
 {
 	if (src.empty())
 		return false;
 
 	dst.resize(src.size());
-	return Process_32fc_32fc(src.data(), src.size(), dst.data(), acf_flags);
+	return Process32fc(src.data(), src.size(), dst.data(), acf_flags);
 }
 
-bool AcfWorker::Process_32fc_32f(const std::vector<Ipp32fc>& src, std::vector<Ipp32f>& dst, IppEnum acf_flags)
+bool AcfWorker::AbsProcess32fc(const std::vector<Ipp32fc>& src, std::vector<Ipp32f>& dst, IppEnum acf_flags)
 {
 	if (src.empty())
 		return false;
 
 	dst.resize(src.size());
-	return Process_32fc_32f(src.data(), src.size(), dst.data(), acf_flags);
+	return AbsProcess32fc(src.data(), src.size(), dst.data(), acf_flags);
 }

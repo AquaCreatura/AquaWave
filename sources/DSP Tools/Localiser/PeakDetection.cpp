@@ -54,7 +54,7 @@ std::vector<size_t> peak_detection::FindPeaksToAvg(Ipp32f * data, size_t count_o
 		if (average <= 0.0)
 			continue;
 
-		const double quality = double(data[i]) / average;
+		const double quality = double(data[i]) - average;
 
 		if (quality >= threshold)
 			peaks.push_back({ i, quality });
@@ -104,7 +104,7 @@ namespace
 	constexpr double kMaxHoldDecayDb = 0.05;
 	constexpr double kCheckAreaRatio = 0.03;
 	constexpr double kMinDistRatio = 0.005;
-	constexpr double kPeakThresholdDb = 2.0;
+	constexpr double kPeakThresholdDb = 4.0;
 
 	constexpr double kAcfCheckAreaRatio = 0.03;
 	constexpr int    kMaxAcfHarmonic = 8;
@@ -133,6 +133,7 @@ void PeakDetector::Init(kDpxChartType data_type, double sample_rate_hz, double c
 void PeakDetector::Reset()
 {
 	max_hold_.clear();
+	n_fft_ = -1;
 	count_of_samples_ = 0;
 	valid_ = false;
 }
@@ -174,7 +175,7 @@ void PeakDetector::UpdateMaxHold(const Ipp32f* data, size_t count_of_samples)
 	}
 }
 
-double PeakDetector::GetPeak() const
+double PeakDetector::CalculatePeak() const
 {
 	if (!valid_ || n_fft_ < 3 || sample_rate_hz_ <= 0.0)
 		return std::numeric_limits<double>::quiet_NaN();
@@ -221,7 +222,7 @@ double PeakDetector::GetPeakSpectrumSymmetry() const
 	std::vector<size_t> peaks = FindPeaksToAvg(
 		const_cast<Ipp32f*>(max_hold_.data()),
 		n_fft_,
-		max_peaks_count_,
+		3,
 		kCheckAreaRatio,
 		kMinDistRatio,
 		kPeakThresholdDb);
@@ -237,18 +238,18 @@ double PeakDetector::GetPeakSpectrumSymmetry() const
 		sum += GetInterpolatedPeak(p, max_hold_);
 
 	double bin_delta = sum / sorted_peaks.size()- n_fft_ / 2;
-	int power_divider = 1;
-	if (data_type_ == kDpxChartType::kPower4x) power_divider = 4;
 
-	double freq_hz = carrier_hz_ + (bin_delta * (sample_rate_hz_ / n_fft_)) / (power_divider);
+	double freq_hz = carrier_hz_ + (bin_delta * (sample_rate_hz_ / n_fft_));
 	return freq_hz;
 }
 
 double PeakDetector::GetPeakAcf() const
 {
+	int zero_shift = std::max<int>(2, max_hold_.size() / 100);
+
 	std::vector<size_t> peaks = FindPeaksToAvg(
-		const_cast<Ipp32f*>(max_hold_.data()),
-		n_fft_,
+		const_cast<Ipp32f*>(max_hold_.data() + zero_shift),
+		n_fft_ - zero_shift,
 		max_peaks_count_,
 		kAcfCheckAreaRatio,
 		kMinDistRatio,
@@ -256,17 +257,11 @@ double PeakDetector::GetPeakAcf() const
 
 	if (peaks.empty())
 		return std::numeric_limits<double>::quiet_NaN();
+	for (auto &it : peaks) it += zero_shift;
 
-	// Отбрасываем нулевой лаг
-	std::vector<size_t> lags;
-	for (size_t p : peaks)
-		if (p != 0) lags.push_back(p);
-	if (lags.empty())
-		return std::numeric_limits<double>::quiet_NaN();
-
-	size_t fundamental = FindFundamental(lags, kAcfToleranceRatio, kMaxAcfHarmonic);
+	size_t fundamental = FindFundamental(peaks, kAcfToleranceRatio, kMaxAcfHarmonic);
 	if (fundamental == 0)
-		fundamental = lags.front();
+		fundamental = peaks.front();
 
 	double period_ms = (static_cast<double>(fundamental) / sample_rate_hz_) * 1000.0;
 	return period_ms;
@@ -277,7 +272,7 @@ double PeakDetector::GetPeakSymbolRate() const
 	std::vector<size_t> peaks = FindPeaksToAvg(
 		const_cast<Ipp32f*>(max_hold_.data()),
 		n_fft_,
-		max_peaks_count_,
+		1,
 		kCheckAreaRatio,
 		kMinDistRatio,
 		kPeakThresholdDb);
@@ -306,7 +301,7 @@ double PeakDetector::GetPeakSymbolRate() const
 		fundamental = *max_amp_iter;
 	}
 
-	double freq_hz = GetInterpolatedPeak(fundamental, max_hold_) * sample_rate_hz_ / n_fft_ / 2;
+	double freq_hz = GetInterpolatedPeak(fundamental, max_hold_) * sample_rate_hz_ / n_fft_;
 	return freq_hz;
 }
 

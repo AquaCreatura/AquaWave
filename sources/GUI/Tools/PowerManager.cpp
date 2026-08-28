@@ -9,7 +9,7 @@ PowerLimitMan::PowerLimitMan()
 	need_reset_bounds_ = true;
     is_adaptive_mode_ = true;              // Адаптивный режим включён по умолчанию
 	power_bounds_ = { 0., 1. };
-	power_margins_ = {0.,0.1};//Запас (margin) на расширение пределов мощности
+	power_margins_ = {0.0,0.1};//Запас (margin) на расширение пределов мощности
 }
 
 void PowerLimitMan::SetNewViewBounds(const Limits<double>& x_bounds) {
@@ -37,8 +37,8 @@ void PowerLimitMan::Process(const std::vector<float>& data, const Limits<double>
 
     // Пересечение видимых границ и границ данных
     Limits<double> view = view_bounds_.load();
-    double intersect_low = std::max(data_bounds.low, view.low);
-    double intersect_high = std::min(data_bounds.high, view.high);
+    double intersect_low	= std::max(data_bounds.low, view.low);
+    double intersect_high	= std::min(data_bounds.high, view.high);
     
     if (intersect_low >= intersect_high) {
         return;                            // Нет пересечения
@@ -78,7 +78,7 @@ void PowerLimitMan::Process(const std::vector<float>& data, const Limits<double>
     // Формирование новых границ с учётом запасов
     Limits<double> new_bounds{static_cast<double>(mean_val), static_cast<double>(max_val)};
     double delta = new_bounds.delta();
-    new_bounds.low -= delta * power_margins_.low;   // Снижение нижней границы
+    new_bounds.low  -= delta * power_margins_.low;   // Снижение нижней границы
     new_bounds.high += delta * power_margins_.high; // Повышение верхней границы
 
     // Объединение с текущими границами: расширение только наружу

@@ -2,7 +2,7 @@
 #include <algorithm>
 #include <climits>
 #include <iostream> // For potential logging/debugging
-
+#include <qdebug.h>
 namespace file_source {
 
 FileReader::~FileReader() {
@@ -26,7 +26,7 @@ bool FileReader::SetFileParams(const fluctus::SourceDescription &params) {
 
     ifstream_.open(params.file_name_.toLocal8Bit().constData(), std::ios::binary | std::ios::ate);
     if (!ifstream_.is_open()) {
-        std::cerr << "Error: Could not open file " << params.file_name_.toLocal8Bit().constData() << std::endl;
+        qDebug() << "Error: Could not open file " << params.file_name_ ;
         return false; // Ошибка открытия файла
     }
 
@@ -34,17 +34,17 @@ bool FileReader::SetFileParams(const fluctus::SourceDescription &params) {
 
     size_t sample_size = GetSampleSize(data_type_);
     if (sample_size == 0) {
-        std::cerr << "Error: Unsupported data type." << std::endl;
+        qDebug() << "Error: Unsupported data type." ;
         ifstream_.close();
         return false; // Неподдерживаемый тип данных
     }
 
-    std::streampos file_size_bytes = ifstream_.tellg();
+    int file_size_bytes = int(ifstream_.tellg()) - params.first_sample_offset;
     ifstream_.seekg(params.first_sample_offset, std::ios::beg); // Вернуться в начало файла
 
     // Проверяем, чтобы размер файла был кратен размеру сэмпла
     if (file_size_bytes % sample_size != 0) {
-        std::cerr << "Warning: File size (" << file_size_bytes << " bytes) is not a multiple of sample size (" << sample_size << " bytes). Truncating." << std::endl;
+        qDebug() << "Warning: File size (" << file_size_bytes << " bytes) is not a multiple of sample size (" << sample_size << " bytes). Truncating." ;
     }
     file_size_samples_ = static_cast<size_t>(file_size_bytes) / sample_size;
 	last_params_ = params;
@@ -59,13 +59,13 @@ bool FileReader::ReadDataFrom(const size_t start_sample, const size_t count_of_s
     read_data.clear();
 
     if (!ifstream_.is_open()) {
-        std::cerr << "Error: File is not open for reading." << std::endl;
+        qDebug() << "Error: File is not open for reading." ;
         return false;
     }
 
     size_t sample_size = GetSampleSize(data_type_);
     if (sample_size == 0) {
-        std::cerr << "Error: Unsupported data type for reading." << std::endl;
+        qDebug() << "Error: Unsupported data type for reading." ;
         return false;
     }
 
@@ -76,7 +76,7 @@ bool FileReader::ReadDataFrom(const size_t start_sample, const size_t count_of_s
     // Вычисляем фактическое количество сэмплов, которое можно прочитать
     size_t actual_read_samples = 0;
     if (start_sample >= file_size_samples_) {
-        std::cerr << "Warning: Start sample " << start_sample << " is beyond file size " << file_size_samples_ << "." << std::endl;
+        qDebug() << "Warning: Start sample " << start_sample << " is beyond file size " << file_size_samples_ << "." ;
         return false; // Начальный сэмпл за пределами файла
     } else {
         size_t available_samples = file_size_samples_ - start_sample;
@@ -92,7 +92,7 @@ bool FileReader::ReadDataFrom(const size_t start_sample, const size_t count_of_s
 
     ifstream_.seekg(start_sample * sample_size + last_params_.first_sample_offset, std::ios::beg);
     if (ifstream_.fail()) {
-        std::cerr << "Error: Failed to seek to position " << start_sample * sample_size << " bytes." << std::endl;
+        qDebug() << "Error: Failed to seek to position " << start_sample * sample_size << " bytes." ;
         read_data.clear();
         return false; // Ошибка позиционирования
     }
@@ -102,7 +102,7 @@ bool FileReader::ReadDataFrom(const size_t start_sample, const size_t count_of_s
     // Проверяем, сколько байт было фактически прочитано
     std::streamsize bytes_gcount = ifstream_.gcount();
     if (bytes_gcount != static_cast<std::streamsize>(bytes_to_read)) {
-        std::cerr << "Warning: Expected to read " << bytes_to_read << " bytes, but read " << bytes_gcount << " bytes." << std::endl;
+        qDebug() << "Warning: Expected to read " << bytes_to_read << " bytes, but read " << bytes_gcount << " bytes." ;
         size_t full_samples_read = static_cast<size_t>(bytes_gcount) / sample_size;
         read_data.resize(full_samples_read * sample_size); // Обрезать буфер, если прочитано меньше
         return false; // Частичное чтение или ошибка чтения
@@ -160,7 +160,7 @@ bool FileReader::GetDataAround(const double ratio_point, const size_t data_size,
     }
 
     if (!IsFileReady()) {
-        std::cerr << "Error: File is not ready for GetDataAround." << std::endl;
+        qDebug() << "Error: File is not ready for GetDataAround." ;
         return false;
     }
 
@@ -195,14 +195,11 @@ bool FileReader::GetDataAround(const double ratio_point, const size_t data_size,
 
 bool StreamReader::Init(const size_t start_sample, const size_t total_samples) {
     if (!ifstream_.is_open()) {
-        std::cerr << "Error: File not open. Call FileReader::SetFileParams() first." << std::endl;
+        qDebug() << "Error: File not open. Call FileReader::SetFileParams() first." ;
         return false;
     }
-
-	file_size_samples_ = GetFileSize();
-
     if (start_sample >= file_size_samples_) {
-        std::cerr << "Error: Start position " << start_sample << " is beyond file size " << file_size_samples_ << "." << std::endl;
+        qDebug() << "Error: Start position " << start_sample << " is beyond file size " << file_size_samples_ << "." ;
         return false;
     }
 
@@ -211,8 +208,8 @@ bool StreamReader::Init(const size_t start_sample, const size_t total_samples) {
     size_t effective_total_samples = total_samples;
     if (start_sample + total_samples > file_size_samples_) {
         effective_total_samples = file_size_samples_ - start_sample;
-        std::cerr << "Warning: Requested total samples (" << total_samples << ") from start " << start_sample
-                  << " exceed file size (" << file_size_samples_ << "). Truncating to " << effective_total_samples << " samples." << std::endl;
+        qDebug() << "Warning: Requested total samples (" << total_samples << ") from start " << start_sample
+                  << " exceed file size (" << file_size_samples_ << "). Truncating to " << effective_total_samples << " samples." ;
     }
 
     start_sample_     = start_sample;
@@ -225,7 +222,7 @@ bool StreamReader::Init(const size_t start_sample, const size_t total_samples) {
 
 bool StreamReader::InitStartEndRatio(const Limits<double>& time_bounds) {
     if (!ifstream_.is_open()) {
-        std::cerr << "Error: File not open"<< std::endl;
+        qDebug() << "Error: File not open";
         return false;
     }
 
@@ -264,7 +261,7 @@ bool StreamReader::ReadStream(std::vector<uint8_t>& vec, const size_t block_size
 
     const size_t sample_size = GetSampleSize(data_type_);
     if (sample_size == 0) {
-        std::cerr << "Error: Unsupported data type for stream reading." << std::endl;
+        qDebug() << "Error: Unsupported data type for stream reading." ;
         is_initialized_ = false;
         return false;
     }

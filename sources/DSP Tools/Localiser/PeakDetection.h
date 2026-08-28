@@ -33,7 +33,7 @@ namespace peak_detection{
 		//   - kPower4x: частота центра симметрии в герцах
 		//   - kEnvelope, kPhasor: символьная скорость в герцах
 		// Если данных недостаточно, возвращает NaN.
-		double GetPeak() const;
+		double CalculatePeak() const;
 
 		bool IsValid() const { return valid_; }
 

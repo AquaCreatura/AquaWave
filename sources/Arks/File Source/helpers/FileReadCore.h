@@ -119,7 +119,6 @@ private:
     size_t  start_sample_;             ///< Начальный сэмпл для чтения в рамках потока.
     size_t  total_samples_;            ///< Общее количество сэмплов для чтения в рамках потока.
     size_t  current_position_;         ///< Текущая позиция в потоке чтения относительно start_sample_.
-	size_t  file_size_samples_;
 };
 
 } // namespace file_source

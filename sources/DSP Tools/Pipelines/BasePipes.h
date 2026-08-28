@@ -54,11 +54,11 @@ public:
 class PrecisedPartSaver: public PipeInterface
 {
 public:
-	PrecisedPartSaver(const int parts_count, const int need_part_);
+	PrecisedPartSaver(double start_ratio, double end_ratio);
 	void ProcessData(PipeHolder::sptr meta_data) override;
 protected:
-	const int parts_count_;
-	const int need_part_;
+	double start_ratio_;
+	double end_ratio_;
 };
 
 class ZeroFirstSamples: public PipeInterface

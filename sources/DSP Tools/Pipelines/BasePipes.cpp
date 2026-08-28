@@ -2,6 +2,7 @@
 #include <algorithm>
 #include "PipeInterface.h"
 #include "BasePipes.h"
+#include "aqua_defines.h"
 using namespace pipes;
 //===================================================== FFt ====================================================
 void FFtPipe::ProcessData(PipeHolder::sptr meta_data)
@@ -34,7 +35,7 @@ void AcfPipe::ProcessData(PipeHolder::sptr meta_data)
 	auto &processed_data = meta_data->float_data;
 	if (passed_data.size() < 16) return;
 
-	acf_worker_.Process_32fc_32f( passed_data, processed_data, ippAlgAuto | ippsNormA );
+	acf_worker_.AbsProcess32fc( passed_data, processed_data, ippAlgAuto | ippsNormA );
 	const int samples_to_zero =  std::max(2ui64, processed_data.size() / 100); //Чтобы лучше нормировалось
 	ippsZero_32f(processed_data.data(), samples_to_zero);
 	if (next_) next_->ProcessData(meta_data);
@@ -111,7 +112,7 @@ void pipes::PowerToDbPipe::ProcessData(PipeHolder::sptr meta_data)
 	if (next_) next_->ProcessData(meta_data);
 }
 
-pipes::PrecisedPartSaver::PrecisedPartSaver(const int parts_count, const int need_part): parts_count_(parts_count), need_part_(need_part)
+pipes::PrecisedPartSaver::PrecisedPartSaver(double start_ratio, double end_ratio): start_ratio_(start_ratio), end_ratio_(end_ratio)
 {
 }
 
@@ -120,27 +121,23 @@ void pipes::PrecisedPartSaver::ProcessData(PipeHolder::sptr meta_data)
 	auto process = [this](auto& vec)
 	{
 		const size_t total = vec.size();
-		if (total == 0 || parts_count_ <= 0) return;
-
-		const size_t part_size = total / parts_count_;
-		const size_t start = part_size * need_part_;
+		if (total == 0) return;
+		fluctus::Limits<size_t> pos_bounds = { std::llround(start_ratio_*total), std::llround(end_ratio_ * total) };
+	
 
 		// защита от выхода за границы
-		if (start >= total) {
+		if (pos_bounds.delta() <= 0) {
 			vec.clear();
 			return;
 		}
-
-		const size_t actual_size = std::min(part_size, total - start);
-
 		// если это не первая часть — сдвигаем
-		if (start > 0) {
-			std::move(vec.begin() + start,
-				vec.begin() + start + actual_size,
+		if (pos_bounds.low > 0) {
+			std::move(vec.begin() + pos_bounds.low,
+				vec.begin() + pos_bounds.high,
 				vec.begin());
 		}
 
-		vec.resize(actual_size);
+		vec.resize(pos_bounds.delta());
 	};
 
 	process(meta_data->float_data);

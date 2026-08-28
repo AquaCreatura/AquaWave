@@ -27,23 +27,28 @@ dpx_core::SpectrumDpx::SpectrumDpx(kDpxChartType chart_type)
 		break;
 	case kDpxChartType::kACF: 
 		pipe_line_.AddNextPipe(std::make_shared<AcfPipe>());
+		pipe_line_.AddNextPipe(std::make_shared<PowerToDbPipe>());
 		break;	
 	case dpx_core::kDpxChartType::kEnvelope: 
 		pipe_line_.AddNextPipe(std::make_shared<EnvelopePipe>());
 		pipe_line_.AddNextPipe(std::make_shared<FFtPipe>());
-		pipe_line_.AddNextPipe(std::make_shared<PrecisedPartSaver>(2, 1));
-		pipe_line_.AddNextPipe(std::make_shared<ZeroFirstSamples>(0.05)); //Обнуляем нулевые гармоники
+		pipe_line_.AddNextPipe(std::make_shared<PrecisedPartSaver>(0.0, 0.5));
+		//pipe_line_.AddNextPipe(std::make_shared<ZeroFirstSamples>(0.05)); //Обнуляем нулевые гармоники
+		pipe_line_.AddNextPipe(std::make_shared<PowerToDbPipe>());
+
 		break;	
 	case dpx_core::kDpxChartType::kPhasor: 
 		pipe_line_.AddNextPipe(std::make_shared<SamplesDiffPipe>());
 		pipe_line_.AddNextPipe(std::make_shared<PhasorPipe>());
 		pipe_line_.AddNextPipe(std::make_shared<FFtPipe>());
-		pipe_line_.AddNextPipe(std::make_shared<PrecisedPartSaver>(2,1)); 
+		pipe_line_.AddNextPipe(std::make_shared<PrecisedPartSaver>(0.0, 0.5));
+		pipe_line_.AddNextPipe(std::make_shared<PowerToDbPipe>());
 		break;
 	case dpx_core::kDpxChartType::kPower4x: 
 		pipe_line_.AddNextPipe(std::make_shared<MulByItSelfPipe>()); //2 степень
 		pipe_line_.AddNextPipe(std::make_shared<MulByItSelfPipe>()); //4 степень
 		pipe_line_.AddNextPipe(std::make_shared<FFtPipe>());
+		pipe_line_.AddNextPipe(std::make_shared<PowerToDbPipe>());
 		break;
 	}
 	dpx_drawer_->SetVerticalSuffix("db");
@@ -134,7 +139,7 @@ bool dpx_core::SpectrumDpx::PostDove(fluctus::DoveSptr const & sent_dove)
 		if (auto analyze_dove = std::dynamic_pointer_cast<analyzer::AnalyzeDove>(sent_dove)) {
 			if (special_thought & analyzer::AnalyzeDove::kGetHarmonicResult) {
 				if(detector_.IsValid()) 
-					analyze_dove->peak_value = detector_.GetPeak();
+					analyze_dove->peak_value = detector_.CalculatePeak();
 				//SetNewFftOrder(*spectral_dove->fft_order_);
 			}
 		};
@@ -185,7 +190,7 @@ void dpx_core::SpectrumDpx::UpdateAxisBounds()
 	const double SR = d.samplerate_hz;
 	const double Fc = d.carrier_hz;
 
-	Limits<double> bounds{};
+	Limits<double> bounds_x{};
 	std::string suffix;
 	double divider = 1.0;
 
@@ -194,7 +199,7 @@ void dpx_core::SpectrumDpx::UpdateAxisBounds()
 	case dpx_core::kDpxChartType::kACF:
 	{
 		double duration_sec = n_fft_ / SR;
-		bounds = { 0.0, duration_sec * 1e3 };
+		bounds_x = { 0.0, duration_sec * 1e3 };
 		suffix = "ms";
 		break;
 	}
@@ -203,7 +208,7 @@ void dpx_core::SpectrumDpx::UpdateAxisBounds()
 	case dpx_core::kDpxChartType::kPhasor:
 	{
 		double max_freq_hz = SR / 2.0;
-		bounds = { 0.0, max_freq_hz };
+		bounds_x = { 0.0, max_freq_hz };
 		divider = 1e3;
 		suffix = "kHz";
 		break;
@@ -212,7 +217,7 @@ void dpx_core::SpectrumDpx::UpdateAxisBounds()
 	case dpx_core::kDpxChartType::kPower4x:
 	{
 		double half_band_hz = (SR / 4.0) / 2;
-		bounds = { Fc-half_band_hz, Fc + half_band_hz };
+		bounds_x = { Fc-half_band_hz, Fc + half_band_hz };
 		divider = 1e3;
 		suffix = "kHz";
 		break;
@@ -220,16 +225,16 @@ void dpx_core::SpectrumDpx::UpdateAxisBounds()
 
 	default:
 	{
-		bounds = { Fc - SR / 2.0, Fc + SR / 2.0 };
+		bounds_x = { Fc - SR / 2.0, Fc + SR / 2.0 };
 		divider = 1e6;
 		suffix = "MHz";
 		break;
 	}
 	}
-
+	const auto chart_sr = chart_type_ == dpx_core::kDpxChartType::kACF ? SR : bounds_x.delta();
+	detector_.Init(chart_type_, chart_sr, Fc);
 	freq_divider_ = divider;
-	bounds = bounds / freq_divider_;
-	dpx_drawer_->SetHorizontalMinMaxBounds(bounds);
+	bounds_x = bounds_x / freq_divider_;
+	dpx_drawer_->SetHorizontalMinMaxBounds(bounds_x);
 	dpx_drawer_->SetHorizontalSuffix(suffix.c_str());
-	detector_.Init(chart_type_, SR, Fc);
 }

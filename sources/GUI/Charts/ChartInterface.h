@@ -3,6 +3,7 @@
 #include <vector>
 #include <qgraphicsview.h>
 #include <qevent.h>
+#include <qcombobox.h>
 
 #include "GUI/Tools/Chart drawers/AxisPainter.h"
 #include "GUI/Tools/Chart drawers//ImageBackGround.h"
@@ -58,6 +59,8 @@ public:
 	virtual void					ActivateChart		(bool do_activate);
 
 	aqua_gui::ChartScaleInfo const& GetScaleInfo		();
+
+	void SetComboBox(QComboBox* combo);
 signals:
 	void					SelectionIsReady();
 protected slots:
@@ -97,7 +100,8 @@ protected:
 
     // Redraw widget on timer timeout
     virtual void OnTimeoutRedraw();
-
+protected: 
+	void UpdateControlButtonPositions();
 protected:
     // Chart scaling information
     aqua_gui::ChartScaleInfo scale_info_;
@@ -120,6 +124,7 @@ protected:
 	
 	// Manages selections ot the kBaseSpectrum
 	SelectionDrawer selection_drawer_;
-
+	QVBoxLayout*	layout_;
 	HV_Info<double, double> max_scale_koeff_ = { 2 ,2 };
+	QWidget* combo_ = nullptr;
 };

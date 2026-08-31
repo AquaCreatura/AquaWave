@@ -1,6 +1,7 @@
 #include "spectral_viewer_window.h"
 #include "Utilities/parse_tools.h"
 #include <qshortcut.h>
+#include "GUI/Charts/ChartInterface.h"
 SpectralViewerWindow::SpectralViewerWindow()
 {
     ui_.setupUi(this);
@@ -10,7 +11,6 @@ SpectralViewerWindow::SpectralViewerWindow()
 			int fft_id = ui_.fft_combobox->itemData(index).toInt();
 			emit FftChangeNeed(fft_id);
 		});
-		connect(ui_.record_button, &QPushButton::clicked, this, &SpectralViewerWindow::RecordSelectionNeed);
 		QShortcut* saveShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_S), this);
 		connect(saveShortcut, &QShortcut::activated, this, &SpectralViewerWindow::RecordSelectionNeed);
 
@@ -22,12 +22,9 @@ SpectralViewerWindow::SpectralViewerWindow()
 void SpectralViewerWindow::SetDpxSpectrumWindow(QWidget * wigdet_ptr)
 {
 	ui_.dpx_chart->layout()->addWidget(wigdet_ptr);
-	
-}
 
-void SpectralViewerWindow::SetSpectrogramWindow(QWidget * wigdet_ptr)
-{
-	ui_.spg_chart->layout()->addWidget(wigdet_ptr);
+
+	
 }
 
 void SpectralViewerWindow::SetMaxFFtOrder(int max_fft_order)
@@ -37,7 +34,7 @@ void SpectralViewerWindow::SetMaxFFtOrder(int max_fft_order)
 }
 void SpectralViewerWindow::UpdateFFtCombobox(const int max_order, const int cur_fft_order)
 {
-	{	
+	{
 		QSignalBlocker blocker(ui_.fft_combobox);
 		ui_.fft_combobox->clear();
 		for (int fft_counter = 4; fft_counter <= max_order; fft_counter++) {
@@ -55,9 +52,18 @@ void SpectralViewerWindow::UpdateFFtCombobox(const int max_order, const int cur_
 			}
 			emit ui_.fft_combobox->currentIndexChanged(index);
 		}
-		
-	}
-		
 
+	}
+
+
+}
+
+
+
+
+void SpectralViewerWindow::SetSpectrogramWindow(QWidget * wigdet_ptr)
+{
+	ui_.spg_chart->layout()->addWidget(wigdet_ptr);
+	qobject_cast<ChartInterface*>(wigdet_ptr)->SetComboBox(ui_.fft_combobox);
 }
 

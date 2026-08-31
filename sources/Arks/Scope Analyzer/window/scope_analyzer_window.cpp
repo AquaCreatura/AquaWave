@@ -70,8 +70,10 @@ void ScopeAnalyzerWindow::ActivateWindow(scope_chart_type type_of_chart)
 	}
 	ui_.harmonic_chart_stacked->setCurrentWidget(charts_[type_of_chart]);
 
-	if (auto casted = dynamic_cast<ChartInterface*>(charts_[type_of_chart]))
+	if (auto casted = dynamic_cast<ChartInterface*>(charts_[type_of_chart])) {
 		casted->ActivateChart(true);
+		casted->SetComboBox(ui_.fft_order_combobox);
+	}
 	cur_chart_type_ = type_of_chart;
 }
 

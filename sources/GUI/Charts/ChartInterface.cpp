@@ -17,6 +17,7 @@ ChartInterface::ChartInterface(QWidget* parent, std::shared_ptr<SelectionHolder>
     SetVerticalSuffix("power");
     connect(&redraw_timer_, &QTimer::timeout, this, QOverload<>::of(&ChartInterface::update));
     SetBackgroundImage(":/AquaWave/third_party/background/black_mountain.jpg");
+	layout_ = new QVBoxLayout(this);
 }
 
 ChartInterface::~ChartInterface()
@@ -84,6 +85,30 @@ void ChartInterface::ActivateChart(bool do_activate)
 aqua_gui::ChartScaleInfo const & ChartInterface::GetScaleInfo()
 {
 	return scale_info_;
+}
+void ChartInterface::SetComboBox(QComboBox * combo)
+{
+	combo_ = combo;
+	combo_->setParent(this);
+	combo_->show();
+	combo_->setStyleSheet(
+		"QComboBox {"
+		"    background-color: rgba(210, 210, 210, 150);"
+		"    color: rgba(25, 25, 25, 180);"
+		"    border: 1px solid rgba(255, 255, 255, 25);"
+		"    border-radius: 3px;"
+		"    padding: 2px 6px;"
+		"}"
+		"QComboBox:hover {"
+		"    background-color: rgba(245, 245, 245,220);"
+		"    color: rgba( 55, 55, 55, 240);"
+		"    border-color: rgba(255, 255, 255, 70);"
+		"}"
+		"QComboBox:focus {"
+		"    border-color: rgba(255, 255, 255, 80);"
+		"}"
+	);
+	UpdateControlButtonPositions();
 }
 void ChartInterface::mousePressEvent(QMouseEvent* mouse_event)
 {
@@ -155,7 +180,8 @@ void ChartInterface::wheelEvent(QWheelEvent* wheel_event)
 
 void ChartInterface::resizeEvent(QResizeEvent * resize_event)
 {   
-
+	UpdateWidgetSizeInfo();
+	UpdateControlButtonPositions();
     //resize_event->
     //this->setFixedSize(resize_event->size());
 }
@@ -263,4 +289,13 @@ void ChartInterface::UpdateWidgetSizeInfo()
 void ChartInterface::OnTimeoutRedraw()
 {
     update();
+}
+
+void ChartInterface::UpdateControlButtonPositions()
+{
+	if (!combo_ || combo_->parentWidget() != this)
+		return;
+
+	//combo_->move((scale_info_.pix_info_.chart_size_px.hor - combo_->width() - 10) * 1, (scale_info_.pix_info_.chart_size_px.vert - combo_->height())*1);
+	combo_->move(0,0);
 }

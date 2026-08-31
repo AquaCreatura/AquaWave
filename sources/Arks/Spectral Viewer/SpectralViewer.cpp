@@ -28,13 +28,13 @@ SpectralViewer::SpectralViewer()
 		window_->SetDpxSpectrumWindow(dpx_window);
 		window_->SetSpectrogramWindow(spg_window);
 
-
 		for (const auto& window : { dpx_window, spg_window }) {
 			if (QPointer<ChartInterface> derivedPtr = qobject_cast<ChartInterface*>(window.data())) {
 				connect(derivedPtr, &ChartInterface::SelectionIsReady, this, &SpectralViewer::OnSelectionIsReady);
 			}
 		}
 	}
+	
 	connect(window_, &SpectralViewerWindow::FftChangeNeed, this, &SpectralViewer::SetNewFftOrder);
 	connect(window_, &SpectralViewerWindow::RecordSelectionNeed, this, &SpectralViewer::StartSelectionRecord);
 }

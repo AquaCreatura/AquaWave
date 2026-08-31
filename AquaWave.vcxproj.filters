@@ -512,12 +512,6 @@
     <ResourceCompile Include="AquaWave.rc" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="sources\GUI\CSS_Themes\default_theme.qss">
-      <Filter>GUI\QSS_themes</Filter>
-    </None>
-    <None Include="sources\GUI\CSS_Themes\red_scheme.qss">
-      <Filter>GUI\QSS_themes</Filter>
-    </None>
     <None Include="sources\GUI\CSS_Themes\blue_scheme.qss">
       <Filter>GUI\QSS_themes</Filter>
     </None>

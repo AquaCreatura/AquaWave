@@ -257,8 +257,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="sources\GUI\CSS_Themes\blue_scheme.qss" />
-    <None Include="sources\GUI\CSS_Themes\default_theme.qss" />
-    <None Include="sources\GUI\CSS_Themes\red_scheme.qss" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Condition="Exists('$(QtMsBuild)\qt.targets')">

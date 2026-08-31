@@ -60,7 +60,7 @@ public:
 
 	aqua_gui::ChartScaleInfo const& GetScaleInfo		();
 
-	void SetComboBox(QComboBox* combo);
+	void SetControlButtons(QWidget* passed);
 signals:
 	void					SelectionIsReady();
 protected slots:
@@ -126,5 +126,5 @@ protected:
 	SelectionDrawer selection_drawer_;
 	QVBoxLayout*	layout_;
 	HV_Info<double, double> max_scale_koeff_ = { 2 ,2 };
-	QWidget* combo_ = nullptr;
+	QWidget* ctrl_frame_ = nullptr;
 };

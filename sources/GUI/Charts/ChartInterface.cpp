@@ -86,12 +86,17 @@ aqua_gui::ChartScaleInfo const & ChartInterface::GetScaleInfo()
 {
 	return scale_info_;
 }
-void ChartInterface::SetComboBox(QComboBox * combo)
+void ChartInterface::SetControlButtons(QWidget * passed)
 {
-	combo_ = combo;
-	combo_->setParent(this);
-	combo_->show();
-	combo_->setStyleSheet(
+	ctrl_frame_ = passed;
+	ctrl_frame_->setParent(this);
+	ctrl_frame_->show();
+	ctrl_frame_->setStyleSheet(
+		"QFrame {"
+		"    background-color: rgba(35, 35, 35, 210);"
+		"    border: 1px solid rgba(255, 255, 255, 35);"
+		"    border-radius: 5px;"
+		"}"
 		"QComboBox {"
 		"    background-color: rgba(210, 210, 210, 150);"
 		"    color: rgba(25, 25, 25, 180);"
@@ -109,6 +114,7 @@ void ChartInterface::SetComboBox(QComboBox * combo)
 		"}"
 	);
 	UpdateControlButtonPositions();
+
 }
 void ChartInterface::mousePressEvent(QMouseEvent* mouse_event)
 {
@@ -293,9 +299,10 @@ void ChartInterface::OnTimeoutRedraw()
 
 void ChartInterface::UpdateControlButtonPositions()
 {
-	if (!combo_ || combo_->parentWidget() != this)
+	if (!ctrl_frame_ || ctrl_frame_->parentWidget() != this)
 		return;
 
-	//combo_->move((scale_info_.pix_info_.chart_size_px.hor - combo_->width() - 10) * 1, (scale_info_.pix_info_.chart_size_px.vert - combo_->height())*1);
-	combo_->move(0,0);
+	ctrl_frame_->move((width()/ 2) * 0, (scale_info_.pix_info_.chart_size_px.vert - ctrl_frame_->height())*1);
+	ctrl_frame_->adjustSize();
+	//ctrl_frame_->move(0,0);
 }

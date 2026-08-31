@@ -72,7 +72,7 @@ void ScopeAnalyzerWindow::ActivateWindow(scope_chart_type type_of_chart)
 
 	if (auto casted = dynamic_cast<ChartInterface*>(charts_[type_of_chart])) {
 		casted->ActivateChart(true);
-		casted->SetComboBox(ui_.fft_order_combobox);
+		casted->SetControlButtons(ui_.ctrl_buttons_frame);
 	}
 	cur_chart_type_ = type_of_chart;
 }

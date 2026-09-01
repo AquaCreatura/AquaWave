@@ -32,7 +32,7 @@ dpx_core::SpectrumDpx::SpectrumDpx(kDpxChartType chart_type)
 	case dpx_core::kDpxChartType::kEnvelope: 
 		pipe_line_.AddNextPipe(std::make_shared<EnvelopePipe>());
 		pipe_line_.AddNextPipe(std::make_shared<FFtPipe>());
-		pipe_line_.AddNextPipe(std::make_shared<PrecisedPartSaver>(0.0, 0.5));
+		pipe_line_.AddNextPipe(std::make_shared<PrecisedPartSaver>(0.5, 1));
 		//pipe_line_.AddNextPipe(std::make_shared<ZeroFirstSamples>(0.05)); //Обнуляем нулевые гармоники
 		pipe_line_.AddNextPipe(std::make_shared<PowerToDbPipe>());
 
@@ -41,7 +41,7 @@ dpx_core::SpectrumDpx::SpectrumDpx(kDpxChartType chart_type)
 		pipe_line_.AddNextPipe(std::make_shared<SamplesDiffPipe>());
 		pipe_line_.AddNextPipe(std::make_shared<PhasorPipe>());
 		pipe_line_.AddNextPipe(std::make_shared<FFtPipe>());
-		pipe_line_.AddNextPipe(std::make_shared<PrecisedPartSaver>(0.0, 0.5));
+		pipe_line_.AddNextPipe(std::make_shared<PrecisedPartSaver>(0.5, 1));
 		pipe_line_.AddNextPipe(std::make_shared<PowerToDbPipe>());
 		break;
 	case dpx_core::kDpxChartType::kPower4x: 

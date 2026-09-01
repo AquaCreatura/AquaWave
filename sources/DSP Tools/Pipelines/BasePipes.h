@@ -74,7 +74,8 @@ protected:
 class ResamplerPipe : public PipeInterface
 {
 public:
-	ResamplerPipe(int64_t passed_sr, int64_t need_sr, double bw_ratio);
+	ResamplerPipe(int64_t passed_sr, int64_t need_sr, int64_t need_bw);
+	ResamplerPipe(int64_t passed_fc, int64_t passed_sr, int64_t need_fc, int64_t need_sr, int64_t need_bw);
 	void ProcessData(PipeHolder::sptr meta_data) override;
 protected:
 	aqua_resampler::ResamplerManager man_;

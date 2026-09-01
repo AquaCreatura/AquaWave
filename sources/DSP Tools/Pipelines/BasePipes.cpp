@@ -156,10 +156,16 @@ void pipes::ZeroFirstSamples::ProcessData(PipeHolder::sptr meta_data)
 	if (next_) next_->ProcessData(meta_data);
 }
 
-pipes::ResamplerPipe::ResamplerPipe(int64_t passed_sr, int64_t need_sr, double bw_ratio)
+pipes::ResamplerPipe::ResamplerPipe(int64_t passed_sr, int64_t need_sr, int64_t need_bw)
 {
 	man_.SetBaseParams(0, passed_sr);
-	man_.SetTargetParams(0, need_sr, bw_ratio*need_sr);
+	man_.SetTargetParams(0, need_sr, need_bw);
+}
+
+pipes::ResamplerPipe::ResamplerPipe(int64_t passed_fc, int64_t passed_sr, int64_t need_fc, int64_t need_sr, int64_t need_bw)
+{
+	man_.SetBaseParams(passed_fc, passed_sr);
+	man_.SetTargetParams(need_fc, need_sr, need_bw);
 }
 
 void pipes::ResamplerPipe::ProcessData(PipeHolder::sptr meta_data)

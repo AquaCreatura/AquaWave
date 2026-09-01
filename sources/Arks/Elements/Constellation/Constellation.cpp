@@ -1,7 +1,10 @@
 #include "Constellation.h"
 #include "special_defs/analyzer_defs.h"
+#include "DSP Tools/Pipelines/DemodPipes.h"
 using namespace constel;
 using namespace fluctus;
+using namespace pipes;
+
 constel::Constellation::Constellation(QWidget * parrent):
 	constel_drawer_(new ChartConstel())
 {
@@ -14,8 +17,14 @@ constel::Constellation::~Constellation()
 
 bool constel::Constellation::SendData(fluctus::DataInfo const & data_info)
 {
+	if (pipe_line_.pipes.empty()) return false;
 	auto casted_vec = (std::vector<Ipp32fc> &)data_info.data_vec;
-	constel_drawer_->PushData(casted_vec);
+	{
+		tbb::spin_mutex::scoped_lock scoped_locker(pipe_mutex_);
+		pipe_line_.Process(casted_vec);
+		auto synced = pipe_line_.meta->buffer_32fc;
+		constel_drawer_->PushData(synced);
+	}
 	return true;
 }
 
@@ -57,7 +66,8 @@ bool constel::Constellation::PostDove(fluctus::DoveSptr const & sent_dove)
 				analyze_dove->text_result = "NaN";
 			}
 			if (special_thought & analyzer::AnalyzeDove::kSetHarmonicInfo) {
-				analyze_dove->carrier_hz; analyze_dove->symbol_rate_hz;
+				
+				UpdatePipeline(*analyze_dove->carrier_hz, *analyze_dove->symbol_rate_hz);
 			}
 		};
 	}
@@ -73,6 +83,38 @@ ArkType constel::Constellation::GetArkType() const
 
 bool constel::Constellation::Reload()
 {
+	auto file_src = src_info_.ark.lock();
+	if (!file_src) return true;
+
+	auto req_dove = std::make_shared<fluctus::DoveParrent>(fluctus::DoveParrent::kGetDescription);
+	req_dove->sender = shared_from_this();
+	if (!file_src->PostDove(req_dove) || !req_dove->description)
+	{
+		return false;
+	}
+	src_info_.descr = *req_dove->description;
 	constel_drawer_->ClearData();
 	return true;
+}
+
+void constel::Constellation::UpdatePipeline(int64_t new_fc_hz, int64_t new_symbol_rate_hz)
+{
+	double max_sr = std::max(estim_symbol_rate_, new_symbol_rate_hz);
+	if ((std::abs(new_fc_hz - estim_fc_hz_) < 1.e-5 * max_sr) &&
+		(std::abs(estim_symbol_rate_ - new_symbol_rate_hz) < 1.e-5 * max_sr)) {
+		return;
+	}
+
+	{ //Для наглядности ограничем scope
+		tbb::spin_mutex::scoped_lock scoped_locker(pipe_mutex_);
+
+		estim_symbol_rate_ = new_symbol_rate_hz;
+		estim_fc_hz_ = new_fc_hz;
+
+		pipe_line_.pipes.clear();
+
+		pipe_line_.AddNextPipe(std::make_shared<ResamplerPipe>(src_info_.descr.carrier_hz, src_info_.descr.samplerate_hz, estim_fc_hz_, estim_symbol_rate_ * 4, estim_symbol_rate_));
+		pipe_line_.AddNextPipe(std::make_shared<CcmSyncer>("QPSK", 4));
+	}
+	
 }

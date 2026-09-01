@@ -128,6 +128,9 @@
     <Filter Include="DSP Tools\Localiser">
       <UniqueIdentifier>{20cbb596-0184-47e5-b331-acce182f9592}</UniqueIdentifier>
     </Filter>
+    <Filter Include="DSP Tools\Modem">
+      <UniqueIdentifier>{f1cbb9f3-b2a7-4879-a8c6-90e88fa96f9b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <!-- ClCompile (CPP Files) -->
   <ItemGroup>
@@ -284,6 +287,15 @@
     <ClCompile Include="sources\DSP Tools\Localiser\PeakDetection.cpp">
       <Filter>DSP Tools\Localiser</Filter>
     </ClCompile>
+    <ClCompile Include="sources\DSP Tools\Modem\ContinuousDemodulator.cpp">
+      <Filter>DSP Tools\Modem</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\DSP Tools\Modem\TimePeakerDemod.cpp">
+      <Filter>DSP Tools\Modem</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\DSP Tools\Pipelines\DemodPipes.cpp">
+      <Filter>DSP Tools\Pipelines</Filter>
+    </ClCompile>
   </ItemGroup>
   <!-- ClInclude (H Files) -->
   <ItemGroup>
@@ -437,6 +449,15 @@
     </ClInclude>
     <ClInclude Include="sources\DSP Tools\Localiser\PeakDetection.h">
       <Filter>DSP Tools\Localiser</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\DSP Tools\Modem\ContinuousDemodulator.h">
+      <Filter>DSP Tools\Modem</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\DSP Tools\Modem\TimePeakerDemod.h">
+      <Filter>DSP Tools\Modem</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\DSP Tools\Pipelines\DemodPipes.h">
+      <Filter>DSP Tools\Pipelines</Filter>
     </ClInclude>
   </ItemGroup>
   <!-- QtMoc (For Headers Requiring Moc) -->

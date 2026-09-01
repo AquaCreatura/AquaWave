@@ -2,6 +2,7 @@
 #include "PipeInterface.h"
 #include "DSP Tools/FFT/FFT_Worker.h"
 #include "DSP Tools/basic/acf_worker.h"
+#include "DSP Tools/Resampler/ResamplerMan.h"
 namespace pipes {
 
 
@@ -70,4 +71,12 @@ protected:
 	const double zero_ratio_;
 };
 
+class ResamplerPipe : public PipeInterface
+{
+public:
+	ResamplerPipe(int64_t passed_sr, int64_t need_sr, double bw_ratio);
+	void ProcessData(PipeHolder::sptr meta_data) override;
+protected:
+	aqua_resampler::ResamplerManager man_;
+};
 }

@@ -155,3 +155,19 @@ void pipes::ZeroFirstSamples::ProcessData(PipeHolder::sptr meta_data)
 	ippsZero_32fc(meta_data->complex_float_data.data(), meta_data->complex_float_data.size() * zero_ratio_);
 	if (next_) next_->ProcessData(meta_data);
 }
+
+pipes::ResamplerPipe::ResamplerPipe(int64_t passed_sr, int64_t need_sr, double bw_ratio)
+{
+	man_.SetBaseParams(0, passed_sr);
+	man_.SetTargetParams(0, need_sr, bw_ratio*need_sr);
+}
+
+void pipes::ResamplerPipe::ProcessData(PipeHolder::sptr meta_data)
+{
+	auto passed = meta_data->complex_float_data;
+	if (!man_.ProcessBlock(passed.data(), passed.size()))
+		return;
+	auto &processed = man_.GetProcessedData();
+	std::swap(passed, processed);
+	if (next_) next_->ProcessData(meta_data);
+}

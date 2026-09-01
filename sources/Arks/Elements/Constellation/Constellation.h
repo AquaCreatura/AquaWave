@@ -22,6 +22,7 @@ namespace constel
 		QPointer<ChartConstel>		constel_drawer_;
 		SourceArk					src_info_;
 		pipes::SimplePipeLine		pipe_line_;
+
 	};
 
 

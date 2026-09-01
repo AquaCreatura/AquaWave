@@ -141,7 +141,10 @@
     <ClCompile Include="sources\DSP Tools\basic\freq_shifter.cpp" />
     <ClCompile Include="sources\DSP Tools\FFT\FFT_Worker.cpp" />
     <ClCompile Include="sources\DSP Tools\Localiser\PeakDetection.cpp" />
+    <ClCompile Include="sources\DSP Tools\Modem\ContinuousDemodulator.cpp" />
+    <ClCompile Include="sources\DSP Tools\Modem\TimePeakerDemod.cpp" />
     <ClCompile Include="sources\DSP Tools\Pipelines\BasePipes.cpp" />
+    <ClCompile Include="sources\DSP Tools\Pipelines\DemodPipes.cpp" />
     <ClCompile Include="sources\DSP Tools\Pipelines\PipeInterface.cpp" />
     <ClCompile Include="sources\DSP Tools\Resampler\ResamplersImpl\MR Resampler\MultiRateResampler.cpp" />
     <ClCompile Include="sources\DSP Tools\Resampler\ResamplersImpl\Precise Resampler\Interpolator\FarrowInterpolator.cpp" />
@@ -177,6 +180,9 @@
     <ClInclude Include="sources\Arks\SelectionWriter\SelectionWriter.h" />
     <QtMoc Include="sources\Arks\SelectionWriter\window\selection_writer_window.h" />
     <ClInclude Include="sources\DSP Tools\Localiser\PeakDetection.h" />
+    <ClInclude Include="sources\DSP Tools\Modem\ContinuousDemodulator.h" />
+    <ClInclude Include="sources\DSP Tools\Modem\TimePeakerDemod.h" />
+    <ClInclude Include="sources\DSP Tools\Pipelines\DemodPipes.h" />
     <ClInclude Include="sources\GUI\Tools\Chart tiler\Units\TileLine.h" />
     <ClInclude Include="sources\Utilities\aqua_array_queue.h" />
     <ClInclude Include="sources\Utilities\aqua_obj_queue.h" />

@@ -170,7 +170,7 @@ pipes::ResamplerPipe::ResamplerPipe(int64_t passed_fc, int64_t passed_sr, int64_
 
 void pipes::ResamplerPipe::ProcessData(PipeHolder::sptr meta_data)
 {
-	auto passed = meta_data->complex_float_data;
+	auto &passed = meta_data->complex_float_data;
 	if (!man_.ProcessBlock(passed.data(), passed.size()))
 		return;
 	auto &processed = man_.GetProcessedData();

@@ -7,7 +7,7 @@
 namespace aq_demod
 {
 
-	TimePeakerDemod::TimePeakerDemod(int upsample_koeff)
+	GardnerTED::GardnerTED(int upsample_koeff)
 		: upsample_koeff_(upsample_koeff),
 		w_(static_cast<double>(upsample_koeff)),
 		pos_(static_cast<double>(upsample_koeff)),
@@ -22,14 +22,14 @@ namespace aq_demod
 		if (upsample_koeff_ != 2 && upsample_koeff_ != 4)
 			throw std::invalid_argument("TimePeakerDemod supports only 2 or 4 samples/symbol");
 
-		history_.reserve(4);
+		history_.reserve(6);
 	}
 
-	TimePeakerDemod::~TimePeakerDemod()
+	GardnerTED::~GardnerTED()
 	{
 	}
 
-	void TimePeakerDemod::Reset()
+	void GardnerTED::Reset()
 	{
 		w_ = static_cast<double>(upsample_koeff_);
 		pos_ = static_cast<double>(upsample_koeff_);
@@ -39,7 +39,12 @@ namespace aq_demod
 		history_.clear();
 	}
 
-	Ipp32fc TimePeakerDemod::GetSample(const std::vector<Ipp32fc>& signal, int index) const
+	double GardnerTED::GetTimeError()
+	{
+		return w_ / upsample_koeff_;
+	}
+
+	Ipp32fc GardnerTED::GetSample(const std::vector<Ipp32fc>& signal, int index) const
 	{
 		if (index >= 0)
 			return signal[index];
@@ -47,7 +52,7 @@ namespace aq_demod
 		return history_[static_cast<int>(history_.size()) + index];
 	}
 
-	Ipp32fc TimePeakerDemod::Interpolate(const std::vector<Ipp32fc>& signal, double pos) const
+	Ipp32fc GardnerTED::Interpolate(const std::vector<Ipp32fc>& signal, double pos) const
 	{
 		const int index = static_cast<int>(std::floor(pos));
 		const double mu = pos - index;
@@ -69,7 +74,7 @@ namespace aq_demod
 		};
 	}
 
-	double TimePeakerDemod::GetError(const Ipp32fc& prev, const Ipp32fc& mid, const Ipp32fc& cur)
+	double GardnerTED::GetError(const Ipp32fc& prev, const Ipp32fc& mid, const Ipp32fc& cur)
 	{
 		// Gardner использует середину символа и разность соседних символов.
 		const double dr = static_cast<double>(prev.re) - cur.re;
@@ -92,28 +97,29 @@ namespace aq_demod
 		return error;
 	}
 
-	void TimePeakerDemod::UpdateLoop(double error)
+	void GardnerTED::UpdateLoop(double error)
 	{
 		// mu корректирует timing phase, omega отслеживает clock drift.
 		w_ += gain_omega_ * error;
 		w_ = std::max(omega_min_, std::min(w_, omega_max_));
 		pos_ += w_ + gain_mu_ * error;
+		if (pos_ < -100)
+			pos_ = pos_;
 	}
 
-	void TimePeakerDemod::UpdateHistory(const std::vector<Ipp32fc>& signal)
+	void GardnerTED::UpdateHistory(const std::vector<Ipp32fc>& signal)
 	{
-		const std::size_t count = std::min<std::size_t>(4, signal.size());
+		const std::size_t count = std::min<std::size_t>(6, signal.size());
 
 		history_.assign(signal.end() - count, signal.end());
 	}
 
-	bool TimePeakerDemod::Process(const std::vector<Ipp32fc>& passed, std::vector<Ipp32fc>& out_samples)
+	bool GardnerTED::Process(const std::vector<Ipp32fc>& passed, std::vector<Ipp32fc>& out_samples)
 	{
 		if (passed.empty())
 			return true;
 
 		out_samples.reserve(out_samples.size() + passed.size() / upsample_koeff_ + 1);
-
 		while (pos_ + 2.0 < static_cast<double>(passed.size())) {
 			const double mid_pos = pos_ - 0.5 * w_;
 			const Ipp32fc cur = Interpolate(passed, pos_);
@@ -128,7 +134,6 @@ namespace aq_demod
 			have_prev_symb_ = true;
 			out_samples.push_back(cur);
 		}
-
 		UpdateHistory(passed);
 		pos_ -= static_cast<double>(passed.size());
 

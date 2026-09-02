@@ -16,5 +16,7 @@ bool ContinuousDemodulator::Init(const char * modulation, int upsample_passed)
 
 bool ContinuousDemodulator::GetSyncedIQ(std::vector<Ipp32fc>& passed_iq, std::vector<Ipp32fc>& synced_iq)
 {
-	return false;
+	synced_iq.clear();
+	ted_man_.Process(passed_iq, synced_iq);
+	return true;
 }

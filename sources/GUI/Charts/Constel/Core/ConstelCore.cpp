@@ -30,6 +30,7 @@ void constel::ConstelCore::Emplace(const int bins_amplitude)
 
 QPixmap & constel::ConstelCore::GetRelevantPixmap(const int chart_size_px)
 {
+	ApplyDecay();
 	return renderer_.DrawData(chart_size_px);
 }
 
@@ -109,4 +110,32 @@ void constel::ConstelCore::StoreData(const std::vector<Ipp32fc>& data)
 	}
 
 	constel_.count_of_points += success_points;
+}
+void constel::ConstelCore::InitDecay(const double fps, const double time_hold_sec)
+{
+	if (fps <= 0.0 || time_hold_sec <= 0.0)
+	{
+		decay_coeff_ = 1.0;
+		return;
+	}
+
+	decay_coeff_ = std::exp(-1.0 / (fps * time_hold_sec));
+}
+
+void constel::ConstelCore::ApplyDecay()
+{
+	if (decay_coeff_ == 1.0)
+		return;
+
+	tbb::spin_mutex::scoped_lock lock(constel_.redraw_mutex);
+
+	int64_t count_of_points = 0;
+
+	for (auto& value : constel_.data)
+	{
+		value = static_cast<uint32_t>(std::lround(value * decay_coeff_));
+		count_of_points += value;
+	}
+
+	constel_.count_of_points = count_of_points;
 }

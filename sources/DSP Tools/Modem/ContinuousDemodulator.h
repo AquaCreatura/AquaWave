@@ -13,6 +13,7 @@ public:
 	bool Init(const char* modulation, int upsample_passed);
 	bool GetSyncedIQ(std::vector<Ipp32fc>& passed_iq, std::vector<Ipp32fc>& synced_iq);
 private:
+	GardnerTED ted_man_;
 	//std::string modulation_name_:
 };
 

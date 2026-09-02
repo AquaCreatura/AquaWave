@@ -7,15 +7,15 @@
 namespace aq_demod
 {
 
-	class TimePeakerDemod
+	class GardnerTED
 	{
 	public:
-		explicit TimePeakerDemod(int upsample_koeff = 4);
-		~TimePeakerDemod();
+		explicit GardnerTED(int upsample_koeff = 4);
+		~GardnerTED();
 
 		bool Process(const std::vector<Ipp32fc>& passed, std::vector<Ipp32fc>& out_samples);
 		void Reset();
-
+		double GetTimeError();
 	private:
 		Ipp32fc Interpolate(const std::vector<Ipp32fc>& signal, double pos) const;
 		Ipp32fc GetSample(const std::vector<Ipp32fc>& signal, int index) const;
@@ -47,7 +47,7 @@ namespace aq_demod
 		Ipp32fc prev_symb_;
 		bool have_prev_symb_;
 
-		// Последние 4 входных отсчёта нужны при переходе между блоками.
+		// Последние 6 входных отсчёта нужны при переходе между блоками.
 		std::vector<Ipp32fc> history_;
 	};
 

@@ -13,13 +13,16 @@ public:
 	constellation_data& GetConstelData();
 	void				Emplace(const int bins_amplitude = 128);
 	QPixmap&			GetRelevantPixmap(const int chart_size_px);
+	void				InitDecay(double fps, double time_hold_sec);
 protected:
 	void CheckPassedMaximum(const std::vector<Ipp32fc>& data);
 	void SetNewMaximum(const Ipp32f max_value);
 	void StoreData(const std::vector<Ipp32fc>& data);
+	void ApplyDecay();
 protected:
 	constellation_data constel_;
 	ConstellRenderer renderer_;
+	double decay_coeff_ = 1.0;
 };
 
 }

@@ -296,6 +296,9 @@
     <ClCompile Include="sources\DSP Tools\Pipelines\DemodPipes.cpp">
       <Filter>DSP Tools\Pipelines</Filter>
     </ClCompile>
+    <ClCompile Include="sources\DSP Tools\Modem\ModulationPoints.cpp">
+      <Filter>DSP Tools\Modem</Filter>
+    </ClCompile>
   </ItemGroup>
   <!-- ClInclude (H Files) -->
   <ItemGroup>
@@ -458,6 +461,9 @@
     </ClInclude>
     <ClInclude Include="sources\DSP Tools\Pipelines\DemodPipes.h">
       <Filter>DSP Tools\Pipelines</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\DSP Tools\Modem\ModulationPoints.h">
+      <Filter>DSP Tools\Modem</Filter>
     </ClInclude>
   </ItemGroup>
   <!-- QtMoc (For Headers Requiring Moc) -->

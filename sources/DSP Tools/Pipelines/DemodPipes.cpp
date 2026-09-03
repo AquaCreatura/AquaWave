@@ -9,7 +9,7 @@ void pipes::CcmSyncer::ProcessData(PipeHolder::sptr meta_data)
 {
 	auto &passed = meta_data->complex_float_data;
 	auto &synced = meta_data->buffer_32fc;
-	ccm_man_.GetSyncedIQ(passed, synced);
+	ccm_man_.SynchroniseIQ(passed, synced);
 	std::swap(passed, synced);
 	if (next_) next_->ProcessData(meta_data);
 }

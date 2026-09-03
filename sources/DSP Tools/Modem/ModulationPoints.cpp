@@ -88,3 +88,26 @@ std::vector<Ipp32fc> aq_demod::CalculateModulationPivots(const char * modulation
 
 	return points;
 }
+
+double aq_demod::GetEuclidDist(Ipp32fc piv_iter, Ipp32fc passed)
+{
+	double y_delta = (piv_iter.im - passed.im);
+	double x_delta = (piv_iter.re - passed.re);
+	double cur_euclid = y_delta * y_delta + x_delta * x_delta;
+	return cur_euclid;
+}
+
+Ipp32fc aq_demod::GetClosestSymbol(Ipp32fc passed, std::vector<Ipp32fc>& pivots)
+{
+	if (pivots.empty()) return Ipp32fc();
+	Ipp32fc best_symbol = pivots[0];
+	double least_euclid = 1.e30;
+	for (auto piv_iter : pivots) {
+		auto cur_euclid = GetEuclidDist(passed, piv_iter);
+		if (cur_euclid < least_euclid) {
+			best_symbol = piv_iter;
+			cur_euclid = least_euclid;
+		}
+	}
+	return best_symbol;
+}

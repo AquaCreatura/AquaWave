@@ -106,7 +106,7 @@ Ipp32fc aq_demod::GetClosestSymbol(Ipp32fc passed, std::vector<Ipp32fc>& pivots)
 		auto cur_euclid = GetEuclidDist(passed, piv_iter);
 		if (cur_euclid < least_euclid) {
 			best_symbol = piv_iter;
-			cur_euclid = least_euclid;
+			least_euclid = cur_euclid;
 		}
 	}
 	return best_symbol;

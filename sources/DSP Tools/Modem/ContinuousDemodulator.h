@@ -2,9 +2,16 @@
 
 #include <ipps.h>
 #include <vector>
+#include <cmath>
 
 #include "TimePeakerDemod.h"
 #include "ModulationPoints.h"
+
+#ifndef  MPI
+	#define M_PI 3.14159265358979323846
+#endif // ! MPI
+
+
 
 namespace aq_demod
 {
@@ -49,18 +56,21 @@ namespace aq_demod
 		double agc_alpha_ = 0.01;
 
 		// GNU Radio uses ~2*pi/100 as the default Costas-loop bandwidth.
-		double loop_bw_ = 2.0 * 3.14159265358979323846 / 100.0;
+		// The range is typically between 2*pi/200 and 2*pi/100.
+		double current_alpha_ = 0.005; // Значение по умолчанию для alpha
 		double damping_ = 1.0 / std::sqrt(2.0);
 
-		double pll_phase_ = 0.0;
-		double pll_freq_ = 0.0;
+		// Gains for the second-order loop (alpha and beta in GNU Radio).
+		double pll_phase_ = 0.0; // Proportional gain (alpha)
+		double pll_freq_ = 0.0;  // Integral gain (beta)
 
-		// Carrier phase and frequency, rad and rad/symbol.
+								 // Carrier phase and frequency, rad and rad/symbol.
 		double phase_ = 0.0;
 		double freq_offset_ = 0.0;
 
 		// Normalized frequency range of the fine loop.
-		static constexpr double max_freq_offset_ = 0.1;
+		// Standard values from GNU Radio examples.
+		static constexpr double max_freq_offset_ = 0.05;
 
 		double signal_power_ = 0.0;
 		double error_power_ = 0.0;

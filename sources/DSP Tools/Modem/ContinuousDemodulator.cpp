@@ -8,11 +8,10 @@ using namespace aq_demod;
 
 namespace
 {
-	const double PI = 3.14159265358979323846;
-	const double TWO_PI = 2.0 * PI;
-
-	const double MIN_PLL_BW = TWO_PI / 200.0;
-	const double MAX_PLL_BW = TWO_PI / 100.0;
+	// Constants for the PLL bandwidth range.
+	// Based on GNU Radio's recommended values.
+	const double MIN_PLL_BW = 2.0 * M_PI / 1000.0;
+	const double MAX_PLL_BW = 2.0 * M_PI / 200.0;
 }
 
 ContinuousDemodulator::ContinuousDemodulator()
@@ -32,14 +31,18 @@ bool ContinuousDemodulator::Init(const char* modulation, int upsample_passed)
 
 	upsample_passed_ = upsample_passed;
 
-	target_power_ = 0.0;
+	// Re-initialize the Gardner TED with the correct oversampling factor.
+	ted_man_ = GardnerTED(upsample_passed);
 
+	target_power_ = 0.0;
 	for (const Ipp32fc& pivot : pivots_)
 		target_power_ += pivot.re * pivot.re + pivot.im * pivot.im;
-
 	target_power_ /= pivots_.size();
+
 	signal_power_ = 0.0;
-	SetPllSpeed(1.0);
+
+	// Set a conservative default speed.
+	SetPllSpeed(0.5);
 	Reset();
 
 	return true;
@@ -55,23 +58,34 @@ void ContinuousDemodulator::Reset()
 	signal_power_ = 0.0;
 	error_power_ = 0.0;
 	snr_db_ = 0.0;
+
+	ted_man_.Reset();
 }
 
 void ContinuousDemodulator::SetPllSpeed(double speed)
 {
 	speed = std::max(0.0, std::min(1.0, speed));
-	loop_bw_ = MIN_PLL_BW + speed * (MAX_PLL_BW - MIN_PLL_BW);
+	// ќтображение speed в alpha
+	// speed = 0.0 -> alpha = 0.001
+	// speed = 0.5 -> alpha = 0.005
+	// speed = 1.0 -> alpha = 0.05
+	if (speed <= 0.5) {
+		// Ћинейно от 0.001 до 0.005
+		current_alpha_ = 0.001 + (speed / 0.5) * (0.005 - 0.001);
+	}
+	else {
+		// Ћинейно от 0.005 до 0.05
+		current_alpha_ = 0.005 + ((speed - 0.5) / 0.5) * (0.05 - 0.005);
+	}
 	UpdateLoopCoefficients();
 }
 
 void ContinuousDemodulator::UpdateLoopCoefficients()
 {
-	const double denom = 1.0 + 2.0 * damping_ * loop_bw_ + loop_bw_ * loop_bw_;
-
-	pll_freq_ = 1.e-2; (4.0 * loop_bw_ * loop_bw_ / denom) ; //Freq
-	pll_phase_ = 1.e-3;  (4.0 * damping_ * loop_bw_ / denom) ; // Phase
-
-
+	// alpha Ч это pll_phase_, beta Ч это pll_freq_
+	pll_phase_ = current_alpha_;
+	// beta = 0.25 * alpha^2, как рекомендовано в литературе
+	pll_freq_ = 0.25 * current_alpha_ * current_alpha_;
 }
 
 bool ContinuousDemodulator::SynchroniseIQ(
@@ -80,41 +94,54 @@ bool ContinuousDemodulator::SynchroniseIQ(
 {
 	synced_iq.clear();
 
+	// --- Symbol Timing Recovery (Gardner TED) ---
 	ted_man_.Process(passed_iq, synced_iq);
 
-	if ( agc_enabled_)
+	if (synced_iq.empty())
+		return true;
+
+	// --- Automatic Gain Control ---
+	if (agc_enabled_)
 		ApplyAGC(synced_iq);
 
-
+	// --- Carrier Recovery (Costas Loop) ---
 	error_power_ = 0.0;
+	signal_power_ = 0.0;
 
 	for (Ipp32fc& sample : synced_iq) {
 
-		// NCO derotates the current symbol using the loop state.
+		// 1. NCO derotates the current symbol using the loop state.
 		const Ipp32fc corrected = CorrectPhase(sample);
 
+		// 2. Decision-directed phase detector.
 		double phase_error = 0.0;
 		const Ipp32fc decision = GetDecision(corrected, phase_error);
 
-		// Use the current decision to update the second-order loop.
+		// 3. Update the second-order loop (standard GNU Radio Costas loop).
+		// The phase_error is already normalized by GetDecision.
 		freq_offset_ += pll_freq_ * phase_error;
 
 		if (freq_offset_ > max_freq_offset_)
-			freq_offset_ = 0 * max_freq_offset_;
+			freq_offset_ = max_freq_offset_;
 		if (freq_offset_ < -max_freq_offset_)
-			freq_offset_ = 0 * -max_freq_offset_;
+			freq_offset_ = -max_freq_offset_;
 
 		phase_ += freq_offset_ + pll_phase_ * phase_error;
 
+		// Keep phase wrapped between -PI and PI.
+		phase_ = std::remainder(phase_, 2.0 * M_PI);
+
+		// 4. Store the corrected sample.
 		sample = corrected;
 
+		// 5. Update statistics for SNR calculation.
 		const double error_re = corrected.re - decision.re;
 		const double error_im = corrected.im - decision.im;
-
 		error_power_ += error_re * error_re + error_im * error_im;
 		signal_power_ += decision.re * decision.re + decision.im * decision.im;
 	}
 
+	// Calculate SNR if we have valid data.
 	if (!synced_iq.empty() && error_power_ > 0.0) {
 		snr_db_ = 10.0 * std::log10(signal_power_ / error_power_);
 	}
@@ -129,6 +156,10 @@ void ContinuousDemodulator::ApplyAGC(std::vector<Ipp32fc>& signal)
 		const double power = sample.re * sample.re + sample.im * sample.im;
 
 		agc_power_ = (1.0 - agc_alpha_) * agc_power_ + agc_alpha_ * power;
+
+		// Avoid division by zero.
+		if (agc_power_ < 1e-12)
+			agc_power_ = 1e-12;
 
 		const double gain = std::sqrt(target_power_ / agc_power_);
 
@@ -154,7 +185,7 @@ Ipp32fc ContinuousDemodulator::GetDecision(
 {
 	double min_distance = std::numeric_limits<double>::max();
 	Ipp32fc decision = pivots_[0];
-
+	// Find the nearest constellation point.
 	for (const Ipp32fc& pivot : pivots_) {
 
 		const double re = sample.re - pivot.re;
@@ -167,11 +198,12 @@ Ipp32fc ContinuousDemodulator::GetDecision(
 		}
 	}
 
-	// GNU Radio uses -arg(sample * conj(decision)) as the detector error.
+	// ¬ычисл€ем ошибку с помощью atan2
 	const double real = sample.re * decision.re + sample.im * decision.im;
 	const double imag = sample.im * decision.re - sample.re * decision.im;
-
-	phase_error = -std::atan2(imag, real);
+	phase_error =  -std::atan2(imag, real);
+	phase_error = std::tanh(phase_error);
+	
 
 	return decision;
 }

@@ -7,5 +7,6 @@
         <file>third_party/background/water.jpg</file>
         <file>third_party/background/water.png</file>
         <file>sources/GUI/CSS_Themes/blue_scheme.qss</file>
+        <file>sources/GUI/CSS_Themes/space_scheme.qss</file>
     </qresource>
 </RCC>

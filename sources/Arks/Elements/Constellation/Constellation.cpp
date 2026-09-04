@@ -22,7 +22,7 @@ bool constel::Constellation::SendData(fluctus::DataInfo const & data_info)
 	{
 		tbb::spin_mutex::scoped_lock scoped_locker(pipe_mutex_);
 		pipe_line_.Process(casted_vec);
-		auto synced = pipe_line_.meta->buffer_32fc;
+		auto synced = pipe_line_.meta->complex_float_data;
 		constel_drawer_->PushData(synced);
 	}
 	return true;
@@ -65,7 +65,7 @@ bool constel::Constellation::PostDove(fluctus::DoveSptr const & sent_dove)
 			if (special_thought & analyzer::AnalyzeDove::kGetHarmonicResult) {
 				analyze_dove->text_result = "NaN";
 			}
-			if (special_thought & analyzer::AnalyzeDove::kSetHarmonicInfo) {
+			if (special_thought & analyzer::AnalyzeDove::kSetHarmonicInfo && analyze_dove->carrier_hz && analyze_dove->symbol_rate_hz) {
 				
 				UpdatePipeline(*analyze_dove->carrier_hz, *analyze_dove->symbol_rate_hz);
 			}

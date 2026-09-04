@@ -172,7 +172,8 @@ void scope_analyzer::ScopeAnalyzer::UpdateHarmonicInfo()
 		req_dove->peak_value.reset();
 	}
 	req_dove->special_thought = analyzer::AnalyzeDove::kSetHarmonicInfo;
-	charts_[scope_chart_type::kConstellation]->PostDove(req_dove);
+	if(req_dove->symbol_rate_hz && req_dove->carrier_hz)
+		charts_[scope_chart_type::kConstellation]->PostDove(req_dove);
 }
 
 bool ScopeAnalyzer::Reload()

@@ -1,0 +1,309 @@
+/* ============================================
+   Space Scheme | Минималистичный космический дизайн
+   Тёмная материя, белый свет, акценты синей звезды
+   Вдохновлено стилистикой Starlink
+   Для Qt 5.14.2 | Чистота и бесконечность
+   ============================================ */
+
+/* ---------- Глобальный фон: космическая тьма ---------- */
+QWidget {
+    background: #0A0A0A;
+    color: #F0F4F8;
+    font-family: "Segoe UI", "Helvetica", "Arial", sans-serif;
+    font-size: 13px;
+    font-weight: 400;
+    selection-background-color: #1E90FF;
+    selection-color: #FFFFFF;
+}
+
+/* ---------- Панели и карточки: прозрачный минимализм ---------- */
+QMainWindow, QDialog, QFrame {
+    background: transparent;
+}
+
+QFrame[class="glassCard"], QGroupBox {
+    background: rgba(20, 20, 30, 0.7);
+    border: 1px solid rgba(100, 150, 255, 0.2);
+    border-radius: 4px;
+    margin: 4px;
+}
+
+/* ---------- Кнопки: холодный свет ---------- */
+QPushButton {
+    background: #1A1A2A;
+    border: 1px solid #2A3A5A;
+    border-radius: 4px;
+    padding: 6px 14px;
+    color: #F0F4F8;
+    font-weight: 500;
+    font-family: "Segoe UI", sans-serif;
+}
+
+QPushButton:hover {
+    background: #2A3A5A;
+    border-color: #4A8AF4;
+    color: #FFFFFF;
+}
+
+QPushButton:pressed {
+    background: #0A0A12;
+    border-color: #1E90FF;
+}
+
+/* Акцентная кнопка (сигнальная) */
+QPushButton[class="primary"] {
+    background: #1E90FF;
+    border: 1px solid #4A8AF4;
+    color: #FFFFFF;
+}
+
+QPushButton[class="primary"]:hover {
+    background: #4A8AF4;
+    border-color: #7AB8FF;
+}
+
+QPushButton[class="primary"]:pressed {
+    background: #0A5AC0;
+}
+
+/* ---------- Поля ввода: как звёздная пыль ---------- */
+QLineEdit, QTextEdit, QPlainTextEdit, QSpinBox, QDoubleSpinBox, QComboBox {
+    background: #12121E;
+    border: 1px solid #2A3A5A;
+    border-radius: 4px;
+    padding: 5px 10px;
+    color: #F0F4F8;
+    font-family: "Segoe UI", sans-serif;
+    selection-background-color: #1E90FF;
+    selection-color: #FFFFFF;
+}
+
+QLineEdit:focus, QTextEdit:focus, QPlainTextEdit:focus,
+QSpinBox:focus, QDoubleSpinBox:focus, QComboBox:focus {
+    border-color: #4A8AF4;
+    background: #1A1A2E;
+}
+
+QComboBox::drop-down {
+    border: none;
+    width: 20px;
+}
+
+QComboBox::down-arrow {
+    image: none;
+    border-left: 4px solid transparent;
+    border-right: 4px solid transparent;
+    border-top: 5px solid #4A8AF4;
+    width: 0;
+    height: 0;
+}
+
+QComboBox QAbstractItemView {
+    background: #12121E;
+    border: 1px solid #2A3A5A;
+    selection-background-color: #1E90FF;
+    selection-color: #FFFFFF;
+}
+
+/* ---------- Вкладки: тонкие линии ---------- */
+QTabWidget::pane {
+    background: #0A0A0A;
+    border: 1px solid #2A3A5A;
+    border-radius: 0;
+    top: -1px;
+}
+
+QTabBar::tab {
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    padding: 8px 18px;
+    margin-right: 2px;
+    color: #A0B0C0;
+    font-family: "Segoe UI", sans-serif;
+    font-weight: 500;
+}
+
+QTabBar::tab:selected {
+    border-bottom-color: #1E90FF;
+    color: #FFFFFF;
+}
+
+QTabBar::tab:hover:!selected {
+    border-bottom-color: #4A8AF4;
+    color: #D0E0F0;
+}
+
+/* ---------- Чекбоксы и радио: минималистичные индикаторы ---------- */
+QCheckBox::indicator, QRadioButton::indicator {
+    width: 18px;
+    height: 18px;
+    border-radius: 3px;
+    background: #12121E;
+    border: 1px solid #2A3A5A;
+}
+
+QCheckBox::indicator:checked {
+    background: #1E90FF;
+    border-color: #4A8AF4;
+}
+
+QRadioButton::indicator {
+    border-radius: 9px;
+}
+
+QRadioButton::indicator:checked {
+    background: #1E90FF;
+    border-color: #4A8AF4;
+}
+
+/* ---------- Скроллбары: лёгкие и прозрачные ---------- */
+QScrollBar:vertical {
+    background: #0A0A0A;
+    width: 10px;
+    border-radius: 0;
+    margin: 0;
+}
+
+QScrollBar::handle:vertical {
+    background: #2A3A5A;
+    border-radius: 4px;
+    min-height: 30px;
+}
+
+QScrollBar::handle:vertical:hover {
+    background: #4A8AF4;
+}
+
+QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
+    height: 0px;
+}
+
+QScrollBar:horizontal {
+    background: #0A0A0A;
+    height: 10px;
+    border-radius: 0;
+    margin: 0;
+}
+
+QScrollBar::handle:horizontal {
+    background: #2A3A5A;
+    border-radius: 4px;
+    min-width: 30px;
+}
+
+QScrollBar::handle:horizontal:hover {
+    background: #4A8AF4;
+}
+
+/* ---------- Меню: строгий минимализм ---------- */
+QMenuBar {
+    background: #12121E;
+    border-bottom: 1px solid #2A3A5A;
+}
+
+QMenuBar::item:selected {
+    background: #1E90FF;
+    border-radius: 2px;
+    color: #FFFFFF;
+}
+
+QMenu {
+    background: #12121E;
+    border: 1px solid #2A3A5A;
+    border-radius: 4px;
+    padding: 4px;
+}
+
+QMenu::item:selected {
+    background: #1E90FF;
+    color: #FFFFFF;
+    border-radius: 2px;
+}
+
+/* ---------- Таблицы и списки: читаемые данные ---------- */
+QTableView, QListWidget, QTreeView {
+    background: #0A0A0A;
+    border: 1px solid #2A3A5A;
+    border-radius: 4px;
+    alternate-background-color: #12121E;
+    gridline-color: #2A3A5A;
+}
+
+QHeaderView::section {
+    background: #12121E;
+    padding: 6px 10px;
+    border: none;
+    border-right: 1px solid #2A3A5A;
+    border-bottom: 1px solid #2A3A5A;
+    font-weight: 600;
+    color: #D0E0F0;
+}
+
+QTableView::item:selected, QListWidget::item:selected, QTreeView::item:selected {
+    background: #1E90FF;
+    color: #FFFFFF;
+}
+
+/* ---------- Прогресс-бар: синяя волна ---------- */
+QProgressBar {
+    background: #12121E;
+    border: 1px solid #2A3A5A;
+    border-radius: 4px;
+    text-align: center;
+    height: 16px;
+    color: #FFFFFF;
+    font-weight: 500;
+}
+
+QProgressBar::chunk {
+    background: #1E90FF;
+    border-radius: 3px;
+}
+
+/* ---------- Слайдер: минималистичный ползунок ---------- */
+QSlider::groove:horizontal {
+    height: 4px;
+    background: #2A3A5A;
+    border-radius: 2px;
+}
+
+QSlider::handle:horizontal {
+    background: #1E90FF;
+    width: 14px;
+    height: 14px;
+    margin: -5px 0;
+    border-radius: 7px;
+    border: none;
+}
+
+QSlider::handle:horizontal:hover {
+    background: #4A8AF4;
+}
+
+/* ---------- Группировка ---------- */
+QGroupBox {
+    background: rgba(20, 20, 30, 0.5);
+    border: 1px solid #2A3A5A;
+    border-radius: 4px;
+    margin-top: 14px;
+    padding-top: 12px;
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    left: 12px;
+    padding: 0 8px;
+    color: #A0B0C0;
+    font-family: "Segoe UI", sans-serif;
+    font-weight: 500;
+    background: #0A0A0A;
+    border-radius: 2px;
+}
+
+/* ---------- Строка состояния: последний сигнал ---------- */
+QStatusBar {
+    background: #12121E;
+    border-top: 1px solid #2A3A5A;
+    color: #A0B0C0;
+}

@@ -39,7 +39,9 @@ void constel::ConstelCore::CheckPassedMaximum(const std::vector<Ipp32fc>& passed
 	auto casted_vec = (std::vector<Ipp32f>&)passed_data;
 	float max_value = 0;
 	ippsMaxAbs_32f(casted_vec.data(), casted_vec.size(), &max_value);
-	if (constel_.max_power < max_value) SetNewMaximum(max_value * 1.1); //Добавляем минимальный зазор
+	constel_.averaged_power = constel_.averaged_power * 0.99 + max_value * 0.01;
+	if (constel_.averaged_power > constel_.max_power || constel_.averaged_power * 1.4 < constel_.max_power)
+		SetNewMaximum(constel_.averaged_power * 1.02); //Добавляем минимальный зазор
 }
 
 void constel::ConstelCore::SetNewMaximum(const Ipp32f max_value)
@@ -133,7 +135,7 @@ void constel::ConstelCore::ApplyDecay()
 
 	for (auto& value : constel_.data)
 	{
-		value = static_cast<uint32_t>(std::lround(value * decay_coeff_));
+		value = value * decay_coeff_;
 		count_of_points += value;
 	}
 

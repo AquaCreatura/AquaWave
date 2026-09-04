@@ -107,7 +107,6 @@ bool ContinuousDemodulator::SynchroniseIQ(
 	// --- Carrier Recovery (Costas Loop) ---
 	error_power_ = 0.0;
 	signal_power_ = 0.0;
-
 	for (Ipp32fc& sample : synced_iq) {
 
 		// 1. NCO derotates the current symbol using the loop state.
@@ -116,7 +115,6 @@ bool ContinuousDemodulator::SynchroniseIQ(
 		// 2. Decision-directed phase detector.
 		double phase_error = 0.0;
 		const Ipp32fc decision = GetDecision(corrected, phase_error);
-
 		// 3. Update the second-order loop (standard GNU Radio Costas loop).
 		// The phase_error is already normalized by GetDecision.
 		freq_offset_ += pll_freq_ * phase_error;
@@ -204,6 +202,5 @@ Ipp32fc ContinuousDemodulator::GetDecision(
 	phase_error =  -std::atan2(imag, real);
 	phase_error = std::tanh(phase_error);
 	
-
 	return decision;
 }

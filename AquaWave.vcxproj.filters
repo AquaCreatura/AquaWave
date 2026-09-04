@@ -542,5 +542,8 @@
     <None Include="sources\GUI\CSS_Themes\blue_scheme.qss">
       <Filter>GUI\QSS_themes</Filter>
     </None>
+    <None Include="sources\GUI\CSS_Themes\space_scheme.qss">
+      <Filter>GUI\QSS_themes</Filter>
+    </None>
   </ItemGroup>
 </Project>

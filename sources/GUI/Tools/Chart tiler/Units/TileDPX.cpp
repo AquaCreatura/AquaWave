@@ -263,48 +263,45 @@ argb_t TileDPX::GetNormColor(double relative_density) const
 	return LUT_HSV_Instance::DensityToRGB(normalized_density);
 }
 
-// ------------------------------------------------------------------
-// ApplyDecay – глобальное затухание всех данных
-// ------------------------------------------------------------------
 void TileDPX::ApplyDecay()
 {
 	const int width = data_size_.hor;
 	const int height = data_size_.vert;
+
 	if (width == 0 || height == 0 || val_bounds_.hor.delta() <= 0)
 		return;
 
-	// 1. Определяем коэффициент затухания на основе текущего режима
-	//    Если trans_decrease_counter_ > 0 – ускоряем затухание
-	double additional_decay = 1.0;
+	double decay_factor = base_decay_rate_;
+
 	if (trans_decrease_counter_ > 0) {
-		// Чем больше счётчик, тем быстрее затухание (эмпирическая формула)
-		additional_decay = trans_decay_rate_;  std::max(0.999, 1.0 - 0.01 * trans_decrease_counter_);
-		// Уменьшаем счётчик с каждым кадром
-		trans_decrease_counter_ = static_cast<int64_t>(trans_decrease_counter_ * trans_decay_rate_);
+		const double counter = static_cast<double>(trans_decrease_counter_);
+
+		// До 100 transition затухает пропорционально мягко.
+		// От 100 и выше используется максимальное transition decay.
+		const double factor = std::min(1.0, counter / 2000.0);
+
+		const double trans_factor =
+			1.0 + factor * (trans_decay_rate_ - 1.0);
+
+		decay_factor *= trans_factor;
 	}
 
-	// Общий множитель затухания за этот кадр
-	decay_factor_ = base_decay_rate_ * additional_decay;
-	// Ограничиваем снизу, чтобы данные не обнулились мгновенно
-	decay_factor_ = std::max(decay_factor_, 0.001);
+	decay_factor = std::clamp(decay_factor, 0.001, 1.0);
 
-	// 2. Применяем затухание ко всему буферу данных
-	for (auto& val : data_) {
-		val = static_cast<int64_t>(val * decay_factor_);
-	}
+	// Один и тот же итоговый коэффициент применяется ко всему состоянию.
+	for (auto& val : data_)
+		val = static_cast<int64_t>(val * decay_factor);
 
-	// 3. Применяем затухание к весам колонок
-	for (auto& w : column_weight_vec_) {
-		w = static_cast<size_t>(w * decay_factor_);
-	}
+	for (auto& w : column_weight_vec_)
+		w = static_cast<size_t>(w * decay_factor);
 
-	// 4. Если значения стали слишком малыми – можно обнулить (опционально)
-	//    (но не обязательно, т.к. они будут постепенно затухать до нуля)
+	trans_decrease_counter_ = static_cast<int64_t>(
+		trans_decrease_counter_ * decay_factor
+		);
 
-	// 5. Помечаем, что данные обновлены (для внешних флагов)
+	decay_factor_ = decay_factor;
 	is_data_updated_ = true;
 }
-
 // ------------------------------------------------------------------
 // UpdateDensityPivot – пересчёт максимума и средней плотности
 // ------------------------------------------------------------------

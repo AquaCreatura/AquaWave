@@ -142,6 +142,7 @@
     <ClCompile Include="sources\DSP Tools\FFT\FFT_Worker.cpp" />
     <ClCompile Include="sources\DSP Tools\Localiser\PeakDetection.cpp" />
     <ClCompile Include="sources\DSP Tools\Modem\ContinuousDemodulator.cpp" />
+    <ClCompile Include="sources\DSP Tools\Modem\EqaliserAqua.cpp" />
     <ClCompile Include="sources\DSP Tools\Modem\ModulationPoints.cpp" />
     <ClCompile Include="sources\DSP Tools\Modem\TimePeakerDemod.cpp" />
     <ClCompile Include="sources\DSP Tools\Pipelines\BasePipes.cpp" />
@@ -182,6 +183,7 @@
     <QtMoc Include="sources\Arks\SelectionWriter\window\selection_writer_window.h" />
     <ClInclude Include="sources\DSP Tools\Localiser\PeakDetection.h" />
     <ClInclude Include="sources\DSP Tools\Modem\ContinuousDemodulator.h" />
+    <ClInclude Include="sources\DSP Tools\Modem\EqaliserAqua.h" />
     <ClInclude Include="sources\DSP Tools\Modem\ModulationPoints.h" />
     <ClInclude Include="sources\DSP Tools\Modem\TimePeakerDemod.h" />
     <ClInclude Include="sources\DSP Tools\Pipelines\DemodPipes.h" />

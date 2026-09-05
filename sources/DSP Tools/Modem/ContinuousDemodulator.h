@@ -53,7 +53,7 @@ namespace aq_demod
 		// AGC normalizes the constellation amplitude for the slicer.
 		bool agc_enabled_ = true;
 		double agc_power_ = 1.0;
-		double agc_alpha_ = 0.01;
+		double agc_alpha_ = 0.001;
 
 		// GNU Radio uses ~2*pi/100 as the default Costas-loop bandwidth.
 		// The range is typically between 2*pi/200 and 2*pi/100.

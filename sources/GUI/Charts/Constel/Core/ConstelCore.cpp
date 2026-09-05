@@ -37,11 +37,21 @@ QPixmap & constel::ConstelCore::GetRelevantPixmap(const int chart_size_px)
 void constel::ConstelCore::CheckPassedMaximum(const std::vector<Ipp32fc>& passed_data)
 {
 	auto casted_vec = (std::vector<Ipp32f>&)passed_data;
-	float max_value = 0;
-	ippsMaxAbs_32f(casted_vec.data(), casted_vec.size(), &max_value);
-	constel_.averaged_power = constel_.averaged_power * 0.99 + max_value * 0.01;
-	if (constel_.averaged_power > constel_.max_power || constel_.averaged_power * 1.4 < constel_.max_power)
-		SetNewMaximum(constel_.averaged_power * 1.02); //Добавляем минимальный зазор
+	float amplitude = 0;
+	ippsMaxAbs_32f(casted_vec.data(), casted_vec.size(), &amplitude );
+	
+	const float alpha_up = 0.001f;
+	const float alpha_down = 0.010f;
+	const double scale_shift = 1.1;
+	if (constel_.averaged_amplitude == 0. || (amplitude / constel_.averaged_amplitude) > 10.f || constel_.averaged_amplitude / amplitude > 4.f ) 
+			constel_.averaged_amplitude = amplitude / 2;
+	if (amplitude > constel_.averaged_amplitude)
+		constel_.averaged_amplitude = constel_.averaged_amplitude * (1.0f - alpha_up) + amplitude * alpha_up;
+	else
+		constel_.averaged_amplitude = constel_.averaged_amplitude * (1.0f - alpha_down) + amplitude * alpha_down;
+
+	if (constel_.averaged_amplitude > constel_.max_power || constel_.averaged_amplitude * scale_shift * scale_shift < constel_.max_power)
+		SetNewMaximum(constel_.averaged_amplitude * scale_shift); //Добавляем минимальный зазор
 }
 
 void constel::ConstelCore::SetNewMaximum(const Ipp32f max_value)

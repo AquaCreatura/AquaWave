@@ -299,6 +299,9 @@
     <ClCompile Include="sources\DSP Tools\Modem\ModulationPoints.cpp">
       <Filter>DSP Tools\Modem</Filter>
     </ClCompile>
+    <ClCompile Include="sources\DSP Tools\Modem\EqaliserAqua.cpp">
+      <Filter>DSP Tools\Modem</Filter>
+    </ClCompile>
   </ItemGroup>
   <!-- ClInclude (H Files) -->
   <ItemGroup>
@@ -463,6 +466,9 @@
       <Filter>DSP Tools\Pipelines</Filter>
     </ClInclude>
     <ClInclude Include="sources\DSP Tools\Modem\ModulationPoints.h">
+      <Filter>DSP Tools\Modem</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\DSP Tools\Modem\EqaliserAqua.h">
       <Filter>DSP Tools\Modem</Filter>
     </ClInclude>
   </ItemGroup>

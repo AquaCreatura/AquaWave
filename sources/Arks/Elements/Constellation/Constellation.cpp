@@ -100,8 +100,8 @@ bool constel::Constellation::Reload()
 void constel::Constellation::UpdatePipeline(int64_t new_fc_hz, int64_t new_symbol_rate_hz)
 {
 	double max_sr = std::max(estim_symbol_rate_, new_symbol_rate_hz);
-	if ((std::abs(new_fc_hz - estim_fc_hz_) < 1.e-5 * max_sr) &&
-		(std::abs(estim_symbol_rate_ - new_symbol_rate_hz) < 1.e-5 * max_sr)) {
+	if ((std::abs(new_fc_hz - estim_fc_hz_) < 0.001 * max_sr) &&
+		(std::abs(estim_symbol_rate_ - new_symbol_rate_hz) < 0.001 * max_sr)) {
 		return;
 	}
 
@@ -114,7 +114,7 @@ void constel::Constellation::UpdatePipeline(int64_t new_fc_hz, int64_t new_symbo
 		pipe_line_.pipes.clear();
 
 		pipe_line_.AddNextPipe(std::make_shared<ResamplerPipe>(src_info_.descr.carrier_hz, src_info_.descr.samplerate_hz, estim_fc_hz_, estim_symbol_rate_ * 4, estim_symbol_rate_));
-		pipe_line_.AddNextPipe(std::make_shared<CcmSyncer>("QPSK", 4));
+		pipe_line_.AddNextPipe(std::make_shared<CcmSyncer>("QAM64", 4));
 	}
 	
 }

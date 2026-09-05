@@ -42,7 +42,7 @@ bool ContinuousDemodulator::Init(const char* modulation, int upsample_passed)
 	signal_power_ = 0.0;
 
 	// Set a conservative default speed.
-	SetPllSpeed(0.5);
+	SetPllSpeed(0.01);
 	Reset();
 
 	return true;

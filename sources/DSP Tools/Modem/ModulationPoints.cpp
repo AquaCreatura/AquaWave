@@ -2,7 +2,7 @@
 #define M_PI 3.14159265358979323846
 #endif
 #include "ModulationPoints.h"
-
+#include <string>
 #pragma once
 
 std::vector<Ipp32fc> aq_demod::CalculateModulationPivots(const char * modulation)
@@ -61,29 +61,17 @@ std::vector<Ipp32fc> aq_demod::CalculateModulationPivots(const char * modulation
 	{
 		AddPSK(4, M_PI / 4.0);
 	}
-	else if (mod == "PSK8")
+	else if (mod.find("QAM") != std::string::npos)
 	{
-		AddPSK(8, M_PI / 8.0);
+		const auto pos = mod.find("QAM");
+		const int M = std::stoi(mod.substr(0, pos) + mod.substr(pos + 3));
+		AddQAM(M);
 	}
-	else if (mod == "PSK16")
+	else if (mod.find("PSK") != std::string::npos)
 	{
-		AddPSK(16, M_PI / 16.0);
-	}
-	else if (mod == "PSK32")
-	{
-		AddPSK(32, M_PI / 32.0);
-	}
-	else if (mod == "QAM16")
-	{
-		AddQAM(16);
-	}
-	else if (mod == "QAM64")
-	{
-		AddQAM(64);
-	}
-	else if (mod == "QAM256")
-	{
-		AddQAM(256);
+		const auto pos = mod.find("PSK");
+		const int M = std::stoi(mod.substr(0, pos) + mod.substr(pos + 3));
+		AddPSK(M, M_PI / M);
 	}
 
 	return points;

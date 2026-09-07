@@ -40,7 +40,8 @@ namespace aq_demod
 
 		Ipp32fc CorrectPhase(const Ipp32fc& sample) const;
 		Ipp32fc GetDecision(const Ipp32fc& sample, double& phase_error) const;
-
+		void    UpdatePll(const double & error);
+		void    UpdateSNR(const Ipp32fc sample, const Ipp32fc decission);
 	private:
 		GardnerTED ted_man_;
 

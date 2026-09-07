@@ -111,33 +111,17 @@ bool ContinuousDemodulator::SynchroniseIQ(
 
 		// 1. NCO derotates the current symbol using the loop state.
 		const Ipp32fc corrected = CorrectPhase(sample);
-
 		// 2. Decision-directed phase detector.
 		double phase_error = 0.0;
 		const Ipp32fc decision = GetDecision(corrected, phase_error);
-		// 3. Update the second-order loop (standard GNU Radio Costas loop).
-		// The phase_error is already normalized by GetDecision.
-		freq_offset_ += pll_freq_ * phase_error;
-
-		if (freq_offset_ > max_freq_offset_)
-			freq_offset_ = max_freq_offset_;
-		if (freq_offset_ < -max_freq_offset_)
-			freq_offset_ = -max_freq_offset_;
-
-		phase_ += freq_offset_ + pll_phase_ * phase_error;
-
-		// Keep phase wrapped between -PI and PI.
-		phase_ = std::remainder(phase_, 2.0 * M_PI);
-
+		// 3. Update the second-order loop 
+		UpdatePll(phase_error);		
 		// 4. Store the corrected sample.
 		sample = corrected;
-
-		// 5. Update statistics for SNR calculation.
-		const double error_re = corrected.re - decision.re;
-		const double error_im = corrected.im - decision.im;
-		error_power_ += error_re * error_re + error_im * error_im;
-		signal_power_ += decision.re * decision.re + decision.im * decision.im;
+		// 5. Update SNR
+		UpdateSNR(corrected, decision);		
 	}
+
 
 	// Calculate SNR if we have valid data.
 	if (!synced_iq.empty() && error_power_ > 0.0) {
@@ -200,7 +184,33 @@ Ipp32fc ContinuousDemodulator::GetDecision(
 	const double real = sample.re * decision.re + sample.im * decision.im;
 	const double imag = sample.im * decision.re - sample.re * decision.im;
 	phase_error =  -std::atan2(imag, real);
-	phase_error = std::tanh(phase_error);
+	//phase_error = std::tanh(phase_error);
 	
 	return decision;
+}
+
+void aq_demod::ContinuousDemodulator::UpdatePll(const double & phase_error)
+{
+	freq_offset_ += pll_freq_ * phase_error;
+
+	if (freq_offset_ > max_freq_offset_)
+		freq_offset_ = max_freq_offset_;
+	if (freq_offset_ < -max_freq_offset_)
+		freq_offset_ = -max_freq_offset_;
+
+	phase_ += freq_offset_ + pll_phase_ * phase_error;
+
+	// Keep phase wrapped between -PI and PI.
+	phase_ = std::remainder(phase_, 2.0 * M_PI);
+}
+
+void aq_demod::ContinuousDemodulator::UpdateSNR(const Ipp32fc corrected, const Ipp32fc decision)
+{
+
+	// 5. Update statistics for SNR calculation.
+	//Îòíîøíåíèå ÑÈÃÍÀË / ØÓÌ
+	const double error_re = corrected.re - decision.re;
+	const double error_im = corrected.im - decision.im;
+	error_power_ += error_re * error_re + error_im * error_im;
+	signal_power_ += decision.re * decision.re + decision.im * decision.im;
 }

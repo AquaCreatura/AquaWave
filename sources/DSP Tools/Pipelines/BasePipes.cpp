@@ -177,3 +177,20 @@ void pipes::ResamplerPipe::ProcessData(PipeHolder::sptr meta_data)
 	std::swap(passed, processed);
 	if (next_) next_->ProcessData(meta_data);
 }
+
+void pipes::DcRemovePipe::ProcessData(PipeHolder::sptr meta_data)
+{
+	auto& data = meta_data->complex_float_data;
+
+	if (data.empty())
+		return;
+
+	Ipp32fc mean = { 0.0f, 0.0f };
+
+	ippsMean_32fc( data.data(), static_cast<int>(data.size()), &mean, ippAlgHintAccurate);
+
+	ippsSubC_32fc_I( mean, data.data(), static_cast<int>(data.size()));
+
+	if (next_)
+		next_->ProcessData(meta_data);
+}

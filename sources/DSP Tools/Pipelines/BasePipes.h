@@ -80,4 +80,9 @@ public:
 protected:
 	aqua_resampler::ResamplerManager man_;
 };
+class DcRemovePipe : public PipeInterface
+{
+public:
+	void ProcessData(PipeHolder::sptr meta_data) override;
+};
 }

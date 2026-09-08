@@ -108,12 +108,14 @@ bool ContinuousDemodulator::SynchroniseIQ(
 	error_power_ = 0.0;
 	signal_power_ = 0.0;
 	for (Ipp32fc& sample : synced_iq) {
-
+		
 		// 1. NCO derotates the current symbol using the loop state.
 		const Ipp32fc corrected = CorrectPhase(sample);
+		const Ipp32fc equalised = equal_.Process(corrected);
 		// 2. Decision-directed phase detector.
 		double phase_error = 0.0;
-		const Ipp32fc decision = GetDecision(corrected, phase_error);
+		const Ipp32fc decision = GetDecision(equalised, phase_error);
+		equal_.Update(decision);
 		// 3. Update the second-order loop 
 		UpdatePll(phase_error);		
 		// 4. Store the corrected sample.

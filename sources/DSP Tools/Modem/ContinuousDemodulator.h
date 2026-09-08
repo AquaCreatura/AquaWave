@@ -6,7 +6,7 @@
 
 #include "TimePeakerDemod.h"
 #include "ModulationPoints.h"
-
+#include "EqaliserAqua.h"
 #ifndef  MPI
 	#define M_PI 3.14159265358979323846
 #endif // ! MPI
@@ -43,7 +43,10 @@ namespace aq_demod
 		void    UpdatePll(const double & error);
 		void    UpdateSNR(const Ipp32fc sample, const Ipp32fc decission);
 	private:
+
 		GardnerTED ted_man_;
+		EqaliserAqua equal_;
+
 
 		std::vector<Ipp32fc> pivots_;
 

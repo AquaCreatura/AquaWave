@@ -101,8 +101,13 @@ bool ContinuousDemodulator::SynchroniseIQ(
 		return true;
 
 	// --- Automatic Gain Control ---
-	if (agc_enabled_)
+	if (agc_enabled_) {
 		ApplyAGC(synced_iq);
+		if (is_first_block_) {
+
+			is_first_block_ = false;
+		}
+	}
 
 	// --- Carrier Recovery (Costas Loop) ---
 	error_power_ = 0.0;
@@ -111,7 +116,8 @@ bool ContinuousDemodulator::SynchroniseIQ(
 		
 		// 1. NCO derotates the current symbol using the loop state.
 		const Ipp32fc corrected = CorrectPhase(sample);
-		const Ipp32fc equalised = equal_.Process(corrected);
+
+		const Ipp32fc equalised = corrected;  equal_.Process(corrected);
 		// 2. Decision-directed phase detector.
 		double phase_error = 0.0;
 		const Ipp32fc decision = GetDecision(equalised, phase_error);
@@ -119,9 +125,9 @@ bool ContinuousDemodulator::SynchroniseIQ(
 		// 3. Update the second-order loop 
 		UpdatePll(phase_error);		
 		// 4. Store the corrected sample.
-		sample = corrected;
+		sample = equalised;
 		// 5. Update SNR
-		UpdateSNR(corrected, decision);		
+		UpdateSNR(equalised, decision);
 	}
 
 
@@ -145,8 +151,7 @@ void ContinuousDemodulator::ApplyAGC(std::vector<Ipp32fc>& signal)
 		if (agc_power_ < 1e-12)
 			agc_power_ = 1e-12;
 
-		const double gain = std::sqrt(target_power_ / agc_power_);
-
+		double gain = std::sqrt(target_power_ / agc_power_);
 		sample.re *= static_cast<Ipp32f>(gain);
 		sample.im *= static_cast<Ipp32f>(gain);
 	}

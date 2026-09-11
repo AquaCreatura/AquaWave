@@ -116,6 +116,7 @@ void constel::Constellation::UpdatePipeline(int64_t new_fc_hz, int64_t new_symbo
 		pipe_line_.AddNextPipe(std::make_shared<ResamplerPipe>(src_info_.descr.carrier_hz, src_info_.descr.samplerate_hz, 
 																	estim_fc_hz_, estim_symbol_rate_ * upsample_koeff, estim_symbol_rate_));
 		pipe_line_.AddNextPipe(std::make_shared<CcmSyncer>("QPSK", upsample_koeff));
+		constel_drawer_->ClearData();
 	}
 	
 }

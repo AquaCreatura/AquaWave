@@ -43,8 +43,8 @@ void constel::ConstelCore::CheckPassedMaximum(const std::vector<Ipp32fc>& passed
 	const float alpha_up = 0.001f;
 	const float alpha_down = 0.010f;
 	const double scale_shift = 1.1;
-	if (constel_.averaged_amplitude == 0.) 
-			constel_.averaged_amplitude = amplitude / 10;
+	if (constel_.max_power == 1.f)
+		constel_.averaged_amplitude = amplitude;
 	if (amplitude > constel_.averaged_amplitude)
 		constel_.averaged_amplitude = constel_.averaged_amplitude * (1.0f - alpha_up) + amplitude * alpha_up;
 	else

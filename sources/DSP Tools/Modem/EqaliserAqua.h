@@ -26,7 +26,7 @@ public:
 	explicit EqaliserAqua(int tap_count = 11);
 
 	void Reset();
-
+	bool IsValid() const;
 	// Обрабатывает входной отсчёт (с коррекцией фазы),
 	// возвращает выровненный сигнал и сохраняет историю для обновления.
 	Ipp32fc Process(const Ipp32fc& sample);
@@ -46,8 +46,15 @@ public:
 
 private:
 	void UpdateBlind();
-	void UpdateDd(const Ipp32fc& pivot);   // больше не принимает corrected
+	void UpdateDd(const Ipp32fc& pivot);  
 
+	void UpdateCma();
+	void UpdateMma();
+	void UpdateLms(const Ipp32fc& pivot);
+	void UpdateNlms(const Ipp32fc& pivot);
+	void UpdateTaps(const Ipp32fc& error, double mu);
+
+private:
 	std::vector<Ipp32fc> taps_;
 	std::vector<Ipp32fc> history_;
 	std::vector<Ipp32fc> update_;

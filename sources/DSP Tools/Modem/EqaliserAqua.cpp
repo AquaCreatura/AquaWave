@@ -9,64 +9,85 @@ namespace
 	{
 		return double(x.re) * x.re + double(x.im) * x.im;
 	}
+}
 
-	// Вспомогательная функция для обновления весов
-	void UpdateTaps(std::vector<Ipp32fc>& taps, const std::vector<Ipp32fc>& x,
-		const Ipp32fc& error, double mu, std::vector<Ipp32fc>& update)
+void EqaliserAqua::UpdateTaps(const Ipp32fc& error, double mu)
+{
+	const int size = static_cast<int>(taps_.size());
+	const Ipp32fc coeff = {
+		static_cast<Ipp32f>(mu * error.re),
+		static_cast<Ipp32f>(-mu * error.im)
+	};
+
+	ippsMulC_32fc(history_.data(), coeff, update_.data(), size);
+	ippsAdd_32fc_I(update_.data(), taps_.data(), size);
+}
+void EqaliserAqua::UpdateCma()
+{
+	const double error = cma_modulus_ - Power(last_output_);
+	const Ipp32fc gradient = {
+		static_cast<Ipp32f>(error * last_output_.re),
+		static_cast<Ipp32f>(error * last_output_.im)
+	};
+
+	UpdateTaps(gradient, blind_step_);
+}
+
+void EqaliserAqua::UpdateMma()
+{
+	const Ipp32fc gradient = {
+		static_cast<Ipp32f>(last_output_.re * (mma_real_modulus_ - last_output_.re * last_output_.re)),
+		static_cast<Ipp32f>(last_output_.im * (mma_imag_modulus_ - last_output_.im * last_output_.im))
+	};
+
+	UpdateTaps(gradient, blind_step_);
+}
+
+void EqaliserAqua::UpdateLms(const Ipp32fc& pivot)
+{
+	const Ipp32fc error = { pivot.re - last_output_.re, pivot.im - last_output_.im };
+	UpdateTaps(error, dd_step_);
+}
+
+void EqaliserAqua::UpdateNlms(const Ipp32fc& pivot)
+{
+	const Ipp32fc error = { pivot.re - last_output_.re, pivot.im - last_output_.im };
+
+	double input_power = 0.0;
+	for (const Ipp32fc& sample : history_)
+		input_power += Power(sample);
+
+	UpdateTaps(error, dd_nlms_step_ / (input_power + 1e-8));
+}
+
+void EqaliserAqua::UpdateBlind()
+{
+	switch (blind_algorithm_)
 	{
-		const int size = static_cast<int>(taps.size());
-		const Ipp32fc coeff = { static_cast<Ipp32f>(mu * error.re),
-			static_cast<Ipp32f>(-mu * error.im) };
+	case BlindAlgorithm::CMA:
+		UpdateCma();
+		break;
 
-		ippsMulC_32fc(x.data(), coeff, update.data(), size);
-		ippsAdd_32fc_I(update.data(), taps.data(), size);
+	case BlindAlgorithm::MMA:
+		UpdateMma();
+		break;
 	}
+}
 
-	// ----- Слепые алгоритмы -----
-	void UpdateCma(std::vector<Ipp32fc>& taps, const std::vector<Ipp32fc>& x,
-		const Ipp32fc& y, double mu, double modulus,
-		std::vector<Ipp32fc>& update)
+void EqaliserAqua::UpdateDd(const Ipp32fc& pivot)
+{
+	if (Power(last_output_) < 1e-12)
+		return;
+
+	switch (dd_algorithm_)
 	{
-		const double error = modulus - Power(y);
-		const Ipp32fc gradient = {
-			static_cast<Ipp32f>(error * y.re),
-			static_cast<Ipp32f>(error * y.im)
-		};
-		UpdateTaps(taps, x, gradient, mu, update);
-	}
+	case DdAlgorithm::LMS:
+		UpdateLms(pivot);
+		break;
 
-	void UpdateMma(std::vector<Ipp32fc>& taps, const std::vector<Ipp32fc>& x,
-		const Ipp32fc& y, double mu, double real_modulus,
-		double imag_modulus, std::vector<Ipp32fc>& update)
-	{
-		const Ipp32fc gradient = {
-			static_cast<Ipp32f>(y.re * (real_modulus - y.re * y.re)),
-			static_cast<Ipp32f>(y.im * (imag_modulus - y.im * y.im))
-		};
-		UpdateTaps(taps, x, gradient, mu, update);
-	}
-
-	// ----- Режим с решением (Decision-Directed) -----
-	void UpdateLms(std::vector<Ipp32fc>& taps, const std::vector<Ipp32fc>& x,
-		const Ipp32fc& y, const Ipp32fc& pivot,
-		double mu, std::vector<Ipp32fc>& update)
-	{
-		const Ipp32fc error = { pivot.re - y.re, pivot.im - y.im };
-		UpdateTaps(taps, x, error, mu, update);
-	}
-
-	void UpdateNlms(std::vector<Ipp32fc>& taps, const std::vector<Ipp32fc>& x,
-		const Ipp32fc& y, const Ipp32fc& pivot,
-		double mu, std::vector<Ipp32fc>& update)
-	{
-		const Ipp32fc error = { pivot.re - y.re, pivot.im - y.im };
-
-		double input_power = 0.0;
-		for (const Ipp32fc& sample : x)
-			input_power += Power(sample);
-
-		// Нормированный шаг: mu / (мощность + эпсилон)
-		UpdateTaps(taps, x, error, mu / (input_power + 1e-8), update);
+	case DdAlgorithm::NLMS:
+		UpdateNlms(pivot);
+		break;
 	}
 }
 
@@ -89,6 +110,17 @@ void EqaliserAqua::Reset()
 	// Центральный отвод = 1 (фильтр пропускает сигнал без искажений)
 	taps_[taps_.size() / 2] = { 1.0f, 0.0f };
 	last_output_ = { 0.0f, 0.0f };
+}
+
+bool EqaliserAqua::IsValid() const
+{
+	for (const Ipp32fc& tap : taps_)
+	{
+		if (!std::isfinite(tap.re) || !std::isfinite(tap.im))
+			return false;
+	}
+
+	return std::isfinite(last_output_.re) && std::isfinite(last_output_.im);
 }
 
 Ipp32fc EqaliserAqua::Process(const Ipp32fc& sample)
@@ -120,39 +152,7 @@ void EqaliserAqua::Update(const Ipp32fc& pivot)
 		UpdateDd(pivot);
 }
 
-void EqaliserAqua::UpdateBlind()
-{
-	switch (blind_algorithm_)
-	{
-	case BlindAlgorithm::CMA:
-		UpdateCma(taps_, history_, last_output_, blind_step_,
-			cma_modulus_, update_);
-		break;
-	case BlindAlgorithm::MMA:
-		UpdateMma(taps_, history_, last_output_, blind_step_,
-			mma_real_modulus_, mma_imag_modulus_, update_);
-		break;
-	}
-}
 
-void EqaliserAqua::UpdateDd(const Ipp32fc& pivot)
-{
-	// Защита от слишком маленького выходного сигнала (избегаем деления на ноль в NLMS)
-	if (Power(last_output_) < 1e-12)
-		return;
-
-	// Ошибка = решение – выход эквалайзера (без поворота фазы!)
-	switch (dd_algorithm_)
-	{
-	case DdAlgorithm::LMS:
-		UpdateLms(taps_, history_, last_output_, pivot, dd_step_, update_);
-		break;
-	case DdAlgorithm::NLMS:
-		// Используем отдельный коэффициент для NLMS
-		UpdateNlms(taps_, history_, last_output_, pivot, dd_nlms_step_, update_);
-		break;
-	}
-}
 
 // ---- Инициализация параметров по созвездию ----
 

@@ -123,7 +123,7 @@ bool EqaliserAqua::IsValid() const
 	return std::isfinite(last_output_.re) && std::isfinite(last_output_.im);
 }
 
-Ipp32fc EqaliserAqua::Process(const Ipp32fc& sample)
+void EqaliserAqua::Process(Ipp32fc& sample)
 {
 	// Сдвиг истории (новый отсчёт на первое место)
 	for (size_t i = history_.size() - 1; i > 0; --i)
@@ -139,7 +139,7 @@ Ipp32fc EqaliserAqua::Process(const Ipp32fc& sample)
 	}
 
 	last_output_ = output;
-	return output;
+	sample = output;
 }
 
 // ---- Обновление ----

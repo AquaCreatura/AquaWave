@@ -28,7 +28,6 @@ namespace aq_demod
 		bool SynchroniseIQ(const std::vector<Ipp32fc>& passed_iq,
 			std::vector<Ipp32fc>& synced_iq);
 
-		void SetAGCEnabled(bool enabled) { agc_enabled_ = enabled; }
 		void SetPllSpeed(double speed);
 
 		double GetFreqOffset() const { return freq_offset_; }
@@ -51,14 +50,12 @@ namespace aq_demod
 		std::vector<Ipp32fc> pivots_;
 
 		int upsample_passed_ = 1;
-
+		double prev_agc_power_ = 1.;
 		double target_power_ = 1.0;
 
 		// AGC normalizes the constellation amplitude for the slicer.
-		bool agc_enabled_ = true;
-		bool is_first_block_ = true;
-		double agc_power_ = 1.0;
-		double agc_alpha_ = 0.001;
+		double agc_power_  = 1.0;
+		double agc_alpha_  = 0.001;
 
 		// GNU Radio uses ~2*pi/100 as the default Costas-loop bandwidth.
 		// The range is typically between 2*pi/200 and 2*pi/100.

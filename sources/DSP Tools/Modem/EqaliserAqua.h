@@ -23,13 +23,13 @@ public:
 	static constexpr double kDdStepMin = 1e-3;
 	static constexpr double kDdStepMax = 1e-2;
 
-	explicit EqaliserAqua(int tap_count = 11);
+	explicit EqaliserAqua(int tap_count = 7);
 
 	void Reset();
 	bool IsValid() const;
 	// Обрабатывает входной отсчёт (с коррекцией фазы),
 	// возвращает выровненный сигнал и сохраняет историю для обновления.
-	Ipp32fc Process(const Ipp32fc& sample);
+	void Process(Ipp32fc& sample);
 
 	// Обновление коэффициентов по решению (символу созвездия).
 	// Вызывается после получения решения по выходу эквалайзера.
@@ -64,7 +64,7 @@ private:
 	BlindAlgorithm blind_algorithm_ = BlindAlgorithm::MMA;
 	DdAlgorithm    dd_algorithm_ = DdAlgorithm::NLMS;
 
-	double blind_step_ = 0.0001;
+	double blind_step_ = 0.001;
 	double dd_step_ = 0.005;
 	double dd_nlms_step_ = 0.5;   // используется только для NLMS
 

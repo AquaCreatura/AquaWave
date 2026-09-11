@@ -30,7 +30,9 @@ bool ContinuousDemodulator::Init(const char* modulation, int upsample_passed)
 		return false;
 
 	upsample_passed_ = upsample_passed;
-
+	equal_.SetBlindAlgorithm(EqaliserAqua::BlindAlgorithm::MMA);
+	equal_.SetDdAlgorithm(EqaliserAqua::DdAlgorithm::NLMS);
+	equal_.EnableBlind(true);
 	// Re-initialize the Gardner TED with the correct oversampling factor.
 	ted_man_ = GardnerTED(upsample_passed);
 
@@ -58,7 +60,7 @@ void ContinuousDemodulator::Reset()
 	signal_power_ = 0.0;
 	error_power_ = 0.0;
 	snr_db_ = 0.0;
-
+	equal_.Reset();
 	ted_man_.Reset();
 }
 
@@ -77,6 +79,7 @@ void ContinuousDemodulator::SetPllSpeed(double speed)
 		// Ћинейно от 0.005 до 0.05
 		current_alpha_ = 0.005 + ((speed - 0.5) / 0.5) * (0.05 - 0.005);
 	}
+	current_alpha_ *= 1;
 	UpdateLoopCoefficients();
 }
 
@@ -85,7 +88,7 @@ void ContinuousDemodulator::UpdateLoopCoefficients()
 	// alpha Ч это pll_phase_, beta Ч это pll_freq_
 	pll_phase_ = current_alpha_;
 	// beta = 0.25 * alpha^2, как рекомендовано в литературе
-	pll_freq_ = 0.25 * current_alpha_ * current_alpha_;
+	pll_freq_ = 0.25 * current_alpha_ * current_alpha_ ;
 }
 
 bool ContinuousDemodulator::SynchroniseIQ(
@@ -101,12 +104,13 @@ bool ContinuousDemodulator::SynchroniseIQ(
 		return true;
 
 	// --- Automatic Gain Control ---
-	if (agc_enabled_) {
-		ApplyAGC(synced_iq);
-		if (is_first_block_) {
 
-			is_first_block_ = false;
-		}
+	ApplyAGC(synced_iq);
+	if (std::max(prev_agc_power_ / agc_power_, agc_power_ / prev_agc_power_) > 1.2) {
+		equal_.Reset();
+		phase_ = 0.0;
+		freq_offset_ = 0.0;
+		return true;
 	}
 
 	// --- Carrier Recovery (Costas Loop) ---
@@ -115,19 +119,18 @@ bool ContinuousDemodulator::SynchroniseIQ(
 	for (Ipp32fc& sample : synced_iq) {
 		
 		// 1. NCO derotates the current symbol using the loop state.
-		const Ipp32fc corrected = CorrectPhase(sample);
-
-		const Ipp32fc equalised = corrected;  equal_.Process(corrected);
+		Ipp32fc corrected = CorrectPhase(sample);
+		equal_.Process(corrected);
 		// 2. Decision-directed phase detector.
 		double phase_error = 0.0;
-		const Ipp32fc decision = GetDecision(equalised, phase_error);
+		const Ipp32fc decision = GetDecision(corrected, phase_error);
 		equal_.Update(decision);
 		// 3. Update the second-order loop 
 		UpdatePll(phase_error);		
 		// 4. Store the corrected sample.
-		sample = equalised;
+		sample = corrected;
 		// 5. Update SNR
-		UpdateSNR(equalised, decision);
+		UpdateSNR(corrected, decision);
 	}
 
 
@@ -141,6 +144,7 @@ bool ContinuousDemodulator::SynchroniseIQ(
 
 void ContinuousDemodulator::ApplyAGC(std::vector<Ipp32fc>& signal)
 {
+	prev_agc_power_ = agc_power_;
 	for (Ipp32fc& sample : signal) {
 
 		const double power = sample.re * sample.re + sample.im * sample.im;

@@ -12,6 +12,16 @@ public:
     ~AquaWave();
 
 private:
+	struct Page {
+		QWidget*   widget;
+		// ќбобщЄнный вызов PostDove Ч не зависим от конкретного типа контроллера
+		std::function<void(std::shared_ptr<fluctus::DoveParrent>)> postDove;
+		QString    title;
+		QString    iconPath;
+	};
+
+	std::vector<Page> pages_;
+
     Ui::AquaWaveWindow              ui;
 	ShipBuilder						ship_builder_;
 	fluctus::ArkSptr				file_src_;

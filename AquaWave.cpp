@@ -1,23 +1,25 @@
 #include  <qmessagebox.h>
 #include <QFile>
 #include <QApplication>
-
 #include "AquaWave.h"
 #include "special_defs/file_souce_defs.h"
 #include "Utilities/qt_utility.h"
+
+#include <qtoolbar.h>
+#include <qpushbutton.h>
+#include <qtabbar.h>
+#include "GUI/External/Window/FramelessHelper.h"
 AquaWave::AquaWave(QWidget *parent, const QString& file_path)
     : QMainWindow(parent)
 {
+	ui.setupUi(this);
 
-
-
+	auto* h = new FramelessHelper(this);
+	h->setTitleBar(ui.main_button_panel);
 
 	//(QString&)file_path = "D:\\signals\\17.10.2025 16_41_59 1875.300000MHz 12800.000KHz.pcm";
-    ui.setupUi(this); 
-
-	//default_theme
 	//red_scheme
-	QFile file(":/AquaWave/sources/GUI/CSS_Themes/space_scheme.qss");
+	QFile file(":/AquaWave/sources/GUI/External/Themes/space_scheme.qss");
 	if (file.open(QFile::ReadOnly)) {
 		QString style = file.readAll();
 		setStyleSheet(style);
@@ -89,48 +91,45 @@ AquaWave::AquaWave(QWidget *parent, const QString& file_path)
 		file_src_->PostDove(file_dove);
 	}
 
-	this->ui.main_stacked->addWidget(ShipBuilder::GetWindow(spectral_viewer_));
-	this->ui.main_stacked->addWidget(ShipBuilder::GetWindow(scope_analyser_));
-	connect(ui.spectral_viewer_navigate_button, &QPushButton::clicked, [this](){
-		ui.main_stacked->setCurrentWidget(ShipBuilder::GetWindow(spectral_viewer_));
-		spectral_viewer_->PostDove(std::make_shared<fluctus::DoveParrent>(fluctus::DoveParrent::kActivate));
-		scope_analyser_->PostDove(std::make_shared<fluctus::DoveParrent>(fluctus::DoveParrent::kDeactivate));
-	});
-	connect(ui.analyze_navigate_button, &QPushButton::clicked, [this]() {
-		ui.main_stacked->setCurrentWidget(ShipBuilder::GetWindow(scope_analyser_));
-		scope_analyser_->PostDove(std::make_shared<fluctus::DoveParrent>(fluctus::DoveParrent::kActivate));
-		spectral_viewer_->PostDove(std::make_shared<fluctus::DoveParrent>(fluctus::DoveParrent::kDeactivate));
-	});
-	ui.spectral_viewer_navigate_button->click();
-	//connect
-	//this->ui.main_stacked->setCurrentWidget(ShipBuilder::GetWindow(spectral_viewer_));
+	pages_ = {
+		{
+			ShipBuilder::GetWindow(spectral_viewer_),
+			[this](auto d) { spectral_viewer_->PostDove(d); },
+			("Spectral"),
+			(":/buttons/button_images/spectrum.png")
+		},
+		{
+			ShipBuilder::GetWindow(scope_analyser_),
+			[this](auto d) { scope_analyser_->PostDove(d); },
+			("Analyze"),
+			(":/buttons/button_images/analyze_icon.png")
+		},
+		// future pages go here...
+	};
 
+	// 2. –егистрируем вкладки + иконки Ч один цикл на всЄ.
+	for (auto& p : pages_) {
+		QIcon icon = buildButtonIcon(p.iconPath, p.iconPath, p.iconPath, p.iconPath, p.iconPath);
+		ui.main_tab_widget->addTab(p.widget, icon, p.title);
+	}
 
+	auto applyTabState = [this]() {
+		QWidget* current = ui.main_tab_widget->currentWidget();
+		for (auto& p : pages_) {
+			auto dove = std::make_shared<fluctus::DoveParrent>(
+				(p.widget == current) ? fluctus::DoveParrent::kActivate
+				: fluctus::DoveParrent::kDeactivate);
+			p.postDove(dove);
+		}
+	};
 
+	connect(ui.main_tab_widget, &QTabWidget::currentChanged,
+		this, [applyTabState](int) { applyTabState(); });
 
-
-	QIcon analyzeIcon = buildButtonIcon(
-		":/buttons/button_images/analyze_icon.png",
-		":/buttons/button_images/analyze_icon.png",
-		":/buttons/button_images/analyze_icon.png",
-		":/buttons/button_images/analyze_icon.png",
-		":/buttons/button_images/analyze_icon.png"
-	);
-
-	ui.analyze_navigate_button->setIcon(analyzeIcon);
-	ui.analyze_navigate_button->setIconSize(QSize(32, 32));
-
-
-	QIcon spectrumIcon = buildButtonIcon(
-		":/buttons/button_images/spectrum.png",
-		":/buttons/button_images/spectrum.png",
-		":/buttons/button_images/spectrum.png",
-		":/buttons/button_images/spectrum.png",
-		":/buttons/button_images/spectrum.png"
-	);
-
-	ui.spectral_viewer_navigate_button->setIcon(spectrumIcon);
-	ui.spectral_viewer_navigate_button->setIconSize(QSize(32, 32));
+	// Ќачальное состо€ние Ч вызвать €вно
+	if (!pages_.empty() && ui.main_tab_widget->currentWidget() != nullptr) {
+		applyTabState();
+	}
 
 }
 

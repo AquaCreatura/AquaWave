@@ -98,9 +98,6 @@
     <Filter Include="ARKS\Elements\Constellation">
       <UniqueIdentifier>{090844cb-e36d-46ee-8e5a-4c654974ec6c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="GUI\QSS_themes">
-      <UniqueIdentifier>{3eced2d3-ca09-4078-b73a-0c3294adf820}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ARKS\Elements\Static SPG\requester">
       <UniqueIdentifier>{5e66df57-3a99-42dc-b439-4d7267d31dfa}</UniqueIdentifier>
     </Filter>
@@ -133,6 +130,15 @@
     </Filter>
     <Filter Include="ARKS\Demodulation">
       <UniqueIdentifier>{c21e98f1-00be-4384-b314-60e629e39f2b}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI\External">
+      <UniqueIdentifier>{f7fd9c2c-4d2d-44bd-a24f-8938a56cc951}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI\External\Window">
+      <UniqueIdentifier>{497ee3b7-ad5d-42d0-945e-028e5488703e}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="GUI\External\Themes">
+      <UniqueIdentifier>{4f2aedb3-2258-4c6f-a488-45262101b623}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <!-- ClCompile (CPP Files) -->
@@ -304,6 +310,9 @@
     </ClCompile>
     <ClCompile Include="sources\DSP Tools\Modem\EqaliserAqua.cpp">
       <Filter>DSP Tools\Modem</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\GUI\External\Window\FramelessHelper.cpp">
+      <Filter>GUI\External\Window</Filter>
     </ClCompile>
   </ItemGroup>
   <!-- ClInclude (H Files) -->
@@ -519,6 +528,9 @@
     <QtMoc Include="sources\Arks\SelectionWriter\window\selection_writer_window.h">
       <Filter>ARKS\SelectionWriter\window</Filter>
     </QtMoc>
+    <QtMoc Include="sources\GUI\External\Window\FramelessHelper.h">
+      <Filter>GUI\External\Window</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="AquaWave.qrc" />
@@ -548,11 +560,11 @@
     <ResourceCompile Include="AquaWave.rc" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="sources\GUI\CSS_Themes\blue_scheme.qss">
-      <Filter>GUI\QSS_themes</Filter>
+    <None Include="sources\GUI\External\Themes\blue_scheme.qss">
+      <Filter>GUI\External\Themes</Filter>
     </None>
-    <None Include="sources\GUI\CSS_Themes\space_scheme.qss">
-      <Filter>GUI\QSS_themes</Filter>
+    <None Include="sources\GUI\External\Themes\space_scheme.qss">
+      <Filter>GUI\External\Themes</Filter>
     </None>
   </ItemGroup>
 </Project>

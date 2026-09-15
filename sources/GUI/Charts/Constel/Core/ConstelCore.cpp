@@ -11,6 +11,7 @@ void constel::ConstelCore::AddData(const std::vector<Ipp32fc> &passed_data)
 	if (constel_.data.empty()) Emplace();
 	CheckPassedMaximum(passed_data);
 	StoreData(passed_data);
+	is_updated_ = true;
 }
 constellation_data & constel::ConstelCore::GetConstelData()
 {
@@ -30,7 +31,9 @@ void constel::ConstelCore::Emplace(const int bins_amplitude)
 
 QPixmap & constel::ConstelCore::GetRelevantPixmap(const int chart_size_px)
 {
-	ApplyDecay();
+	if(is_updated_)
+		ApplyDecay();
+	is_updated_ = false;
 	return renderer_.DrawData(chart_size_px);
 }
 
@@ -42,7 +45,7 @@ void constel::ConstelCore::CheckPassedMaximum(const std::vector<Ipp32fc>& passed
 	
 	const float alpha_up = 0.001f;
 	const float alpha_down = 0.010f;
-	const double scale_shift = 1.1;
+	const double scale_shift = 1.2;
 	if (amplitude > constel_.averaged_amplitude)
 		constel_.averaged_amplitude = constel_.averaged_amplitude * (1.0f - alpha_up) + amplitude * alpha_up;
 	else

@@ -11,6 +11,7 @@ ScopeAnalyzerWindow::ScopeAnalyzerWindow()
 	ui_.radio_group_chart_type->setId(ui_.symbol_rate_am_radio_button , scope_chart_type::kEnvelopeSpectrum	);
 	ui_.radio_group_chart_type->setId(ui_.bandwidth_radio_button	  , scope_chart_type::kBandwidth		);
 	ui_.radio_group_chart_type->setId(ui_.acf_radio_button			  , scope_chart_type::kAcf				);
+	ui_.radio_group_chart_type->setId(ui_.modulation_radio_button	  , scope_chart_type::kConstellation	);
 
 	connect(ui_.radio_group_chart_type,
 		QOverload<int>::of(&QButtonGroup::buttonClicked),
@@ -43,9 +44,6 @@ void ScopeAnalyzerWindow::AddChartWindow(QWidget * widget_ptr, scope_chart_type 
 	switch (type_of_chart)
 	{
 	case scope_chart_type::undefined:
-		break;
-	case scope_chart_type::kConstellation:
-		ui_.constell_chart->layout()->addWidget(widget_ptr);
 		break;
 	default:
 		ui_.harmonic_chart_stacked->addWidget(widget_ptr);

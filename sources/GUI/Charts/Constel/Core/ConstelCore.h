@@ -23,6 +23,7 @@ protected:
 	constellation_data constel_;
 	ConstellRenderer renderer_;
 	double decay_coeff_ = 1.0;
+	bool is_updated_ = false;
 };
 
 }

@@ -23,7 +23,7 @@ public:
 	static constexpr double kDdStepMin = 1e-3;
 	static constexpr double kDdStepMax = 1e-2;
 
-	explicit EqaliserAqua(int tap_count = 7);
+	explicit EqaliserAqua(int tap_count = 17);
 
 	void Reset();
 	bool IsValid() const;
@@ -38,7 +38,7 @@ public:
 	// Инициализация параметров слепых алгоритмов по точкам созвездия.
 	void InitFromPivots(const std::vector<Ipp32fc>& pivots);
 
-	void EnableBlind(bool enabled);
+	void EnableDirectDecision(bool enabled);
 	void SetBlindAlgorithm(BlindAlgorithm algorithm);
 	void SetDdAlgorithm(DdAlgorithm algorithm);
 	void SetBlindStep(double step); // 1e-4 ... 5e-3
@@ -64,13 +64,13 @@ private:
 	BlindAlgorithm blind_algorithm_ = BlindAlgorithm::MMA;
 	DdAlgorithm    dd_algorithm_ = DdAlgorithm::NLMS;
 
-	double blind_step_ = 0.001;
-	double dd_step_ = 0.005;
-	double dd_nlms_step_ = 0.5;   // используется только для NLMS
+	double blind_step_ = 0.01;
+	double dd_step_ = 0.01;
+	double dd_nlms_step_ = 0.8;   // используется только для NLMS
 
 	double cma_modulus_ = 1.0;
 	double mma_real_modulus_ = 1.0;
 	double mma_imag_modulus_ = 1.0;
 
-	bool blind_enabled_ = true;
+	bool blind_direct_decision_ = true;
 };

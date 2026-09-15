@@ -8,159 +8,59 @@
 #include <cmath>
 #include <ipp.h>
 
-void AddQAMFixed(std::vector<Ipp32fc>& points, int M)
-{
-	points.reserve(points.size() + M);
 
-	switch (M)
-	{
-	case 4:
-	{
-		const Ipp32f s = 0.707106781f;
-		points.push_back({ -s, -s });
-		points.push_back({ -s,  s });
-		points.push_back({ s, -s });
-		points.push_back({ s,  s });
-		break;
-	}
+#include <vector>
+#include <cmath>
+#include <ipp.h>
 
-	case 16:
-	{
-		const Ipp32f s = 0.316227766f;
-		const Ipp32f a = 1.0f * s;
-		const Ipp32f b = 3.0f * s;
-		const Ipp32f qv[] = { -b, -a, a, b };
-		const Ipp32f iv[] = { -b, -a, a, b };
-		for (Ipp32f q : qv)
-			for (Ipp32f i : iv)
-				points.push_back({ i, q });
-		break;
-	}
-
-	case 32:
-	{
-		const Ipp32f s = 0.223606798f;
-		const Ipp32f qv[] = { -3.0f, -1.0f, 1.0f, 3.0f };
-		const Ipp32f iv[] = { -5.0f, -3.0f, -1.0f, 1.0f, 3.0f, 5.0f };
-		for (Ipp32f q : qv)
-			for (Ipp32f i : iv)
-				points.push_back({ i * s, q * s });
-		const Ipp32f qv2[] = { -3.0f, -1.0f, 1.0f, 3.0f };
-		const Ipp32f y5 = 5.0f * s;
-		const Ipp32f yn5 = -5.0f * s;
-		for (Ipp32f q : qv2)
-		{
-			points.push_back({ q * s, y5 });
-			points.push_back({ q * s, yn5 });
-		}
-		break;
-	}
-
-	case 64:
-	{
-		const Ipp32f s = 0.154303350f;
-		const Ipp32f v[] = { -7.0f, -5.0f, -3.0f, -1.0f, 1.0f, 3.0f, 5.0f, 7.0f };
-		for (Ipp32f q : v)
-			for (Ipp32f i : v)
-				points.push_back({ i * s, q * s });
-		break;
-	}
-
-	case 128:
-	{
-		const Ipp32f s = 0.110431526f;
-		const int ni = 16;
-		const int nq = 8;
-		const int s0 = 4;
-		for (int q = -(nq - 1); q <= nq - 1; q += 2)
-		{
-			for (int i = -(ni - 1); i <= ni - 1; i += 2)
-			{
-				int x = i;
-				int y = q;
-				if (std::abs(x) > 3 * s0 && std::abs(y) > s0)
-				{
-					x = (x > 0 ? 1 : -1) * (std::abs(x) - 2 * s0);
-					y = (y > 0 ? 1 : -1) * (4 * s0 - std::abs(y));
-				}
-				else if (std::abs(x) > 3 * s0 && std::abs(y) <= s0)
-				{
-					x = (x > 0 ? 1 : -1) * (4 * s0 - std::abs(x));
-					y = (y > 0 ? 1 : -1) * (std::abs(y) + 2 * s0);
-				}
-				points.push_back({ (Ipp32f)x * s, (Ipp32f)y * s });
-			}
-		}
-		break;
-	}
-
-	case 256:
-	{
-		const Ipp32f s = 0.076696499f;
-		for (int q = -15; q <= 15; q += 2)
-			for (int i = -15; i <= 15; i += 2)
-				points.push_back({ (Ipp32f)i * s, (Ipp32f)q * s });
-		break;
-	}
-
-	default:
-		break;
-	}
-}
 std::vector<Ipp32fc> AddQAMConst(int M)
 {
-	const int bits = static_cast<int>(std::log2(M));
-	if (bits < 2 || (1 << bits) != M)
+	int k = static_cast<int>(std::log2(M));
+
+	// Отсекаем невалидные M и 8-QAM (k=3), так как для него нет cross-геометрии
+	if (k < 2 || (1 << k) != M || k == 3)
 		return {};
 
 	std::vector<Ipp32fc> points;
 	points.reserve(M);
 
-	if ((bits & 1) == 0)
+	int side, threshold;
+	if (k % 2 == 0)
 	{
-		const int n = 1 << (bits / 2);
-
-		for (int q = -(n - 1); q <= n - 1; q += 2)
-			for (int i = -(n - 1); i <= n - 1; i += 2)
-				points.push_back({ static_cast<Ipp32f>(i), static_cast<Ipp32f>(q) });
+		// Квадратные QAM (4, 16, 64, 256...)
+		side = 1 << (k / 2);
+		threshold = side; // Порог равен стороне. Условие abs(x) > side всегда ложно -> углы не режем
 	}
 	else
 	{
-		const int n = (bits - 1) / 2;
-		const int ni = 1 << (n + 1);
-		const int nq = 1 << n;
-		const int s = 1 << (n - 1);
+		// Cross QAM (32, 128, 512...)
+		side = 3 * (1 << ((k - 3) / 2));       // Общая сторона сетки (6, 12, 24...)
+		threshold = 1 << ((k - 1) / 2);        // Порог для отрезания углов (4, 8, 16...)
+	}
 
-		for (int q = -(nq - 1); q <= nq - 1; q += 2)
+	int max_coord = side - 1;
+
+	// Единый цикл для всех типов. Никаких лишних условий внутри.
+	for (int y = -max_coord; y <= max_coord; y += 2)
+	{
+		for (int x = -max_coord; x <= max_coord; x += 2)
 		{
-			for (int i = -(ni - 1); i <= ni - 1; i += 2)
-			{
-				int x = i;
-				int y = q;
+			// Для квадратов это условие никогда не выполнится. 
+			// Для Cross QAM оно отсечет ровно 4 уголка.
+			if (std::abs(x) > threshold && std::abs(y) > threshold)
+				continue;
 
-				if (std::abs(x) > 3 * s && std::abs(y) > s)
-				{
-					x = std::copysign(std::abs(x) - 2 * s, x);
-					y = std::copysign(4 * s - std::abs(y), y);
-				}
-				else if (std::abs(x) > 3 * s)
-				{
-					x = std::copysign(4 * s - std::abs(x), x);
-					y = std::copysign(std::abs(y) + 2 * s, y);
-				}
-
-				points.push_back({ static_cast<Ipp32f>(x), static_cast<Ipp32f>(y) });
-			}
+			points.push_back({ static_cast<Ipp32f>(x), static_cast<Ipp32f>(y) });
 		}
 	}
 
+	// Нормировка на единичную среднюю мощность
 	double power = 0.0;
-	for (const Ipp32fc& p : points)
+	for (const auto& p : points)
 		power += static_cast<double>(p.re) * p.re + static_cast<double>(p.im) * p.im;
 
-	const Ipp32f norm = static_cast<Ipp32f>(std::sqrt(power / M));
-
-	for (Ipp32fc& p : points)
+	Ipp32f norm = static_cast<Ipp32f>(std::sqrt(power / M));
+	for (auto& p : points)
 	{
 		p.re /= norm;
 		p.im /= norm;
@@ -206,7 +106,7 @@ std::vector<Ipp32fc> aq_demod::CalculateModulationPivots(const char * modulation
 	{
 		const auto pos = mod.find("QAM");
 		const int M = std::stoi(mod.substr(0, pos) + mod.substr(pos + 3));
-		AddQAMFixed(points, M);
+		points = AddQAMConst(M);
 	}
 	else if (mod.find("PSK") != std::string::npos)
 	{

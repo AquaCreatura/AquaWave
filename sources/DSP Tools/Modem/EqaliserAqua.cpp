@@ -146,10 +146,11 @@ void EqaliserAqua::Process(Ipp32fc& sample)
 
 void EqaliserAqua::Update(const Ipp32fc& pivot)
 {
-	if (blind_enabled_)
-		UpdateBlind();
-	else
+	if (blind_direct_decision_)
 		UpdateDd(pivot);
+	else
+		UpdateBlind();
+		
 }
 
 
@@ -209,9 +210,9 @@ void EqaliserAqua::InitFromPivots(const std::vector<Ipp32fc>& pivots)
 
 // ---- Настройка параметров ----
 
-void EqaliserAqua::EnableBlind(bool enabled)
+void EqaliserAqua::EnableDirectDecision(bool enabled)
 {
-	blind_enabled_ = enabled;
+	blind_direct_decision_ = enabled;
 }
 
 void EqaliserAqua::SetBlindAlgorithm(BlindAlgorithm algorithm)

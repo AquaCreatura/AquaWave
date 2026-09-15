@@ -222,7 +222,7 @@ double PeakDetector::GetPeakSpectrumSymmetry() const
 	std::vector<size_t> peaks = FindPeaksToAvg(
 		const_cast<Ipp32f*>(max_hold_.data()),
 		n_fft_,
-		3,
+		1,
 		kCheckAreaRatio,
 		kMinDistRatio,
 		kPeakThresholdDb);
@@ -282,18 +282,6 @@ double PeakDetector::GetPeakSymbolRate() const
 
 	size_t fundamental = FindFundamental(peaks, kAcfToleranceRatio, kMaxAcfHarmonic);
 
-	if (fundamental != 0)
-	{
-		auto max_amp_iter = std::max_element(
-			peaks.begin(), peaks.end(),
-			[this](size_t a, size_t b) { return max_hold_[a] < max_hold_[b]; });
-		double max_amp = max_hold_[*max_amp_iter];
-		double fund_amp = max_hold_[fundamental];
-
-		if (fund_amp < kSymbolPeakRatio * max_amp)
-			fundamental = *max_amp_iter;
-	}
-	else
 	{
 		auto max_amp_iter = std::max_element(
 			peaks.begin(), peaks.end(),

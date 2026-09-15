@@ -31,8 +31,8 @@ bool ContinuousDemodulator::Init(const char* modulation, int upsample_passed)
 
 	upsample_passed_ = upsample_passed;
 	equal_.SetBlindAlgorithm(EqaliserAqua::BlindAlgorithm::MMA);
-	equal_.SetDdAlgorithm(EqaliserAqua::DdAlgorithm::NLMS);
-	equal_.EnableBlind(true);
+	equal_.SetDdAlgorithm(EqaliserAqua::DdAlgorithm::LMS);
+	equal_.EnableDirectDecision(false);
 	// Re-initialize the Gardner TED with the correct oversampling factor.
 	ted_man_ = GardnerTED(upsample_passed);
 
@@ -79,7 +79,7 @@ void ContinuousDemodulator::SetPllSpeed(double speed)
 		// Линейно от 0.005 до 0.05
 		current_alpha_ = 0.005 + ((speed - 0.5) / 0.5) * (0.05 - 0.005);
 	}
-	current_alpha_ *= 1;
+	current_alpha_ *= 0.1;
 	UpdateLoopCoefficients();
 }
 
@@ -131,8 +131,14 @@ bool ContinuousDemodulator::SynchroniseIQ(
 		sample = corrected;
 		// 5. Update SNR
 		UpdateSNR(corrected, decision);
-	}
 
+	}
+	if (!equal_.IsValid()) {
+		equal_.Reset();
+		phase_ = 0.0;
+		freq_offset_ = 0.0;
+		synced_iq.clear();
+	}
 
 	// Calculate SNR if we have valid data.
 	if (!synced_iq.empty() && error_power_ > 0.0) {

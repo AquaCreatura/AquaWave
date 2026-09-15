@@ -131,6 +131,9 @@
     <Filter Include="DSP Tools\Modem">
       <UniqueIdentifier>{f1cbb9f3-b2a7-4879-a8c6-90e88fa96f9b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ARKS\Demodulation">
+      <UniqueIdentifier>{c21e98f1-00be-4384-b314-60e629e39f2b}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <!-- ClCompile (CPP Files) -->
   <ItemGroup>

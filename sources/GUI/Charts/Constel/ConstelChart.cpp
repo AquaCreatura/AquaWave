@@ -17,8 +17,8 @@ ChartConstel::ChartConstel(QWidget * parrent):
 
 	connect(&redraw_timer_, &QTimer::timeout, this, QOverload<>::of(&ChartConstel::update));
 	{
-		double fps = 10;
-		redraw_timer_.start(1000 / 10);
+		double fps = 20;
+		redraw_timer_.start(1000 / fps);
 		core_.InitDecay(fps, 2);
 	}
 }
@@ -43,7 +43,8 @@ void ChartConstel::paintEvent(QPaintEvent * paint_event)
 	QPainter new_frame_painter(this);
 	bg_image_.DrawImage(new_frame_painter);
 	{
-		auto data_pixmap = core_.GetRelevantPixmap(scale_info_.pix_info_.chart_size_px.hor);
+		auto chart_size = scale_info_.pix_info_.chart_size_px;
+		auto data_pixmap = core_.GetRelevantPixmap(std::min(chart_size.hor, chart_size.vert));
 		new_frame_painter.drawPixmap(0,0, data_pixmap);
 	}
 
@@ -54,23 +55,10 @@ void ChartConstel::resizeEvent(QResizeEvent * event)
 	aqua_gui::HV_Info<int> cur_size = { this->width(), this->height() };
 	auto        &pix_info = scale_info_.pix_info_;
 	if (pix_info.widget_size_px == cur_size) return;
-	pix_info.widget_size_px = cur_size;
+	auto min_size = std::min(cur_size.hor, cur_size.vert);
+
+	pix_info.widget_size_px = { min_size , min_size };
 	pix_info.chart_size_px = pix_info.widget_size_px - pix_info.margin_px;
-	
-
-	
-	if (cur_size.vert < cur_size.hor) {
-		setMinimumHeight(cur_size.hor);
-	}
-	else if (cur_size.hor < cur_size.vert) {
-		setMinimumHeight(cur_size.hor);		
-		const auto min_size = std::min(cur_size.hor, cur_size.vert);
-		//resize(min_size, min_size);
-	}
-	
-		
-
-
 }
 
 bool ChartConstel::ShouldRedraw()

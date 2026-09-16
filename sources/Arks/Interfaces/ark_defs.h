@@ -80,7 +80,7 @@ namespace fluctus
 		QString     file_name_;				
 		bool        is_signal{ true };		
 		int64_t     count_of_samples   {0i64};
-		int			first_sample_offset{0};
+		size_t		first_sample_offset{0};
 	};
     struct SourceArk
     {

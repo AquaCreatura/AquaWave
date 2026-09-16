@@ -50,7 +50,7 @@ public:
 protected:
 	fluctus::SourceDescription last_params_;
     IppDataType   data_type_;          ///< Тип данных (ipp8u, ipp16s, ipp32f и т.д.)
-    size_t        file_size_samples_;  ///< Размер файла в сэмплах
+    size_t        file_size_samples_ = 0;  ///< Размер файла в сэмплах
     std::ifstream ifstream_;           ///< Поток для чтения файла
 
 private:

@@ -32,21 +32,7 @@ bool FileReader::SetFileParams(const fluctus::SourceDescription &params) {
 
     data_type_ = params.data_type_;
 
-    size_t sample_size = GetSampleSize(data_type_);
-    if (sample_size == 0) {
-        qDebug() << "Error: Unsupported data type." ;
-        ifstream_.close();
-        return false; // Неподдерживаемый тип данных
-    }
-
-    int file_size_bytes = int(ifstream_.tellg()) - params.first_sample_offset;
-    ifstream_.seekg(params.first_sample_offset, std::ios::beg); // Вернуться в начало файла
-
-    // Проверяем, чтобы размер файла был кратен размеру сэмпла
-    if (file_size_bytes % sample_size != 0) {
-        qDebug() << "Warning: File size (" << file_size_bytes << " bytes) is not a multiple of sample size (" << sample_size << " bytes). Truncating." ;
-    }
-    file_size_samples_ = static_cast<size_t>(file_size_bytes) / sample_size;
+    file_size_samples_ = params.count_of_samples;
 	last_params_ = params;
     return true;
 }

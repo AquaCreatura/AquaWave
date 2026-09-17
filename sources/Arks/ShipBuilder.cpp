@@ -3,6 +3,7 @@
 #include "Arks/File Source/FileSource.h"
 #include "Arks/Scope Analyzer/ScopeAnalyzer.h"
 #include "Arks/SelectionWriter/SelectionWriter.h"
+#include "Arks/Demodulation/AquaDemod.h"
 fluctus::ArkSptr ShipBuilder::BuildNewShip(fluctus::ArkType ship_type, QWidget* main)
 {
 	fluctus::ArkSptr ark;
@@ -15,6 +16,8 @@ fluctus::ArkSptr ShipBuilder::BuildNewShip(fluctus::ArkType ship_type, QWidget* 
 	case fluctus::kScopeAnalyser:	ark = std::make_shared<scope_analyzer::ScopeAnalyzer>();
 		break;
 	case fluctus::kSelectionWriter:	ark = std::make_shared<file_writer::SelectionWriter>();
+		break;
+	case fluctus::kBaseDemodulator:	ark = std::make_shared<demodulation::AquaDemod>();
 		break;
 	default:
 		break;

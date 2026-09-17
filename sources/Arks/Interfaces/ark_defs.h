@@ -38,7 +38,6 @@ namespace fluctus
     typedef  std::list<ArkSptr>            StrongFleet;
     typedef  std::list<ArkWptr>            WeakFleet;
  
-    //Main unit to communicate between arks
     enum ArkType
     {
         kUnknown		= 0,
@@ -49,6 +48,7 @@ namespace fluctus
 		kScopeAnalyser	= 5,
 		kConstellation  = 6,
 		kSelectionWriter = 7,
+		kBaseDemodulator = 8,
     };
 
 

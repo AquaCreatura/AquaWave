@@ -140,6 +140,9 @@
     <Filter Include="GUI\External\Themes">
       <UniqueIdentifier>{4f2aedb3-2258-4c6f-a488-45262101b623}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ARKS\Demodulation\window">
+      <UniqueIdentifier>{493e6db4-900a-45ca-a394-c8ed322d6f90}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <!-- ClCompile (CPP Files) -->
   <ItemGroup>
@@ -314,6 +317,12 @@
     <ClCompile Include="sources\GUI\External\Window\FramelessHelper.cpp">
       <Filter>GUI\External\Window</Filter>
     </ClCompile>
+    <ClCompile Include="sources\Arks\Demodulation\AquaDemod.cpp">
+      <Filter>ARKS\Demodulation</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\Arks\Demodulation\window\AquaDemodWindow.cpp">
+      <Filter>ARKS\Demodulation\window</Filter>
+    </ClCompile>
   </ItemGroup>
   <!-- ClInclude (H Files) -->
   <ItemGroup>
@@ -483,6 +492,12 @@
     <ClInclude Include="sources\DSP Tools\Modem\EqaliserAqua.h">
       <Filter>DSP Tools\Modem</Filter>
     </ClInclude>
+    <ClInclude Include="sources\Arks\Demodulation\AquaDemod.h">
+      <Filter>ARKS\Demodulation</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\Arks\Demodulation\window\AquaDemodWindow.h">
+      <Filter>ARKS\Demodulation\window</Filter>
+    </ClInclude>
   </ItemGroup>
   <!-- QtMoc (For Headers Requiring Moc) -->
   <ItemGroup>
@@ -494,9 +509,6 @@
     </QtMoc>
     <QtMoc Include="sources\Arks\File Source\window\FileSourceDialog.h">
       <Filter>ARKS\File Source\window</Filter>
-    </QtMoc>
-    <QtMoc Include="sources\Arks\Spectral Viewer\SpectralViewer.h">
-      <Filter>ARKS\Spectral Viewer</Filter>
     </QtMoc>
     <QtMoc Include="sources\Arks\Scope Analyzer\window\scope_analyzer_window.h">
       <Filter>ARKS\Scope Analyzer\window</Filter>
@@ -531,6 +543,9 @@
     <QtMoc Include="sources\GUI\External\Window\FramelessHelper.h">
       <Filter>GUI\External\Window</Filter>
     </QtMoc>
+    <QtMoc Include="sources\Arks\Spectral Viewer\SpectralViewer.h">
+      <Filter>ARKS\Spectral Viewer</Filter>
+    </QtMoc>
   </ItemGroup>
   <ItemGroup>
     <QtRcc Include="AquaWave.qrc" />
@@ -554,6 +569,9 @@
     </QtUic>
     <QtUic Include="sources\Arks\SelectionWriter\window\file_saved_dialog.ui">
       <Filter>ARKS\SelectionWriter\window</Filter>
+    </QtUic>
+    <QtUic Include="sources\Arks\Demodulation\window\AquaDemodWindow.ui">
+      <Filter>ARKS\Demodulation\window</Filter>
     </QtUic>
   </ItemGroup>
   <ItemGroup>

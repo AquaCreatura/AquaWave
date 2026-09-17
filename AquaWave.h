@@ -28,4 +28,5 @@ private:
 	fluctus::ArkSptr				spectral_viewer_;
 	fluctus::ArkSptr				scope_analyser_;
 	fluctus::ArkSptr				selection_writer_;
+	fluctus::ArkSptr				demodulator_;
 };

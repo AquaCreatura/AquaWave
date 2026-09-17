@@ -106,32 +106,57 @@ QComboBox QAbstractItemView {
 }
 
 /* ---------- Вкладки: тонкие линии ---------- */
+/* ---------- Фон контента ---------- */
 QTabWidget::pane {
-    background: #0A0A0A;
-    border: 1px solid #2A3A5A;
-    border-radius: 0;
+    background: #202124; /* Темно-серый фон Chrome */
+    border: 1px solid #3C4043;
+    border-top: none;
     top: -1px;
 }
 
+/* ---------- Полоса вкладок ---------- */
+QTabBar {
+    qproperty-drawBase: 0;
+    background: #292A2D; /* Чуть светлее фона контента */
+    border-bottom: 1px solid #3C4043;
+}
+
+/* ---------- Вкладка ---------- */
 QTabBar::tab {
     background: transparent;
-    border: none;
-    border-bottom: 2px solid transparent;
-    padding: 8px 18px;
-    margin-right: 2px;
-    color: #A0B0C0;
+    color: #9AA0A6; /* Светло-серый текст */
     font-family: "Segoe UI", sans-serif;
-    font-weight: 500;
+    font-size: 13px;
+    
+    padding: 8px 16px;
+    min-width: 100px;
+    
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    
+    border: 1px solid transparent;
+    border-bottom: none;
+    
+    margin-right: -1px;
 }
 
+/* ---------- Активная вкладка ---------- */
 QTabBar::tab:selected {
-    border-bottom-color: #1E90FF;
-    color: #FFFFFF;
+    background: #202124; /* Цвет совпадает с фоном контента */
+    color: #E8EAED; /* Белый текст */
+    font-weight: 500;
+    
+    border: 1px solid #3C4043;
+    border-bottom: 1px solid #202124; /* "Прорезаем" линию раздела */
+    
+    margin-bottom: -1px;
+    z-index: 1;
 }
 
+/* ---------- Наведение ---------- */
 QTabBar::tab:hover:!selected {
-    border-bottom-color: #4A8AF4;
-    color: #D0E0F0;
+    background: #303134;
+    color: #FFFFFF;
 }
 
 /* ---------- Чекбоксы и радио: минималистичные индикаторы ---------- */

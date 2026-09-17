@@ -27,16 +27,13 @@ AquaWave::AquaWave(QWidget *parent, const QString& file_path)
 
 
 	file_src_			= ship_builder_.BuildNewShip(fluctus::kFileSource, this);
-	spectral_viewer_	= ship_builder_.BuildNewShip(fluctus::kSpectralViewer);
-	scope_analyser_		= ship_builder_.BuildNewShip(fluctus::kScopeAnalyser);
+	spectral_viewer_	= ship_builder_.BuildNewShip(fluctus::kSpectralViewer);	
 	selection_writer_	= ship_builder_.BuildNewShip(fluctus::kSelectionWriter);
 	demodulator_		= ship_builder_.BuildNewShip(fluctus::kBaseDemodulator);
 
 	ShipBuilder::Bind_SrcSink(file_src_, spectral_viewer_);
-	ShipBuilder::Bind_SrcSink(file_src_, scope_analyser_);
 	ShipBuilder::Bind_SrcSink(file_src_, selection_writer_);
 	ShipBuilder::Bind_SrcSink(file_src_, demodulator_);
-	ShipBuilder::Bind_SrcSink(spectral_viewer_, scope_analyser_);
 	ShipBuilder::Bind_SrcSink(spectral_viewer_, selection_writer_);
 
 	
@@ -99,12 +96,6 @@ AquaWave::AquaWave(QWidget *parent, const QString& file_path)
 			[this](auto d) { spectral_viewer_->PostDove(d); },
 			("Spectral"),
 			(":/buttons/button_images/spectrum.png")
-		},
-		{
-			ShipBuilder::GetWindow(scope_analyser_),
-			[this](auto d) { scope_analyser_->PostDove(d); },
-			("Analyze"),
-			(":/buttons/button_images/analyze_icon.png")
 		},
 		{
 			ShipBuilder::GetWindow(demodulator_),

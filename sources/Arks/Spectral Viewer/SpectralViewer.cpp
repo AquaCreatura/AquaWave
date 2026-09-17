@@ -7,6 +7,10 @@
 
 using namespace spectral_viewer;
 using namespace aqua_gui;
+#include "Arks/ShipBuilder.h"
+#include "Elements/DPX Spectrum/SpectrumDPX.h"
+#include "Elements/Static SPG/Spectrogram.h"
+
 // Конструктор: Инициализирует компонент для отрисовки спектра.
 // parrent: Указатель на родительский QWidget.
 SpectralViewer::SpectralViewer()
@@ -16,17 +20,21 @@ SpectralViewer::SpectralViewer()
 	{
 		spectrum_ = std::make_shared<dpx_core::SpectrumDpx>(dpx_core::kDpxChartType::kFFT); // Создание компонента для спектрального графика.
 		spg_ = std::make_shared<spg_core::StaticSpg>(); // Создание компонента для спектрограммы.
+		ShipBuilder		ship_builder;
+		scoper_ = ship_builder.BuildNewShip(fluctus::kScopeAnalyser);
 
 		auto req_dove = std::make_shared<SpectralDove>(SpectralDove::kSetSelectionHolder);
 		req_dove->sel_holder = selection_holder_;
 		spectrum_->PostDove(req_dove);
 		spg_->PostDove(req_dove);
 
-		auto dpx_window = ShipBuilder::GetWindow(spectrum_);
-		auto spg_window = ShipBuilder::GetWindow(spg_);
+		auto dpx_window		= ShipBuilder::GetWindow(spectrum_);
+		auto spg_window		= ShipBuilder::GetWindow(spg_);
+		auto scoper_window	= ShipBuilder::GetWindow(scoper_);
 
-		window_->SetDpxSpectrumWindow(dpx_window);
-		window_->SetSpectrogramWindow(spg_window);
+		window_->AddWindow(dpx_window, SpectralViewerWindow::ChartType::kDpxSpectrum);  
+		window_->AddWindow(spg_window, SpectralViewerWindow::ChartType::kStaticSpg);
+		window_->AddWindow(scoper_window, SpectralViewerWindow::ChartType::kAnalyzer);
 
 		for (const auto& window : { dpx_window, spg_window }) {
 			if (QPointer<ChartInterface> derivedPtr = qobject_cast<ChartInterface*>(window.data())) {
@@ -77,6 +85,8 @@ bool SpectralViewer::PostDove(fluctus::DoveSptr const & sent_dove)
     if(base_thought == fluctus::DoveParrent::DoveThought::kTieSource)
     {
         if(target_val->GetArkType() != ArkType::kFileSource) throw std::logic_error("Only signal sources are able to connect!");
+		ShipBuilder::Bind_SrcSink(target_val, scoper_);
+		ShipBuilder::Bind_SrcSink(shared_from_this(), scoper_);
         src_info_.ark = target_val;
 		//Определяем командное соединение
 		{
@@ -84,6 +94,7 @@ bool SpectralViewer::PostDove(fluctus::DoveSptr const & sent_dove)
 			req_dove->target_ark = target_val;
 			spg_->PostDove(req_dove);
 			spectrum_->PostDove(req_dove);
+			
 		}
     }
 	if (base_thought & fluctus::DoveParrent::DoveThought::kActivate)
@@ -195,18 +206,13 @@ void spectral_viewer::SpectralViewer::StartSelectionRecord()
 
 void spectral_viewer::SpectralViewer::OnSelectionIsReady()
 {
-	auto front_arks = GetFrontArks();
-	for (auto front_iter : front_arks) {
-		if (front_iter->GetArkType() == fluctus::kScopeAnalyser) {
-			auto analyze_dove = std::make_shared<analyzer::AnalyzeDove>(analyzer::AnalyzeDove::kStartFromFileSource);
-			auto cur_sel = selection_holder_->GetSelection();
-			if (cur_sel.freq_bounds.delta() < 0) std::swap(cur_sel.freq_bounds.low, cur_sel.freq_bounds.high);
-			if (cur_sel.time_bounds.delta() < 0) std::swap(cur_sel.time_bounds.low, cur_sel.time_bounds.high);
-			analyze_dove->freq_bounds_hz	= cur_sel.freq_bounds;
-			analyze_dove->file_bounds_ratio = cur_sel.time_bounds;
-			front_iter->PostDove(analyze_dove);
-		}
-	}
+	auto analyze_dove = std::make_shared<analyzer::AnalyzeDove>(analyzer::AnalyzeDove::kStartFromFileSource);
+	auto cur_sel = selection_holder_->GetSelection();
+	if (cur_sel.freq_bounds.delta() < 0) std::swap(cur_sel.freq_bounds.low, cur_sel.freq_bounds.high);
+	if (cur_sel.time_bounds.delta() < 0) std::swap(cur_sel.time_bounds.low, cur_sel.time_bounds.high);
+	analyze_dove->freq_bounds_hz = cur_sel.freq_bounds;
+	analyze_dove->file_bounds_ratio = cur_sel.time_bounds;
+	scoper_->PostDove(analyze_dove);
 }
 
 

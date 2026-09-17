@@ -26,7 +26,6 @@ private:
 	ShipBuilder						ship_builder_;
 	fluctus::ArkSptr				file_src_;
 	fluctus::ArkSptr				spectral_viewer_;
-	fluctus::ArkSptr				scope_analyser_;
 	fluctus::ArkSptr				selection_writer_;
 	fluctus::ArkSptr				demodulator_;
 };

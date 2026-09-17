@@ -74,55 +74,6 @@
          <item row="0" column="0">
           <widget class="QWidget" name="widget" native="true">
            <layout class="QGridLayout" name="gridLayout_2">
-            <item row="0" column="0">
-             <widget class="QRadioButton" name="carrier_radio_button">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="text">
-               <string>Carrier</string>
-              </property>
-              <attribute name="buttonGroup">
-               <string notr="true">radio_group_chart_type</string>
-              </attribute>
-             </widget>
-            </item>
-            <item row="0" column="1">
-             <widget class="QLabel" name="carrier_value_label">
-              <property name="text">
-               <string>15.567'123 MHz</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="2">
-             <spacer name="horizontalSpacer_3">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeType">
-               <enum>QSizePolicy::Fixed</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item row="0" column="3">
-             <widget class="QRadioButton" name="modulation_radio_button">
-              <property name="text">
-               <string>Modulation:</string>
-              </property>
-              <attribute name="buttonGroup">
-               <string notr="true">radio_group_chart_type</string>
-              </attribute>
-             </widget>
-            </item>
             <item row="0" column="4">
              <widget class="QLabel" name="modulation_label">
               <property name="text">
@@ -130,53 +81,11 @@
               </property>
              </widget>
             </item>
-            <item row="0" column="5" rowspan="3">
-             <widget class="Line" name="line">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="0">
-             <widget class="QRadioButton" name="symbol_rate_psk_radio_button">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="text">
-               <string>Symbol Rate (PSK)</string>
-              </property>
-              <attribute name="buttonGroup">
-               <string notr="true">radio_group_chart_type</string>
-              </attribute>
-             </widget>
-            </item>
-            <item row="1" column="1">
-             <widget class="QLabel" name="symbol_rate_psk_label">
+            <item row="2" column="1">
+             <widget class="QLabel" name="symbol_rate_am_label">
               <property name="text">
                <string>200.324 kHz</string>
               </property>
-             </widget>
-            </item>
-            <item row="1" column="3">
-             <widget class="QRadioButton" name="bandwidth_radio_button">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="focusPolicy">
-               <enum>Qt::StrongFocus</enum>
-              </property>
-              <property name="text">
-               <string>Bandwidth:</string>
-              </property>
-              <attribute name="buttonGroup">
-               <string notr="true">radio_group_chart_type</string>
-              </attribute>
              </widget>
             </item>
             <item row="1" column="4">
@@ -194,13 +103,6 @@
               <attribute name="buttonGroup">
                <string notr="true">radio_group_chart_type</string>
               </attribute>
-             </widget>
-            </item>
-            <item row="2" column="1">
-             <widget class="QLabel" name="symbol_rate_am_label">
-              <property name="text">
-               <string>200.324 kHz</string>
-              </property>
              </widget>
             </item>
             <item row="2" column="3">
@@ -222,10 +124,121 @@
               </attribute>
              </widget>
             </item>
+            <item row="0" column="0">
+             <widget class="QRadioButton" name="carrier_radio_button">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>Carrier</string>
+              </property>
+              <attribute name="buttonGroup">
+               <string notr="true">radio_group_chart_type</string>
+              </attribute>
+             </widget>
+            </item>
+            <item row="0" column="3">
+             <widget class="QRadioButton" name="modulation_radio_button">
+              <property name="text">
+               <string>Modulation:</string>
+              </property>
+              <attribute name="buttonGroup">
+               <string notr="true">radio_group_chart_type</string>
+              </attribute>
+             </widget>
+            </item>
+            <item row="0" column="1">
+             <widget class="QLabel" name="carrier_value_label">
+              <property name="text">
+               <string>15.567'123 MHz</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="0">
+             <widget class="QRadioButton" name="symbol_rate_psk_radio_button">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="text">
+               <string>Symbol Rate (PSK)</string>
+              </property>
+              <attribute name="buttonGroup">
+               <string notr="true">radio_group_chart_type</string>
+              </attribute>
+             </widget>
+            </item>
             <item row="2" column="4">
              <widget class="QLabel" name="acf_value_label">
               <property name="text">
                <string>4.674 sec</string>
+              </property>
+             </widget>
+            </item>
+            <item row="1" column="1">
+             <widget class="QLabel" name="symbol_rate_psk_label">
+              <property name="text">
+               <string>200.324 kHz</string>
+              </property>
+             </widget>
+            </item>
+            <item row="0" column="2">
+             <spacer name="horizontalSpacer_3">
+              <property name="orientation">
+               <enum>Qt::Horizontal</enum>
+              </property>
+              <property name="sizeType">
+               <enum>QSizePolicy::Fixed</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>20</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="1" column="3">
+             <widget class="QRadioButton" name="bandwidth_radio_button">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="focusPolicy">
+               <enum>Qt::StrongFocus</enum>
+              </property>
+              <property name="text">
+               <string>Bandwidth:</string>
+              </property>
+              <attribute name="buttonGroup">
+               <string notr="true">radio_group_chart_type</string>
+              </attribute>
+             </widget>
+            </item>
+            <item row="3" column="1">
+             <spacer name="verticalSpacer">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
+            </item>
+            <item row="0" column="5" rowspan="4">
+             <widget class="Line" name="line">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
               </property>
              </widget>
             </item>

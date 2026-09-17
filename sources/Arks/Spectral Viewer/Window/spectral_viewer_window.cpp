@@ -2,6 +2,8 @@
 #include "Utilities/parse_tools.h"
 #include <qshortcut.h>
 #include "GUI/Charts/ChartInterface.h"
+#include "Arks/Interfaces/ark_interface.h"
+using namespace spectral_viewer;
 SpectralViewerWindow::SpectralViewerWindow()
 {
     ui_.setupUi(this);
@@ -11,27 +13,48 @@ SpectralViewerWindow::SpectralViewerWindow()
 			int fft_id = ui_.fft_order_combobox->itemData(index).toInt();
 			emit FftChangeNeed(fft_id);
 		});
+		connect(ui_.analysis_side_pushbutton, &QPushButton::clicked, [this]() {
+			ui_.main_down_part->setCurrentWidget(widgets_[kAnalyzer]);
+		});
+		connect(ui_.spectrgoram_side_pushbutton, &QPushButton::clicked, [this]() {
+			ui_.main_down_part->setCurrentWidget(widgets_[kStaticSpg]);
+		});
+
+		connect(ui_.main_down_part, &QStackedWidget::currentChanged, this, [this](int) {
+			QWidget* current = ui_.main_down_part->currentWidget();
+			for (auto& kv : widgets_) {
+				auto dove = std::make_shared<fluctus::DoveParrent>(
+					(kv.second == current) ? fluctus::DoveParrent::kActivate : fluctus::DoveParrent::kDeactivate);
+				((ArkInterface*)kv.second)->PostDove(dove);
+				// отправить dove в kv.second
+			}
+		});
+
 		QShortcut* saveShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_S), this);
 		connect(saveShortcut, &QShortcut::activated, this, &SpectralViewerWindow::RecordSelectionNeed);
 
 		UpdateFFtCombobox(21, 10);
 	}
-	
-};
-
-void SpectralViewerWindow::SetDpxSpectrumWindow(QWidget * wigdet_ptr)
-{
-	ui_.dpx_chart->layout()->addWidget(wigdet_ptr);
-
-
-	
+	ui_.main_splitter->setSizes({ 1,1 });
 }
-void SpectralViewerWindow::SetSpectrogramWindow(QWidget * wigdet_ptr)
+void spectral_viewer::SpectralViewerWindow::AddWindow(QWidget * wigdet_ptr, ChartType window_type)
 {
-	ui_.spg_chart->layout()->addWidget(wigdet_ptr);
-	qobject_cast<ChartInterface*>(wigdet_ptr)->SetControlButtons(ui_.ctrl_buttons_frame);
-
+	widgets_[window_type] = wigdet_ptr;
+	switch (window_type)
+	{
+	case spectral_viewer::SpectralViewerWindow::kDpxSpectrum:
+		ui_.main_up_part->layout()->addWidget(wigdet_ptr);
+		qobject_cast<ChartInterface*>(wigdet_ptr)->SetControlButtons(ui_.ctrl_buttons_frame);
+		break;
+	case spectral_viewer::SpectralViewerWindow::kStaticSpg:
+	case spectral_viewer::SpectralViewerWindow::kAnalyzer:
+		ui_.main_down_part->addWidget(wigdet_ptr);
+		break;
+	default:
+		break;
+	}
 }
+
 void SpectralViewerWindow::SetMaxFFtOrder(int max_fft_order)
 {
 	const auto cur_fft = ui_.fft_order_combobox->currentData().toInt();

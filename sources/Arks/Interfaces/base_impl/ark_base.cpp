@@ -10,7 +10,7 @@ bool fluctus::ArkBase::PostDove(DoveSptr const & sent_dove)
     if      (base_thought == DoveParrent::DoveThought::kNothing)
         return true;
     //connect input connection
-    else if (base_thought & DoveParrent::DoveThought::kTieSource)
+    else if (base_thought & DoveParrent::DoveThought::kAddSource)
     {
         if (!target_val)
             throw std::invalid_argument("Wrong target ark! (Behind tie)");
@@ -24,7 +24,7 @@ bool fluctus::ArkBase::PostDove(DoveSptr const & sent_dove)
 
     }
     //connect output connection
-    else if (base_thought & DoveParrent::DoveThought::kTieSink)
+    else if (base_thought & DoveParrent::DoveThought::kAddSink)
     {   
         if (!target_val)
             throw std::invalid_argument("Wrong target ark (front tie)");
@@ -37,7 +37,7 @@ bool fluctus::ArkBase::PostDove(DoveSptr const & sent_dove)
         return true;
     }
     //disconnect input
-    else if (base_thought & DoveParrent::DoveThought::kUntieFront)
+    else if (base_thought & DoveParrent::DoveThought::kRemoveSink)
     {
         bool is_deleted = false;
         if (!target_val)
@@ -58,7 +58,7 @@ bool fluctus::ArkBase::PostDove(DoveSptr const & sent_dove)
         return true;
     }
     //disconnect output
-    else if (base_thought & DoveParrent::DoveThought::kUntieBehind)
+    else if (base_thought & DoveParrent::DoveThought::kRemoveSource)
     {
         bool is_deleted = false;
         if (!target_val)

@@ -492,12 +492,6 @@
     <ClInclude Include="sources\DSP Tools\Modem\EqaliserAqua.h">
       <Filter>DSP Tools\Modem</Filter>
     </ClInclude>
-    <ClInclude Include="sources\Arks\Demodulation\AquaDemod.h">
-      <Filter>ARKS\Demodulation</Filter>
-    </ClInclude>
-    <ClInclude Include="sources\Arks\Demodulation\window\AquaDemodWindow.h">
-      <Filter>ARKS\Demodulation\window</Filter>
-    </ClInclude>
   </ItemGroup>
   <!-- QtMoc (For Headers Requiring Moc) -->
   <ItemGroup>
@@ -545,6 +539,12 @@
     </QtMoc>
     <QtMoc Include="sources\Arks\Spectral Viewer\SpectralViewer.h">
       <Filter>ARKS\Spectral Viewer</Filter>
+    </QtMoc>
+    <QtMoc Include="sources\Arks\Demodulation\window\AquaDemodWindow.h">
+      <Filter>ARKS\Demodulation\window</Filter>
+    </QtMoc>
+    <QtMoc Include="sources\Arks\Demodulation\AquaDemod.h">
+      <Filter>ARKS\Demodulation</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>

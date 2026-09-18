@@ -69,7 +69,7 @@ bool StaticSpg::PostDove(fluctus::DoveSptr const & sent_dove)
         return true; // Запрос обработан.
     }
     // Передаём сообщение базовому классу для дальнейшей обработки.
-    if(base_thought & DoveParrent::DoveThought::kTieSource)
+    if(base_thought & DoveParrent::DoveThought::kAddSource)
     {
         src_info_.ark = target_val;
     }

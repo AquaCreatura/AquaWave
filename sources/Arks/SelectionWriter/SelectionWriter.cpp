@@ -54,7 +54,7 @@ bool file_writer::SelectionWriter::PostDove(fluctus::DoveSptr const & sent_dove)
 	auto target_val = sent_dove->target_ark;
 	auto base_thought = sent_dove->base_thought;
 
-	if (base_thought == fluctus::DoveParrent::DoveThought::kTieSource)
+	if (base_thought == fluctus::DoveParrent::DoveThought::kAddSource)
 	{		
 		if (target_val->GetArkType() == ArkType::kFileSource)
 			src_info_.ark = target_val;

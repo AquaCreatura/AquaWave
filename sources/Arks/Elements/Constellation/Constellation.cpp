@@ -44,7 +44,7 @@ bool constel::Constellation::PostDove(fluctus::DoveSptr const & sent_dove)
 		sent_dove->show_widget = constel_drawer_;
 		return true; // Запрос обработан.
 	}
-	if (base_thought & fluctus::DoveParrent::DoveThought::kTieSource)
+	if (base_thought & fluctus::DoveParrent::DoveThought::kAddSource)
 	{
 		src_info_.ark = target_val;
 		Reload();

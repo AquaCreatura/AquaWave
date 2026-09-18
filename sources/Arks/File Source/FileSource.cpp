@@ -28,14 +28,14 @@ bool file_source::FileSourceArk::PostDove(fluctus::DoveSptr const& sent_dove)
     const auto parrent_type = sent_dove->base_thought;
     
     // Обработка базовых команд
-    if (parrent_type & fluctus::DoveParrent::kTieSink)
+    if (parrent_type & fluctus::DoveParrent::kAddSink)
     {
         fluctus::DoveSptr message   = std::make_shared<fluctus::DoveParrent>();
         message->base_thought       = DoveParrent::kReset;
         target_ark->PostDove(message);
         return ArkBase::PostDove(sent_dove);
     }
-    if (parrent_type & fluctus::DoveParrent::kUntieFront)
+    if (parrent_type & fluctus::DoveParrent::kRemoveSink)
     {
         return ArkBase::PostDove(sent_dove);
     }

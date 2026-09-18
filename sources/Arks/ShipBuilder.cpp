@@ -30,12 +30,12 @@ bool ShipBuilder::Bind_SrcSink(fluctus::ArkSptr source_ark, fluctus::ArkSptr sin
 {
 	fluctus::DoveSptr req_dove = std::make_shared<fluctus::DoveParrent>();
 
-	req_dove->base_thought = fluctus::DoveParrent::kTieSource; 
+	req_dove->base_thought = fluctus::DoveParrent::kAddSource; 
 	req_dove->target_ark = source_ark;
 	if (!sink_ark->PostDove(req_dove)) return false;
 	
 
-	req_dove->base_thought = fluctus::DoveParrent::kTieSink;
+	req_dove->base_thought = fluctus::DoveParrent::kAddSink;
 	req_dove->target_ark = sink_ark;
 	if (!source_ark->PostDove(req_dove)) return false;
 

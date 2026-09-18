@@ -82,7 +82,7 @@ bool SpectralViewer::PostDove(fluctus::DoveSptr const & sent_dove)
         sent_dove->show_widget = window_;
         return true; // Запрос обработан.
     }
-    if(base_thought == fluctus::DoveParrent::DoveThought::kTieSource)
+    if(base_thought == fluctus::DoveParrent::DoveThought::kAddSource)
     {
         if(target_val->GetArkType() != ArkType::kFileSource) throw std::logic_error("Only signal sources are able to connect!");
 		ShipBuilder::Bind_SrcSink(target_val, scoper_);
@@ -90,7 +90,7 @@ bool SpectralViewer::PostDove(fluctus::DoveSptr const & sent_dove)
         src_info_.ark = target_val;
 		//Определяем командное соединение
 		{
-			fluctus::DoveSptr req_dove = std::make_shared<fluctus::DoveParrent>(fluctus::DoveParrent::kTieSource);
+			fluctus::DoveSptr req_dove = std::make_shared<fluctus::DoveParrent>(fluctus::DoveParrent::kAddSource);
 			req_dove->target_ark = target_val;
 			spg_->PostDove(req_dove);
 			spectrum_->PostDove(req_dove);

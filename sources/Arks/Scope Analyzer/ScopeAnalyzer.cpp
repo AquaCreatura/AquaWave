@@ -101,7 +101,7 @@ bool ScopeAnalyzer::PostDove(fluctus::DoveSptr const & sent_dove)
         sent_dove->show_widget = window_;
         return true; // Запрос обработан.
     }
-    if(base_thought == fluctus::DoveParrent::DoveThought::kTieSource)
+    if(base_thought == fluctus::DoveParrent::DoveThought::kAddSource)
     {
         if( target_val->GetArkType() == ArkType::kFileSource) 
 			source_info_.ark = target_val;

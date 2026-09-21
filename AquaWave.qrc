@@ -1,11 +1,11 @@
 <RCC>
     <qresource prefix="/AquaWave">
         <file>wave.png</file>
-        <file>third_party/background/black_forest.jpg</file>
-        <file>third_party/background/black_mountain.jpg</file>
-        <file>third_party/background/sym_sky.jpg</file>
-        <file>third_party/background/water.jpg</file>
-        <file>third_party/background/water.png</file>
+        <file>sources/GUI/External/background/black_forest.jpg</file>
+        <file>sources/GUI/External/background/black_mountain.jpg</file>
+        <file>sources/GUI/External/background/sym_sky.jpg</file>
+        <file>sources/GUI/External/background/water.jpg</file>
+        <file>sources/GUI/External/background/water.png</file>
         <file>sources/GUI/External/Themes/blue_scheme.qss</file>
         <file>sources/GUI/External/Themes/space_scheme.qss</file>  
     </qresource>

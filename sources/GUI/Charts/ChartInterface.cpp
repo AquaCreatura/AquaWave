@@ -16,7 +16,7 @@ ChartInterface::ChartInterface(QWidget* parent, std::shared_ptr<SelectionHolder>
 
     SetVerticalSuffix("power");
     connect(&redraw_timer_, &QTimer::timeout, this, QOverload<>::of(&ChartInterface::update));
-    SetBackgroundImage(":/AquaWave/third_party/background/black_mountain.jpg");
+    SetBackgroundImage(":/AquaWave/sources/GUI/External/background/black_mountain.jpg");
 	layout_ = new QVBoxLayout(this);
 }
 

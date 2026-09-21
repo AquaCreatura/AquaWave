@@ -8,8 +8,6 @@ ChartSPG::ChartSPG(QWidget * parrent, std::shared_ptr<SelectionHolder> selection
     SetHorizontalSuffix("counts");
 
     SetVerticalSuffix("power");
-	
-	//SetBackgroundImage(":/AquaWave/third_party/background/black_forest.jpg");
 
 
 	auto* shortcut = new QShortcut(QKeySequence(Qt::CTRL | Qt::Key_T), this);

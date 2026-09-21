@@ -14,21 +14,19 @@
     <ProjectGuid>{854C8ADB-0E85-484B-9894-A838407CE353}</ProjectGuid>
     <Keyword>Qt4VSv1.0</Keyword>
     <QtMsBuild Condition="'$(QtMsBuild)'=='' OR !Exists('$(QtMsBuild)\qt.targets')">$(MSBuildProjectDirectory)\QtMsBuild</QtMsBuild>
-    <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">10.0.17763.0</WindowsTargetPlatformVersion>
-    <WindowsTargetPlatformVersion Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">10.0.17763.0</WindowsTargetPlatformVersion>
-    <WindowsTargetPlatformVersion>10.0.16299.0</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <UseIntelTBB>true</UseIntelTBB>
     <UseIntelIPP>Sequential</UseIntelIPP>
     <UseIntelIPP1A>Static_Library</UseIntelIPP1A>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
-    <PlatformToolset>v141</PlatformToolset>
+    <PlatformToolset>v143</PlatformToolset>
     <UseIntelIPP>Sequential</UseIntelIPP>
     <UseIntelTBB>true</UseIntelTBB>
   </PropertyGroup>
@@ -56,7 +54,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>sources;.\GeneratedFiles;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtCore;sources/Arks/Interfaces;sources/Arks;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ICPP_COMPILER17)ipp\include;$(ICPP_COMPILER17)tbb\include;sources;.\GeneratedFiles;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtCore;sources/Arks/Interfaces;sources/Arks;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -65,8 +63,8 @@
       <PreprocessorDefinitions>UNICODE;_UNICODE;WIN32;WIN64;QT_DLL;QT_CORE_LIB;QT_GUI_LIB;QT_WIDGETS_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>qtmain.lib;Qt5Gui.lib;Qt5Core.lib;Qt5Widgets.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(QTDIR)\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>qtmain.lib;Qt5Gui.lib;Qt5Core.lib;Qt5Widgets.lib;ippsmt.lib;ippcoremt.lib;ippvmmt.lib;tbb.lib;libiomp5md.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ICPP_COMPILER17)ipp\lib\intel64_win\threaded;$(ICPP_COMPILER17)tbb\lib\intel64_win\vc14;$(ICPP_COMPILER17)compiler\lib\intel64_win;$(QTDIR)\lib</AdditionalLibraryDirectories>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -88,7 +86,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>sources;.\GeneratedFiles;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtCore;sources/Arks/Interfaces;sources/Arks;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ICPP_COMPILER17)ipp\include;$(ICPP_COMPILER17)tbb\include;sources;.\GeneratedFiles;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtCore;sources/Arks/Interfaces;sources/Arks;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -97,8 +95,8 @@
       <PreprocessorDefinitions>UNICODE;_UNICODE;WIN32;WIN64;QT_DLL;QT_CORE_LIB;QT_GUI_LIB;QT_WIDGETS_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
-      <AdditionalDependencies>qtmaind.lib;Qt5Guid.lib;Qt5Cored.lib;Qt5Widgetsd.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(QTDIR)\lib</AdditionalLibraryDirectories>
+      <AdditionalDependencies>qtmaind.lib;Qt5Guid.lib;Qt5Cored.lib;Qt5Widgetsd.lib;ippsmt.lib;ippcoremt.lib;ippvmmt.lib;tbb.lib;libiomp5md.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalLibraryDirectories>$(ICPP_COMPILER17)ipp\lib\intel64_win\threaded;$(ICPP_COMPILER17)tbb\lib\intel64_win\vc14;$(ICPP_COMPILER17)compiler\lib\intel64_win;$(QTDIR)\lib</AdditionalLibraryDirectories>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>

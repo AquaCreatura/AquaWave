@@ -56,61 +56,10 @@
       <property name="tabBarAutoHide">
        <bool>false</bool>
       </property>
-     </widget>
-    </item>
-    <item row="0" column="0">
-     <layout class="QHBoxLayout" name="main_title_layout">
-      <property name="spacing">
-       <number>0</number>
-      </property>
-      <item>
-       <widget class="QWidget" name="main_button_panel" native="true">
-        <property name="minimumSize">
-         <size>
-          <width>43</width>
-          <height>0</height>
-         </size>
-        </property>
-        <property name="layoutDirection">
-         <enum>Qt::LeftToRight</enum>
-        </property>
-        <layout class="QHBoxLayout" name="horizontalLayout">
-         <property name="spacing">
-          <number>0</number>
-         </property>
-         <property name="leftMargin">
-          <number>2</number>
-         </property>
-         <property name="topMargin">
-          <number>2</number>
-         </property>
-         <property name="rightMargin">
-          <number>2</number>
-         </property>
-         <property name="bottomMargin">
-          <number>0</number>
-         </property>
-         <item>
-          <widget class="QToolButton" name="file_open_button">
-           <property name="text">
-            <string>File</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QToolButton" name="toolButton">
-           <property name="text">
-            <string>Help</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </item>
-     </layout>
-    </item>
-   </layout>
-  </widget>
+</widget>
+     </item>
+    </layout>
+   </widget>
   <action name="new_file_menu_action">
    <property name="text">
     <string>Open</string>

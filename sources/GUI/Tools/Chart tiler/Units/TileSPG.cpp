@@ -95,7 +95,7 @@ void TileSPG::UpdateQimage(dynamic_qimage & dyn_qimage, const Limits<double> &po
 			const int base_x_freq = passed_height - passed_y;
 			const int base_y_time = passed_x;
 			const double idx_power = src_data[base_y_time * src_width + base_x_freq];
-			double density = idx_power / 100.;  (idx_power - power_bounds.low) / power_bounds.delta();
+			double density = (idx_power - power_bounds.low) / power_bounds.delta();
 			if (pos_vec_[base_y_time] >= 0.f) last_good_density = density;
 			else density = last_good_density;
 			argb_t color = GetNormColor(density);

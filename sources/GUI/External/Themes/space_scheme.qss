@@ -225,12 +225,25 @@ QScrollBar::handle:horizontal:hover {
 QMenuBar {
     background: #12121E;
     border-bottom: 1px solid #2A3A5A;
+    padding: 2px;
+}
+
+QMenuBar::item {
+    background: transparent;
+    border: none;
+    padding: 4px 8px;
+    border-radius: 2px;
 }
 
 QMenuBar::item:selected {
     background: #1E90FF;
     border-radius: 2px;
     color: #FFFFFF;
+}
+
+QMenuBar::item:pressed {
+    background: #0A5AC0;
+    border-radius: 2px;
 }
 
 QMenu {

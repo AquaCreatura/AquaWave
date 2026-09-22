@@ -54,17 +54,18 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(ICPP_COMPILER17)ipp\include;$(ICPP_COMPILER17)tbb\include;sources;.\GeneratedFiles;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtCore;sources/Arks/Interfaces;sources/Arks;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ICPP_COMPILER17)ipp\include;$(ICPP_COMPILER17)tbb\include;third_party\qwindowkit;third_party\qwindowkit\src;third_party\qwindowkit\src\core;third_party\qwindowkit\src\widgets;sources;.\GeneratedFiles;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtCore;sources/Arks/Interfaces;sources/Arks;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <Optimization>MaxSpeed</Optimization>
-      <PreprocessorDefinitions>UNICODE;_UNICODE;WIN32;WIN64;QT_DLL;QT_CORE_LIB;QT_GUI_LIB;QT_WIDGETS_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>UNICODE;_UNICODE;WIN32;WIN64;QT_DLL;QT_CORE_LIB;QT_GUI_LIB;QT_WIDGETS_LIB;USE_QWINDOWKIT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalDependencies>qtmain.lib;Qt5Gui.lib;Qt5Core.lib;Qt5Widgets.lib;ippsmt.lib;ippcoremt.lib;ippvmmt.lib;tbb.lib;libiomp5md.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(ICPP_COMPILER17)ipp\lib\intel64_win\threaded;$(ICPP_COMPILER17)tbb\lib\intel64_win\vc14;$(ICPP_COMPILER17)compiler\lib\intel64_win;$(QTDIR)\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ICPP_COMPILER17)ipp\lib\intel64_win\threaded;$(ICPP_COMPILER17)tbb\lib\intel64_win\vc14;$(ICPP_COMPILER17)compiler\lib\intel64_win;$(QTDIR)\lib;third_party\qwindowkit\build\out\lib\Release</AdditionalLibraryDirectories>
+      <AdditionalDependencies>QWKCore.lib;QWKWidgets.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -86,17 +87,18 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(ICPP_COMPILER17)ipp\include;$(ICPP_COMPILER17)tbb\include;sources;.\GeneratedFiles;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtCore;sources/Arks/Interfaces;sources/Arks;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ICPP_COMPILER17)ipp\include;$(ICPP_COMPILER17)tbb\include;third_party\qwindowkit;third_party\qwindowkit\src;third_party\qwindowkit\src\core;third_party\qwindowkit\src\widgets;sources;.\GeneratedFiles;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtCore;sources/Arks/Interfaces;sources/Arks;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
       <Optimization>Disabled</Optimization>
-      <PreprocessorDefinitions>UNICODE;_UNICODE;WIN32;WIN64;QT_DLL;QT_CORE_LIB;QT_GUI_LIB;QT_WIDGETS_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>UNICODE;_UNICODE;WIN32;WIN64;QT_DLL;QT_CORE_LIB;QT_GUI_LIB;QT_WIDGETS_LIB;USE_QWINDOWKIT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <AdditionalDependencies>qtmaind.lib;Qt5Guid.lib;Qt5Cored.lib;Qt5Widgetsd.lib;ippsmt.lib;ippcoremt.lib;ippvmmt.lib;tbb.lib;libiomp5md.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <AdditionalLibraryDirectories>$(ICPP_COMPILER17)ipp\lib\intel64_win\threaded;$(ICPP_COMPILER17)tbb\lib\intel64_win\vc14;$(ICPP_COMPILER17)compiler\lib\intel64_win;$(QTDIR)\lib</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ICPP_COMPILER17)ipp\lib\intel64_win\threaded;$(ICPP_COMPILER17)tbb\lib\intel64_win\vc14;$(ICPP_COMPILER17)compiler\lib\intel64_win;$(QTDIR)\lib;third_party\qwindowkit\build\out\lib\Debug</AdditionalLibraryDirectories>
+      <AdditionalDependencies>QWKCored.lib;QWKWidgetsd.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <EntryPointSymbol>mainCRTStartup</EntryPointSymbol>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
@@ -159,6 +161,8 @@
     <ClCompile Include="sources\GUI\Charts\ChartInterface.cpp" />
     <ClCompile Include="sources\GUI\Charts\SPG\SpgChart.cpp" />
     <ClCompile Include="sources\GUI\External\Window\FramelessHelper.cpp" />
+    <ClCompile Include="sources\GUI\External\Window\QWindowKitHelper.cpp" />
+    <ClCompile Include="sources\GUI\External\Window\QMainMenuHelper.cpp" />
     <ClCompile Include="sources\GUI\Tools\Chart drawers\AxisPainter.cpp" />
     <ClCompile Include="sources\GUI\Tools\Chart drawers\ImageBackGround.cpp" />
     <ClCompile Include="sources\GUI\Tools\Chart drawers\QimageZoomer.cpp" />
@@ -191,6 +195,8 @@
     <ClInclude Include="sources\DSP Tools\Modem\TimePeakerDemod.h" />
     <ClInclude Include="sources\DSP Tools\Pipelines\DemodPipes.h" />
     <QtMoc Include="sources\GUI\External\Window\FramelessHelper.h" />
+    <QtMoc Include="sources\GUI\External\Window\QWindowKitHelper.h" />
+    <QtMoc Include="sources\GUI\External\Window\QMainMenuHelper.h" />
     <ClInclude Include="sources\GUI\Tools\Chart tiler\Units\TileLine.h" />
     <ClInclude Include="sources\Utilities\aqua_array_queue.h" />
     <ClInclude Include="sources\Utilities\aqua_obj_queue.h" />
@@ -284,4 +290,17 @@
   </ImportGroup>
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
+  <Target Name="BuildQWindowKit" BeforeTargets="BeforeBuild" Condition="!Exists('third_party\qwindowkit\build\out\bin\$(Configuration)\QWKCore.dll')">
+    <Exec Command="cmake -G &quot;Visual Studio 17 2022&quot; -A x64 -DQWINDOWKIT_BUILD_EXAMPLES=OFF -DQWINDOWKIT_BUILD_TESTS=OFF third_party\qwindowkit -B third_party\qwindowkit\build" WorkingDirectory="$(ProjectDir)" />
+    <Exec Command="msbuild third_party\qwindowkit\build\qwindowkit.sln /p:Configuration=$(Configuration) /p:Platform=x64 /t:Build /v:minimal" WorkingDirectory="$(ProjectDir)" />
+  </Target>
+  <Target Name="CopyQWindowKitDlls" AfterTargets="AfterBuild">
+    <ItemGroup>
+      <QWindowKitDlls Include="third_party\qwindowkit\build\out\bin\$(Configuration)\QWKCore.dll" Condition="Exists('third_party\qwindowkit\build\out\bin\$(Configuration)\QWKCore.dll')" />
+      <QWindowKitDlls Include="third_party\qwindowkit\build\out\bin\$(Configuration)\QWKCored.dll" Condition="Exists('third_party\qwindowkit\build\out\bin\$(Configuration)\QWKCored.dll')" />
+      <QWindowKitDlls Include="third_party\qwindowkit\build\out\bin\$(Configuration)\QWKWidgets.dll" Condition="Exists('third_party\qwindowkit\build\out\bin\$(Configuration)\QWKWidgets.dll')" />
+      <QWindowKitDlls Include="third_party\qwindowkit\build\out\bin\$(Configuration)\QWKWidgetsd.dll" Condition="Exists('third_party\qwindowkit\build\out\bin\$(Configuration)\QWKWidgetsd.dll')" />
+    </ItemGroup>
+    <Copy SourceFiles="@(QWindowKitDlls)" DestinationFolder="$(OutDir)" SkipUnchangedFiles="true" />
+  </Target>
 </Project>

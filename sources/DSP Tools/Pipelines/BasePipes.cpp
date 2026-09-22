@@ -122,7 +122,9 @@ void pipes::PrecisedPartSaver::ProcessData(PipeHolder::sptr meta_data)
 	{
 		const size_t total = vec.size();
 		if (total == 0) return;
-		fluctus::Limits<size_t> pos_bounds = { std::llround(start_ratio_*total), std::llround(end_ratio_ * total) };
+		const auto low = static_cast<size_t>(std::llround(start_ratio_ * total));
+		const auto high = static_cast<size_t>(std::llround(end_ratio_ * total));
+		fluctus::Limits<size_t> pos_bounds = { low, high };
 	
 
 		// защита от выхода за границы

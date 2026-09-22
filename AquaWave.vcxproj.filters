@@ -323,6 +323,12 @@
     <ClCompile Include="sources\Arks\Demodulation\window\AquaDemodWindow.cpp">
       <Filter>ARKS\Demodulation\window</Filter>
     </ClCompile>
+    <ClCompile Include="sources\GUI\External\Window\QWindowKitHelper.cpp">
+      <Filter>GUI\External\Window</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\GUI\External\Window\QMainMenuHelper.cpp">
+      <Filter>GUI\External\Window</Filter>
+    </ClCompile>
   </ItemGroup>
   <!-- ClInclude (H Files) -->
   <ItemGroup>
@@ -545,6 +551,12 @@
     </QtMoc>
     <QtMoc Include="sources\Arks\Demodulation\AquaDemod.h">
       <Filter>ARKS\Demodulation</Filter>
+    </QtMoc>
+    <QtMoc Include="sources\GUI\External\Window\QWindowKitHelper.h">
+      <Filter>GUI\External\Window</Filter>
+    </QtMoc>
+    <QtMoc Include="sources\GUI\External\Window\QMainMenuHelper.h">
+      <Filter>GUI\External\Window</Filter>
     </QtMoc>
   </ItemGroup>
   <ItemGroup>

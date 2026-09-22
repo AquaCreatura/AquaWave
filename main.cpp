@@ -6,6 +6,7 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
+	QCoreApplication::setAttribute(Qt::AA_DontCreateNativeWidgetSiblings);
     const auto cur_icon = QIcon(":/AquaWave/wave.png");
     if(!cur_icon.isNull())
         a.setWindowIcon(cur_icon);

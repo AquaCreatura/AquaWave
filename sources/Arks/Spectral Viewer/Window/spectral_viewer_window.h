@@ -1,6 +1,7 @@
 #pragma once
 #include "ui_spectral_viewer_window.h"
 #include <qdialog.h>
+#include <qpropertyanimation.h>
 
 
 
@@ -26,10 +27,16 @@ namespace spectral_viewer {
 		void FftChangeNeed(int new_fft);
 		void RecordSelectionNeed();
 	protected:
+		bool eventFilter(QObject* obj, QEvent* event) override;
 		void UpdateFFtCombobox(const int max_order, const int cur_fft_order);
+		void SetupSideMenu();
+		void AnimateWidth(int target_width);
 	protected:
 		Ui::spectral_viewer_window ui_;
 		std::map<ChartType, QWidget*> widgets_;
+		bool side_menu_expanded_ = false;
+		bool hover_expand_active_ = false;
+		QTimer* hover_timer_ = nullptr;
 	};
 
 }

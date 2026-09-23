@@ -30,9 +30,9 @@ QFrame[class="glassCard"], QGroupBox {
 
 /* ---------- Кнопки: холодный свет ---------- */
 QPushButton {
-    background: #1A1A2A;
-    border: 1px solid #2A3A5A;
-    border-radius: 4px;
+    background: transparent;
+    border: none;
+    border-radius: 12px;
     padding: 6px 14px;
     color: #F0F4F8;
     font-weight: 500;
@@ -40,29 +40,32 @@ QPushButton {
 }
 
 QPushButton:hover {
-    background: #2A3A5A;
-    border-color: #4A8AF4;
-    color: #FFFFFF;
+    background: rgba(30, 144, 255, 0.15);
 }
 
 QPushButton:pressed {
-    background: #0A0A12;
-    border-color: #1E90FF;
+    background: rgba(30, 144, 255, 0.25);
+}
+
+QPushButton:checked {
+    background: rgba(30, 144, 255, 0.3);
 }
 
 /* Акцентная кнопка (сигнальная) */
 QPushButton[class="primary"] {
     background: #1E90FF;
-    border: 1px solid #4A8AF4;
     color: #FFFFFF;
 }
 
 QPushButton[class="primary"]:hover {
     background: #4A8AF4;
-    border-color: #7AB8FF;
 }
 
 QPushButton[class="primary"]:pressed {
+    background: #0A5AC0;
+}
+
+QPushButton[class="primary"]:checked {
     background: #0A5AC0;
 }
 

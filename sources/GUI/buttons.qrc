@@ -2,5 +2,7 @@
     <qresource prefix="/buttons">
         <file>button_images/analyze_icon.png</file>
         <file>button_images/spectrum.png</file>
+        <file>button_images/graph.jpg</file>
+        <file>button_images/waterfall.png</file>
     </qresource>
 </RCC>

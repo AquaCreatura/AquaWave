@@ -48,11 +48,11 @@ void SpectralViewerWindow::SetupSideMenu()
 	ui_.extend_frame_button->setIcon(menu_icon);
 	ui_.extend_frame_button->setIconSize(QSize(20, 20));
 
-	QIcon spectrogram_icon("D:/PetWave/AquaWave/sources/GUI/button_images/spectrum.png");
+	QIcon spectrogram_icon(":/buttons/button_images/waterfall.png");
 	ui_.spectrgoram_side_pushbutton->setIcon(spectrogram_icon);
 	ui_.spectrgoram_side_pushbutton->setIconSize(QSize(24, 24));
 
-	QIcon analysis_icon("D:/PetWave/AquaWave/sources/GUI/button_images/analyze_icon.png");
+	QIcon analysis_icon(":/buttons/button_images/graph.jpg");
 	ui_.analysis_side_pushbutton->setIcon(analysis_icon);
 	ui_.analysis_side_pushbutton->setIconSize(QSize(24, 24));
 

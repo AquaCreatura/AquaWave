@@ -100,6 +100,12 @@ protected:
 
     // Redraw widget on timer timeout
     virtual void OnTimeoutRedraw();
+    
+    // Toggle dark/light mode for all chart components
+    void EnableDarkMode(const bool is_dark);
+    
+    // Set background images for dark and light modes
+    void SetBackgroundImages(const QString& dark_path, const QString& light_path);
 protected: 
 	void UpdateControlButtonPositions();
 protected:

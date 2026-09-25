@@ -17,14 +17,19 @@ QWidget {
 }
 
 /* ---------- Панели и карточки: прозрачный минимализм ---------- */
-QMainWindow, QDialog, QFrame {
+QMainWindow, QDialog {
     background: transparent;
+}
+
+QFrame {
+    background: transparent;
+    border-radius: 8px;
 }
 
 QFrame[class="glassCard"], QGroupBox {
     background: rgba(20, 20, 30, 0.7);
     border: 1px solid rgba(100, 150, 255, 0.2);
-    border-radius: 4px;
+    border-radius: 8px;
     margin: 4px;
 }
 
@@ -110,10 +115,10 @@ QComboBox QAbstractItemView {
 }
 
 /* ---------- Вкладки: тонкие линии ---------- */
-/* ---------- Фон контента ---------- */
 QTabWidget::pane {
-    background: #202124; /* Темно-серый фон Chrome */
+    background: #202124;
     border: 1px solid #3C4043;
+    border-radius: 8px;
     border-top: none;
     top: -1px;
 }

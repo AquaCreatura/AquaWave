@@ -5,6 +5,7 @@
 #include <qpainter.h>
 #include "Utilities/parse_tools.h"
 #include "GUI/gui_defs.h"
+#include "ChartColorScheme.h"
 namespace aqua_gui
 {
 /*
@@ -25,12 +26,14 @@ public:
         Init suffix of the oxis (empty, to stay same)
     */ 
     void InitVertical    (const QString &oy_name);
-    /*
+/*
         Main function, which redraw the grid
-    */
+     */
     bool DrawAxis(QPainter& passed_painter);
    
-    
+    void EnableDarkMode(const bool is_dark);
+    bool IsDarkMode() const { return is_dark_mode_; }
+
 private:
     bool ShouldRedraw() const;
     /*
@@ -63,12 +66,15 @@ struct GridInfo
     QString                 qstr_suffix;
 };
     HV_Info<GridInfo>       axis_;
-    bool                    need_be_updated_ {true}; //flag of necessaty to redraw pixmap
+    bool                    need_be_updated_ {true};
     QPixmap                 cache_pixmap_;
     const ChartScaleInfo&   scale_info_;
     HV_Info<Limits<double>> last_val_scaled_bounds_;
     HV_Info<int>            last_widget_size_;
 	HV_Info<int>            last_chart_size_;
+	bool					is_dark_mode_{ true };
+	
+	AxisColorScheme			colors_;
 };
 
 }

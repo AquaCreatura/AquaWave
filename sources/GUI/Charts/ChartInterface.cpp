@@ -2,6 +2,7 @@
 #include <qsizepolicy.h>
 #include "GUI/Tools/gui_helper.h"
 #include <qshortcut.h>
+#include "GUI/Tools/Chart drawers/ChartColorScheme.h"
 ChartInterface::ChartInterface(QWidget* parent, std::shared_ptr<SelectionHolder> selection_holder, ChartDomainType passed_domain) :
     QWidget(parent), scale_info_(passed_domain), axis_man_(scale_info_), bg_image_(scale_info_), selection_drawer_(scale_info_),
 	mouse_man_(scale_info_)
@@ -14,9 +15,13 @@ ChartInterface::ChartInterface(QWidget* parent, std::shared_ptr<SelectionHolder>
     SetHorizontalMinMaxBounds({0, 1});
     SetHorizontalSuffix("counts");
 
-    SetVerticalSuffix("power");
+SetVerticalSuffix("power");
     connect(&redraw_timer_, &QTimer::timeout, this, QOverload<>::of(&ChartInterface::update));
-    SetBackgroundImage(":/AquaWave/sources/GUI/External/background/black_mountain.jpg");
+    SetBackgroundImages(
+        ":/AquaWave/sources/GUI/External/background/black_mountain.jpg",
+        ":/AquaWave/sources/GUI/External/background/cutted_sky.png"
+    );
+	EnableDarkMode(false);
 	layout_ = new QVBoxLayout(this);
 }
 
@@ -28,6 +33,11 @@ bool ChartInterface::SetBackgroundImage(const QString & image_path)
 {
     const bool res_of_init  = bg_image_.InitImage(image_path);
     return res_of_init;
+}
+
+void ChartInterface::SetBackgroundImages(const QString& dark_path, const QString& light_path)
+{
+	bg_image_.SetImagePaths(dark_path, light_path);
 }
 
 void ChartInterface::SetVerticalMinMaxBounds(const Limits<double>& vertical_bounds)
@@ -202,6 +212,13 @@ void ChartInterface::paintEvent(QPaintEvent * paint_event)
 
     
     QPainter new_frame_painter(this);
+	//Выставляем закруглённые края
+	{
+		new_frame_painter.setRenderHint(QPainter::Antialiasing, true);
+		QPainterPath path;
+		path.addRoundedRect(rect(), 10, 10);
+		new_frame_painter.setClipPath(path);
+	}
     //Background Image
     {
         //Draw our background
@@ -223,6 +240,8 @@ void ChartInterface::paintEvent(QPaintEvent * paint_event)
     {
 		mouse_man_.Draw(new_frame_painter);
     }
+
+
 }
 
 void ChartInterface::leaveEvent(QEvent * event)
@@ -305,4 +324,13 @@ void ChartInterface::UpdateControlButtonPositions()
 	ctrl_frame_->move((width()/ 2) * 0, (scale_info_.pix_info_.chart_size_px.vert - ctrl_frame_->height())*1);
 	ctrl_frame_->adjustSize();
 	//ctrl_frame_->move(0,0);
+}
+
+void ChartInterface::EnableDarkMode(const bool is_dark)
+{
+	selection_drawer_.EnableDarkMode(is_dark);
+	mouse_man_.EnableDarkMode(is_dark);
+	axis_man_.EnableDarkMode(is_dark);
+	bg_image_.EnableDarkMode(is_dark);
+	update();
 }

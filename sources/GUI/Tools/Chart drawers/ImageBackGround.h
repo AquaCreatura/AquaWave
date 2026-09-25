@@ -4,8 +4,8 @@
 #include <qimage.h>
 #include <qpixmap.h>
 #include <qpainter.h>
-#include "GUI/gui_defs.h" // Assuming this contains WH_Info and ChartScaleInfo definitions
-#include "QimageZoomer.h" // Include the new class header
+#include "GUI/gui_defs.h"
+#include "QimageZoomer.h"
 
 namespace aqua_gui
 {
@@ -33,31 +33,33 @@ public:
      */
     bool DrawImage(QPainter& painter);
 
+    void EnableDarkMode(const bool is_dark);
+    bool IsDarkMode() const { return is_dark_mode_; }
+    void SetImagePaths(const QString& dark_path, const QString& light_path);
 
 private:
-    // Determines if redraw is necessary based on state flags.
     bool ShouldRedraw() const;
-
-    // Calculates the value bounds for the currently displayed portion of the chart.
-    // This is derived from the ChartScaleInfo's view_bounds.
     HorVerLim<double> CalculateTargetDisplayValueBounds() const;
-    
-    // Resets state flags after redraw.
     void ResetRedrawFlags();
+    bool LoadImage(const QString& image_path);
 
 private:
-    QImage                      base_image_; // The raw base image
-    QPixmap                     pixmap_to_show_; // The final pixmap to draw
-    int                         base_width_  {0}; //
-    int                         base_height_ {0}; //
-    bool                        need_redraw_       {false}; //
-    const ChartScaleInfo&       scale_info_; //
+    QImage                      base_image_;
+    QPixmap                     pixmap_to_show_;
+    int                         base_width_  {0};
+    int                         base_height_ {0};
+    bool                        need_redraw_       {false};
+    const ChartScaleInfo&       scale_info_;
+    bool                        is_dark_mode_{ true };
+    QString                     dark_image_path_;
+    QString                     light_image_path_;
+    QString                     current_image_path_;
 
     HV_Info<int>                last_pixmap_size_;
     HorVerLim<double>           last_base_val_bounds_;
     HorVerLim<double>           last_scaled_val_bounds_;
 
-    QimageZoomer                image_zoomer_; // QimageZoomer instance
+    QimageZoomer                image_zoomer_;
 };
 
 }

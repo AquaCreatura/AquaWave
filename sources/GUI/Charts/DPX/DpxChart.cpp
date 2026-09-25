@@ -7,11 +7,9 @@ ChartDPX::ChartDPX(QWidget * parrent, ChartDomainType domain, std::shared_ptr<Se
 	tiler_.SetLifeTime(is_analyze ? -1 : -1);
     Limits<double> random_bounds = {0, 100};
     SetHorizontalMinMaxBounds(random_bounds);
-    //dpx_painter_.SetMinMax_X(random_bounds);
     SetHorizontalSuffix("counts");
 
     SetVerticalSuffix("power");
-	SetBackgroundImage(":/AquaWave/sources/GUI/External/background/water.png");
 }
 
 ChartDPX::~ChartDPX()

@@ -5,6 +5,7 @@
 #include <qpainter.h>
 #include "Utilities\parse_tools.h"
 #include "GUI/gui_defs.h"
+#include "ChartColorScheme.h"
 namespace aqua_gui
 {
 
@@ -45,17 +46,24 @@ public:
 	std::shared_ptr<SelectionHolder> GetHolder();
 	bool DrawSelections	(QPainter& painter);
 	void EditableEvent	(const QPoint& mouse_location, const mouse_event_type event_type);
+	void EnableDarkMode(const bool is_dark);
+	bool IsDarkMode() const { return is_dark_mode_; }
 protected:
 	void ChangeCurSelection();
-protected: //Draw functions
+protected:
 	bool DrawRectangles	(QPainter& painter, const HorVerLim<int>& user_rect);
 	bool DrawSizes		(QPainter& painter, const HorVerLim<int>& user_rect, const HorVerLim<double> &hv_val);
 	bool DrawMarks		(QPainter& painter, const HorVerLim<int>& user_rect, const HorVerLim<double> &hv_val);
 private:
+	void ApplyColorScheme(const ChartColorScheme& scheme);
+	
 	const ChartScaleInfo&			 scale_info_;
 	std::shared_ptr<SelectionHolder> sel_holder_;
 	HorVerLim<double>				 cur_hv_;
 	bool							 is_pressed_{ false };
+	bool							 is_dark_mode_{ true };
+	
+	ChartColorScheme				 colors_;
 };
 
 
@@ -68,17 +76,23 @@ public:
 	void MouseEvent(const QPoint& mouse_location, mouse_event_type event_type);
 	void SetWidgetInsideState(bool is_enter);
 	bool Draw(QPainter& painter);
+	void EnableDarkMode(const bool is_dark);
+	bool IsDarkMode() const { return is_dark_mode_; }
 
-	// Возвращает форму курсора в зависимости от состояния
 	Qt::CursorShape GetCursor() const;
 
 protected:
+	void ApplyColorScheme(const ChartColorScheme& scheme);
+	
 	QPoint pos_;
 	bool is_inside_widget_{ false };
 	ChartScaleInfo& scale_info_;
 
 	bool is_panning_ = false;
 	QPoint pan_start_pos_;
-	HV_Info<double, double> pan_world_pos_;   // точка в мировых координатах, за которую схватились
+	HV_Info<double, double> pan_world_pos_;
+	
+	bool is_dark_mode_{ true };
+	ChartColorScheme colors_;
 };
 }

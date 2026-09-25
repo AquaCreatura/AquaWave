@@ -4,28 +4,43 @@
 namespace aqua_gui
 {
 
-/**
- * @brief Constructor initializing with scale information.
- * @param scale_info Chart scaling and pixel/value range metadata.
- */
 ImageBG::ImageBG(const ChartScaleInfo& scale_info)
     : scale_info_(scale_info)
 {
+	EnableDarkMode(true);
 }
 
-/**
- * @brief Loads base image from specified path.
- * @param image_path Path to image file.
- * @return true if image loaded successfully, false otherwise.
- */
+void ImageBG::EnableDarkMode(const bool is_dark)
+{
+	is_dark_mode_ = is_dark;
+	const QString& target_path = is_dark ? dark_image_path_ : light_image_path_;
+	if (!target_path.isEmpty() && target_path != current_image_path_) {
+		LoadImage(target_path);
+		current_image_path_ = target_path;
+		need_redraw_ = true;
+	}
+}
+
+void ImageBG::SetImagePaths(const QString& dark_path, const QString& light_path)
+{
+	dark_image_path_ = dark_path;
+	light_image_path_ = light_path;
+	EnableDarkMode(is_dark_mode_);
+}
+
+bool ImageBG::LoadImage(const QString& image_path)
+{
+    base_image_.load(image_path);
+    if (base_image_.isNull()) return false;
+    return image_zoomer_.SetNewBase(&base_image_);
+}
+
 bool ImageBG::InitImage(const QString& image_path)
 {
-    base_image_.load(image_path); //
-    if (base_image_.isNull()) return false; //
-
-
-    // Set the base image in the zoomer
-    return image_zoomer_.SetNewBase(&base_image_); //
+	current_image_path_ = image_path;
+	dark_image_path_ = image_path;
+	light_image_path_ = image_path;
+    return LoadImage(image_path);
 }
 
 /**

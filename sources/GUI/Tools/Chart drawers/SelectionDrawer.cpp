@@ -1,6 +1,7 @@
 #include "SelectionDrawer.h"
 #include "Utilities/parse_tools.h"
 #include "GUI/Tools/gui_worker.h"
+#include "ChartColorScheme.h"
 using namespace aqua_gui;
 
 //============================ SelectionHolder ================================
@@ -49,12 +50,24 @@ aqua_gui::SelectionDrawer::SelectionDrawer(const ChartScaleInfo & base_scale_inf
 	scale_info_(base_scale_info)
 {
 	sel_holder_ = std::make_shared<SelectionHolder>();
+	EnableDarkMode(true);
 }
 
 void aqua_gui::SelectionDrawer::SetHolder(std::shared_ptr<SelectionHolder> holder)
 {
 	if(holder)
 		sel_holder_ = holder;
+}
+
+void aqua_gui::SelectionDrawer::EnableDarkMode(const bool is_dark)
+{
+	is_dark_mode_ = is_dark;
+	ApplyColorScheme(is_dark ? ChartColorScheme::darkMode() : ChartColorScheme::lightMode());
+}
+
+void aqua_gui::SelectionDrawer::ApplyColorScheme(const ChartColorScheme& scheme)
+{
+	colors_ = scheme;
 }
 
 std::shared_ptr<SelectionHolder> aqua_gui::SelectionDrawer::GetHolder()
@@ -166,9 +179,9 @@ bool aqua_gui::SelectionDrawer::DrawRectangles(QPainter & painter, const HorVerL
 		int(user_rect.hor.delta() + 1), int(user_rect.vert.delta() + 1) };
 	{
 		QPen sel_pen;
-		sel_pen.setColor((is_vert_valid && is_hor_valid) ? QColor(80, 80, 80, 255) : QColor(255, 255, 255, 255));
+		sel_pen.setColor((is_vert_valid && is_hor_valid) ? colors_.axis_color : colors_.text_color);
 
-		QColor fillColor(0, 255, 255, 60); // синий, alpha 128 = 50% прозрачность
+		QColor fillColor(0, 255, 255, 60);
 		sel_pen.setWidth(1);
 		painter.setPen(sel_pen);
 
@@ -199,17 +212,12 @@ bool aqua_gui::SelectionDrawer::DrawRectangles(QPainter & painter, const HorVerL
 	//Отрисовка самого селекшена
 	if (is_hor_valid && is_vert_valid)
 	{
-		// Заливка (наполовину прозрачная)
-		QColor fillColor(100, 100, 100, 130); // синий, alpha 128 = 50% прозрачность
-										 //painter.fillRect(pixel_rect, fillColor);
-
-										 // Рамка прямоугольника
 		QPen pen;
-		pen.setColor(QColor(255, 255, 255, 255));
-		pen.setWidth(1); // толщина рамки
+		pen.setColor(colors_.selection_border_color);
+		pen.setWidth(1);
 		painter.setPen(pen);
 		painter.drawRect(pixel_rect);
-		painter.fillRect(pixel_rect, fillColor);
+		painter.fillRect(pixel_rect, colors_.selection_fill_color);
 	}
 	painter.restore();
 	return true;
@@ -231,11 +239,11 @@ bool aqua_gui::SelectionDrawer::DrawSizes(
 
 	painter.save();
 	painter.setRenderHint(QPainter::Antialiasing, true);
-	painter.setPen(QPen(Qt::white, 1));
+	painter.setPen(QPen(colors_.text_color, 1));
 
-	const int offset = 20;     // Отступ линии от прямоугольника
-	const int arrowSize = 8;    // Размер наконечника
-	const int textMargin = 5;   // Отступ текста от линии
+	const int offset = 20;
+	const int arrowSize = 8;
+	const int textMargin = 5;
 	const int minSizeForInsideArrows = 40;
 
 	int left = user_rect.hor.low;
@@ -255,10 +263,9 @@ bool aqua_gui::SelectionDrawer::DrawSizes(
 	/* ===============================
 	ЛОГИКА ПОЗИЦИОНИРОВАНИЯ И ОТРИСОВКИ
 	=============================== */
-	const int textGap = 1;      // Зазор между текстом и линией
-	const int arrowExt = 15;    // Длина "хвостиков" для маленьких размеров
-	const QColor bgColor(100, 100, 100, 180); // Цвет фона текста
-											  // Определение Y (для ширины) - Приоритет СНИЗУ
+	const int textGap = 1;
+	const int arrowExt = 15;
+	const QColor bgColor = colors_.label_bg_color;
 	int y = (bottom + offset + 5 <= chartH) ? (bottom + offset) :
 		(top - offset - 5 >= 0) ? (top - offset) : qBound(5, bottom + offset, chartH - 5);
 	if (user_rect.vert.delta() == 0)
@@ -274,7 +281,7 @@ bool aqua_gui::SelectionDrawer::DrawSizes(
 		bool small = len < 40;
 
 		// 1. Линия и стрелки
-		painter.setPen(QPen(Qt::white, 1));
+		painter.setPen(QPen(colors_.text_color, 1));
 		painter.drawLine(p1, p2);
 
 		if (!small) {
@@ -294,15 +301,14 @@ bool aqua_gui::SelectionDrawer::DrawSizes(
 			}
 		}
 
-		// 2. Текст с фоном (Над или Слева)
+		// 2. Текст с фоном
 		QFontMetrics fm(painter.font());
 		QRectF txtRect = fm.boundingRect(text);
-		txtRect.adjust(-3, 0, 3, 0); // Небольшие поля для красоты фона
+		txtRect.adjust(-3, 0, 3, 0);
 		QPointF center = (p1 + p2) / 2.0;
 
 		painter.save();
 		if (!isVertical) {
-			// Смещение над линией: y - высота_текста - зазор
 			QRectF bgRect(center.x() - txtRect.width() / 2.0, p1.y() - txtRect.height() - textGap,
 				txtRect.width(), txtRect.height());
 
@@ -310,22 +316,20 @@ bool aqua_gui::SelectionDrawer::DrawSizes(
 			painter.setBrush(bgColor);
 			painter.drawRect(bgRect);
 
-			painter.setPen(Qt::white);
+			painter.setPen(colors_.text_color);
 			painter.drawText(bgRect, Qt::AlignCenter, text);
 		}
 		else {
-			// Поворот и смещение слева от линии
 			painter.translate(p1.x() - textGap, center.y());
 			painter.rotate(-90);
 
-			// В повернутой системе координат "слева" становится "сверху" (отрицательный Y)
 			QRectF bgRect(-txtRect.width() / 2.0, -txtRect.height(), txtRect.width(), txtRect.height());
 
 			painter.setPen(Qt::NoPen);
 			painter.setBrush(bgColor);
 			painter.drawRect(bgRect);
 
-			painter.setPen(Qt::white);
+			painter.setPen(colors_.text_color);
 			painter.drawText(bgRect, Qt::AlignCenter, text);
 		}
 		painter.restore();
@@ -354,7 +358,7 @@ bool aqua_gui::SelectionDrawer::DrawMarks(QPainter & painter, const HorVerLim<in
 	using namespace aqua_parse_tools;
 
 	// 1. Настройка стиля
-	QPen dashPen(QColor(200, 200, 200));
+	QPen dashPen(colors_.grid_line_color);
 	dashPen.setDashPattern({ 7, 7 });
 	painter.setPen(dashPen);
 
@@ -365,12 +369,12 @@ bool aqua_gui::SelectionDrawer::DrawMarks(QPainter & painter, const HorVerLim<in
 		QRect tr = fm.boundingRect(text);
 		int w = tr.width() + 12, h = tr.height() + 4;
 
-		// Определяем координаты: если Hor -> X=p, Y=низ графика. Если Ver -> X=край графика, Y=p.
+		// Определяем координаты
 		QRect bg = isHor ? QRect(p - w / 2, chart_size_px.vert + 5, w, h)
 			: QRect(chart_size_px.hor + 5, p - h / 2, w, h);
 
-		painter.fillRect(bg, QColor(50, 50, 50));
-		painter.setPen(Qt::white);
+		painter.fillRect(bg, colors_.label_bg_color);
+		painter.setPen(colors_.text_color);
 		painter.drawText(bg, Qt::AlignCenter, text);
 	};
 
@@ -417,6 +421,18 @@ bool aqua_gui::SelectionDrawer::DrawMarks(QPainter & painter, const HorVerLim<in
 aqua_gui::MouseDrawer::MouseDrawer(ChartScaleInfo& base_scale_info)
 	: scale_info_(base_scale_info)
 {
+	EnableDarkMode(true);
+}
+
+void aqua_gui::MouseDrawer::EnableDarkMode(const bool is_dark)
+{
+	is_dark_mode_ = is_dark;
+	ApplyColorScheme(is_dark ? ChartColorScheme::darkMode() : ChartColorScheme::lightMode());
+}
+
+void aqua_gui::MouseDrawer::ApplyColorScheme(const ChartColorScheme& scheme)
+{
+	colors_ = scheme;
 }
 
 // ---- Обработка событий мыши ----
@@ -481,7 +497,7 @@ Qt::CursorShape aqua_gui::MouseDrawer::GetCursor() const
 	return Qt::ArrowCursor;
 }
 
-// ---- Отрисовка (без изменений) ----
+// ---- Отрисовка ----
 bool aqua_gui::MouseDrawer::Draw(QPainter& painter)
 {
 	using namespace aqua_parse_tools;
@@ -500,7 +516,7 @@ bool aqua_gui::MouseDrawer::Draw(QPainter& painter)
 	auto val_hor = cur_chart_val.hor.low + double(hor_px) / chart_size_px.hor * cur_chart_val.hor.delta();
 	auto val_vert = cur_chart_val.vert.low + (1.0 - double(vert_px) / chart_size_px.vert) * cur_chart_val.vert.delta();
 
-	QPen dashPen(QColor(200, 200, 200));
+	QPen dashPen(colors_.grid_line_color);
 	dashPen.setDashPattern({ 7, 7 });
 	painter.setPen(dashPen);
 
@@ -543,8 +559,8 @@ bool aqua_gui::MouseDrawer::Draw(QPainter& painter)
 		}
 
 		QRect bgRect(final_x, final_y, w, h);
-		painter.fillRect(bgRect, QColor(0, 0, 125));
-		painter.setPen(Qt::white);
+		painter.fillRect(bgRect, colors_.mouse_label_bg_color);
+		painter.setPen(colors_.text_color);
 		painter.drawText(bgRect, Qt::AlignCenter, text);
 	};
 

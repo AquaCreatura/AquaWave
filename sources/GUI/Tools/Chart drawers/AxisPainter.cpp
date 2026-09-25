@@ -1,11 +1,20 @@
 #include "AxisPainter.h"
+#include "ChartColorScheme.h"
 using namespace aqua_gui;
-constexpr int hatch_size_px_c_expr  =  10; //Length of hatch (штрих)
+constexpr int hatch_size_px_c_expr  =  10;
 
 
 AxisManager::AxisManager(const ChartScaleInfo & base_scale_info):
 scale_info_(base_scale_info)
 {
+	EnableDarkMode(true);
+}
+
+void AxisManager::EnableDarkMode(const bool is_dark)
+{
+	is_dark_mode_ = is_dark;
+	colors_ = is_dark ? AxisColorScheme::darkMode() : AxisColorScheme::lightMode();
+	need_be_updated_ = true;
 }
 
 void AxisManager::InitHorizontal(const QString & ox_name)
@@ -52,13 +61,13 @@ bool AxisManager::DrawAxis(QPainter& passed_painter)
 		cache_pixmap_.fill(Qt::transparent);
     // Инициализация перьев
     QPen text_pen;
-    text_pen.setColor("gray");
+    text_pen.setColor(colors_.text_color);
 
     QPen grid_pen;
-    grid_pen.setColor(QColor::fromRgb(0, 40, 25, 255));
+    grid_pen.setColor(colors_.grid_color);
 
     QPen frame_pen;
-    frame_pen.setColor(grid_pen.color());
+    frame_pen.setColor(colors_.frame_color);
     frame_pen.setWidth(3);
 
     DrawMarginBackGround(cur_painter, frame_pen);
@@ -169,7 +178,9 @@ bool aqua_gui::AxisManager::ShouldRedraw() const
 bool AxisManager::DrawMarginBackGround(QPainter& passed_painter, const QPen& frame_pen)
 {   
 
-    QGradient strange_grad(QGradient::PremiumDark);
+    QLinearGradient strange_grad(0, 0, scale_info_.pix_info_.widget_size_px.hor, scale_info_.pix_info_.widget_size_px.vert);
+	strange_grad.setColorAt(0, colors_.margin_gradient_start);
+	strange_grad.setColorAt(1, colors_.margin_gradient_end);
     const auto &pix_info  = scale_info_.pix_info_;
     QPainterPath polyg;
 /*                              

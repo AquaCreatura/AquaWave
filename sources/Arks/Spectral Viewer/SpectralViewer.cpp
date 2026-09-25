@@ -32,9 +32,9 @@ SpectralViewer::SpectralViewer()
 		auto spg_window		= ShipBuilder::GetWindow(spg_);
 		auto scoper_window	= ShipBuilder::GetWindow(scoper_);
 
-		window_->AddWindow(dpx_window, SpectralViewerWindow::ChartType::kDpxSpectrum);  
-		window_->AddWindow(spg_window, SpectralViewerWindow::ChartType::kStaticSpg);
-		window_->AddWindow(scoper_window, SpectralViewerWindow::ChartType::kAnalyzer);
+		window_->AddWindow(SpectralViewerWindow::ChartType::kDpxSpectrum, dpx_window, spectrum_.get());
+		window_->AddWindow(SpectralViewerWindow::ChartType::kStaticSpg, spg_window, spg_.get());
+		window_->AddWindow(SpectralViewerWindow::ChartType::kAnalyzer, scoper_window, scoper_.get());
 
 		for (const auto& window : { dpx_window, spg_window }) {
 			if (QPointer<ChartInterface> derivedPtr = qobject_cast<ChartInterface*>(window.data())) {
@@ -100,14 +100,13 @@ bool SpectralViewer::PostDove(fluctus::DoveSptr const & sent_dove)
 	if (base_thought & fluctus::DoveParrent::DoveThought::kActivate)
 	{
 		fluctus::DoveSptr req_dove = std::make_shared<fluctus::DoveParrent>(fluctus::DoveParrent::kActivate);
-		spg_->PostDove(req_dove);
-		spectrum_->PostDove(req_dove);
+		window_->ActivateCur(true);
+		
 	}
 	if (base_thought & fluctus::DoveParrent::DoveThought::kDeactivate)
 	{
 		fluctus::DoveSptr req_dove = std::make_shared<fluctus::DoveParrent>(fluctus::DoveParrent::kDeactivate);
-		spg_->PostDove(req_dove);
-		spectrum_->PostDove(req_dove);
+		window_->ActivateCur(false);
 	}
 
     //

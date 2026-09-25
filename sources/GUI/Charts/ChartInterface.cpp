@@ -101,28 +101,7 @@ void ChartInterface::SetControlButtons(QWidget * passed)
 	ctrl_frame_ = passed;
 	ctrl_frame_->setParent(this);
 	ctrl_frame_->show();
-	ctrl_frame_->setStyleSheet(
-		"QFrame {"
-		"    background-color: rgba(35, 35, 35, 210);"
-		"    border: 1px solid rgba(255, 255, 255, 35);"
-		"    border-radius: 5px;"
-		"}"
-		"QComboBox {"
-		"    background-color: rgba(210, 210, 210, 150);"
-		"    color: rgba(25, 25, 25, 180);"
-		"    border: 1px solid rgba(255, 255, 255, 25);"
-		"    border-radius: 3px;"
-		"    padding: 2px 6px;"
-		"}"
-		"QComboBox:hover {"
-		"    background-color: rgba(245, 245, 245,220);"
-		"    color: rgba( 55, 55, 55, 240);"
-		"    border-color: rgba(255, 255, 255, 70);"
-		"}"
-		"QComboBox:focus {"
-		"    border-color: rgba(255, 255, 255, 80);"
-		"}"
-	);
+	ctrl_frame_->setWindowOpacity(0.2);
 	UpdateControlButtonPositions();
 
 }

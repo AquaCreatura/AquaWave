@@ -30,9 +30,16 @@ void QWindowKitHelper::setupTitleBar(QWidget* passed_bar)
     auto* titleLabel = new QLabel(m_window->windowTitle(), m_window);
     titleLabel->setAlignment(Qt::AlignCenter);
 
-    m_minButton = new QPushButton(QStringLiteral("-"), m_window);
-    m_maxButton = new QPushButton(QStringLiteral("O"), m_window);
-    m_closeButton = new QPushButton(QStringLiteral("X"), m_window);
+    auto makeBtn = [&](const QString& text) {
+        auto* btn = new QPushButton(text, m_window);
+        btn->setMinimumSize(35, 35);
+        btn->setStyleSheet("text-align: center;");
+        return btn;
+    };
+
+    m_minButton = makeBtn(QStringLiteral("-"));
+    m_maxButton = makeBtn(QStringLiteral("O"));
+    m_closeButton = makeBtn(QStringLiteral("X"));
 
     // 3. Настраиваем layout
     auto* layout = new QHBoxLayout(titleBar);

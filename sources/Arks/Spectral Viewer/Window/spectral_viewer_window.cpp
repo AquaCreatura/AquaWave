@@ -211,9 +211,23 @@ void SpectralViewerWindow::SetMaxFFtOrder(int max_fft_order)
     const int cur_fft = ui_.fft_order_combobox->currentData().toInt();
     UpdateFFtCombobox(max_fft_order, cur_fft);
 }
-
-void SpectralViewerWindow::ActivateCur(bool /*do_activate*/)
+void SpectralViewerWindow::ActivateCur(bool do_activate)
 {
+    const auto action = do_activate ? fluctus::DoveParrent::kActivate
+        : fluctus::DoveParrent::kDeactivate;
+
+    QWidget* cur_down = ui_.main_down_part->currentWidget();
+
+    for (auto& [type, entry] : chart_entries_) {
+        if (!entry.ark || !entry.widget)
+            continue;
+
+        // верхн€€ панель (kDpxSpectrum) активна всегда,
+        // нижн€€ Ч только если это текущий виджет стека
+        const bool is_visible = (type == kDpxSpectrum) || (entry.widget == cur_down);
+        if (is_visible)
+            entry.ark->PostDove(std::make_shared<fluctus::DoveParrent>(action));
+    }
 }
 
 void SpectralViewerWindow::UpdateFFtCombobox(const int max_order, const int cur_fft_order)

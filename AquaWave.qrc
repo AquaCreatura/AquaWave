@@ -7,5 +7,6 @@
         <file>sources/GUI/External/Themes/light_scheme.qss</file>
         <file>sources/GUI/External/background/black_mountain.jpg</file>
         <file>sources/GUI/External/icons/AquaWave.ico</file>
+        <file>sources/GUI/External/background/sym_sky.jpg</file>
     </qresource>
 </RCC>

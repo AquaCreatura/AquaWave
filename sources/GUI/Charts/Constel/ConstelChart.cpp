@@ -41,7 +41,17 @@ void ChartConstel::ClearData()
 void ChartConstel::paintEvent(QPaintEvent * paint_event)
 {
 	QPainter new_frame_painter(this);
+
+	//Выставляем закруглённые края
+	{
+		new_frame_painter.setRenderHint(QPainter::Antialiasing, true);
+		QPainterPath path;
+		path.addRoundedRect(rect(), 10, 10);
+		new_frame_painter.setClipPath(path);
+	}
+
 	bg_image_.DrawImage(new_frame_painter);
+
 	{
 		auto chart_size = scale_info_.pix_info_.chart_size_px;
 		auto data_pixmap = core_.GetRelevantPixmap(std::min(chart_size.hor, chart_size.vert));
@@ -59,6 +69,7 @@ void ChartConstel::resizeEvent(QResizeEvent * event)
 
 	pix_info.widget_size_px = { min_size , min_size };
 	pix_info.chart_size_px = pix_info.widget_size_px - pix_info.margin_px;
+	resize({ min_size , min_size });
 }
 
 bool ChartConstel::ShouldRedraw()

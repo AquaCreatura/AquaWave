@@ -73,7 +73,7 @@ bool ImageBG::DrawImage(QPainter& passed_painter)
         );
         ResetRedrawFlags(); // Reset flags after successful redraw
     }
-    
+
     // Draw the cached pixmap
     passed_painter.drawPixmap(0, 0, pixmap_to_show_);
 

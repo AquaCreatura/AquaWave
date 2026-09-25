@@ -11,14 +11,14 @@ AquaWave::AquaWave(QWidget *parent, const QString& file_path)
 {
     ui.setupUi(this);
 
-    setWindowIcon(QIcon(":/AquaWave/sources/GUI/External/icons/wave.ico"));
+    setWindowIcon(QIcon(":/AquaWave/sources/GUI/External/icons/AquaWave.ico"));
 
     m_mainMenuHelper = new QMainMenuHelper(this);
     m_windowKitHelper = new QWindowKitHelper(this);
 
     setupWindowAgent();
 
-    QFile file(":/AquaWave/sources/GUI/External/Themes/space_scheme.qss");
+    QFile file(":/AquaWave/sources/GUI/External/Themes/light_scheme.qss");
     if (file.open(QFile::ReadOnly)) {
         QString style = file.readAll();
         setStyleSheet(style);

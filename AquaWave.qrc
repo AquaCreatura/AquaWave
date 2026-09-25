@@ -2,7 +2,9 @@
     <qresource prefix="/AquaWave">
         <file>sources/GUI/External/icons/wave.ico</file>
         <file>sources/GUI/External/background/water.png</file>
-        <file>sources/GUI/External/Themes/blue_scheme.qss</file>
-        <file>sources/GUI/External/Themes/space_scheme.qss</file>  
+        <file>sources/GUI/External/Themes/space_scheme.qss</file>
+        <file>sources/GUI/External/Themes/light_scheme.qss</file>
+        <file>sources/GUI/External/background/black_mountain.jpg</file>
+        <file>sources/GUI/External/icons/AquaWave.ico</file>
     </qresource>
 </RCC>

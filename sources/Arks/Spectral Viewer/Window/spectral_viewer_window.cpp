@@ -44,17 +44,17 @@ SpectralViewerWindow::SpectralViewerWindow()
 
 void SpectralViewerWindow::SetupSideMenu()
 {
-	QIcon menu_icon("D:/PetWave/AquaWave/sources/GUI/button_images/horizontal_extended.png");
+	QIcon menu_icon(":/buttons/button_images/horizontal_extended.png");
 	ui_.extend_frame_button->setIcon(menu_icon);
 	ui_.extend_frame_button->setIconSize(QSize(20, 20));
 
 	QIcon spectrogram_icon(":/buttons/button_images/waterfall.png");
 	ui_.spectrgoram_side_pushbutton->setIcon(spectrogram_icon);
-	ui_.spectrgoram_side_pushbutton->setIconSize(QSize(24, 24));
+	ui_.spectrgoram_side_pushbutton->setIconSize(QSize(20, 20));
 
-	QIcon analysis_icon(":/buttons/button_images/graph.jpg");
+	QIcon analysis_icon(":/buttons/button_images/graph.png");
 	ui_.analysis_side_pushbutton->setIcon(analysis_icon);
-	ui_.analysis_side_pushbutton->setIconSize(QSize(24, 24));
+	ui_.analysis_side_pushbutton->setIconSize(QSize(20, 20));
 
 	ui_.verticalFrame->installEventFilter(this);
 

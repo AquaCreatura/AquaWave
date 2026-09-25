@@ -590,10 +590,10 @@
     <ResourceCompile Include="AquaWave.rc" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="sources\GUI\External\Themes\blue_scheme.qss">
+    <None Include="sources\GUI\External\Themes\space_scheme.qss">
       <Filter>GUI\External\Themes</Filter>
     </None>
-    <None Include="sources\GUI\External\Themes\space_scheme.qss">
+    <None Include="sources\GUI\External\Themes\light_scheme.qss">
       <Filter>GUI\External\Themes</Filter>
     </None>
   </ItemGroup>

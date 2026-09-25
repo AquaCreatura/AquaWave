@@ -20,7 +20,11 @@ void QWindowKitHelper::setupTitleBar(QWidget* passed_bar)
     titleBar->setFixedHeight(40);
 
     // 2. Создаем элементы управления
-    auto* iconButton = new QPushButton(QStringLiteral("App"), m_window);
+    auto* iconButton = new QPushButton((""), m_window);
+    QIcon top_left_logo(":/buttons/button_images/AquaWave.png");
+    iconButton->setIcon(top_left_logo);
+    iconButton->setIconSize(QSize(25, 25));
+    iconButton->setFixedSize(35, 35); // Фиксированный размер кнопки
 
 
     auto* titleLabel = new QLabel(m_window->windowTitle(), m_window);

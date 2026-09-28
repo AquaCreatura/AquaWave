@@ -3,6 +3,7 @@
 #include <qgraphicsview.h>
 #include <qgraphicsitem.h>
 #include <qpainter.h>
+#include <qelapsedtimer.h>
 #include "Utilities\parse_tools.h"
 #include "GUI/gui_defs.h"
 #include "ChartColorScheme.h"
@@ -77,8 +78,8 @@ public:
 	void SetWidgetInsideState(bool is_enter);
 	bool Draw(QPainter& painter);
 	void EnableDarkMode(const bool is_dark);
-	bool IsDarkMode() const { return is_dark_mode_; }
-
+	bool IsDarkMode() const		{ return is_dark_mode_; }
+	bool IsMovingMouse() const	{ return is_mouse_moving_; };
 	Qt::CursorShape GetCursor() const;
 
 protected:
@@ -91,8 +92,11 @@ protected:
 	bool is_panning_ = false;
 	QPoint pan_start_pos_;
 	HV_Info<double, double> pan_world_pos_;
-	
 	bool is_dark_mode_{ true };
 	ChartColorScheme colors_;
+
+	bool is_mouse_moving_{ false };
+	QElapsedTimer mouse_move_timer_;
+	int mouse_move_hysteresis_msec_ = 100;
 };
 }

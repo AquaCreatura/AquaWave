@@ -2,6 +2,7 @@
 #include "Units/TileInterface.h"
 #include "GUI/Tools/Chart drawers//QimageZoomer.h"
 #include <future>
+#include <qelapsedtimer.h>
 using namespace aqua_gui;
 //Works synchoniously
 class ChartTiler { 
@@ -10,14 +11,14 @@ public:
 	ChartTiler(const ChartScaleInfo& scale_info);
 	void			SetData				(const draw_data& data);
 	void			Reset				();
-	const QPixmap&	GetRelevantPixmap	();
+	const QPixmap&	GetRelevantPixmap	(bool is_optimized_mode = false);
 	void			UpdateBounds		();
 	TileInterface::uptr const & SpgGetTile() const;
 	bool			SetLifeTime(const double life_time_sec);
 protected:
 	void			UpdateTileBase		(); 	//Init bounds of base image	
 	void			UpdateTileView		();
-	const QPixmap &UpdateQPixmap ();
+	const QPixmap&	UpdateQPixmap		();
 	bool			NeedUpdateTile		();
 protected:
 	int								 count_of_tiles_{ 3 };
@@ -33,6 +34,7 @@ protected:
 	QElapsedTimer					image_update_timer_;
 	tbb::spin_mutex					data_mutex_; //обновлять данные можем из разных потоков
 	tbb::spin_mutex					bounds_mutex_; //обновлять границы можем из разных потоков...
-	double							fps_;
+	double							fps_default_ = 10;
+	double							fps_optimization_ = 2;
 	double							life_time_sec_;
 };

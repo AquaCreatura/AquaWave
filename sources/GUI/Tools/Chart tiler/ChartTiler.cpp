@@ -4,7 +4,6 @@
 #include <qdebug.h>
 ChartTiler::ChartTiler(const ChartScaleInfo & scale_info) : scale_info_(scale_info)
 {
-	fps_ = 20;
 	is_spg_ = (scale_info_.val_info_.domain_type == aqua_gui::ChartDomainType::kTimeFrequency);	
 	for (int i = 0; i < count_of_tiles_; i++) {
 		if (is_spg_) {
@@ -25,7 +24,7 @@ void ChartTiler::UpdateTileBase()
 	if (tiles_[0]->GetValBounds() != base_bounds) {
 		tiles_[0] = tiles_[0]->RecreateWithBounds(base_bounds);
 		if(!is_spg_)
-			tiles_[0]->SetDpxParams(fps_,life_time_sec_);
+			tiles_[0]->SetDpxParams(fps_default_, life_time_sec_);
 	}
 		
 }
@@ -98,7 +97,7 @@ void ChartTiler::UpdateTileView()
 		new_use_tile->UpdateFromTile(tiles_[tile_counter].get());
 	}
 	new_use_tile->is_data_updated_ = true;
-	qDebug() << "new id: " << new_tile_id;
+	qDebug() << "new tile id: " << new_tile_id;
 	tile_id_ = new_tile_id;
 	
 }
@@ -147,7 +146,7 @@ bool ChartTiler::SetLifeTime(const double passed_life_time_sec)
 	life_time_sec_ = passed_life_time_sec;
 	if (is_spg_) return false;
 	for (auto &tile_iter: tiles_) {
-		tile_iter->SetDpxParams(fps_, life_time_sec_);
+		tile_iter->SetDpxParams(fps_default_, life_time_sec_);
 	}
 	return true;
 }
@@ -170,10 +169,11 @@ void ChartTiler::Reset()
 		it->Reset();
 }
 
-const QPixmap & ChartTiler::GetRelevantPixmap()
+const QPixmap & ChartTiler::GetRelevantPixmap(const bool is_optimized_mode)
 {
 	//Обновляем при необходимости сами тайлы
-	if(NeedUpdateTile() || (image_update_timer_.elapsed() > 1000 / fps_))
+	const auto fps_local = (is_optimized_mode ? fps_optimization_ : fps_default_);
+	if(NeedUpdateTile() || (image_update_timer_.elapsed() > 1000 / fps_local))
 	{
 		UpdateBounds();
 	}

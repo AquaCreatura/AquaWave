@@ -465,6 +465,10 @@ void aqua_gui::MouseDrawer::MouseEvent(const QPoint& mouse_location, mouse_event
 		if (is_panning_ && is_inside_widget_) {
 			PanFromMouse(scale_info_, pan_start_pos_, pan_world_pos_, mouse_location);
 		}
+		if (is_inside_widget_) {
+			is_mouse_moving_ = true;
+			mouse_move_timer_.restart();
+		}
 		break;
 
 	case mouse_event_type::kReleasedRight:
@@ -501,7 +505,8 @@ Qt::CursorShape aqua_gui::MouseDrawer::GetCursor() const
 bool aqua_gui::MouseDrawer::Draw(QPainter& painter)
 {
 	using namespace aqua_parse_tools;
-
+	if(mouse_move_timer_.elapsed() > mouse_move_hysteresis_msec_)
+		is_mouse_moving_ = false;
 	if (!is_inside_widget_)
 		return true;
 
@@ -571,6 +576,5 @@ bool aqua_gui::MouseDrawer::Draw(QPainter& painter)
 	QString hor_text = ValueToString(val_hor, GetPrecission(cur_chart_val.hor.delta())).c_str();
 	bool hor_inside = (scale_info_.pix_info_.margin_px.vert <= 0);
 	drawValueLabel(hor_text, hor_px, chart_size_px.vert, true, hor_inside);
-
 	return true;
 }

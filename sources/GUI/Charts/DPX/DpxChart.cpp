@@ -19,7 +19,7 @@ ChartDPX::~ChartDPX()
 
 void ChartDPX::DrawData(QPainter & passed_painter)
 {
-	auto relevant_pixmap = tiler_.GetRelevantPixmap();
+	auto relevant_pixmap = tiler_.GetRelevantPixmap(mouse_man_.IsMovingMouse());
 	if (relevant_pixmap.isNull()) return;
     passed_painter.drawPixmap(0, 0, relevant_pixmap);
 }

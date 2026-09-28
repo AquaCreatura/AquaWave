@@ -130,7 +130,7 @@ void SpectralViewerWindow::SetMenuExpanded(bool expanded)
 {
     side_menu_expanded_ = expanded;
     AnimateWidth(expanded ? kExpandedWidth : kCollapsedWidth);
-
+    ui_.extend_frame_button->setText(expanded ? tr("Menu") : QString());
     ui_.spectrgoram_side_pushbutton->setText(expanded ? tr("Spectrogram") : QString());
     ui_.analysis_side_pushbutton->setText(expanded ? tr("Analysis") : QString());
 }

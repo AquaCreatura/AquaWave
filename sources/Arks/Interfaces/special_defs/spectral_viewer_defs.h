@@ -19,7 +19,7 @@ namespace spectral_viewer
 {
 
 
-    struct SpectralDove : public fluctus::DoveParrent
+    struct SpectralDove : public aqua::DoveParrent
     {
 		SpectralDove() = default;
 		SpectralDove(int passed_thought) { special_thought = passed_thought; };

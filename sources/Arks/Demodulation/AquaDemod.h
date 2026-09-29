@@ -2,16 +2,16 @@
 #include <qpointer.h>
 #include "Arks/Interfaces/base_impl/ark_base.h"
 #include "window/AquaDemodWindow.h"
-using namespace fluctus;
+using namespace aqua;
 namespace demodulation{
-	class AquaDemod : public fluctus::ArkBase
+	class AquaDemod : public aqua::ArkBase
 	{
 		Q_OBJECT
 	public:
 		AquaDemod();
 		~AquaDemod();
-		virtual bool SendData(fluctus::DataInfo const& data_info) override;
-		virtual bool PostDove(fluctus::DoveSptr const & sent_dove) override;
+		virtual bool SendData(aqua::DataInfo const& data_info) override;
+		virtual bool PostDove(aqua::DoveSptr const & sent_dove) override;
 		ArkType      GetArkType() const override;
 	protected:
 		bool Reload();

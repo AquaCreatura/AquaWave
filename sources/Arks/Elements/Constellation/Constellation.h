@@ -8,14 +8,14 @@
 namespace constel
 {
 
-	class Constellation : public fluctus::ArkBase
+	class Constellation : public aqua::ArkBase
 	{
 
 	public:
 		Constellation(QWidget *parrent = nullptr);
 		~Constellation();
-		virtual bool SendData(fluctus::DataInfo const& data_info) override;
-		virtual bool PostDove(fluctus::DoveSptr const & sent_dove) override;
+		virtual bool SendData(aqua::DataInfo const& data_info) override;
+		virtual bool PostDove(aqua::DoveSptr const & sent_dove) override;
 		ArkType GetArkType() const override;
 	protected:
 		bool Reload();

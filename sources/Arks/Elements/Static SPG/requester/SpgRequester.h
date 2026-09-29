@@ -5,7 +5,7 @@
 #include <future>
 #include <qtimer.h>
 
-using namespace fluctus;
+using namespace aqua;
 namespace spg_core
 {
 //Class, which request data from the file source

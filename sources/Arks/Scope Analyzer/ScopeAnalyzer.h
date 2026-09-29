@@ -6,23 +6,23 @@
 #include "Utilities/file_helpers.h"
 #include "DSP Tools/Resampler/ResamplersImpl/MR Resampler/MultiRateResampler.h"
 
-using namespace fluctus;
+using namespace aqua;
 namespace scope_analyzer
 {
-class ScopeAnalyzer : public fluctus::ArkBase
+class ScopeAnalyzer : public aqua::ArkBase
 {
 	Q_OBJECT
 public:
 	ScopeAnalyzer();
 	~ScopeAnalyzer();
-	virtual bool		SendData(fluctus::DataInfo const& data_info) override;
-	virtual bool		PostDove(fluctus::DoveSptr const & sent_dove) override;
-	fluctus::ArkType	GetArkType() const override;
+	virtual bool		SendData(aqua::DataInfo const& data_info) override;
+	virtual bool		PostDove(aqua::DoveSptr const & sent_dove) override;
+	aqua::ArkType	GetArkType() const override;
 protected:
 	
 	void UpdateHarmonicInfo();
 	bool Reload();
-	bool Restart(fluctus::Limits<double> freq_bounds_hz, fluctus::Limits<double> time_bounds);
+	bool Restart(aqua::Limits<double> freq_bounds_hz, aqua::Limits<double> time_bounds);
 	void SetNewFftOrder(int n_fft_order);
 protected:
 	struct chart_info : ArkInterface::sptr{
@@ -45,7 +45,7 @@ protected:
 	FileWriter						cur_writer_;
 
 	aqua_resampler::MultiRateResampler	resampler_;
-	fluctus::DataInfo					resampled_unit_;
+	aqua::DataInfo					resampled_unit_;
 	std::vector<Ipp32fc>				resampled_buff_;
 };
 

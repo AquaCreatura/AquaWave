@@ -3,7 +3,7 @@
 #include "aqua_defines.h"
 #include "GUI/gui_defs.h"
 
-using namespace fluctus;
+using namespace aqua;
 using namespace aqua_gui;
 namespace constel {
 

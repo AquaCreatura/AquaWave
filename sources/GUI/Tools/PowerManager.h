@@ -4,7 +4,7 @@
 #include <vector>
 #include <atomic>
 
-using namespace fluctus;
+using namespace aqua;
 
 namespace aqua_gui
 {

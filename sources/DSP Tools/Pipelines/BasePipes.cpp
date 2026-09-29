@@ -124,7 +124,7 @@ void pipes::PrecisedPartSaver::ProcessData(PipeHolder::sptr meta_data)
 		if (total == 0) return;
 		const auto low = static_cast<size_t>(std::llround(start_ratio_ * total));
 		const auto high = static_cast<size_t>(std::llround(end_ratio_ * total));
-		fluctus::Limits<size_t> pos_bounds = { low, high };
+		aqua::Limits<size_t> pos_bounds = { low, high };
 	
 
 		// защита от выхода за границы

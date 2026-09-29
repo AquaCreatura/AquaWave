@@ -4,6 +4,7 @@
 #include "Arks/Interfaces/special_defs/file_souce_defs.h"
 #include "Utilities/parse_tools.h"
 #include <qfile.h>
+#include <qdebug.h>
 constexpr int c_expr_read_chunk_size_ = 128;
 file_writer::SelectionWriter::SelectionWriter()
 {
@@ -20,9 +21,10 @@ file_writer::SelectionWriter::SelectionWriter()
 }
 file_writer::SelectionWriter::~SelectionWriter()
 {
+	qDebug() << "Selection writer destroyed! \n";
 }
 
-bool file_writer::SelectionWriter::SendData(fluctus::DataInfo const & data_info) //Вызывается асинхронно не в потоке GUI
+bool file_writer::SelectionWriter::SendData(aqua::DataInfo const & data_info) //Вызывается асинхронно не в потоке GUI
 {
 	//Закидываем данные
 	{
@@ -48,22 +50,22 @@ bool file_writer::SelectionWriter::SendData(fluctus::DataInfo const & data_info)
 	return true;
 }
 
-bool file_writer::SelectionWriter::PostDove(fluctus::DoveSptr const & sent_dove)
+bool file_writer::SelectionWriter::PostDove(aqua::DoveSptr const & sent_dove)
 {
 	// Получаем целевое значение и "мысль" из сообщения.
 	auto target_val = sent_dove->target_ark;
 	auto base_thought = sent_dove->base_thought;
 
-	if (base_thought == fluctus::DoveParrent::DoveThought::kAddSource)
+	if (base_thought == aqua::DoveParrent::DoveThought::kAddSource)
 	{		
 		if (target_val->GetArkType() == ArkType::kFileSource)
 			src_info_.ark = target_val;
 	}
-	if (base_thought == fluctus::DoveParrent::DoveThought::kReset)
+	if (base_thought == aqua::DoveParrent::DoveThought::kReset)
 	{
 		UpdateSource();
 	}
-	if (base_thought & fluctus::DoveParrent::DoveThought::kSpecialThought) {
+	if (base_thought & aqua::DoveParrent::DoveThought::kSpecialThought) {
 		const auto special_thought = sent_dove->special_thought;
 		if (auto fw_dove = std::dynamic_pointer_cast<FileWriterDove>(sent_dove)) {
 
@@ -76,9 +78,9 @@ bool file_writer::SelectionWriter::PostDove(fluctus::DoveSptr const & sent_dove)
 	return ArkBase::PostDove(sent_dove);
 }
 
-fluctus::ArkType file_writer::SelectionWriter::GetArkType() const
+aqua::ArkType file_writer::SelectionWriter::GetArkType() const
 {
-	return fluctus::ArkType::kSelectionWriter;
+	return aqua::ArkType::kSelectionWriter;
 }
 
 void file_writer::SelectionWriter::UpdateSource()
@@ -88,7 +90,7 @@ void file_writer::SelectionWriter::UpdateSource()
 	if (!file_src) return;
 
 
-	auto parrent_dove = std::make_shared<fluctus::DoveParrent>(fluctus::DoveParrent::kGetDescription);
+	auto parrent_dove = std::make_shared<aqua::DoveParrent>(aqua::DoveParrent::kGetDescription);
 	if (!file_src->PostDove(parrent_dove) || !parrent_dove->description) {
 		return;
 	}
@@ -97,7 +99,7 @@ void file_writer::SelectionWriter::UpdateSource()
 	return;
 }
 
-bool file_writer::SelectionWriter::InitSelectionRecord(fluctus::Limits<double> freq_bounds_hz, fluctus::Limits<double> time_bounds)
+bool file_writer::SelectionWriter::InitSelectionRecord(aqua::Limits<double> freq_bounds_hz, aqua::Limits<double> time_bounds)
 {
 	time_bounds_ = time_bounds;
 	selection_bound_hz_ = freq_bounds_hz;

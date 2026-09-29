@@ -3,7 +3,7 @@
 #include <QWidget>
 #include "../ark_interface.h"
 
-namespace fluctus
+namespace aqua
 {
     //Basic implementation
     class ArkBase : public ArkInterface
@@ -17,7 +17,7 @@ namespace fluctus
         virtual StrongFleet    GetBehindArks()  override;
         virtual StrongFleet    GetFrontArks ()  override;
         virtual ArkType        GetArkType   () const  override;
-        virtual bool SendData(fluctus::DataInfo const& data_info) override { return false; };
+        virtual bool SendData(aqua::DataInfo const& data_info) override { return false; };
     private:
         WeakFleet front_fleet_;
         WeakFleet behind_fleet_;

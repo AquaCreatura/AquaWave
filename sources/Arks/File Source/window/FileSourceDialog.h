@@ -3,7 +3,7 @@
 #include "ui_file_settings_dialog.h"
 #include "special_defs/file_souce_defs.h"
 
-using namespace fluctus;
+using namespace aqua;
 namespace file_source
 {
     // Dialog for file source settings

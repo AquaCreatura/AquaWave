@@ -27,7 +27,7 @@ namespace aqua_resampler
 		//Пераметры настройки
 		ResamplerSettings                   settings_;
 		double                              resample_ratio_;
-		fluctus::freq_params				base_params_;
+		aqua::freq_params				base_params_;
 
 		//Наши работяги
 		std::unique_ptr<ResamplerInterface> mr_resampler_;

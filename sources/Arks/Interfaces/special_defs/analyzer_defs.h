@@ -8,7 +8,7 @@ using namespace utility_aqua;
 namespace analyzer
 {
 
-    struct AnalyzeDove: public fluctus::DoveParrent
+    struct AnalyzeDove: public aqua::DoveParrent
     {
 		AnalyzeDove(thoughts_list thooghts) { special_thought = thooghts; };
 		AnalyzeDove() {};
@@ -19,8 +19,8 @@ namespace analyzer
 			kGetHarmonicResult	 = 2,
 			kSetHarmonicInfo	 = 3
         };
-		fluctus::Limits<double> freq_bounds_hz; //In "Hz
-		fluctus::Limits<double> file_bounds_ratio; //[0; 1]
+		aqua::Limits<double> freq_bounds_hz; //In "Hz
+		aqua::Limits<double> file_bounds_ratio; //[0; 1]
 		aqua_opt<double>		peak_value;
 		aqua_opt<std::string>	text_result;
 		aqua_opt<double>		carrier_hz;

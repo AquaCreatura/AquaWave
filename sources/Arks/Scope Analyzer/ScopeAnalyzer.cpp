@@ -1,17 +1,17 @@
 #include "ScopeAnalyzer.h"
 #include "special_defs/file_souce_defs.h"
 #include "special_defs/analyzer_defs.h"
-#include "ShipBuilder.h"
+#include "Scheme/ShipBuilder.h"
 #include <ippvm.h>
 
-
+#include <qdebug.h>
 #include <qmessagebox.h>
 
 #include "Elements/DPX Spectrum/SpectrumDPX.h"
 #include "Elements/Static SPG/Spectrogram.h"
 #include "Elements/Constellation/Constellation.h"
 
-using namespace fluctus;
+using namespace aqua;
 using namespace scope_analyzer;
 using namespace spectral_viewer;
 
@@ -51,10 +51,10 @@ ScopeAnalyzer::ScopeAnalyzer()
 
 ScopeAnalyzer::~ScopeAnalyzer()
 {
-	
+	qDebug() << "Scope analyzer destroyed! \n";
 }
 
-bool ScopeAnalyzer::SendData(fluctus::DataInfo const & passed_unit)
+bool ScopeAnalyzer::SendData(aqua::DataInfo const & passed_unit)
 {
 	int cur_block_size = n_fft_;
 	if (passed_unit.data_vec.size() != cur_block_size * sizeof(Ipp32fc))
@@ -85,7 +85,7 @@ bool ScopeAnalyzer::SendData(fluctus::DataInfo const & passed_unit)
 
 // Обрабатывает сообщения "Dove".
 // sent_dove: Умный указатель на сообщение Dove.
-bool ScopeAnalyzer::PostDove(fluctus::DoveSptr const & sent_dove)
+bool ScopeAnalyzer::PostDove(aqua::DoveSptr const & sent_dove)
 {
     // Если сообщение недействительно, выбрасываем исключение.
     if (!sent_dove) throw std::invalid_argument("Not created message sent!");
@@ -95,35 +95,35 @@ bool ScopeAnalyzer::PostDove(fluctus::DoveSptr const & sent_dove)
     auto base_thought = sent_dove->base_thought;
     
     // Если "мысль" - запрос на диалог.
-    if (base_thought & fluctus::DoveParrent::DoveThought::kGetWindow)
+    if (base_thought & aqua::DoveParrent::DoveThought::kGetWindow)
     {
         // Прикрепляем отрисовщик спектра к виджету сообщения.
         sent_dove->show_widget = window_;
         return true; // Запрос обработан.
     }
-    if(base_thought == fluctus::DoveParrent::DoveThought::kAddSource)
+    if(base_thought == aqua::DoveParrent::DoveThought::kAddSource)
     {
         if( target_val->GetArkType() == ArkType::kFileSource) 
 			source_info_.ark = target_val;
         Reload();
     }
     //
-    if(base_thought == fluctus::DoveParrent::DoveThought::kReset)
+    if(base_thought == aqua::DoveParrent::DoveThought::kReset)
     {
         return Reload();
     }
-	if (base_thought & fluctus::DoveParrent::DoveThought::kActivate)
+	if (base_thought & aqua::DoveParrent::DoveThought::kActivate)
 	{
 		window_->ActivateWindow(window_->GetCurrentChart());
 		info_timer_.start();
 	}
-	if (base_thought & fluctus::DoveParrent::DoveThought::kDeactivate)
+	if (base_thought & aqua::DoveParrent::DoveThought::kDeactivate)
 	{
 		window_->ActivateWindow(scope_chart_type::undefined);
 		info_timer_.stop();
 	}
 
-	if (base_thought & fluctus::DoveParrent::DoveThought::kGetDescription)
+	if (base_thought & aqua::DoveParrent::DoveThought::kGetDescription)
 	{
 		sent_dove->description = selection_descr_;
 		for (auto chart_iter : charts_) {
@@ -133,7 +133,7 @@ bool ScopeAnalyzer::PostDove(fluctus::DoveSptr const & sent_dove)
 		}
 		
 	}
-	if (base_thought == fluctus::DoveParrent::DoveThought::kSpecialThought) {
+	if (base_thought == aqua::DoveParrent::DoveThought::kSpecialThought) {
 		const auto special_thought = sent_dove->special_thought;
 		if (auto spectral_dove = std::dynamic_pointer_cast<analyzer::AnalyzeDove>(sent_dove)) {
 
@@ -182,7 +182,7 @@ bool ScopeAnalyzer::Reload()
 
 	if (!file_src) return true;	
 	{
-		auto req_dove = std::make_shared<fluctus::DoveParrent>(fluctus::DoveParrent::kGetDescription);
+		auto req_dove = std::make_shared<aqua::DoveParrent>(aqua::DoveParrent::kGetDescription);
 		if (!file_src->PostDove(req_dove) || !req_dove->description) {
 			return false;
 		}

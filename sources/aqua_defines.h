@@ -6,7 +6,7 @@
 #include <vector>
 #include <stdint.h>
 #include <memory>
-namespace fluctus
+namespace aqua
 {
     struct freq_params
     {

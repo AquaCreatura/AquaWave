@@ -1,7 +1,7 @@
 #include "FileSource.h"
-
+#include <qdebug.h>
 using namespace file_source;
-using namespace fluctus;
+using namespace aqua;
 // ========================================== FileSourceArk =================================
 constexpr double bw_filter_koeff_c_expr = 0.9;
 
@@ -17,10 +17,11 @@ file_source::FileSourceArk::FileSourceArk(QWidget * main_window) :
 file_source::FileSourceArk::~FileSourceArk()
 {
 	listener_man_.StopAllReaders();
+    qDebug() << "File source destroyed! \n";
 }
 
 // Обработчик сообщений (Dove - "голубь" как сообщение)
-bool file_source::FileSourceArk::PostDove(fluctus::DoveSptr const& sent_dove)
+bool file_source::FileSourceArk::PostDove(aqua::DoveSptr const& sent_dove)
 {
     if (!sent_dove)
         throw std::invalid_argument("empty dove sent!");
@@ -28,20 +29,25 @@ bool file_source::FileSourceArk::PostDove(fluctus::DoveSptr const& sent_dove)
     const auto parrent_type = sent_dove->base_thought;
     
     // Обработка базовых команд
-    if (parrent_type & fluctus::DoveParrent::kAddSink)
+    if (parrent_type & aqua::DoveParrent::kAddSink)
     {
-        fluctus::DoveSptr message   = std::make_shared<fluctus::DoveParrent>();
+        aqua::DoveSptr message   = std::make_shared<aqua::DoveParrent>();
         message->base_thought       = DoveParrent::kReset;
         target_ark->PostDove(message);
         return ArkBase::PostDove(sent_dove);
     }
-    if (parrent_type & fluctus::DoveParrent::kRemoveSink)
+    if (parrent_type & aqua::DoveParrent::kStop)
     {
+        listener_man_.StopAllReaders(); 
+    }
+    if (parrent_type & aqua::DoveParrent::kRemoveSink)
+    {
+        listener_man_.DeleteReader(sent_dove->target_ark);
         return ArkBase::PostDove(sent_dove);
     }
-    
+
     // Запрос диалогового окна
-    if (parrent_type & fluctus::DoveParrent::kGetWindow)
+    if (parrent_type & aqua::DoveParrent::kGetWindow)
     {
         sent_dove->show_widget = dialog_;  // Возвращаем указатель на диалог
     }
@@ -53,7 +59,7 @@ bool file_source::FileSourceArk::PostDove(fluctus::DoveSptr const& sent_dove)
 		//Do smth
 	}
     // Обработка специализированных команд для файлового источника
-    if (parrent_type & fluctus::DoveParrent::kSpecialThought)
+    if (parrent_type & aqua::DoveParrent::kSpecialThought)
     {
         auto file_src_dove = std::dynamic_pointer_cast<FileSrcDove>(sent_dove);
         if (!file_src_dove)
@@ -91,9 +97,9 @@ bool file_source::FileSourceArk::PostDove(fluctus::DoveSptr const& sent_dove)
     return ArkBase::PostDove(sent_dove);
 }
 
-fluctus::ArkType file_source::FileSourceArk::GetArkType() const
+aqua::ArkType file_source::FileSourceArk::GetArkType() const
 {
-    return fluctus::ArkType::kFileSource;
+    return aqua::ArkType::kFileSource;
 }
 
 void file_source::FileSourceArk::UpdateSource()
@@ -105,14 +111,14 @@ void file_source::FileSourceArk::UpdateSource()
     //Reset out arks
     {
         auto out_fleet   = GetFrontArks();
-        fluctus::DoveSptr message   = std::make_shared<fluctus::DoveParrent>();
+        aqua::DoveSptr message   = std::make_shared<aqua::DoveParrent>();
         message->base_thought       = DoveParrent::kReset;
         for(auto &out_ark: out_fleet) out_ark->PostDove(message);
     }
 }
 
 // Отправка данных (не реализована)
-bool file_source::FileSourceArk::SendData(fluctus::DataInfo const& data_info)
+bool file_source::FileSourceArk::SendData(aqua::DataInfo const& data_info)
 {
     return false;
 }

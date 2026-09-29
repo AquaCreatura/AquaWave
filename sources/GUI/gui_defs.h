@@ -4,7 +4,7 @@
 #include "aqua_defines.h"
 //#include "Interfaces/ark_defs.h"
 
-using namespace fluctus;
+using namespace aqua;
 namespace aqua_gui
 {
 typedef uint32_t argb_t;

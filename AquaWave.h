@@ -2,7 +2,7 @@
 
 #include <QtWidgets/QMainWindow>
 #include "ui_AquaWave.h"
-#include "Arks/ShipBuilder.h"
+#include "Scheme/ShipBuilder.h"
 
 class QWindowKitHelper;
 class QMainMenuHelper;
@@ -20,7 +20,7 @@ private:
 
     struct Page {
         QWidget*   widget;
-        std::function<void(std::shared_ptr<fluctus::DoveParrent>)> postDove;
+        std::function<void(std::shared_ptr<aqua::DoveParrent>)> postDove;
         QString    title;
         QString    iconPath;
     };
@@ -29,10 +29,10 @@ private:
 
     Ui::AquaWaveWindow              ui;
     ShipBuilder                     ship_builder_;
-    fluctus::ArkSptr                file_src_;
-    fluctus::ArkSptr                spectral_viewer_;
-    fluctus::ArkSptr                selection_writer_;
-    fluctus::ArkSptr                demodulator_;
+    aqua::ArkSptr                file_src_;
+    aqua::ArkSptr                spectral_viewer_;
+    aqua::ArkSptr                selection_writer_;
+    aqua::ArkSptr                demodulator_;
     QWindowKitHelper*               m_windowKitHelper = nullptr;
     QMainMenuHelper*                m_mainMenuHelper = nullptr;
 };

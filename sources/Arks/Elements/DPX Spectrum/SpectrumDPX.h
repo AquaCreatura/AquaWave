@@ -8,14 +8,14 @@
 #include "DSP Tools/Localiser/PeakDetection.h"
 namespace dpx_core
 {
-class SpectrumDpx : public fluctus::ArkBase
+class SpectrumDpx : public aqua::ArkBase
 {
 Q_OBJECT
 public:
     SpectrumDpx(kDpxChartType chart_type = kDpxChartType::kFFT);
 	~SpectrumDpx();
-    virtual bool SendData   (fluctus::DataInfo const& data_info) override;
-    virtual bool PostDove   (fluctus::DoveSptr const & sent_dove) override;
+    virtual bool SendData   (aqua::DataInfo const& data_info) override;
+    virtual bool PostDove   (aqua::DoveSptr const & sent_dove) override;
     ArkType      GetArkType () const override;
 protected:
     bool Reload();

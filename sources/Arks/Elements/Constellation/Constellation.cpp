@@ -1,8 +1,9 @@
 #include "Constellation.h"
+#include <qdebug.h>
 #include "special_defs/analyzer_defs.h"
 #include "DSP Tools/Pipelines/DemodPipes.h"
 using namespace constel;
-using namespace fluctus;
+using namespace aqua;
 using namespace pipes;
 
 constel::Constellation::Constellation(QWidget * parrent):
@@ -13,9 +14,10 @@ constel::Constellation::Constellation(QWidget * parrent):
 
 constel::Constellation::~Constellation()
 {
+	qDebug() << "constellation destroyed! \n";
 }
 
-bool constel::Constellation::SendData(fluctus::DataInfo const & data_info)
+bool constel::Constellation::SendData(aqua::DataInfo const & data_info)
 {
 	if (pipe_line_.pipes.empty()) return false;
 	auto casted_vec = (std::vector<Ipp32fc> &)data_info.data_vec;
@@ -28,7 +30,7 @@ bool constel::Constellation::SendData(fluctus::DataInfo const & data_info)
 	return true;
 }
 
-bool constel::Constellation::PostDove(fluctus::DoveSptr const & sent_dove)
+bool constel::Constellation::PostDove(aqua::DoveSptr const & sent_dove)
 {
 	// Если сообщение недействительно, выбрасываем исключение.
 	if (!sent_dove) throw std::invalid_argument("Not created message sent!");
@@ -38,22 +40,22 @@ bool constel::Constellation::PostDove(fluctus::DoveSptr const & sent_dove)
 	auto base_thought = sent_dove->base_thought;
 
 	// Если "мысль" - запрос на диалог.
-	if (base_thought & fluctus::DoveParrent::DoveThought::kGetWindow)
+	if (base_thought & aqua::DoveParrent::DoveThought::kGetWindow)
 	{
 		// Прикрепляем отрисовщик спектра к виджету сообщения.
 		sent_dove->show_widget = constel_drawer_;
 		return true; // Запрос обработан.
 	}
-	if (base_thought & fluctus::DoveParrent::DoveThought::kAddSource)
+	if (base_thought & aqua::DoveParrent::DoveThought::kAddSource)
 	{
 		src_info_.ark = target_val;
 		Reload();
 	}
-	if (base_thought & fluctus::DoveParrent::DoveThought::kReset)
+	if (base_thought & aqua::DoveParrent::DoveThought::kReset)
 	{
 		Reload();
 	}
-	if (base_thought & fluctus::DoveParrent::DoveThought::kSpecialThought) {
+	if (base_thought & aqua::DoveParrent::DoveThought::kSpecialThought) {
 		const auto special_thought = sent_dove->special_thought;
 		if (auto spectral_dove = std::dynamic_pointer_cast<spectral_viewer::SpectralDove>(sent_dove)) {
 
@@ -86,7 +88,7 @@ bool constel::Constellation::Reload()
 	auto file_src = src_info_.ark.lock();
 	if (!file_src) return true;
 
-	auto req_dove = std::make_shared<fluctus::DoveParrent>(fluctus::DoveParrent::kGetDescription);
+	auto req_dove = std::make_shared<aqua::DoveParrent>(aqua::DoveParrent::kGetDescription);
 	req_dove->sender = shared_from_this();
 	if (!file_src->PostDove(req_dove) || !req_dove->description)
 	{

@@ -9,7 +9,7 @@
 #include "ark_interface.h"
 #include "special_defs/file_souce_defs.h"
 #include "ark_defs.h"
-using namespace fluctus;
+using namespace aqua;
 
 namespace file_source
 {
@@ -30,7 +30,7 @@ namespace file_source
 
     public:
         // Конструктор: принимает weak_ptr на ARK и параметры файла
-        FileDataListener(const fluctus::ArkWptr& weak_ptr, const fluctus::SourceDescription& params);
+        FileDataListener(const aqua::ArkWptr& weak_ptr, const aqua::SourceDescription& params);
         
         // Установка базовых параметров (частота, размер блока и т. д.)
         void SetBaseParams(InitParams &setup);
@@ -77,10 +77,10 @@ namespace file_source
 
     private:
         std::future<void> process_anchor_;   // "Якорь" — управляет асинхронной задачей
-        fluctus::DataInfo data_info_;        // Информация о данных (переиспользуется для оптимизации)
+        aqua::DataInfo data_info_;        // Информация о данных (переиспользуется для оптимизации)
         ListenerState state_{kNoProcess};    // Текущее состояние слушателя
         aqua_resampler::ResamplerManager resampler_; // Ресемплер
-        const fluctus::ArkWptr target_ark_;       // Ссылка на weak_ptr целевого ARK
+        const aqua::ArkWptr target_ark_;       // Ссылка на weak_ptr целевого ARK
         int64_t block_size_;                 // Размер блока данных
 		int64_t read_block_size_;					// Размер блока данных при чтении
 		double resample_ratio_;
@@ -94,21 +94,21 @@ namespace file_source
     {
     public:
         // Конструктор: принимает параметры файла
-        FileDataManager(const fluctus::SourceDescription& params);
+        FileDataManager(const aqua::SourceDescription& params);
         
         // Инициализация слушателя для ARK (если его ещё нет)
-        void InitReader(const fluctus::ArkWptr& reader, InitParams &setup);
-		void UpdateChunkSize(const fluctus::ArkWptr& reader, const int chunk_size);
+        void InitReader(const aqua::ArkWptr& reader, InitParams &setup);
+		void UpdateChunkSize(const aqua::ArkWptr& reader, const int chunk_size);
         
         // Запуск чтения вокруг позиции для указанного ARK
-        void StartReading(const fluctus::ArkWptr& reader, Limits<double> time_bounds, const FileSrcDove::SpecThought read_type);
+        void StartReading(const aqua::ArkWptr& reader, Limits<double> time_bounds, const FileSrcDove::SpecThought read_type);
 
         // Удаление слушателя для указанного ARK
-        void DeleteReader(const fluctus::ArkWptr& reader);
+        void DeleteReader(const aqua::ArkWptr& reader);
 		void StopAllReaders();
     private:
-        std::unordered_map<std::weak_ptr<fluctus::ArkInterface>, FileDataListener, 
-            fluctus::WeakPtrHash<fluctus::ArkInterface>, fluctus::WeakPtrEqual<fluctus::ArkInterface>> listeners_; //Это инструкция для обращения с хэшом weak pointer
+        std::unordered_map<std::weak_ptr<aqua::ArkInterface>, FileDataListener, 
+            aqua::WeakPtrHash<aqua::ArkInterface>, aqua::WeakPtrEqual<aqua::ArkInterface>> listeners_; //Это инструкция для обращения с хэшом weak pointer
         const SourceDescription& params_; // Параметры файла
     };
 };

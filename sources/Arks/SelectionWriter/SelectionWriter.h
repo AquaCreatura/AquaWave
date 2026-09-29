@@ -3,25 +3,25 @@
 #include "Utilities/file_helpers.h"
 #include <qelapsedtimer.h>
 #include <qtimer.h>
-using namespace fluctus;
+using namespace aqua;
 namespace file_writer
 {
 	// Ark implementation for sending data from a file source
-	class SelectionWriter : public fluctus::ArkBase
+	class SelectionWriter : public aqua::ArkBase
 	{
 	public:
 		SelectionWriter();  // Constructor
 		~SelectionWriter(); // Destructor
 
 						  // Sends data information to the destination
-		virtual bool		SendData(fluctus::DataInfo const & data_info) override;
+		virtual bool		SendData(aqua::DataInfo const & data_info) override;
 
 		// Sends a Dove object (e.g., command or signal)
-		virtual bool		PostDove(fluctus::DoveSptr const & sent_dove) override;
-		fluctus::ArkType	GetArkType() const override;
+		virtual bool		PostDove(aqua::DoveSptr const & sent_dove) override;
+		aqua::ArkType	GetArkType() const override;
 	protected:
 		void UpdateSource();
-		bool InitSelectionRecord(fluctus::Limits<double> freq_bounds_hz, fluctus::Limits<double> time_bounds);
+		bool InitSelectionRecord(aqua::Limits<double> freq_bounds_hz, aqua::Limits<double> time_bounds);
 		bool StartRecording(const std::string folder_path);
 		bool CaptureFile(const std::string folder_path);
 		bool StopRecording();

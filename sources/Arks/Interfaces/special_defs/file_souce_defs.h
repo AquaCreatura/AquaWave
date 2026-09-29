@@ -9,7 +9,7 @@ using namespace utility_aqua;
 namespace file_source
 {
 
-    struct FileSrcDove : public fluctus::DoveParrent
+    struct FileSrcDove : public aqua::DoveParrent
     {
         enum SpecThought : int64_t
         {
@@ -25,8 +25,8 @@ namespace file_source
 		FileSrcDove() = default;
 		FileSrcDove(thoughts_list passed_thought) {  special_thought = passed_thought;};
 
-		fluctus::Limits<double> time_bounds{ 0., 1. }; //For file source
-		aqua_opt<fluctus::InitParams>	setup;
+		aqua::Limits<double> time_bounds{ 0., 1. }; //For file source
+		aqua_opt<aqua::InitParams>	setup;
 		
     };
     inline size_t GetSampleSize(IppDataType type)

@@ -5,7 +5,7 @@
 #include <qbuttongroup.h>
 #include "Arks/Interfaces/ark_interface.h"
 
-using namespace fluctus;
+using namespace aqua;
 
 namespace spectral_viewer {
     class SpectralViewerWindow : public QDialog

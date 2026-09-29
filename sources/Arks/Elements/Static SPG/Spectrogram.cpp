@@ -2,6 +2,7 @@
 #include <ippvm.h>
 #include "special_defs/file_souce_defs.h"
 #include "qmessagebox.h"
+#include <qdebug.h>
 using namespace spg_core; // Используем пространство имён dpx_core
 using namespace pipes;
 // Конструктор: Инициализирует компонент для отрисовки спектра.
@@ -18,13 +19,13 @@ StaticSpg::StaticSpg(QWidget * parrent) :
 
 spg_core::StaticSpg::~StaticSpg()
 {
-	printf_s("Destroyed...");
+    qDebug() << "spectrogramm destroyed! \n";
 	requester_.StartProcess(false);
 }
 
 // Отправляет данные для обработки спектра и отображения.
 // data_info: Структура с входными данными и информацией о частоте.
-bool StaticSpg::SendData(fluctus::DataInfo const & data_info)
+bool StaticSpg::SendData(aqua::DataInfo const & data_info)
 {
     // Если входные данные пусты, выходим.
     if(data_info.data_vec.empty()) return true;
@@ -51,7 +52,7 @@ bool StaticSpg::SendData(fluctus::DataInfo const & data_info)
 
 // Обрабатывает сообщения "Dove".
 // sent_dove: Умный указатель на сообщение Dove.
-bool StaticSpg::PostDove(fluctus::DoveSptr const & sent_dove)
+bool StaticSpg::PostDove(aqua::DoveSptr const & sent_dove)
 {
     // Если сообщение недействительно, выбрасываем исключение.
     if (!sent_dove) throw std::invalid_argument("Not created message sent!");
@@ -62,7 +63,7 @@ bool StaticSpg::PostDove(fluctus::DoveSptr const & sent_dove)
     
         
     // Если "мысль" - запрос на диалог.
-    if (base_thought & fluctus::DoveParrent::DoveThought::kGetWindow)
+    if (base_thought & aqua::DoveParrent::DoveThought::kGetWindow)
     {
         // Прикрепляем отрисовщик спектра к виджету сообщения.
         sent_dove->show_widget = spg_drawer_;
@@ -73,19 +74,19 @@ bool StaticSpg::PostDove(fluctus::DoveSptr const & sent_dove)
     {
         src_info_.ark = target_val;
     }
-    if (base_thought & fluctus::DoveParrent::DoveThought::kReset)
+    if (base_thought & aqua::DoveParrent::DoveThought::kReset)
     {
         Reload();
     }
-	if (base_thought & fluctus::DoveParrent::DoveThought::kActivate)
+	if (base_thought & aqua::DoveParrent::DoveThought::kActivate)
 	{
 		spg_drawer_->ActivateChart(true);
 	}
-	if (base_thought & fluctus::DoveParrent::DoveThought::kDeactivate)
+	if (base_thought & aqua::DoveParrent::DoveThought::kDeactivate)
 	{
 		spg_drawer_->ActivateChart(false);
 	}
-	if (base_thought & fluctus::DoveParrent::DoveThought::kSpecialThought) {
+	if (base_thought & aqua::DoveParrent::DoveThought::kSpecialThought) {
 		const auto special_thought = sent_dove->special_thought;
 		if (auto spectral_dove = std::dynamic_pointer_cast<spectral_viewer::SpectralDove>(sent_dove)) {
 			if (special_thought & spectral_viewer::SpectralDove::kSetFFtOrder) {
@@ -115,7 +116,7 @@ bool spg_core::StaticSpg::Reload()
     }
     requester_.Initialise(file_src, this->shared_from_this());
 
-	auto req_dove = std::make_shared<fluctus::DoveParrent>(fluctus::DoveParrent::kGetDescription);
+	auto req_dove = std::make_shared<aqua::DoveParrent>(aqua::DoveParrent::kGetDescription);
     if (!file_src->PostDove(req_dove) || !req_dove->description) {
         return false;
     }

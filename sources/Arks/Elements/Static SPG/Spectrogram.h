@@ -8,14 +8,14 @@
 namespace spg_core
 {
 
-class StaticSpg : public fluctus::ArkBase
+class StaticSpg : public aqua::ArkBase
 {
 
 public:
 	StaticSpg(QWidget *parrent = nullptr);
     ~StaticSpg();
-    virtual bool SendData(fluctus::DataInfo const& data_info) override;
-    virtual bool PostDove(fluctus::DoveSptr const & sent_dove) override;
+    virtual bool SendData(aqua::DataInfo const& data_info) override;
+    virtual bool PostDove(aqua::DoveSptr const & sent_dove) override;
     ArkType GetArkType() const override;
 protected:
     bool Reload();

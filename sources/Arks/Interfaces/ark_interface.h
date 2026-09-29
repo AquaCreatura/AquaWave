@@ -4,7 +4,7 @@
 #include <QWidget>
 #include "ark_defs.h"
 
-namespace fluctus
+namespace aqua
 {
 
 class ArkInterface: public QObject, public std::enable_shared_from_this<ArkInterface>

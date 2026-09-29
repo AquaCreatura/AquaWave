@@ -2,12 +2,11 @@
 #include "special_defs/file_souce_defs.h"
 #include "special_defs/analyzer_defs.h"
 #include "special_defs/file_writer_defs.h"
-#include "Arks/ShipBuilder.h"
+#include "Scheme/ShipBuilder.h"
 #include <qmessagebox.h>
-
+#include <qdebug.h>
 using namespace spectral_viewer;
 using namespace aqua_gui;
-#include "Arks/ShipBuilder.h"
 #include "Elements/DPX Spectrum/SpectrumDPX.h"
 #include "Elements/Static SPG/Spectrogram.h"
 
@@ -21,7 +20,7 @@ SpectralViewer::SpectralViewer()
 		spectrum_ = std::make_shared<dpx_core::SpectrumDpx>(dpx_core::kDpxChartType::kFFT); // Создание компонента для спектрального графика.
 		spg_ = std::make_shared<spg_core::StaticSpg>(); // Создание компонента для спектрограммы.
 		ShipBuilder		ship_builder;
-		scoper_ = ship_builder.BuildNewShip(fluctus::kScopeAnalyser);
+		scoper_ = ship_builder.BuildNewShip(aqua::kScopeAnalyser);
 
 		auto req_dove = std::make_shared<SpectralDove>(SpectralDove::kSetSelectionHolder);
 		req_dove->sel_holder = selection_holder_;
@@ -49,13 +48,17 @@ SpectralViewer::SpectralViewer()
 
 SpectralViewer::~SpectralViewer()
 {
-	
+	if (auto locked_src = src_info_.ark.lock()) {
+		aqua::DoveSptr req_dove = std::make_shared<aqua::DoveParrent>(aqua::DoveParrent::kStop);
+		locked_src->PostDove(req_dove);
+	}
+	qDebug() << "Spectral viewer destroyed! \n";
 }
 
 
 // Отправляет данные для обработки спектра и отображения.
 // data_info: Структура с входными данными и информацией о частоте.
-bool SpectralViewer::SendData(fluctus::DataInfo const & data_info)
+bool SpectralViewer::SendData(aqua::DataInfo const & data_info)
 {
     // Если входные данные пусты, выходим.
     if(data_info.data_vec.empty()) return true;
@@ -66,7 +69,7 @@ bool SpectralViewer::SendData(fluctus::DataInfo const & data_info)
 
 // Обрабатывает сообщения "Dove".
 // sent_dove: Умный указатель на сообщение Dove.
-bool SpectralViewer::PostDove(fluctus::DoveSptr const & sent_dove)
+bool SpectralViewer::PostDove(aqua::DoveSptr const & sent_dove)
 {
     // Если сообщение недействительно, выбрасываем исключение.
     if (!sent_dove) throw std::invalid_argument("Not created message sent!");
@@ -76,13 +79,13 @@ bool SpectralViewer::PostDove(fluctus::DoveSptr const & sent_dove)
     auto base_thought = sent_dove->base_thought;
     
     // Если "мысль" - запрос на диалог.
-    if (base_thought & fluctus::DoveParrent::DoveThought::kGetWindow)
+    if (base_thought & aqua::DoveParrent::DoveThought::kGetWindow)
     {
         // Прикрепляем отрисовщик спектра к виджету сообщения.
         sent_dove->show_widget = window_;
         return true; // Запрос обработан.
     }
-    if(base_thought == fluctus::DoveParrent::DoveThought::kAddSource)
+    if(base_thought == aqua::DoveParrent::DoveThought::kAddSource)
     {
         if(target_val->GetArkType() != ArkType::kFileSource) throw std::logic_error("Only signal sources are able to connect!");
 		ShipBuilder::Bind_SrcSink(target_val, scoper_);
@@ -90,27 +93,27 @@ bool SpectralViewer::PostDove(fluctus::DoveSptr const & sent_dove)
         src_info_.ark = target_val;
 		//Определяем командное соединение
 		{
-			fluctus::DoveSptr req_dove = std::make_shared<fluctus::DoveParrent>(fluctus::DoveParrent::kAddSource);
+			aqua::DoveSptr req_dove = std::make_shared<aqua::DoveParrent>(aqua::DoveParrent::kAddSource);
 			req_dove->target_ark = target_val;
 			spg_->PostDove(req_dove);
 			spectrum_->PostDove(req_dove);
 			
 		}
     }
-	if (base_thought & fluctus::DoveParrent::DoveThought::kActivate)
+	if (base_thought & aqua::DoveParrent::DoveThought::kActivate)
 	{
-		fluctus::DoveSptr req_dove = std::make_shared<fluctus::DoveParrent>(fluctus::DoveParrent::kActivate);
+		aqua::DoveSptr req_dove = std::make_shared<aqua::DoveParrent>(aqua::DoveParrent::kActivate);
 		window_->ActivateCur(true);
 		
 	}
-	if (base_thought & fluctus::DoveParrent::DoveThought::kDeactivate)
+	if (base_thought & aqua::DoveParrent::DoveThought::kDeactivate)
 	{
-		fluctus::DoveSptr req_dove = std::make_shared<fluctus::DoveParrent>(fluctus::DoveParrent::kDeactivate);
+		aqua::DoveSptr req_dove = std::make_shared<aqua::DoveParrent>(aqua::DoveParrent::kDeactivate);
 		window_->ActivateCur(false);
 	}
 
     //
-    if(base_thought == fluctus::DoveParrent::DoveThought::kReset)
+    if(base_thought == aqua::DoveParrent::DoveThought::kReset)
     {
         return Reload();
     }
@@ -133,7 +136,7 @@ bool SpectralViewer::Reload()
     if(!file_src) return true;
 
 	
-	auto parrent_dove = std::make_shared<fluctus::DoveParrent>(fluctus::DoveParrent::kGetDescription);
+	auto parrent_dove = std::make_shared<aqua::DoveParrent>(aqua::DoveParrent::kGetDescription);
 	if (!file_src->PostDove(parrent_dove) || !parrent_dove->description) {
 		return false;
 	}
@@ -141,7 +144,7 @@ bool SpectralViewer::Reload()
 	const int max_order = std::min(log2(parrent_dove->description->count_of_samples), 21.);
 	window_->SetMaxFFtOrder(max_order);
 	
-	parrent_dove->base_thought = fluctus::DoveParrent::DoveThought::kReset;
+	parrent_dove->base_thought = aqua::DoveParrent::DoveThought::kReset;
 	spg_->PostDove(parrent_dove);
 	spectrum_->PostDove(parrent_dove);
 
@@ -190,7 +193,7 @@ void spectral_viewer::SpectralViewer::StartSelectionRecord()
 {
 	auto front_arks = GetFrontArks();
 	for (auto front_iter : front_arks) {
-		if (front_iter->GetArkType() == fluctus::kSelectionWriter) {
+		if (front_iter->GetArkType() == aqua::kSelectionWriter) {
 			auto analyze_dove = std::make_shared<file_writer::FileWriterDove>(file_writer::FileWriterDove::kRecordSelection);
 			auto cur_sel = selection_holder_->GetSelection();
 			if (cur_sel.freq_bounds.delta() < 0) std::swap(cur_sel.freq_bounds.low, cur_sel.freq_bounds.high);

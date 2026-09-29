@@ -7,14 +7,14 @@
 #include "Arks/Scope Analyzer/ScopeAnalyzer.h"
 
 namespace spectral_viewer {
-	class SpectralViewer : public fluctus::ArkBase
+	class SpectralViewer : public aqua::ArkBase
 	{
 		Q_OBJECT
 	public:
 		SpectralViewer();
 		~SpectralViewer();
-		virtual bool SendData(fluctus::DataInfo const& data_info) override;
-		virtual bool PostDove(fluctus::DoveSptr const & sent_dove) override;
+		virtual bool SendData(aqua::DataInfo const& data_info) override;
+		virtual bool PostDove(aqua::DoveSptr const & sent_dove) override;
 		ArkType      GetArkType() const override;
 	protected:
 		bool Reload();
@@ -25,9 +25,9 @@ namespace spectral_viewer {
 	protected:
 		SourceArk									src_info_;
 		QPointer<SpectralViewerWindow>				window_;
-		std::shared_ptr<fluctus::ArkInterface>      spectrum_;
-		std::shared_ptr<fluctus::ArkInterface>		spg_;
-		std::shared_ptr<fluctus::ArkInterface>		scoper_;
+		std::shared_ptr<aqua::ArkInterface>      spectrum_;
+		std::shared_ptr<aqua::ArkInterface>		spg_;
+		std::shared_ptr<aqua::ArkInterface>		scoper_;
 		std::shared_ptr<aqua_gui::SelectionHolder>  selection_holder_;
 		std::atomic_int64_t							n_fft_{ -1 };
 	};

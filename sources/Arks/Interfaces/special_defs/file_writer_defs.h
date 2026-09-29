@@ -7,7 +7,7 @@ using namespace utility_aqua;
 namespace file_writer
 {
 
-    struct FileWriterDove: public fluctus::DoveParrent
+    struct FileWriterDove: public aqua::DoveParrent
     {
 		FileWriterDove(thoughts_list thooghts) { special_thought = thooghts; };
 		FileWriterDove() = default;
@@ -16,8 +16,8 @@ namespace file_writer
             kUnknown = 0, 
 			kRecordSelection = 1,
         };
-		fluctus::Limits<double> freq_bounds_hz; //In "Hz
-		fluctus::Limits<double> file_bounds_ratio; //[0; 1]
+		aqua::Limits<double> freq_bounds_hz; //In "Hz
+		aqua::Limits<double> file_bounds_ratio; //[0; 1]
     };
 
 }

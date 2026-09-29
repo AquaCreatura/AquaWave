@@ -28,11 +28,11 @@ SpectralViewerWindow::SpectralViewerWindow()
             if (!entry.ark)
                 continue;
             if (entry.widget == curr)
-                entry.ark->PostDove(std::make_shared<fluctus::DoveParrent>(
-                    fluctus::DoveParrent::kActivate));
+                entry.ark->PostDove(std::make_shared<aqua::DoveParrent>(
+                    aqua::DoveParrent::kActivate));
             else if (entry.widget == active_down_widget_)
-                entry.ark->PostDove(std::make_shared<fluctus::DoveParrent>(
-                    fluctus::DoveParrent::kDeactivate));
+                entry.ark->PostDove(std::make_shared<aqua::DoveParrent>(
+                    aqua::DoveParrent::kDeactivate));
         }
         active_down_widget_ = curr;
         });
@@ -213,8 +213,8 @@ void SpectralViewerWindow::SetMaxFFtOrder(int max_fft_order)
 }
 void SpectralViewerWindow::ActivateCur(bool do_activate)
 {
-    const auto action = do_activate ? fluctus::DoveParrent::kActivate
-        : fluctus::DoveParrent::kDeactivate;
+    const auto action = do_activate ? aqua::DoveParrent::kActivate
+        : aqua::DoveParrent::kDeactivate;
 
     QWidget* cur_down = ui_.main_down_part->currentWidget();
 
@@ -226,7 +226,7 @@ void SpectralViewerWindow::ActivateCur(bool do_activate)
         // нижн€€ Ч только если это текущий виджет стека
         const bool is_visible = (type == kDpxSpectrum) || (entry.widget == cur_down);
         if (is_visible)
-            entry.ark->PostDove(std::make_shared<fluctus::DoveParrent>(action));
+            entry.ark->PostDove(std::make_shared<aqua::DoveParrent>(action));
     }
 }
 

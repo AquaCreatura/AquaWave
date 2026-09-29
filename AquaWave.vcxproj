@@ -136,7 +136,6 @@
     <ClCompile Include="sources\Arks\Scope Analyzer\window\scope_analyzer_window.cpp" />
     <ClCompile Include="sources\Arks\SelectionWriter\SelectionWriter.cpp" />
     <ClCompile Include="sources\Arks\SelectionWriter\window\selection_writer_window.cpp" />
-    <ClCompile Include="sources\Arks\ShipBuilder.cpp" />
     <ClCompile Include="sources\Arks\Spectral Viewer\SpectralViewer.cpp" />
     <ClCompile Include="sources\Arks\Spectral Viewer\Window\spectral_viewer_window.cpp" />
     <ClCompile Include="sources\DSP Tools\basic\acf_worker.cpp" />
@@ -176,6 +175,7 @@
     <ClCompile Include="sources\GUI\Tools\gui_helper.cpp" />
     <ClCompile Include="sources\GUI\Tools\gui_worker.cpp" />
     <ClCompile Include="sources\GUI\Tools\PowerManager.cpp" />
+    <ClCompile Include="sources\Scheme\ShipBuilder.cpp" />
     <ClCompile Include="sources\Utilities\file_helpers.cpp" />
     <ClCompile Include="sources\Utilities\calc_tools.cpp" />
     <ClCompile Include="sources\Utilities\qt_utility.cpp" />
@@ -198,6 +198,7 @@
     <QtMoc Include="sources\GUI\External\Window\QWindowKitHelper.h" />
     <QtMoc Include="sources\GUI\External\Window\QMainMenuHelper.h" />
     <ClInclude Include="sources\GUI\Tools\Chart tiler\Units\TileLine.h" />
+    <ClInclude Include="sources\Scheme\ShipBuilder.h" />
     <ClInclude Include="sources\Utilities\aqua_array_queue.h" />
     <ClInclude Include="sources\Utilities\aqua_obj_queue.h" />
     <ClInclude Include="sources\Utilities\file_helpers.h" />
@@ -222,7 +223,6 @@
     <ClInclude Include="sources\Arks\Interfaces\special_defs\analyzer_defs.h" />
     <ClInclude Include="sources\Arks\Interfaces\special_defs\file_souce_defs.h" />
     <ClInclude Include="sources\Arks\Interfaces\special_defs\spectral_viewer_defs.h" />
-    <ClInclude Include="sources\Arks\ShipBuilder.h" />
     <QtMoc Include="sources\Arks\Spectral Viewer\SpectralViewer.h" />
     <QtMoc Include="sources\Arks\Spectral Viewer\Window\spectral_viewer_window.h" />
     <ClInclude Include="sources\DSP Tools\basic\acf_worker.h" />

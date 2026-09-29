@@ -1,6 +1,6 @@
 #include "ark_base.h"
-using namespace fluctus;
-bool fluctus::ArkBase::PostDove(DoveSptr const & sent_dove)
+using namespace aqua;
+bool aqua::ArkBase::PostDove(DoveSptr const & sent_dove)
 {
     if (!sent_dove)
         throw std::invalid_argument("Not created message sent!");
@@ -16,7 +16,7 @@ bool fluctus::ArkBase::PostDove(DoveSptr const & sent_dove)
             throw std::invalid_argument("Wrong target ark! (Behind tie)");
         std::lock_guard<std::mutex> guard_con(con_mutex_);
         auto found_elem = std::find_if(behind_fleet_.begin(), behind_fleet_.end(),
-            [&](fluctus::ArkWptr elem) {return elem.lock() == target_val;  });
+            [&](aqua::ArkWptr elem) {return elem.lock() == target_val;  });
         if (found_elem != behind_fleet_.end())
             throw std::logic_error("Element allready exists!");
         behind_fleet_.push_back(target_val);
@@ -30,7 +30,7 @@ bool fluctus::ArkBase::PostDove(DoveSptr const & sent_dove)
             throw std::invalid_argument("Wrong target ark (front tie)");
         std::lock_guard<std::mutex> guard_con(con_mutex_);
         auto found_elem = std::find_if(front_fleet_.begin(), front_fleet_.end(), 
-            [&](fluctus::ArkWptr elem) {return elem.lock() == target_val;  });
+            [&](aqua::ArkWptr elem) {return elem.lock() == target_val;  });
         if (found_elem != front_fleet_.end())
             throw std::logic_error("Element allready exists!");
         front_fleet_.push_back(target_val);
@@ -82,7 +82,7 @@ bool fluctus::ArkBase::PostDove(DoveSptr const & sent_dove)
     return true;
 }
 
-fluctus::StrongFleet fluctus::ArkBase::GetBehindArks()
+aqua::StrongFleet aqua::ArkBase::GetBehindArks()
 {
     std::lock_guard<std::mutex> guard_con(con_mutex_);
     StrongFleet res_fleet;
@@ -90,7 +90,7 @@ fluctus::StrongFleet fluctus::ArkBase::GetBehindArks()
     if (false)
     {
         //Remove expired
-        behind_fleet_.remove_if([](const fluctus::ArkWptr& passed_param)
+        behind_fleet_.remove_if([](const aqua::ArkWptr& passed_param)
             {
                 return passed_param.expired();
             });
@@ -106,7 +106,7 @@ fluctus::StrongFleet fluctus::ArkBase::GetBehindArks()
     return res_fleet;
 }
 
-fluctus::StrongFleet fluctus::ArkBase::GetFrontArks()
+aqua::StrongFleet aqua::ArkBase::GetFrontArks()
 {
     std::lock_guard<std::mutex> guard_con(con_mutex_);
     StrongFleet res_fleet;
@@ -114,7 +114,7 @@ fluctus::StrongFleet fluctus::ArkBase::GetFrontArks()
     if (false)
     {
         //Remove expired
-        front_fleet_.remove_if([](const fluctus::ArkWptr& passed_param)
+        front_fleet_.remove_if([](const aqua::ArkWptr& passed_param)
             {
                 return passed_param.expired();
             });
@@ -130,7 +130,7 @@ fluctus::StrongFleet fluctus::ArkBase::GetFrontArks()
     return res_fleet;
 }
 
-ArkType fluctus::ArkBase::GetArkType() const
+ArkType aqua::ArkBase::GetArkType() const
 {
     return ArkType::kUnknown;
 }

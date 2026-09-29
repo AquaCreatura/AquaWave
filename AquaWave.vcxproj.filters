@@ -143,6 +143,9 @@
     <Filter Include="ARKS\Demodulation\window">
       <UniqueIdentifier>{493e6db4-900a-45ca-a394-c8ed322d6f90}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Scheme">
+      <UniqueIdentifier>{d366175a-c844-489a-9c22-c64707c6a8b4}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <!-- ClCompile (CPP Files) -->
   <ItemGroup>
@@ -205,9 +208,6 @@
     </ClCompile>
     <ClCompile Include="sources\Arks\Interfaces\base_impl\ark_base.cpp">
       <Filter>ARKS\Interfaces\base_impl</Filter>
-    </ClCompile>
-    <ClCompile Include="sources\Arks\ShipBuilder.cpp">
-      <Filter>ARKS</Filter>
     </ClCompile>
     <ClCompile Include="sources\Arks\Elements\DPX Spectrum\SpectrumDPX.cpp">
       <Filter>ARKS\Elements\DPX Spectrum</Filter>
@@ -329,6 +329,9 @@
     <ClCompile Include="sources\GUI\External\Window\QMainMenuHelper.cpp">
       <Filter>GUI\External\Window</Filter>
     </ClCompile>
+    <ClCompile Include="sources\Scheme\ShipBuilder.cpp">
+      <Filter>Scheme</Filter>
+    </ClCompile>
   </ItemGroup>
   <!-- ClInclude (H Files) -->
   <ItemGroup>
@@ -377,9 +380,6 @@
     </ClInclude>
     <ClInclude Include="sources\Arks\Interfaces\base_impl\ark_base.h">
       <Filter>ARKS\Interfaces\base_impl</Filter>
-    </ClInclude>
-    <ClInclude Include="sources\Arks\ShipBuilder.h">
-      <Filter>ARKS</Filter>
     </ClInclude>
     <ClInclude Include="sources\Arks\Interfaces\special_defs\analyzer_defs.h">
       <Filter>ARKS\Interfaces\special_defs</Filter>
@@ -497,6 +497,9 @@
     </ClInclude>
     <ClInclude Include="sources\DSP Tools\Modem\EqaliserAqua.h">
       <Filter>DSP Tools\Modem</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\Scheme\ShipBuilder.h">
+      <Filter>Scheme</Filter>
     </ClInclude>
   </ItemGroup>
   <!-- QtMoc (For Headers Requiring Moc) -->

@@ -24,10 +24,10 @@ AquaWave::AquaWave(QWidget *parent, const QString& file_path)
         setStyleSheet(style);
     }
 
-    file_src_ = ship_builder_.BuildNewShip(fluctus::kFileSource, this);
-    spectral_viewer_ = ship_builder_.BuildNewShip(fluctus::kSpectralViewer);
-    selection_writer_ = ship_builder_.BuildNewShip(fluctus::kSelectionWriter);
-    demodulator_ = ship_builder_.BuildNewShip(fluctus::kBaseDemodulator);
+    file_src_ = ship_builder_.BuildNewShip(aqua::kFileSource, this);
+    spectral_viewer_ = ship_builder_.BuildNewShip(aqua::kSpectralViewer);
+    selection_writer_ = ship_builder_.BuildNewShip(aqua::kSelectionWriter);
+    demodulator_ = ship_builder_.BuildNewShip(aqua::kBaseDemodulator);
 
     ShipBuilder::Bind_SrcSink(file_src_, spectral_viewer_);
     ShipBuilder::Bind_SrcSink(file_src_, selection_writer_);
@@ -39,7 +39,7 @@ AquaWave::AquaWave(QWidget *parent, const QString& file_path)
 
     if (!file_path.isEmpty()) {
         auto file_dove = std::make_shared<file_source::FileSrcDove>(file_source::FileSrcDove::kSetFileName);
-        file_dove->description = fluctus::SourceDescription();
+        file_dove->description = aqua::SourceDescription();
         file_dove->description->file_name_ = file_path;
         file_src_->PostDove(file_dove);
     }
@@ -67,9 +67,9 @@ AquaWave::AquaWave(QWidget *parent, const QString& file_path)
     auto applyTabState = [this]() {
         QWidget* current = ui.main_tab_widget->currentWidget();
         for (auto& p : pages_) {
-            auto dove = std::make_shared<fluctus::DoveParrent>(
-                (p.widget == current) ? fluctus::DoveParrent::kActivate
-                                      : fluctus::DoveParrent::kDeactivate);
+            auto dove = std::make_shared<aqua::DoveParrent>(
+                (p.widget == current) ? aqua::DoveParrent::kActivate
+                                      : aqua::DoveParrent::kDeactivate);
             p.postDove(dove);
         }
     };

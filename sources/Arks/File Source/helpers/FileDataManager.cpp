@@ -5,26 +5,26 @@ using namespace file_source;
 //=================================== FileDataManager Implementation =============================
 
 // Конструктор: инициализирует параметры файла
-file_source::FileDataManager::FileDataManager(const fluctus::SourceDescription& params) : 
+file_source::FileDataManager::FileDataManager(const aqua::SourceDescription& params) : 
     params_(params)  // Инициализация константной ссылки на параметры
 {
 }
 
 // Инициализация слушателя для конкретного ARK
-void file_source::FileDataManager::InitReader(const fluctus::ArkWptr& reader, InitParams &setup)
+void file_source::FileDataManager::InitReader(const aqua::ArkWptr& reader, InitParams &setup)
 {
 	auto& listener = listeners_.try_emplace(reader, reader, params_).first->second; // Создает или получает существующий listener
     listener.WaitProcess();             // Останавливает текущий процесс (если работает)
     listener.SetBaseParams(setup);		// Настраивает базовые параметры
 }
 
-void file_source::FileDataManager::UpdateChunkSize(const fluctus::ArkWptr & reader, const int chunk_size)
+void file_source::FileDataManager::UpdateChunkSize(const aqua::ArkWptr & reader, const int chunk_size)
 {
 	auto& listener = listeners_.find(reader)->second;
 	listener.SetChunkSize(chunk_size);
 }
 
-void file_source::FileDataManager::StartReading(const fluctus::ArkWptr & reader, Limits<double> time_bounds, const FileSrcDove::SpecThought read_type)
+void file_source::FileDataManager::StartReading(const aqua::ArkWptr & reader, Limits<double> time_bounds, const FileSrcDove::SpecThought read_type)
 {
 	auto& listener = listeners_.try_emplace(reader, reader, params_).first->second;  // Получает listener (должен быть инициализирован)
 	// Асинхронный запуск чтения
@@ -48,7 +48,7 @@ void file_source::FileDataManager::StartReading(const fluctus::ArkWptr & reader,
 
 
 // Удаление слушателя для указанного ARK
-void file_source::FileDataManager::DeleteReader(const fluctus::ArkWptr& reader)
+void file_source::FileDataManager::DeleteReader(const aqua::ArkWptr& reader)
 {
     auto it = listeners_.find(reader);
     if(it == listeners_.end()) return;   // Выход, если listener не найден
@@ -66,7 +66,7 @@ void file_source::FileDataManager::StopAllReaders()
 //=================================== FileDataListener Implementation ============================
 
 // Конструктор: инициализирует weak_ptr на ARK и параметры файла
-file_source::FileDataListener::FileDataListener(const fluctus::ArkWptr& weak_ptr, const SourceDescription& params):
+file_source::FileDataListener::FileDataListener(const aqua::ArkWptr& weak_ptr, const SourceDescription& params):
     target_ark_(weak_ptr),  // Инициализация ссылки на weak_ptr
     file_params_(params)         // Инициализация константной ссылки на параметры
 {

@@ -13,7 +13,7 @@
 #include <qpointer.h>
 #include "aqua_defines.h"
 #include "Utilities/utility_aqua.h"
-namespace fluctus
+namespace aqua
 {
     class ArkInterface;
 
@@ -57,7 +57,7 @@ namespace fluctus
     struct DataInfo
     {
     public:
-        fluctus::freq_params    freq_info_;
+        aqua::freq_params    freq_info_;
         std::vector<uint8_t>    data_vec;
         double                  time_point;
     };
@@ -106,8 +106,9 @@ namespace fluctus
 			kNothing = 0,                                //Ignore thought
 			kAddSource = 1 << 0, kAddSink = 1 << 1, kRemoveSink = 1 << 2, kRemoveSource = 1 << 3,   
 			kAddCmd	   = 1 << 4, kRemoveCmd = 1 << 5, kGetWindow = 1 << 6, kReset = 1 << 7, 
-			kGetDescription = 1 << 8, kActivate = 1 << 9, kDeactivate = 1 << 10, 
-			kSpecialThought = 1 << 31
+			kGetDescription = 1 << 8, kActivate = 1 << 9, kDeactivate = 1 << 10, kStart = 1 << 11,
+			kStop = 1 << 12,
+			kSpecialThought = 1i64 << 60
 		};
 
 		DoveParrent() {

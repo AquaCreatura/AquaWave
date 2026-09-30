@@ -19,9 +19,9 @@ ChartSPG::~ChartSPG()
 	printf_s("ChartSPG Destroyed...");
 }
 
-void ChartSPG::DrawData(QPainter & passed_painter)
+void ChartSPG::DrawData(QPainter & passed_painter, const bool need_fast)
 {
-	auto relevant_pixmap = tiler_.GetRelevantPixmap(mouse_man_.IsMovingMouse());
+	auto relevant_pixmap = tiler_.GetRelevantPixmap(need_fast);
 	if (relevant_pixmap.isNull()) return;
 	passed_painter.drawPixmap(0, 0, relevant_pixmap);
 }

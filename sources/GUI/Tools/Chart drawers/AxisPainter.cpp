@@ -41,10 +41,13 @@ bool AxisManager::DrawAxis(QPainter& passed_painter)
     // Если ничего не изменилось — рисуем кэшированное изображение
     if (!ShouldRedraw()) 
     {
+        if (user_action_timer_.elapsed() > 100)
+            user_action_mode_ = false;
         passed_painter.drawPixmap(0, 0, cache_pixmap_);
         return true;
     }
-
+    user_action_mode_ = true;
+    user_action_timer_.restart();
     // Пересоздаём Pixmap, если размеры изменились
     if (last_widget_size_ != scale_info_.pix_info_.widget_size_px || last_chart_size_!= scale_info_.pix_info_.chart_size_px)
     {

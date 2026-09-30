@@ -11,7 +11,8 @@ struct ChartColorScheme
 	QColor selection_border_color;
 	QColor selection_fill_color;
 	QColor grid_line_color;
-	QColor label_bg_color;
+	QColor selection_label_bg_color;
+	QColor axis_label_bg_color;
 	QColor mouse_label_bg_color;
 	
 	static ChartColorScheme darkMode()
@@ -22,7 +23,8 @@ struct ChartColorScheme
 		scheme.selection_border_color = QColor(255, 255, 255, 255);
 		scheme.selection_fill_color = QColor(100, 100, 100, 130);
 		scheme.grid_line_color = QColor(200, 200, 200, 255);
-		scheme.label_bg_color = QColor(50, 50, 50, 180);
+		scheme.selection_label_bg_color = QColor(50, 50, 50, 180);
+		scheme.axis_label_bg_color = QColor(50, 50, 50, 255);
 		scheme.mouse_label_bg_color = QColor(0, 0, 125, 255);
 		return scheme;
 	}
@@ -35,7 +37,8 @@ struct ChartColorScheme
 		scheme.selection_border_color = QColor(0, 0, 0, 255);
 		scheme.selection_fill_color = QColor(200, 200, 200, 130);
 		scheme.grid_line_color = QColor(100, 100, 100, 255);
-		scheme.label_bg_color = QColor(200, 200, 200, 180);
+		scheme.selection_label_bg_color = QColor(200, 200, 200, 180);
+		scheme.axis_label_bg_color =  QColor(200, 200, 200, 255);
 		scheme.mouse_label_bg_color = QColor(200, 200, 255, 255);
 		return scheme;
 	}

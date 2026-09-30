@@ -6,6 +6,7 @@
 #include "Utilities/parse_tools.h"
 #include "GUI/gui_defs.h"
 #include "ChartColorScheme.h"
+#include "qelapsedtimer.h"
 namespace aqua_gui
 {
 /*
@@ -33,7 +34,7 @@ public:
    
     void EnableDarkMode(const bool is_dark);
     bool IsDarkMode() const { return is_dark_mode_; }
-
+    bool IsUserActionMode() const {return user_action_mode_; }
 private:
     bool ShouldRedraw() const;
     /*
@@ -73,7 +74,8 @@ struct GridInfo
     HV_Info<int>            last_widget_size_;
 	HV_Info<int>            last_chart_size_;
 	bool					is_dark_mode_{ true };
-	
+    bool                    user_action_mode_{ false };
+    QElapsedTimer           user_action_timer_;
 	AxisColorScheme			colors_;
 };
 

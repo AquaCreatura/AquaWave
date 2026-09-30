@@ -9,7 +9,7 @@ class ChartSPG : public ChartInterface
 public:
 	ChartSPG(QWidget* parrent = nullptr, std::shared_ptr<SelectionHolder> selection_holder = {});
     ~ChartSPG();
-    virtual void DrawData                   (QPainter& painter          ) override;
+    virtual void DrawData                   (QPainter& painter, const bool need_fast = false) override;
     virtual void PushData                   (const draw_data& draw_data ) override;
     virtual void ClearData                  ()                            override;
     virtual void SetVerticalMinMaxBounds	(const Limits<double>& vert_bounds) override;

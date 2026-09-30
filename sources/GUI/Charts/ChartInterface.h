@@ -47,7 +47,7 @@ public:
     /*
         Draw values
     */
-    virtual void                    DrawData            (QPainter& painter) = 0;
+    virtual void                    DrawData            (QPainter& painter, const bool need_fast = false) = 0;
 
     /*
         Reset data from the kBaseSpectrum

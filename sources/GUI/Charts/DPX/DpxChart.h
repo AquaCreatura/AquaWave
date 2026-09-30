@@ -7,7 +7,7 @@ class ChartDPX : public ChartInterface
 public:
 	ChartDPX(QWidget* parrent = nullptr, ChartDomainType domain = ChartDomainType::kFreqDomain , std::shared_ptr<SelectionHolder> selection_holder = {});
     ~ChartDPX();
-    virtual void DrawData                   (QPainter& painter          ) override;
+    virtual void DrawData                   (QPainter& painter          , const bool need_fast = false) override;
     virtual void PushData                   (const draw_data& draw_data ) override;
     virtual void ClearData                  ()                            override;
 	virtual void SetHorizontalMinMaxBounds	(const Limits<double>& power_bounds) override;

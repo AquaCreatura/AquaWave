@@ -35,6 +35,6 @@ protected:
 	tbb::spin_mutex					data_mutex_; //обновлять данные можем из разных потоков
 	tbb::spin_mutex					bounds_mutex_; //обновлять границы можем из разных потоков...
 	double							fps_default_ = 10;
-	double							fps_optimization_ = 2;
+	double							fps_optimization_ = 1;
 	double							life_time_sec_;
 };

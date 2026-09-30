@@ -235,7 +235,7 @@ bool QimageZoomer::UpdateQPixmap()
     QImage cropped_image = base_image_->copy(src_x, src_y, src_width, src_height);
 
     // Determine scaling quality
-    Qt::TransformationMode mode = need_high_quality_ ? Qt::SmoothTransformation : Qt::FastTransformation;
+    Qt::TransformationMode mode = true || need_high_quality_ ? Qt::SmoothTransformation : Qt::FastTransformation;
 
     // Scale to the desired size and convert to QPixmap
 	QImage scaled_qimage;

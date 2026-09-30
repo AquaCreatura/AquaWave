@@ -265,7 +265,7 @@ bool aqua_gui::SelectionDrawer::DrawSizes(
 	=============================== */
 	const int textGap = 1;
 	const int arrowExt = 15;
-	const QColor bgColor = colors_.label_bg_color;
+	const QColor bgColor = colors_.selection_label_bg_color;
 	int y = (bottom + offset + 5 <= chartH) ? (bottom + offset) :
 		(top - offset - 5 >= 0) ? (top - offset) : qBound(5, bottom + offset, chartH - 5);
 	if (user_rect.vert.delta() == 0)
@@ -373,7 +373,7 @@ bool aqua_gui::SelectionDrawer::DrawMarks(QPainter & painter, const HorVerLim<in
 		QRect bg = isHor ? QRect(p - w / 2, chart_size_px.vert + 5, w, h)
 			: QRect(chart_size_px.hor + 5, p - h / 2, w, h);
 
-		painter.fillRect(bg, colors_.label_bg_color);
+		painter.fillRect(bg, colors_.axis_label_bg_color);
 		painter.setPen(colors_.text_color);
 		painter.drawText(bg, Qt::AlignCenter, text);
 	};

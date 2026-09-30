@@ -172,7 +172,7 @@ void ChartTiler::Reset()
 const QPixmap & ChartTiler::GetRelevantPixmap(const bool is_optimized_mode)
 {
 	//Обновляем при необходимости сами тайлы
-	const auto fps_local = (is_optimized_mode ? fps_optimization_ : fps_default_);
+	const auto fps_local = is_optimized_mode ? fps_optimization_ : fps_default_;
 	if(NeedUpdateTile() || (image_update_timer_.elapsed() > 1000 / fps_local))
 	{
 		UpdateBounds();

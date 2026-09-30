@@ -209,7 +209,8 @@ void ChartInterface::paintEvent(QPaintEvent * paint_event)
     }
     //Data
     {
-        DrawData(new_frame_painter);
+		const bool need_optimised = mouse_man_.IsMovingMouse() || axis_man_.IsUserActionMode();
+        DrawData(new_frame_painter, need_optimised);
     }
     //Selection
     {

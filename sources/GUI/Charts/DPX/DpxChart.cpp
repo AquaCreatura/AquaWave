@@ -4,7 +4,7 @@ ChartDPX::ChartDPX(QWidget * parrent, ChartDomainType domain, std::shared_ptr<Se
     ChartInterface(parrent, selection_holder, domain), tiler_(scale_info_)
 {
 	const bool is_analyze = (scale_info_.val_info_.domain_type == ChartDomainType::kAnalyzeDomain);
-	tiler_.SetLifeTime(is_analyze ? -1 : -1);
+	tiler_.SetLifeTime(is_analyze ? -1 : 3); 
     Limits<double> random_bounds = {0, 100};
     SetHorizontalMinMaxBounds(random_bounds);
     SetHorizontalSuffix("counts");

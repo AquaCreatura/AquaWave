@@ -242,9 +242,6 @@
     <ClCompile Include="sources\GUI\Tools\gui_conversions.cpp">
       <Filter>GUI\Tools</Filter>
     </ClCompile>
-    <ClCompile Include="sources\GUI\Tools\gui_helper.cpp">
-      <Filter>GUI\Tools</Filter>
-    </ClCompile>
     <ClCompile Include="sources\GUI\Tools\gui_worker.cpp">
       <Filter>GUI\Tools</Filter>
     </ClCompile>
@@ -415,9 +412,6 @@
       <Filter>ARKS\Elements\Constellation</Filter>
     </ClInclude>
     <ClInclude Include="sources\GUI\Tools\gui_conversions.h">
-      <Filter>GUI\Tools</Filter>
-    </ClInclude>
-    <ClInclude Include="sources\GUI\Tools\gui_helper.h">
       <Filter>GUI\Tools</Filter>
     </ClInclude>
     <ClInclude Include="sources\GUI\Tools\gui_worker.h">

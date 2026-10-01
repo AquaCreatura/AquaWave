@@ -73,31 +73,31 @@ void constel::ConstelCore::SetNewMaximum(const Ipp32f max_value)
 		return;
 	tbb::spin_mutex::scoped_lock lock(constel_.redraw_mutex);
 	constel_.count_of_points = 0;
-
-	const auto& old_data = constel_.data;
+	if (scale < 20 && scale > 0.3) {
+		const auto& old_data = constel_.data;
 #if 1
-	tbb::parallel_for(-A, A + 1, [&](int ny)
-	{
-		for (int nx = -A; nx <= A; ++nx)
-		{
-			float ox = nx * inv_scale;
-			float oy = ny * inv_scale;
+		tbb::parallel_for(-A, A + 1, [&](int ny)
+			{
+				for (int nx = -A; nx <= A; ++nx)
+				{
+					float ox = nx * inv_scale;
+					float oy = ny * inv_scale;
 
-			int ix = int(ox + 0.5f);
-			int iy = int(oy + 0.5f);
+					int ix = int(ox + 0.5f);
+					int iy = int(oy + 0.5f);
 
-			if (abs(ix) > A || abs(iy) > A)
-				continue;
+					if (abs(ix) > A || abs(iy) > A)
+						continue;
 
-			int new_index = (ny + A) * size + (nx + A);
-			int old_index = (iy + A) * size + (ix + A);
-			const auto new_sample = old_data[old_index];
-			constel_.count_of_points += new_sample;
-			new_data[new_index] = new_sample;
-		}
-	});
+					int new_index = (ny + A) * size + (nx + A);
+					int old_index = (iy + A) * size + (ix + A);
+					const auto new_sample = old_data[old_index];
+					constel_.count_of_points += new_sample;
+					new_data[new_index] = new_sample;
+				}
+			});
 #endif
-
+	}
 	constel_.data.swap(new_data);
 	constel_.max_power = max_value;
 }

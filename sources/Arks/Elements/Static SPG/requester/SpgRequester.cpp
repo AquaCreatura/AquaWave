@@ -1,5 +1,5 @@
 #include "special_defs/file_souce_defs.h"
-#include "GUI/Tools/gui_helper.h"
+#include "GUI/Tools/gui_worker.h"
 #include "SpgRequester.h"
 #include <qmessagebox.h>
 #include <ippvm.h>

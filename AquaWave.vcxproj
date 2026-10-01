@@ -172,7 +172,6 @@
     <ClCompile Include="sources\GUI\Tools\Chart tiler\Units\TileLine.cpp" />
     <ClCompile Include="sources\GUI\Tools\Chart tiler\Units\TileSPG.cpp" />
     <ClCompile Include="sources\GUI\Tools\gui_conversions.cpp" />
-    <ClCompile Include="sources\GUI\Tools\gui_helper.cpp" />
     <ClCompile Include="sources\GUI\Tools\gui_worker.cpp" />
     <ClCompile Include="sources\GUI\Tools\PowerManager.cpp" />
     <ClCompile Include="sources\Scheme\ShipBuilder.cpp" />
@@ -250,7 +249,6 @@
     <ClInclude Include="sources\GUI\Tools\Chart tiler\Units\TileInterface.h" />
     <ClInclude Include="sources\GUI\Tools\Chart tiler\Units\TileSPG.h" />
     <ClInclude Include="sources\GUI\Tools\gui_conversions.h" />
-    <ClInclude Include="sources\GUI\Tools\gui_helper.h" />
     <ClInclude Include="sources\GUI\Tools\gui_worker.h" />
     <ClInclude Include="sources\GUI\Tools\PowerManager.h" />
     <ClInclude Include="sources\GUI\gui_defs.h" />

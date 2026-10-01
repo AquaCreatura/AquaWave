@@ -23,8 +23,8 @@ void ChartTiler::UpdateTileBase()
 	const auto &base_bounds = scale_info_.val_info_.min_max_bounds;
 	if (tiles_[0]->GetValBounds() != base_bounds) {
 		tiles_[0] = tiles_[0]->RecreateWithBounds(base_bounds);
-		if(!is_spg_)
-			tiles_[0]->SetDpxParams(fps_default_, life_time_sec_);
+		if (!is_spg_)
+			UpdateFpsInfo();
 	}
 		
 }
@@ -108,6 +108,7 @@ const QPixmap & ChartTiler::UpdateQPixmap()
 	auto &used_tile = tiles_[tile_id_];
 	if (need_update_qimage_) {
 		tbb::spin_mutex::scoped_lock data_locker(data_mutex_);
+		show_frames_fps_estimator_.MarkNewFrame(); UpdateFpsInfo();
 		need_update_qimage_ = false;
 		//Приводим к размеру 1 к 1
 		if (dyn_qim_.size != used_tile->GetImageSize())
@@ -141,13 +142,20 @@ bool ChartTiler::NeedUpdateTile()
 	return need_update;
 }
 
+void ChartTiler::UpdateFpsInfo()
+{
+	double real_fps = std::min(passed_data_fps_estimator_.GetCurrentFps(), show_frames_fps_estimator_.GetCurrentFps());
+	for (auto& tile_iter : tiles_) {
+		tile_iter->SetDpxParams(real_fps, life_time_sec_);
+	}
+}
+
+
 bool ChartTiler::SetLifeTime(const double passed_life_time_sec)
 {
 	life_time_sec_ = passed_life_time_sec;
 	if (is_spg_) return false;
-	for (auto &tile_iter: tiles_) {
-		tile_iter->SetDpxParams(fps_default_, life_time_sec_);
-	}
+	UpdateFpsInfo();
 	return true;
 }
 
@@ -156,6 +164,7 @@ bool ChartTiler::SetLifeTime(const double passed_life_time_sec)
 void ChartTiler::SetData(const draw_data & data)
 {
 	tbb::spin_mutex::scoped_lock scoped_locker(data_mutex_);
+	passed_data_fps_estimator_.MarkNewFrame();
 	tiles_[tile_id_]->SetData(data); return; //Пока достаточно запушить в один единственный
 	//for (auto &it : tiles_) {
 	//	it->SetData(data);
@@ -172,8 +181,8 @@ void ChartTiler::Reset()
 const QPixmap & ChartTiler::GetRelevantPixmap(const bool is_optimized_mode)
 {
 	//Обновляем при необходимости сами тайлы
-	const auto fps_local = is_optimized_mode ? fps_optimization_ : fps_default_;
-	if(NeedUpdateTile() || (image_update_timer_.elapsed() > 1000 / fps_local))
+	const auto fps_limit = is_optimized_mode ? fps_optimization_ : fps_default_;
+	if(NeedUpdateTile() || (image_update_timer_.elapsed() > 1000 / fps_limit))
 	{
 		UpdateBounds();
 	}

@@ -1,7 +1,7 @@
-#include "gui_helper.h"
+п»ї#include "gui_worker.h"
 #include <math.h>
-
-
+#include <algorithm>
+using namespace aqua_gui;
 bool aqua_gui::ZoomFromWheelDelta(ChartScaleInfo & scale_info, const int wheel_delta, const QPoint scale_point)
 {
     auto& min_max_bounds         = scale_info.val_info_.min_max_bounds;
@@ -11,24 +11,24 @@ bool aqua_gui::ZoomFromWheelDelta(ChartScaleInfo & scale_info, const int wheel_d
     bool is_y_scale = scale_point.x() > px_info.chart_size_px.hor;
     bool is_x_scale = !is_y_scale;
     
-    // Изменён коэффициент масштабирования для более плавного изменения
+    // РР·РјРµРЅС‘РЅ РєРѕСЌС„С„РёС†РёРµРЅС‚ РјР°СЃС€С‚Р°Р±РёСЂРѕРІР°РЅРёСЏ РґР»СЏ Р±РѕР»РµРµ РїР»Р°РІРЅРѕРіРѕ РёР·РјРµРЅРµРЅРёСЏ
 	double steps = wheel_delta / 120.;
 	double scale_koeff = std::abs(1. - std::pow(1.1, steps * 0.8));
 
     const double direction = wheel_delta > 0 ? 1.0 : -1.0;
 
-    // Вычисление коэффициентов масштабирования
+    // Р’С‹С‡РёСЃР»РµРЅРёРµ РєРѕСЌС„С„РёС†РёРµРЅС‚РѕРІ РјР°СЃС€С‚Р°Р±РёСЂРѕРІР°РЅРёСЏ
     const double val_x_scale_koeff = (min_max_bounds.hor.delta()) / (cur_bounds.hor.delta());
 
     const double val_y_scale_koeff = (min_max_bounds.vert.delta()) / (cur_bounds.vert.delta());
     bool values_changed = false;
 	const auto zoom_threshold = scale_info.val_info_.max_zoom_koeffs;
-    // Масштабирование по оси X
+    // РњР°СЃС€С‚Р°Р±РёСЂРѕРІР°РЅРёРµ РїРѕ РѕСЃРё X
     if (is_x_scale)
     {
         auto &cur_hor       = cur_bounds.hor;
         auto &min_max_hor   = min_max_bounds.hor;
-        // Проверяем, можем ли мы увеличивать/уменьшать масштаб
+        // РџСЂРѕРІРµСЂСЏРµРј, РјРѕР¶РµРј Р»Рё РјС‹ СѓРІРµР»РёС‡РёРІР°С‚СЊ/СѓРјРµРЅСЊС€Р°С‚СЊ РјР°СЃС€С‚Р°Р±
         bool can_zoom_in = direction > 0 && val_x_scale_koeff < zoom_threshold.hor;
         bool can_zoom_out = direction < 0;
         
@@ -38,22 +38,22 @@ bool aqua_gui::ZoomFromWheelDelta(ChartScaleInfo & scale_info, const int wheel_d
             double x_val_to_px_koeff = cur_hor.delta() / px_info.chart_size_px.hor;
             double x_mouse_pos_val = cur_hor.low + x_mouse_pos_px * x_val_to_px_koeff;
 
-            // Вычисляем новые границы с учётом направления масштабирования
+            // Р’С‹С‡РёСЃР»СЏРµРј РЅРѕРІС‹Рµ РіСЂР°РЅРёС†С‹ СЃ СѓС‡С‘С‚РѕРј РЅР°РїСЂР°РІР»РµРЅРёСЏ РјР°СЃС€С‚Р°Р±РёСЂРѕРІР°РЅРёСЏ
             double left_change = (x_mouse_pos_val - cur_hor.low) * scale_koeff * direction;
             double right_change = (cur_hor.high - x_mouse_pos_val) * scale_koeff * direction;
 
-            // Применяем изменения
+            // РџСЂРёРјРµРЅСЏРµРј РёР·РјРµРЅРµРЅРёСЏ
             double new_low = (cur_hor.low + left_change);
             double new_high =(cur_hor.high - right_change);
 
-            // Проверяем, чтобы новые границы были валидными
+            // РџСЂРѕРІРµСЂСЏРµРј, С‡С‚РѕР±С‹ РЅРѕРІС‹Рµ РіСЂР°РЅРёС†С‹ Р±С‹Р»Рё РІР°Р»РёРґРЅС‹РјРё
             if (new_low < new_high)
             {
-                // Ограничиваем минимальный и максимальный масштаб
+                // РћРіСЂР°РЅРёС‡РёРІР°РµРј РјРёРЅРёРјР°Р»СЊРЅС‹Р№ Рё РјР°РєСЃРёРјР°Р»СЊРЅС‹Р№ РјР°СЃС€С‚Р°Р±
                 new_low = std::max(new_low, min_max_hor.low);
                 new_high = std::min(new_high, min_max_hor.high);
 
-                // Проверяем минимальный размах (не меньше 1 единицы)
+                // РџСЂРѕРІРµСЂСЏРµРј РјРёРЅРёРјР°Р»СЊРЅС‹Р№ СЂР°Р·РјР°С… (РЅРµ РјРµРЅСЊС€Рµ 1 РµРґРёРЅРёС†С‹)
                 if (new_high - new_low >= std::numeric_limits<double>::epsilon())
                 {
                     cur_hor = {new_low, new_high};
@@ -63,7 +63,7 @@ bool aqua_gui::ZoomFromWheelDelta(ChartScaleInfo & scale_info, const int wheel_d
         }
     }
 
-    // Масштабирование по оси Y (аналогично оси X)
+    // РњР°СЃС€С‚Р°Р±РёСЂРѕРІР°РЅРёРµ РїРѕ РѕСЃРё Y (Р°РЅР°Р»РѕРіРёС‡РЅРѕ РѕСЃРё X)
     if (is_y_scale)
     {
         bool can_zoom_in = direction > 0 && val_y_scale_koeff < zoom_threshold.vert;
@@ -99,8 +99,8 @@ bool aqua_gui::ZoomFromWheelDelta(ChartScaleInfo & scale_info, const int wheel_d
 }
 
 bool aqua_gui::PanFromMouse(ChartScaleInfo& scale_info,
-	const QPoint /*start_mouse_point*/,               // не используется, но оставлен для интерфейса
-	const HV_Info<double, double>& world_pos,        // зафиксированная мировая точка
+	const QPoint /*start_mouse_point*/,               // РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ, РЅРѕ РѕСЃС‚Р°РІР»РµРЅ РґР»СЏ РёРЅС‚РµСЂС„РµР№СЃР°
+	const HV_Info<double, double>& world_pos,        // Р·Р°С„РёРєСЃРёСЂРѕРІР°РЅРЅР°СЏ РјРёСЂРѕРІР°СЏ С‚РѕС‡РєР°
 	const QPoint end_mouse_point)
 {
 	auto& min_max_bounds = scale_info.val_info_.min_max_bounds;
@@ -109,21 +109,21 @@ bool aqua_gui::PanFromMouse(ChartScaleInfo& scale_info,
 
 	bool changed = false;
 
-	// --- Ось X ---
+	// --- РћСЃСЊ X ---
 	{
 		auto& cur_limits = cur_bounds.hor;
 		const auto& min_limits = min_max_bounds.hor;
 		const double width = px_info.chart_size_px.hor;
-		const double delta = cur_limits.delta(); // длина интервала не меняется
+		const double delta = cur_limits.delta(); // РґР»РёРЅР° РёРЅС‚РµСЂРІР°Р»Р° РЅРµ РјРµРЅСЏРµС‚СЃСЏ
 
-												 // Вычисляем положение курсора в долях от ширины (от 0 до 1)
+												 // Р’С‹С‡РёСЃР»СЏРµРј РїРѕР»РѕР¶РµРЅРёРµ РєСѓСЂСЃРѕСЂР° РІ РґРѕР»СЏС… РѕС‚ С€РёСЂРёРЅС‹ (РѕС‚ 0 РґРѕ 1)
 		double t_x = std::clamp(double(end_mouse_point.x()) / width, 0.0, 1.0);
 
-		// Новая нижняя граница: чтобы world_pos.hor соответствовало пикселю t_x
+		// РќРѕРІР°СЏ РЅРёР¶РЅСЏСЏ РіСЂР°РЅРёС†Р°: С‡С‚РѕР±С‹ world_pos.hor СЃРѕРѕС‚РІРµС‚СЃС‚РІРѕРІР°Р»Рѕ РїРёРєСЃРµР»СЋ t_x
 		double new_low = world_pos.hor - t_x * delta;
 		double new_high = new_low + delta;
 
-		// Ограничиваем, чтобы не выйти за глобальные пределы
+		// РћРіСЂР°РЅРёС‡РёРІР°РµРј, С‡С‚РѕР±С‹ РЅРµ РІС‹Р№С‚Рё Р·Р° РіР»РѕР±Р°Р»СЊРЅС‹Рµ РїСЂРµРґРµР»С‹
 		const double min_low = min_limits.low;
 		const double max_high = min_limits.high;
 		if (new_low < min_low) {
@@ -134,7 +134,7 @@ bool aqua_gui::PanFromMouse(ChartScaleInfo& scale_info,
 			new_high = max_high;
 			new_low = max_high - delta;
 		}
-		// Если new_low всё ещё меньше min_low или new_high больше max_high – корректируем
+		// Р•СЃР»Рё new_low РІСЃС‘ РµС‰С‘ РјРµРЅСЊС€Рµ min_low РёР»Рё new_high Р±РѕР»СЊС€Рµ max_high вЂ“ РєРѕСЂСЂРµРєС‚РёСЂСѓРµРј
 		if (new_low < min_low) {
 			new_low = min_low;
 			new_high = min_low + delta;
@@ -144,7 +144,7 @@ bool aqua_gui::PanFromMouse(ChartScaleInfo& scale_info,
 			new_low = max_high - delta;
 		}
 
-		// Применяем изменения
+		// РџСЂРёРјРµРЅСЏРµРј РёР·РјРµРЅРµРЅРёСЏ
 		if (std::abs(cur_limits.low - new_low) > std::numeric_limits<double>::epsilon() ||
 			std::abs(cur_limits.high - new_high) > std::numeric_limits<double>::epsilon())
 		{
@@ -154,23 +154,23 @@ bool aqua_gui::PanFromMouse(ChartScaleInfo& scale_info,
 		}
 	}
 
-	// --- Ось Y ---
+	// --- РћСЃСЊ Y ---
 	{
 		auto& cur_limits = cur_bounds.vert;
 		const auto& min_limits = min_max_bounds.vert;
 		const double height = px_info.chart_size_px.vert;
 		const double delta = cur_limits.delta();
 
-		// Положение курсора по Y: y=0 соответствует high, y=height соответствует low
+		// РџРѕР»РѕР¶РµРЅРёРµ РєСѓСЂСЃРѕСЂР° РїРѕ Y: y=0 СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓРµС‚ high, y=height СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓРµС‚ low
 		double t_y = std::clamp(double(end_mouse_point.y()) / height, 0.0, 1.0);
-		// Доля от low до high: (1 - t_y) – при t_y=0 (верх) это 1 (high), при t_y=1 (низ) это 0 (low)
+		// Р”РѕР»СЏ РѕС‚ low РґРѕ high: (1 - t_y) вЂ“ РїСЂРё t_y=0 (РІРµСЂС…) СЌС‚Рѕ 1 (high), РїСЂРё t_y=1 (РЅРёР·) СЌС‚Рѕ 0 (low)
 		double fraction_from_low = 1.0 - t_y;
 
-		// Новая нижняя граница: world_pos.vert = new_low + fraction_from_low * delta
+		// РќРѕРІР°СЏ РЅРёР¶РЅСЏСЏ РіСЂР°РЅРёС†Р°: world_pos.vert = new_low + fraction_from_low * delta
 		double new_low = world_pos.vert - fraction_from_low * delta;
 		double new_high = new_low + delta;
 
-		// Ограничиваем
+		// РћРіСЂР°РЅРёС‡РёРІР°РµРј
 		const double min_low = min_limits.low;
 		const double max_high = min_limits.high;
 		if (new_low < min_low) {
@@ -207,38 +207,38 @@ void aqua_gui::AdaptVertPowerBounds(ChartScaleInfo & scale_info)
 	if (new_bounds.delta() == 0)
 		return;
 
-    // Получаем ссылку на текущие максимально допустимые (автоматические) границы шкалы
+    // РџРѕР»СѓС‡Р°РµРј СЃСЃС‹Р»РєСѓ РЅР° С‚РµРєСѓС‰РёРµ РјР°РєСЃРёРјР°Р»СЊРЅРѕ РґРѕРїСѓСЃС‚РёРјС‹Рµ (Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРёРµ) РіСЂР°РЅРёС†С‹ С€РєР°Р»С‹
     auto &vert_min_max = scale_info.val_info_.min_max_bounds.vert;
 
-	// Получаем ссылку на текущие отображаемые границы шкалы (которые видит пользователь)
+	// РџРѕР»СѓС‡Р°РµРј СЃСЃС‹Р»РєСѓ РЅР° С‚РµРєСѓС‰РёРµ РѕС‚РѕР±СЂР°Р¶Р°РµРјС‹Рµ РіСЂР°РЅРёС†С‹ С€РєР°Р»С‹ (РєРѕС‚РѕСЂС‹Рµ РІРёРґРёС‚ РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ)
 	auto &vert_cur = scale_info.val_info_.view_bounds.vert;
 
 	const double min_epsilon = new_bounds.delta() * 0.05;
-    // Если автоматические границы изменились, обновляем шкалу
+    // Р•СЃР»Рё Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРёРµ РіСЂР°РЅРёС†С‹ РёР·РјРµРЅРёР»РёСЃСЊ, РѕР±РЅРѕРІР»СЏРµРј С€РєР°Р»Сѓ
 	if (std::abs(vert_min_max.low - new_bounds.low) > min_epsilon ||
 		std::abs(vert_min_max.high - new_bounds.high) > min_epsilon)
 	{
 
 
-		//Корретируем отображаемое
+		//РљРѕСЂСЂРµС‚РёСЂСѓРµРј РѕС‚РѕР±СЂР°Р¶Р°РµРјРѕРµ
 		if (!scale_info.val_info_.need_reset_scale) {
 
-			// Вычисляем текущий коэффициент масштабирования (зума) по вертикали
+			// Р’С‹С‡РёСЃР»СЏРµРј С‚РµРєСѓС‰РёР№ РєРѕСЌС„С„РёС†РёРµРЅС‚ РјР°СЃС€С‚Р°Р±РёСЂРѕРІР°РЅРёСЏ (Р·СѓРјР°) РїРѕ РІРµСЂС‚РёРєР°Р»Рё
 			const double zoom_vert_koeff = vert_cur.delta() / vert_min_max.delta();
-			// Рассчитываем новую высоту (диапазон) для отображаемой шкалы, сохраняя зум
+			// Р Р°СЃСЃС‡РёС‚С‹РІР°РµРј РЅРѕРІСѓСЋ РІС‹СЃРѕС‚Сѓ (РґРёР°РїР°Р·РѕРЅ) РґР»СЏ РѕС‚РѕР±СЂР°Р¶Р°РµРјРѕР№ С€РєР°Р»С‹, СЃРѕС…СЂР°РЅСЏСЏ Р·СѓРј
 			const double new_height = (new_bounds.high - new_bounds.low) * zoom_vert_koeff;
-			// Вычисляем текущий центр отображаемой шкалы
+			// Р’С‹С‡РёСЃР»СЏРµРј С‚РµРєСѓС‰РёР№ С†РµРЅС‚СЂ РѕС‚РѕР±СЂР°Р¶Р°РµРјРѕР№ С€РєР°Р»С‹
 			double zoom_centre = (vert_cur.high + vert_cur.low) / 2;
-			// Корректируем центр зума, чтобы отображаемый диапазон не вышел за новые автоматические границы
+			// РљРѕСЂСЂРµРєС‚РёСЂСѓРµРј С†РµРЅС‚СЂ Р·СѓРјР°, С‡С‚РѕР±С‹ РѕС‚РѕР±СЂР°Р¶Р°РµРјС‹Р№ РґРёР°РїР°Р·РѕРЅ РЅРµ РІС‹С€РµР» Р·Р° РЅРѕРІС‹Рµ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРёРµ РіСЂР°РЅРёС†С‹
 			zoom_centre = qBound(new_bounds.low + new_height / 2, zoom_centre, new_bounds.high - new_height / 2);
 
-			// Обновляем максимально допустимые (автоматические) границы
+			// РћР±РЅРѕРІР»СЏРµРј РјР°РєСЃРёРјР°Р»СЊРЅРѕ РґРѕРїСѓСЃС‚РёРјС‹Рµ (Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРёРµ) РіСЂР°РЅРёС†С‹
 			vert_min_max = new_bounds;
-			// Обновляем текущие отображаемые границы с учетом нового центра и высоты
+			// РћР±РЅРѕРІР»СЏРµРј С‚РµРєСѓС‰РёРµ РѕС‚РѕР±СЂР°Р¶Р°РµРјС‹Рµ РіСЂР°РЅРёС†С‹ СЃ СѓС‡РµС‚РѕРј РЅРѕРІРѕРіРѕ С†РµРЅС‚СЂР° Рё РІС‹СЃРѕС‚С‹
 			vert_cur = { zoom_centre - new_height / 2, zoom_centre + new_height / 2 };
 		}
 		else {
-			// Обновляем максимально допустимые (автоматические) границы
+			// РћР±РЅРѕРІР»СЏРµРј РјР°РєСЃРёРјР°Р»СЊРЅРѕ РґРѕРїСѓСЃС‚РёРјС‹Рµ (Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРёРµ) РіСЂР°РЅРёС†С‹
 			vert_min_max = new_bounds;
 			vert_cur = new_bounds;
 			scale_info.val_info_.need_reset_scale = false;
@@ -248,3 +248,107 @@ void aqua_gui::AdaptVertPowerBounds(ChartScaleInfo & scale_info)
 		int a = 1;
 }
 
+const double aqua_gui::GetAsimDrawPlace(const int iteration_counter)
+{
+	// 1) РћРїСЂРµРґРµР»СЏРµРј СѓСЂРѕРІРµРЅСЊ (СЃР»РѕР№ РІ Р±РёРЅР°СЂРЅРѕРј РґРµСЂРµРІРµ)
+	const int power = static_cast<int>(std::log2(iteration_counter + 1));
+	const int count = 1 << power;             // С‡РёСЃР»Рѕ СЌР»РµРјРµРЅС‚РѕРІ РЅР° СЌС‚РѕРј СѓСЂРѕРІРЅРµ
+	const int min_elem = count - 1;           // РёРЅРґРµРєСЃ РїРµСЂРІРѕРіРѕ СЌР»РµРјРµРЅС‚Р° СЌС‚РѕРіРѕ СѓСЂРѕРІРЅСЏ
+
+	// 2) РРЅРґРµРєСЃ РІРЅСѓС‚СЂРё СѓСЂРѕРІРЅСЏ РѕС‚ 0 РґРѕ count-1
+	const int j = iteration_counter - min_elem;
+
+	// 3) Р’С‹С‡РёСЃР»СЏРµРј "РїРѕСЃР»РµРґРѕРІР°С‚РµР»СЊРЅС‹Р№" РёРЅРґРµРєСЃ СЃ С‡РµСЂРµРґРѕРІР°РЅРёРµРј РєСЂР°РµРІС‹С…:
+	//    j=0в†’0 (Р»РµРІС‹Р№), j=1в†’count-1 (РїСЂР°РІС‹Р№), j=2в†’1, j=3в†’count-2 Рё С‚.Рґ.
+	int seq;
+	if ((j & 1) == 0) {
+		// С‡С‘С‚РЅС‹Р№ j: 0,2,4вЂ¦ в†’ СЃР»РµРІР° РЅР°РїСЂР°РІРѕ 0,1,2вЂ¦
+		seq = j / 2;
+	}
+	else {
+		// РЅРµС‡С‘С‚РЅС‹Р№ j: 1,3,5вЂ¦ в†’ СЃРїСЂР°РІР° РЅР°Р»РµРІРѕ count-1, count-2вЂ¦
+		seq = (count - 1) - (j / 2);
+	}
+
+	// 4) РџСЂРёРІРѕРґРёРј seq РІ С†РµРЅС‚СЂ СЏС‡РµР№РєРё [0,1]:
+	const double step = 1.0 / count;
+	return step * seq + step * 0.5;
+}
+
+
+std::vector<int> aqua_gui::GetAssimLocationsVec(const int width)
+{
+	// Р’РµРєС‚РѕСЂ РїР°СЂ (РїРѕР·РёС†РёСЏ, РёС‚РµСЂР°С†РёСЏ)
+	std::vector<std::pair<double, int>> place_iteration_pairs;
+	for (int i = 0; i < width; ++i) {
+		double place = GetAsimDrawPlace(i);
+		place_iteration_pairs.push_back({ place, i });
+	}
+
+	// РЎРѕСЂС‚РёСЂРѕРІРєР° РїРѕ РїРѕР·РёС†РёСЏРј, РїСЂРё СЂР°РІРµРЅСЃС‚РІРµ вЂ” РїРѕ РЅРѕРјРµСЂСѓ РёС‚РµСЂР°С†РёРё
+	std::sort(place_iteration_pairs.begin(), place_iteration_pairs.end());
+
+	// РЎРѕР·РґР°РЅРёРµ СЂРµР·СѓР»СЊС‚РёСЂСѓСЋС‰РµРіРѕ РІРµРєС‚РѕСЂР°
+	std::vector<int> result(width);
+	for (int k = 0; k < width; ++k) {
+		int iteration = place_iteration_pairs[k].second;
+		result[iteration] = k; // РРЅРґРµРєСЃ вЂ” РёС‚РµСЂР°С†РёСЏ, Р·РЅР°С‡РµРЅРёРµ вЂ” РјРµСЃС‚РѕРїРѕР»РѕР¶РµРЅРёРµ
+	}
+
+	return result;
+}
+
+
+
+FpsEstimator::FpsEstimator(double smoothingWindowSec)
+	: m_smoothingWindowSec(smoothingWindowSec)
+	, m_isRunning(false)
+{
+}
+
+void FpsEstimator::MarkNewFrame()
+{
+	if (!m_isRunning) {
+		m_timer.start();
+		m_isRunning = true;
+	}
+
+	qint64 now = m_timer.elapsed();
+	m_frameTimestamps.push_back(now);
+
+	// РЈРґР°Р»СЏРµРј РєР°РґСЂС‹, РєРѕС‚РѕСЂС‹Рµ РІС‹С€Р»Рё Р·Р° РїСЂРµРґРµР»С‹ РѕРєРЅР° СѓСЃСЂРµРґРЅРµРЅРёСЏ
+	qint64 cutoff = now - static_cast<qint64>(m_smoothingWindowSec * 1000);
+	while (!m_frameTimestamps.empty() && m_frameTimestamps.front() < cutoff) {
+		m_frameTimestamps.pop_front();
+	}
+}
+
+double FpsEstimator::GetCurrentFps() const
+{
+	if (m_frameTimestamps.size() < 2) {
+		return 0.0;
+	}
+
+	// Р’СЂРµРјСЏ РјРµР¶РґСѓ РїРµСЂРІС‹Рј Рё РїРѕСЃР»РµРґРЅРёРј РєР°РґСЂРѕРј РІ РѕРєРЅРµ
+	qint64 timeSpanMs = m_frameTimestamps.back() - m_frameTimestamps.front();
+
+	if (timeSpanMs <= 0) {
+		return 0.0;
+	}
+
+	// РљРѕР»РёС‡РµСЃС‚РІРѕ РёРЅС‚РµСЂРІР°Р»РѕРІ РјРµР¶РґСѓ РєР°РґСЂР°РјРё
+	int intervals = static_cast<int>(m_frameTimestamps.size()) - 1;
+
+	// FPS = РєРѕР»РёС‡РµСЃС‚РІРѕ РёРЅС‚РµСЂРІР°Р»РѕРІ / РІСЂРµРјСЏ РІ СЃРµРєСѓРЅРґР°С…
+	double timeSpanSec = static_cast<double>(timeSpanMs) / 1000.0;
+	return static_cast<double>(intervals) / timeSpanSec;
+}
+
+double FpsEstimator::GetAvgFrameTimeMs() const
+{
+	double fps = GetCurrentFps();
+	if (fps > 0) {
+		return 1000.0 / fps;
+	}
+	return 0.0;
+}

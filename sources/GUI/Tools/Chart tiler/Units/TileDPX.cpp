@@ -1,5 +1,5 @@
 #include "TileDPX.h"
-#include "GUI/Tools/gui_helper.h"
+#include "GUI/Tools/gui_worker.h"
 #include "GUI/Tools/gui_conversions.h"
 
 // Конструктор
@@ -152,37 +152,20 @@ void TileDPX::Reset()
 	last_average_density_ = 0.0;
 }
 
-void TileDPX::SetDpxParams(const double fps, const double time_hold_sec)
+void TileDPX::SetDpxParams(double fps, double time_hold_sec)
 {
-	// Время одного кадра в секундах
-	const double frame_time_sec = 1.0 / fps;
-	double trans_life_time_sec = 1;
-	if (time_hold_sec <= 0) trans_life_time_sec = 1;
-	else trans_life_time_sec = time_hold_sec;
+	const double frame_time = 1.0 / fps;
+	// exp(-2 * dt / tau) для транзита (затухает в 2 раза быстрее)
+	double merged_data_decay_time = (time_hold_sec > 0 ? time_hold_sec : 3);
+	trans_decay_rate_ = std::exp( - 2.0 * frame_time / merged_data_decay_time);
 
-	trans_decay_rate_ = std::exp(-2 * frame_time_sec / trans_life_time_sec);
-	// Защита от некорректных значений
-	if (time_hold_sec <= 0.0) {
-		// Если параметры некорректны — устанавливаем "бесконечное" время жизни
+	if (fps <= 0.0 || time_hold_sec <= 0.0) {
 		base_decay_rate_ = 1.0;
-
 		return;
 	}
 
-
-
-	// Время жизни в секундах (сколько должен жить сигнал до падения до ~36.8%)
-	const double persistence_time_sec = time_hold_sec;
-
-	// Рассчитываем коэффициент затухания за один кадр
-	// Экспоненциальное затухание — классика DPX
-	base_decay_rate_ = std::exp(-frame_time_sec / persistence_time_sec);
-	// Дополнительная защита от слишком быстрого затухания
-	// (чтобы данные не исчезали мгновенно при очень малом time_hold_sec)
-	if (base_decay_rate_ < 0.01) {
-		base_decay_rate_ = 0.01;
-	}
-
+	// exp(-dt / tau) для базового затухания
+	base_decay_rate_ = std::max(0.01, std::exp(-frame_time / time_hold_sec));
 }
 
 // ------------------------------------------------------------------

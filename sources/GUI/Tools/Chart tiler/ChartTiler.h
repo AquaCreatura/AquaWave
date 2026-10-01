@@ -1,6 +1,7 @@
 #pragma once
 #include "Units/TileInterface.h"
 #include "GUI/Tools/Chart drawers//QimageZoomer.h"
+#include "GUI/Tools/gui_worker.h"
 #include <future>
 #include <qelapsedtimer.h>
 using namespace aqua_gui;
@@ -20,6 +21,7 @@ protected:
 	void			UpdateTileView		();
 	const QPixmap&	UpdateQPixmap		();
 	bool			NeedUpdateTile		();
+	void			UpdateFpsInfo		();
 protected:
 	int								 count_of_tiles_{ 3 };
 	std::vector<TileInterface::uptr> tiles_;
@@ -37,4 +39,6 @@ protected:
 	double							fps_default_ = 10;
 	double							fps_optimization_ = 1;
 	double							life_time_sec_;
+	FpsEstimator					passed_data_fps_estimator_;
+	FpsEstimator					show_frames_fps_estimator_;
 };

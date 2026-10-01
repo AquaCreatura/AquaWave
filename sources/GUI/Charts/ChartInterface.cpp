@@ -1,8 +1,8 @@
 #include "ChartInterface.h"
 #include <qsizepolicy.h>
-#include "GUI/Tools/gui_helper.h"
 #include <qshortcut.h>
 #include "GUI/Tools/Chart drawers/ChartColorScheme.h"
+#include "GUI/Tools/gui_worker.h"
 ChartInterface::ChartInterface(QWidget* parent, std::shared_ptr<SelectionHolder> selection_holder, ChartDomainType passed_domain) :
     QWidget(parent), scale_info_(passed_domain), axis_man_(scale_info_), bg_image_(scale_info_), selection_drawer_(scale_info_),
 	mouse_man_(scale_info_)

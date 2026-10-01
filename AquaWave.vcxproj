@@ -54,7 +54,7 @@
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(ICPP_COMPILER17)ipp\include;$(ICPP_COMPILER17)tbb\include;third_party\qwindowkit;third_party\qwindowkit\src;third_party\qwindowkit\src\core;third_party\qwindowkit\src\widgets;sources;.\GeneratedFiles;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtCore;sources/Arks/Interfaces;sources/Arks;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ICPP_COMPILER17)ipp\include;$(ICPP_COMPILER17)tbb\include;third_party\qwindowkit;third_party\qwindowkit\src;third_party\qwindowkit\src\core;third_party\qwindowkit\src\widgets;sources;.\GeneratedFiles;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtCore;sources/Arks/Interfaces;sources/Arks;third_party\qwindowkit\build\out\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
@@ -87,7 +87,7 @@
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
-      <AdditionalIncludeDirectories>$(ICPP_COMPILER17)ipp\include;$(ICPP_COMPILER17)tbb\include;third_party\qwindowkit;third_party\qwindowkit\src;third_party\qwindowkit\src\core;third_party\qwindowkit\src\widgets;sources;.\GeneratedFiles;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtCore;sources/Arks/Interfaces;sources/Arks;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(ICPP_COMPILER17)ipp\include;$(ICPP_COMPILER17)tbb\include;third_party\qwindowkit;third_party\qwindowkit\src;third_party\qwindowkit\src\core;third_party\qwindowkit\src\widgets;sources;.\GeneratedFiles;.\GeneratedFiles\$(ConfigurationName);$(QTDIR)\include;$(QTDIR)\include\QtWidgets;$(QTDIR)\include\QtGui;$(QTDIR)\include\QtCore;sources/Arks/Interfaces;sources/Arks;third_party\qwindowkit\build\out\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpplatest</LanguageStandard>
       <TreatWChar_tAsBuiltInType>true</TreatWChar_tAsBuiltInType>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>

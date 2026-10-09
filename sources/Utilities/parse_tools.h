@@ -15,24 +15,42 @@
 
 namespace aqua_parse_tools
 {
-//AMOS 5_17E_LinkWay-S2_1137.01MHz 23312.5KHz.pcm - Why can not parse this string?
-inline bool get_samplerate_from_filename(const std::string& filename, int64_t &samplerate_hz)
-{
-    // Разрешаем любой регистр единиц, дробную часть — опционально,
-    // и возможный пробел перед 'kHz'
-    static const std::regex symbol_rate_regex(
-        R"((\d+(?:\.\d+)?)\s*kHz)",
-        std::regex_constants::icase
-    );
-    std::smatch match;
-    if (std::regex_search(filename, match, symbol_rate_regex) && match.size() > 1) 
+//AMOS 5_17E_LinkWay-S2_1137.01MHz 23312.5KHz.pcm 
+    //CarrierID_synth_224kBd_host_oqpsk_896kBd_offs_0KHz_non_inv 3584.000KHz.pcm
+//CarrierID_synth_224kBd_host_oqpsk_896kBd_offs_0KHz_non_inv 3584,000kHz.pcm
+    inline bool get_samplerate_from_filename(const std::string& filename, int64_t& samplerate_hz)
     {
-        double khz = std::stod(match[1].str());
-        samplerate_hz = static_cast<int64_t>(khz * 1e3);
-        return true;
+        // Ищем ВСЕ вхождения числа перед kHz
+        static const std::regex symbol_rate_regex(
+            R"((\d+[.,]?\d*)\s*kHz)",
+            std::regex_constants::icase
+        );
+
+        auto begin = std::sregex_iterator(filename.begin(), filename.end(), symbol_rate_regex);
+        auto end = std::sregex_iterator();
+
+        if (begin == end) {
+            return false;
+        }
+
+        // Берём ПОСЛЕДНЕЕ совпадение (символьная скорость всегда в конце перед расширением)
+        std::smatch last_match;
+        for (auto it = begin; it != end; ++it) {
+            last_match = *it;
+        }
+
+        if (last_match.size() > 1) {
+            std::string number_str = last_match[1].str();
+            // Заменяем запятую на точку для корректного парсинга
+            std::replace(number_str.begin(), number_str.end(), ',', '.');
+
+            double khz = std::stod(number_str);
+            samplerate_hz = static_cast<int64_t>(khz * 1e3);
+            return true;
+        }
+
+        return false;
     }
-    return false;
-}
 
 inline bool get_carrier_from_filename(const std::string& filename, int64_t &carrier_hz)
 {

@@ -141,6 +141,7 @@
     <ClCompile Include="sources\DSP Tools\basic\acf_worker.cpp" />
     <ClCompile Include="sources\DSP Tools\basic\freq_shifter.cpp" />
     <ClCompile Include="sources\DSP Tools\FFT\FFT_Worker.cpp" />
+    <ClCompile Include="sources\DSP Tools\Localiser\HarmonicEstimator.cpp" />
     <ClCompile Include="sources\DSP Tools\Localiser\PeakDetection.cpp" />
     <ClCompile Include="sources\DSP Tools\Modem\ContinuousDemodulator.cpp" />
     <ClCompile Include="sources\DSP Tools\Modem\EqaliserAqua.cpp" />
@@ -187,6 +188,7 @@
     <ClInclude Include="sources\Arks\Interfaces\special_defs\file_writer_defs.h" />
     <ClInclude Include="sources\Arks\SelectionWriter\SelectionWriter.h" />
     <QtMoc Include="sources\Arks\SelectionWriter\window\selection_writer_window.h" />
+    <ClInclude Include="sources\DSP Tools\Localiser\HarmonicEstimator.h" />
     <ClInclude Include="sources\DSP Tools\Localiser\PeakDetection.h" />
     <ClInclude Include="sources\DSP Tools\Modem\ContinuousDemodulator.h" />
     <ClInclude Include="sources\DSP Tools\Modem\EqaliserAqua.h" />

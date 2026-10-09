@@ -15,13 +15,11 @@ public:
 	const QPixmap&	GetRelevantPixmap	(bool is_optimized_mode = false);
 	void			UpdateBounds		();
 	TileInterface::uptr const & SpgGetTile() const;
-	bool			SetLifeTime(const double life_time_sec);
 protected:
 	void			UpdateTileBase		(); 	//Init bounds of base image	
 	void			UpdateTileView		();
 	const QPixmap&	UpdateQPixmap		();
 	bool			NeedUpdateTile		();
-	void			UpdateFpsInfo		();
 protected:
 	int								 count_of_tiles_{ 3 };
 	std::vector<TileInterface::uptr> tiles_;
@@ -39,6 +37,4 @@ protected:
 	double							fps_default_ = 10;
 	double							fps_optimization_ = 1;
 	double							life_time_sec_;
-	FpsEstimator					passed_data_fps_estimator_;
-	FpsEstimator					show_frames_fps_estimator_;
 };

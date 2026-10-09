@@ -33,16 +33,14 @@ std::unique_ptr<TileInterface> TileInterface::RecreateWithBounds(const HorVerLim
 	if (is_spg_)
 		new_tile = (std::make_unique<TileSPG>());
 	else
-		new_tile = (std::make_unique<TileDPX>());
+		new_tile = (std::make_unique<TileDPX>(need_decay_));
 	new_tile->SetImageSize(GetImageSize());
 	new_tile->SetValBounds(bounds);
 	new_tile->UpdateFromTile(this);
 	return new_tile;
 }
 
-void TileInterface::SetDpxParams(const double fps, const double time_hold_sec)
-{
-}
+
 
 
 HorVerLim<double> TileInterface::GetValBounds()

@@ -14,34 +14,34 @@
 using namespace aqua;
 using namespace scope_analyzer;
 using namespace spectral_viewer;
-
+using namespace analyzer;
 ScopeAnalyzer::ScopeAnalyzer()
 {
     window_ = new ScopeAnalyzerWindow;
 
 	//Определяем графики гармонического анализа
 	{
-		charts_[kAcf]			 = std::make_shared<dpx_core::SpectrumDpx>(dpx_core::kDpxChartType::kACF);
-		charts_[kAcf].need_resampler = false;
+		charts_[analz_chart_type::kAcf]			 = std::make_shared<dpx_core::SpectrumDpx>(dpx_core::kDpxChartType::kACF);
+		charts_[analz_chart_type::kAcf].need_resampler = false;
 
-		charts_[kConstellation] = std::make_shared<constel::Constellation>();
-		charts_[kConstellation].need_resampler = false;
+		charts_[analz_chart_type::kConstellation] = std::make_shared<constel::Constellation>();
+		charts_[analz_chart_type::kConstellation].need_resampler = false;
 
-		charts_[kBandwidth]		 = std::make_shared<dpx_core::SpectrumDpx>(dpx_core::kDpxChartType::kFFT);
+		charts_[analz_chart_type::kBandwidth]		 = std::make_shared<dpx_core::SpectrumDpx>(dpx_core::kDpxChartType::kFFT);
 
 		
 
 
-		charts_[kPhasorSpectrum]	= std::make_shared<dpx_core::SpectrumDpx>(dpx_core::kDpxChartType::kPhasor);
-		charts_[kEnvelopeSpectrum]	= std::make_shared<dpx_core::SpectrumDpx>(dpx_core::kDpxChartType::kEnvelope);
-		charts_[kPowerSpectrum]		= std::make_shared<dpx_core::SpectrumDpx>(dpx_core::kDpxChartType::kPower4x);
+		charts_[analz_chart_type::kPhasorSpectrum]	= std::make_shared<dpx_core::SpectrumDpx>(dpx_core::kDpxChartType::kPhasor);
+		charts_[analz_chart_type::kEnvelopeSpectrum]	= std::make_shared<dpx_core::SpectrumDpx>(dpx_core::kDpxChartType::kEnvelope);
+		charts_[analz_chart_type::kPowerSpectrum]		= std::make_shared<dpx_core::SpectrumDpx>(dpx_core::kDpxChartType::kPower4x);
 		
-		for (auto chart_type : { kAcf, kPowerSpectrum , kPhasorSpectrum, kBandwidth, kEnvelopeSpectrum, kConstellation }) {
+		for (auto chart_type : { analz_chart_type::kAcf, analz_chart_type::kPowerSpectrum , analz_chart_type::kPhasorSpectrum, analz_chart_type::kBandwidth, analz_chart_type::kEnvelopeSpectrum, analz_chart_type::kConstellation }) {
 			auto chart_window = ShipBuilder::GetWindow(charts_[chart_type]);
 			window_->AddChartWindow(chart_window, chart_type);
 		}
 	}
-	window_->ActivateWindow(scope_chart_type::kPowerSpectrum);
+	window_->ActivateWindow(analz_chart_type::kPowerSpectrum);
 	resampler_.SetPrecision(0);
 	connect(window_, &ScopeAnalyzerWindow::FftChangeNeed, this, &ScopeAnalyzer::SetNewFftOrder);
 	info_timer_.setInterval(1000); // Интервал 1 секунда (1000 мс), задается один раз
@@ -119,7 +119,7 @@ bool ScopeAnalyzer::PostDove(aqua::DoveSptr const & sent_dove)
 	}
 	if (base_thought & aqua::DoveParrent::DoveThought::kDeactivate)
 	{
-		window_->ActivateWindow(scope_chart_type::undefined);
+		window_->ActivateWindow(analz_chart_type::undefined);
 		info_timer_.stop();
 	}
 
@@ -160,20 +160,16 @@ void scope_analyzer::ScopeAnalyzer::UpdateHarmonicInfo()
 	auto req_dove = std::make_shared<analyzer::AnalyzeDove>(analyzer::AnalyzeDove::kGetHarmonicResult);
 	for (auto chart_iter : charts_) {
 		chart_iter.second->PostDove(req_dove);
-		if (req_dove->peak_value) {
-			if (chart_iter.first == scope_chart_type::kPowerSpectrum) {
-				req_dove->carrier_hz = (*req_dove->peak_value); 
-			}
-			if (chart_iter.first == scope_chart_type::kEnvelopeSpectrum || chart_iter.first == scope_chart_type::kPhasorSpectrum) {
-				req_dove->symbol_rate_hz = std::max<double>(req_dove->symbol_rate_hz.value_or(0), *req_dove->peak_value);
-			}
+		if (req_dove->peaks) {
+			auto &vec_of_peaks = *req_dove->peaks;
+			
 		}
 		window_->UpdateHarmonicResult(chart_iter.first, req_dove->peak_value.value(), req_dove->text_result.value().c_str());
 		req_dove->peak_value.reset();
 	}
 	req_dove->special_thought = analyzer::AnalyzeDove::kSetHarmonicInfo;
 	if(req_dove->symbol_rate_hz && req_dove->carrier_hz)
-		charts_[scope_chart_type::kConstellation]->PostDove(req_dove);
+		charts_[analz_chart_type::kConstellation]->PostDove(req_dove);
 }
 
 bool ScopeAnalyzer::Reload()

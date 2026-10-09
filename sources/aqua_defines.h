@@ -22,6 +22,7 @@ namespace aqua
     // —труктура дл€ хранени€ границ диапазона
     template<typename W = double>
     struct Limits {
+        Limits() {};
         const bool operator==(const Limits<W>& right) const
         {
             return (low == right.low) && (high == right.high);

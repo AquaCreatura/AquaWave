@@ -2,23 +2,24 @@
 #include "Utilities/parse_tools.h"
 #include "GUI/Charts/ChartInterface.h"
 using namespace scope_analyzer;
+using namespace analyzer;
 ScopeAnalyzerWindow::ScopeAnalyzerWindow()
 {
     ui_.setupUi(this);
 
-	ui_.radio_group_chart_type->setId(ui_.carrier_radio_button		  , scope_chart_type::kPowerSpectrum	);
-	ui_.radio_group_chart_type->setId(ui_.symbol_rate_psk_radio_button, scope_chart_type::kPhasorSpectrum	);
-	ui_.radio_group_chart_type->setId(ui_.symbol_rate_am_radio_button , scope_chart_type::kEnvelopeSpectrum	);
-	ui_.radio_group_chart_type->setId(ui_.bandwidth_radio_button	  , scope_chart_type::kBandwidth		);
-	ui_.radio_group_chart_type->setId(ui_.acf_radio_button			  , scope_chart_type::kAcf				);
-	ui_.radio_group_chart_type->setId(ui_.modulation_radio_button	  , scope_chart_type::kConstellation	);
+	ui_.radio_group_chart_type->setId(ui_.carrier_radio_button		  , (int)analz_chart_type::kPowerSpectrum	);
+	ui_.radio_group_chart_type->setId(ui_.symbol_rate_psk_radio_button, (int)analz_chart_type::kPhasorSpectrum	);
+	ui_.radio_group_chart_type->setId(ui_.symbol_rate_am_radio_button , (int)analz_chart_type::kEnvelopeSpectrum	);
+	ui_.radio_group_chart_type->setId(ui_.bandwidth_radio_button	  , (int)analz_chart_type::kBandwidth		);
+	ui_.radio_group_chart_type->setId(ui_.acf_radio_button			  , (int)analz_chart_type::kAcf				);
+	ui_.radio_group_chart_type->setId(ui_.modulation_radio_button	  , (int)analz_chart_type::kConstellation	);
 
 	connect(ui_.radio_group_chart_type,
 		QOverload<int>::of(&QButtonGroup::buttonClicked),
 		this,
 		[this](int id)
 	{
-		ActivateWindow(static_cast<scope_chart_type>(id));
+		ActivateWindow(static_cast<analyzer::analz_chart_type>(id));
 	});
 	fft_delayed_ = std::make_unique<utility_aqua::DelayedCaller>(500);
 	//Определяем Combobox для FFT
@@ -36,14 +37,14 @@ ScopeAnalyzerWindow::ScopeAnalyzerWindow()
 	
 };
 
-void ScopeAnalyzerWindow::AddChartWindow(QWidget * widget_ptr, scope_chart_type type_of_chart)
+void ScopeAnalyzerWindow::AddChartWindow(QWidget * widget_ptr, analz_chart_type type_of_chart)
 {
 	if (charts_.empty()) cur_chart_type_ = type_of_chart;
 	charts_[type_of_chart] = widget_ptr;
 
 	switch (type_of_chart)
 	{
-	case scope_chart_type::undefined:
+	case analz_chart_type::undefined:
 		break;
 	default:
 		ui_.harmonic_chart_stacked->addWidget(widget_ptr);
@@ -53,7 +54,7 @@ void ScopeAnalyzerWindow::AddChartWindow(QWidget * widget_ptr, scope_chart_type 
 
 }
 
-void ScopeAnalyzerWindow::ActivateWindow(scope_chart_type type_of_chart)
+void ScopeAnalyzerWindow::ActivateWindow(analz_chart_type type_of_chart)
 {
 	if (auto casted = dynamic_cast<ChartInterface*>(charts_[cur_chart_type_]))
 		casted->ActivateChart(false);
@@ -61,7 +62,7 @@ void ScopeAnalyzerWindow::ActivateWindow(scope_chart_type type_of_chart)
 	if (charts_.count(type_of_chart) == 0) return;
 	//Выставляем нажатие
 	{
-		QAbstractButton* button = ui_.radio_group_chart_type->button(type_of_chart);
+		QAbstractButton* button = ui_.radio_group_chart_type->button((int)type_of_chart);
 		button->blockSignals(true);
 		button->setChecked(true);
 		button->blockSignals(false);	
@@ -75,9 +76,9 @@ void ScopeAnalyzerWindow::ActivateWindow(scope_chart_type type_of_chart)
 	cur_chart_type_ = type_of_chart;
 }
 
-scope_chart_type scope_analyzer::ScopeAnalyzerWindow::GetCurrentChart()
+analz_chart_type scope_analyzer::ScopeAnalyzerWindow::GetCurrentChart()
 {
-	return scope_chart_type(ui_.radio_group_chart_type->checkedId());
+	return analz_chart_type(ui_.radio_group_chart_type->checkedId());
 }
 
 void scope_analyzer::ScopeAnalyzerWindow::SetMaxFFtOrder(int max_fft_order)
@@ -85,7 +86,7 @@ void scope_analyzer::ScopeAnalyzerWindow::SetMaxFFtOrder(int max_fft_order)
 	const auto cur_fft = ui_.fft_order_combobox->currentData().toInt();
 	UpdateFFtCombobox(max_fft_order, cur_fft);
 }
-void scope_analyzer::ScopeAnalyzerWindow::UpdateHarmonicResult(scope_chart_type type_of_chart, double value, QString modulation)
+void scope_analyzer::ScopeAnalyzerWindow::UpdateHarmonicResult(analz_chart_type type_of_chart, double value, QString modulation)
 {
 	QLabel* label = nullptr;
 	double divider = 1.0;
@@ -94,22 +95,22 @@ void scope_analyzer::ScopeAnalyzerWindow::UpdateHarmonicResult(scope_chart_type 
 
 	switch (type_of_chart)
 	{
-	case scope_chart_type::kPowerSpectrum:
+	case analz_chart_type::kPowerSpectrum:
 		label = ui_.carrier_value_label; divider = 1e6; suffix = " MHz"; precision = 6; break;
 
-	case scope_chart_type::kEnvelopeSpectrum:
+	case analz_chart_type::kEnvelopeSpectrum:
 		label = ui_.symbol_rate_am_label; divider = 1e3; suffix = " kHz"; precision = 3; break;
 
-	case scope_chart_type::kPhasorSpectrum:
+	case analz_chart_type::kPhasorSpectrum:
 		label = ui_.symbol_rate_psk_label; divider = 1e3; suffix = " kHz"; precision = 3; break;
 
-	case scope_chart_type::kAcf:
+	case analz_chart_type::kAcf:
 		label = ui_.acf_value_label; suffix = " ms"; precision = 3; break;
 
-	case scope_chart_type::kBandwidth:
+	case analz_chart_type::kBandwidth:
 		label = ui_.bandwidth_value_label; divider = 1e3; suffix = " kHz"; precision = 3; break;
 
-	case scope_chart_type::kConstellation:
+	case analz_chart_type::kConstellation:
 		ui_.modulation_label->setText(modulation);
 		return;
 

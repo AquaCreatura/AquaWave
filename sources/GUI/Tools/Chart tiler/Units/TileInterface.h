@@ -16,11 +16,11 @@ public:
 	virtual void			UpdateFromTile			(const TileInterface* passed_data) = 0; 	// + Update From current?...
 	virtual void			UpdateQimage			( dynamic_qimage& dyn_qimage, const Limits<double> &power_bounds) = 0;
 	virtual void			Reset					() = 0;
-	virtual	void			SetDpxParams			(const double fps, const double time_hold_sec);
 
 protected:
 public:
 	std::atomic_bool	is_data_updated_;
+	double				last_samples_per_pixel_{1.};
 	HorVerLim<double>	val_bounds_; 
 	double last_average_density_{ 0.0 };
 	double max_density_{ 0.0 };
@@ -30,5 +30,5 @@ protected:
 	HV_Info<size_t>		data_size_;
 	bool				is_rotated_{ false };
 	bool				is_spg_{false};
-
+	bool				need_decay_ = true;
 };

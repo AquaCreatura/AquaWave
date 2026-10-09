@@ -7,6 +7,7 @@
 #include "DSP Tools/Resampler/ResamplersImpl/MR Resampler/MultiRateResampler.h"
 
 using namespace aqua;
+using namespace analyzer;
 namespace scope_analyzer
 {
 class ScopeAnalyzer : public aqua::ArkBase
@@ -41,7 +42,7 @@ protected:
 
 	QPointer<ScopeAnalyzerWindow>	window_;
 	int64_t							n_fft_{ 1024 * 2 };
-	std::map<scope_chart_type, chart_info> charts_;
+	std::map<analz_chart_type, chart_info> charts_;
 	FileWriter						cur_writer_;
 
 	aqua_resampler::MultiRateResampler	resampler_;

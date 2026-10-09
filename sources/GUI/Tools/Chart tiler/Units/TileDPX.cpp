@@ -3,13 +3,12 @@
 #include "GUI/Tools/gui_conversions.h"
 
 // Конструктор
-TileDPX::TileDPX()
+TileDPX::TileDPX(const bool need_decay)
 {
 	is_spg_ = false;
 	trans_decrease_counter_ = 0;
-	// Базовая скорость затухания – эмпирически подобрана для плавного угасания
-	base_decay_rate_ = 1.0;
-	decay_factor_ = 1.0;
+	need_decay_ = need_decay;
+	UpdateDecayInfo();
 }
 
 // ------------------------------------------------------------------
@@ -36,6 +35,8 @@ void TileDPX::SetData(const draw_data& passed_info)
 		DrawInterpolated(passed_info.data, passed_info.freq_bounds);
 	else
 		DrawOnlyPoints(passed_info.data, passed_info.freq_bounds);
+
+	last_samples_per_pixel_ = samples_per_pixel;
 }
 
 // ------------------------------------------------------------------
@@ -47,10 +48,8 @@ void TileDPX::UpdateFromTile(const TileInterface* passed_data)
 	if (!casted_past) return;
 	if(casted_past->data_size_.hor == 0 || casted_past->data_size_.vert == 0 || passed_data->val_bounds_.hor.delta() == 0)
 		return;
-
 	// 1. Применяем затухание к текущим данным, чтобы они «постарели»
 	ApplyDecay();
-
 	// 2. Коэффициент масштабирования при переходе между уровнями детализации
 	double hor_ratio = passed_data->val_bounds_.hor.delta() / val_bounds_.hor.delta();
 	const bool is_relevant = (hor_ratio <= 1.0);   // для возможного использования в будущем
@@ -148,26 +147,27 @@ void TileDPX::Reset()
 	ippsZero_8u((Ipp8u*)column_weight_vec_.data(), column_weight_vec_.size() * sizeof(column_weight_vec_[0]));
 
 	trans_decrease_counter_ = 0;
-	decay_factor_ = 1.0;
 	last_average_density_ = 0.0;
 }
 
-void TileDPX::SetDpxParams(double fps, double time_hold_sec)
+void TileDPX::UpdateDecayInfo()
 {
-	const double frame_time = 1.0 / fps;
-	// exp(-2 * dt / tau) для транзита (затухает в 2 раза быстрее)
-	double merged_data_decay_time = (time_hold_sec > 0 ? time_hold_sec : 3);
-	trans_decay_rate_ = std::exp( - 2.0 * frame_time / merged_data_decay_time);
+	//Здесь надо учитывать frame_time - если очень большое, то давать накопить хоть немного
+	const double real_frame_time = frame_timer_.restart() / 1000.;
+	const double min_time_for_good_image = 100 * (real_frame_time / last_samples_per_pixel_);
+	//Определяем время затухания при зумминге
+	{
+		double merged_data_decay_time = std::max<double>(min_time_for_good_image, 0.1);
+		trans_decay_rate_ = std::exp(-2.0 * real_frame_time / merged_data_decay_time);
+	}
 
-	if (fps <= 0.0 || time_hold_sec <= 0.0) {
+	if (!need_decay_) {
 		base_decay_rate_ = 1.0;
 		return;
 	}
-
-	// exp(-dt / tau) для базового затухания
-	base_decay_rate_ = std::max(0.01, std::exp(-frame_time / time_hold_sec));
+	auto time_hold_sec = need_decay_ ? std::max<double>(min_time_for_good_image, 1.) : 1;
+	base_decay_rate_ = std::max(0.01, std::exp(-real_frame_time / time_hold_sec));
 }
-
 // ------------------------------------------------------------------
 // Вспомогательные методы рисования (без изменений, но с уточнениями)
 // ------------------------------------------------------------------
@@ -248,6 +248,7 @@ argb_t TileDPX::GetNormColor(double relative_density) const
 
 void TileDPX::ApplyDecay()
 {
+	UpdateDecayInfo();
 	const int width = data_size_.hor;
 	const int height = data_size_.vert;
 
@@ -263,8 +264,8 @@ void TileDPX::ApplyDecay()
 		// От 100 и выше используется максимальное transition decay.
 		const double factor = std::min(1.0, counter / 2000.0);
 
-		const double trans_factor =
-			1.0 + factor * (trans_decay_rate_ - 1.0);
+		const double trans_factor = trans_decay_rate_;
+			//1.0 + factor * (trans_decay_rate_ - 1.0);
 
 		decay_factor *= trans_factor;
 	}

@@ -5,16 +5,16 @@
 ChartTiler::ChartTiler(const ChartScaleInfo & scale_info) : scale_info_(scale_info)
 {
 	is_spg_ = (scale_info_.val_info_.domain_type == aqua_gui::ChartDomainType::kTimeFrequency);	
+	bool need_decay = scale_info_.val_info_.domain_type != aqua_gui::ChartDomainType::kAnalyzeDomain;
 	for (int i = 0; i < count_of_tiles_; i++) {
 		if (is_spg_) {
 			tiles_.push_back(std::make_unique<TileSPG>());
 		}
 		else {
-			tiles_.push_back(std::make_unique<TileDPX>());
+			tiles_.push_back(std::make_unique<TileDPX>(need_decay));
 		}
 		tiles_.back()->SetImageSize({ 1024ui64 * 2, 256ui64 * 2 });
 	}
-	SetLifeTime(1.);
 	tile_id_ = 0;
 }
 
@@ -23,8 +23,6 @@ void ChartTiler::UpdateTileBase()
 	const auto &base_bounds = scale_info_.val_info_.min_max_bounds;
 	if (tiles_[0]->GetValBounds() != base_bounds) {
 		tiles_[0] = tiles_[0]->RecreateWithBounds(base_bounds);
-		if (!is_spg_)
-			UpdateFpsInfo();
 	}
 		
 }
@@ -108,7 +106,6 @@ const QPixmap & ChartTiler::UpdateQPixmap()
 	auto &used_tile = tiles_[tile_id_];
 	if (need_update_qimage_) {
 		tbb::spin_mutex::scoped_lock data_locker(data_mutex_);
-		show_frames_fps_estimator_.MarkNewFrame(); UpdateFpsInfo();
 		need_update_qimage_ = false;
 		//Приводим к размеру 1 к 1
 		if (dyn_qim_.size != used_tile->GetImageSize())
@@ -142,29 +139,10 @@ bool ChartTiler::NeedUpdateTile()
 	return need_update;
 }
 
-void ChartTiler::UpdateFpsInfo()
-{
-	double real_fps = std::min(passed_data_fps_estimator_.GetCurrentFps(), show_frames_fps_estimator_.GetCurrentFps());
-	for (auto& tile_iter : tiles_) {
-		tile_iter->SetDpxParams(real_fps, life_time_sec_);
-	}
-}
-
-
-bool ChartTiler::SetLifeTime(const double passed_life_time_sec)
-{
-	life_time_sec_ = passed_life_time_sec;
-	if (is_spg_) return false;
-	UpdateFpsInfo();
-	return true;
-}
-
-
 
 void ChartTiler::SetData(const draw_data & data)
 {
 	tbb::spin_mutex::scoped_lock scoped_locker(data_mutex_);
-	passed_data_fps_estimator_.MarkNewFrame();
 	tiles_[tile_id_]->SetData(data); return; //Пока достаточно запушить в один единственный
 	//for (auto &it : tiles_) {
 	//	it->SetData(data);

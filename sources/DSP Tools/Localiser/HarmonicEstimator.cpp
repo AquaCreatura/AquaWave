@@ -1,0 +1,143 @@
+#include "HarmonicEstimator.h"
+
+void HarmonicEstimator::SetBandwidth(const double bw_hz)
+{
+	bw_hz_ = bw_hz;
+}
+
+void HarmonicEstimator::SetBaseCarrier(const double fc_hz)
+{
+	data_carrier_hz_ = fc_hz;
+}
+
+void HarmonicEstimator::SetLocalisedPeaks(analz_chart_type type, std::vector<float>& peaks)
+{
+	storage_[type] = peaks;
+}
+
+void HarmonicEstimator::Estimate()
+{
+	aqua_opt<double> matched_bd_hz, psk_bd_hz, am_bd_hz;
+	EstimateSymbolRate(matched_bd_hz, psk_bd_hz, am_bd_hz);
+
+	if (matched_bd_hz) {
+		symbol_rate_hz_ = matched_bd_hz.value();
+	}
+	else if (psk_bd_hz || am_bd_hz) {
+		symbol_rate_hz_ = std::max(psk_bd_hz.value(), am_bd_hz.value());
+	}
+	EstimateCarrier(carrier_hz_);
+	EstimateAcf(acf_msec_);
+}
+
+void HarmonicEstimator::EstimateSymbolRate(aqua_opt<double>& matched_bd_hz, aqua_opt<double>& best_psk_hz, aqua_opt<double>& best_env_hz)
+{
+	auto &psk_vec = storage_[analz_chart_type::kPhasorSpectrum]; 
+	auto &env_vec = storage_[analz_chart_type::kEnvelopeSpectrum];
+	//Находим совпадение
+	if(!psk_vec.empty() && !env_vec.empty())
+	{
+		std::vector<float> matched_vec;
+		for (auto it_psk : psk_vec) {
+			for (auto it_env : env_vec) {
+				if (std::abs(it_psk - it_env) < 0.001 * bw_hz_) {
+					matched_vec.push_back(it_psk);
+				}
+			}
+		} //Хорошо бы ещё учитывать силу пика 
+		if (!matched_vec.empty()) {
+			matched_bd_hz = matched_vec.back();
+			return;
+		}
+	}
+	//Ещё можно исходить из символьной от спектра степени
+
+
+	//Крайние варианты
+	if (!psk_vec.empty()) {
+		best_psk_hz = psk_vec.back();
+	}
+	if (!env_vec.empty()) {
+		best_env_hz = env_vec.back();
+	}
+}
+
+void HarmonicEstimator::EstimateCarrier(double& mid_fc_hz)
+{
+	bool is_centered = false;
+	auto& cur_storage = storage_[analz_chart_type::kPowerSpectrum];
+	//Самый лучший вариант
+	if(cur_storage.size() >= 3)
+	{
+		for (int left_idx = 0; left_idx < cur_storage.size() - 2; left_idx++) {
+			int mid_idx = left_idx + 1; int right_idx = mid_idx + 1;
+			auto left_side = cur_storage[mid_idx] - cur_storage[left_idx];
+			auto right_side = cur_storage[right_idx] - cur_storage[mid_idx];
+			if (std::abs(left_side - right_side) < 0.01 * bw_hz_) {
+				is_centered = true;
+				mid_fc_hz = cur_storage[mid_idx];
+				return;
+			}
+		}
+	}
+	//Есть ещё вариант, если заключена символьная...
+
+	//Находим ближайшую к центру
+	double closest_hz = 0;
+	{
+		auto min_delta = DBL_MAX;
+		for (auto& it : cur_storage) {
+			auto cur_delta = std::abs(it - data_carrier_hz_);
+			if (cur_delta < min_delta) {
+				min_delta = cur_delta;
+				closest_hz = it;
+			}
+		}
+	}
+	mid_fc_hz = closest_hz;
+
+}
+
+void HarmonicEstimator::EstimateAcf(double& acf_msec)
+{
+	auto& cur_storage = storage_[analz_chart_type::kAcf];
+	if (cur_storage.empty())
+		return;
+
+	if (cur_storage.size() == 1) {
+		acf_msec = cur_storage.front();
+	}
+
+	size_t best_fund = 0;
+	size_t best_support = 0;
+
+	int max_harmonic = 8; 
+	double tolerance_ratio = 0.01;
+
+	for (size_t candidate : cur_storage)
+	{
+		size_t support = 1;
+		for (size_t other : cur_storage)
+		{
+			if (other == candidate)
+				continue;
+			if (IsHarmonicOf(other, candidate, tolerance_ratio, max_harmonic))
+				++support;
+		}
+
+		if (support > best_support ||
+			(support == best_support && candidate < best_fund))
+		{
+			best_support = support;
+			best_fund = candidate;
+		}
+	}
+
+	if (best_support >= 1) {
+		acf_msec = best_fund;
+	}
+	else {
+		acf_msec = cur_storage.front();
+	}
+	return;	
+}

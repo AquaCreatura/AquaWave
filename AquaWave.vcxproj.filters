@@ -329,6 +329,9 @@
     <ClCompile Include="sources\Scheme\ShipBuilder.cpp">
       <Filter>Scheme</Filter>
     </ClCompile>
+    <ClCompile Include="sources\DSP Tools\Localiser\HarmonicEstimator.cpp">
+      <Filter>DSP Tools\Localiser</Filter>
+    </ClCompile>
   </ItemGroup>
   <!-- ClInclude (H Files) -->
   <ItemGroup>
@@ -494,6 +497,9 @@
     </ClInclude>
     <ClInclude Include="sources\Scheme\ShipBuilder.h">
       <Filter>Scheme</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\DSP Tools\Localiser\HarmonicEstimator.h">
+      <Filter>DSP Tools\Localiser</Filter>
     </ClInclude>
   </ItemGroup>
   <!-- QtMoc (For Headers Requiring Moc) -->

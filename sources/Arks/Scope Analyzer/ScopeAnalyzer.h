@@ -5,7 +5,7 @@
 #include "window/scope_analyzer_window.h"
 #include "Utilities/file_helpers.h"
 #include "DSP Tools/Resampler/ResamplersImpl/MR Resampler/MultiRateResampler.h"
-
+#include "DSP Tools/Localiser/HarmonicEstimator.h"
 using namespace aqua;
 using namespace analyzer;
 namespace scope_analyzer
@@ -41,6 +41,7 @@ protected:
 	QTimer							info_timer_;
 
 	QPointer<ScopeAnalyzerWindow>	window_;
+	HarmonicEstimator				estimator_;
 	int64_t							n_fft_{ 1024 * 2 };
 	std::map<analz_chart_type, chart_info> charts_;
 	FileWriter						cur_writer_;

@@ -99,10 +99,10 @@ void scope_analyzer::ScopeAnalyzerWindow::UpdateHarmonicResult(analz_chart_type 
 		label = ui_.carrier_value_label; divider = 1e6; suffix = " MHz"; precision = 6; break;
 
 	case analz_chart_type::kEnvelopeSpectrum:
-		label = ui_.symbol_rate_am_label; divider = 1e3; suffix = " kHz"; precision = 3; break;
+		label = ui_.symbol_rate_label; divider = 1e3; suffix = " kHz"; precision = 3; break;
 
 	case analz_chart_type::kPhasorSpectrum:
-		label = ui_.symbol_rate_psk_label; divider = 1e3; suffix = " kHz"; precision = 3; break;
+		label = ui_.symbol_rate_label; divider = 1e3; suffix = " kHz"; precision = 3; break;
 
 	case analz_chart_type::kAcf:
 		label = ui_.acf_value_label; suffix = " ms"; precision = 3; break;

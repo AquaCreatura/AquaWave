@@ -19,7 +19,6 @@ dpx_core::SpectrumDpx::SpectrumDpx(kDpxChartType chart_type)
 		const auto chart_type = is_analyze_chart ? aqua_gui::ChartDomainType::kAnalyzeDomain : aqua_gui::ChartDomainType::kFreqDomain;
 		dpx_drawer_ = new ChartDPX(nullptr, chart_type); // Создаём указатель на объект DpxChart для отрисовки.
 	}
-	detector_.Init(chart_type, 10'000);
 	switch (chart_type)
 	{
 	case kDpxChartType::kFFT:
@@ -142,8 +141,10 @@ bool dpx_core::SpectrumDpx::PostDove(aqua::DoveSptr const & sent_dove)
 		};
 		if (auto analyze_dove = std::dynamic_pointer_cast<analyzer::AnalyzeDove>(sent_dove)) {
 			if (special_thought & analyzer::AnalyzeDove::kGetHarmonicResult) {
-				if(detector_.IsValid()) 
-					analyze_dove->peak_value = detector_.CalculatePeak();
+				if (detector_.IsValid())
+					analyze_dove->peaks = detector_.CalculatePeak();
+				else
+					analyze_dove->peaks.reset();
 				//SetNewFftOrder(*spectral_dove->fft_order_);
 			}
 		};
@@ -236,7 +237,7 @@ void dpx_core::SpectrumDpx::UpdateAxisBounds()
 	}
 	}
 	const auto chart_sr = chart_type_ == dpx_core::kDpxChartType::kACF ? SR : bounds_x.delta();
-	detector_.Init(chart_type_, chart_sr, Fc);
+	detector_.Init(chart_type_, n_fft_, chart_sr, Fc);
 	freq_divider_ = divider;
 	bounds_x = bounds_x / freq_divider_;
 	dpx_drawer_->SetHorizontalMinMaxBounds(bounds_x);

@@ -4,7 +4,7 @@
 #include <limits>
 using namespace peak_detection;
 using namespace dpx_core;
-std::vector<size_t> peak_detection::FindPeaksToAvg(Ipp32f * data, size_t count_of_samples, int count_of_peaks, double check_area_ratio, double min_dist_ratio, double threshold)
+std::vector<size_t> peak_detection::FindPeaksToAvg(const Ipp32f * data, size_t count_of_samples, int count_of_peaks, double check_area_ratio, double min_dist_ratio, double threshold)
 {
 	if (data == nullptr || count_of_samples < 3 || count_of_peaks <= 0)
 		return {};
@@ -120,13 +120,35 @@ PeakDetector::PeakDetector()
 {
 }
 
-void PeakDetector::Init(kDpxChartType data_type, double sample_rate_hz, double carrier_hz)
+void PeakDetector::Init(kDpxChartType data_type, int n_fft, double sample_rate_hz, double carrier_hz)
 {
 	max_peaks_count_ = 5;
-
+	n_fft_ = n_fft;
 	data_type_ = data_type;
 	sample_rate_hz_ = sample_rate_hz;
 	carrier_hz_ = carrier_hz;
+
+	switch (data_type_)
+	{
+
+
+
+
+	case kDpxChartType::kACF:
+		estim_params.zero_shift = std::max<int>(n_fft_/100, 2);
+		estim_params.norm_ratio = 1000. / sample_rate_hz;
+		break;
+	case kDpxChartType::kHarmonic:
+		break;
+	case kDpxChartType::kPower4x:
+		estim_params.result_delta = carrier_hz;
+		estim_params.norm_ratio = sample_rate_hz / n_fft_;
+		estim_params.delta_before_ratio = n_fft_ / 2;
+		break;
+	case kDpxChartType::kEnvelope:
+	case kDpxChartType::kPhasor:
+		estim_params.norm_ratio = sample_rate_hz / n_fft_;
+	}
 	Reset();
 }
 
@@ -175,123 +197,21 @@ void PeakDetector::UpdateMaxHold(const Ipp32f* data, size_t count_of_samples)
 	}
 }
 
-double PeakDetector::CalculatePeak() const
+std::vector<float> PeakDetector::CalculatePeak() const
 {
 	if (!valid_ || n_fft_ < 3 || sample_rate_hz_ <= 0.0)
-		return std::numeric_limits<double>::quiet_NaN();
+		return {};
 
-	switch (data_type_)
-	{
-	case kDpxChartType::kACF:
-		return GetPeakAcf();
-	case kDpxChartType::kHarmonic:
-		return GetPeakSpectrumMax();
-	case kDpxChartType::kPower4x:
-		return GetPeakSpectrumSymmetry();
-	case kDpxChartType::kEnvelope:
-	case kDpxChartType::kPhasor:
-		return GetPeakSymbolRate();
-	default:
-		return std::numeric_limits<double>::quiet_NaN();
-	}
-}
-
-double PeakDetector::GetPeakSpectrumMax() const
-{
-	std::vector<size_t> peaks = FindPeaksToAvg(
-		const_cast<Ipp32f*>(max_hold_.data()),
-		n_fft_,
-		max_peaks_count_,
-		kCheckAreaRatio,
-		kMinDistRatio,
-		kPeakThresholdDb);
-
-	if (peaks.empty())
-		return std::numeric_limits<double>::quiet_NaN();
-
-	size_t best_peak = *std::max_element(
-		peaks.begin(), peaks.end(),
-		[this](size_t a, size_t b) { return max_hold_[a] < max_hold_[b]; });
-
-	double freq_hz = GetInterpolatedPeak(best_peak, max_hold_) * sample_rate_hz_ / n_fft_;
-	return freq_hz;
-}
-
-double PeakDetector::GetPeakSpectrumSymmetry() const
-{
-	std::vector<size_t> peaks = FindPeaksToAvg(
-		const_cast<Ipp32f*>(max_hold_.data()),
-		n_fft_,
-		1,
-		kCheckAreaRatio,
-		kMinDistRatio,
-		kPeakThresholdDb);
-
-	if (peaks.empty())
-		return std::numeric_limits<double>::quiet_NaN();
-
-	std::vector<size_t> sorted_peaks = peaks;
-	std::sort(sorted_peaks.begin(), sorted_peaks.end());
-
-	double sum = 0.0;
-	for (size_t p : sorted_peaks)
-		sum += GetInterpolatedPeak(p, max_hold_);
-
-	double bin_delta = sum / sorted_peaks.size()- n_fft_ / 2;
-
-	double freq_hz = carrier_hz_ + (bin_delta * (sample_rate_hz_ / n_fft_));
-	return freq_hz;
-}
-
-double PeakDetector::GetPeakAcf() const
-{
-	int zero_shift = std::max<int>(2, max_hold_.size() / 100);
-
-	std::vector<size_t> peaks = FindPeaksToAvg(
-		const_cast<Ipp32f*>(max_hold_.data() + zero_shift),
-		n_fft_ - zero_shift,
-		max_peaks_count_,
-		kAcfCheckAreaRatio,
-		kMinDistRatio,
-		kPeakThresholdDb);
-
-	if (peaks.empty())
-		return std::numeric_limits<double>::quiet_NaN();
-	for (auto &it : peaks) it += zero_shift;
-
-	size_t fundamental = FindFundamental(peaks, kAcfToleranceRatio, kMaxAcfHarmonic);
-	if (fundamental == 0)
-		fundamental = peaks.front();
-
-	double period_ms = (static_cast<double>(fundamental) / sample_rate_hz_) * 1000.0;
-	return period_ms;
-}
-
-double PeakDetector::GetPeakSymbolRate() const
-{
-	std::vector<size_t> peaks = FindPeaksToAvg(
-		const_cast<Ipp32f*>(max_hold_.data()),
-		n_fft_,
-		1,
-		kCheckAreaRatio,
-		kMinDistRatio,
-		kPeakThresholdDb);
-
-	if (peaks.empty())
-		return std::numeric_limits<double>::quiet_NaN();
-
-	size_t fundamental = FindFundamental(peaks, kAcfToleranceRatio, kMaxAcfHarmonic);
-
-	{
-		auto max_amp_iter = std::max_element(
-			peaks.begin(), peaks.end(),
-			[this](size_t a, size_t b) { return max_hold_[a] < max_hold_[b]; });
-		fundamental = *max_amp_iter;
+	std::vector<size_t> peaks = FindPeaksToAvg( max_hold_.data(), n_fft_, 1, kCheckAreaRatio, kMinDistRatio, kPeakThresholdDb);
+	std::vector<float> float_peaks(peaks.size());
+	for (int peak_counter = 0; peak_counter < peaks.size(); peak_counter++) {
+		float_peaks[peak_counter] = peaks[peak_counter];
 	}
 
-	double freq_hz = GetInterpolatedPeak(fundamental, max_hold_) * sample_rate_hz_ / n_fft_;
-	return freq_hz;
+	return float_peaks;
 }
+
+
 
 double PeakDetector::GetInterpolatedPeak(size_t peak_index, const std::vector<Ipp32f>& data) const
 {
@@ -309,63 +229,4 @@ double PeakDetector::GetInterpolatedPeak(size_t peak_index, const std::vector<Ip
 	double delta = 0.5 * (alpha - gamma) / denom;
 	delta = std::max(-0.5, std::min(0.5, delta));
 	return static_cast<double>(peak_index) + delta;
-}
-
-size_t PeakDetector::FindFundamental(const std::vector<size_t>& peaks,
-	double tolerance_ratio,
-	int max_harmonic) const
-{
-	if (peaks.empty())
-		return 0;
-
-	std::vector<size_t> sorted = peaks;
-	std::sort(sorted.begin(), sorted.end());
-	sorted.erase(std::remove(sorted.begin(), sorted.end(), 0), sorted.end());
-
-	if (sorted.empty())
-		return 0;
-	if (sorted.size() == 1)
-		return sorted.front();
-
-	size_t best_fund = 0;
-	size_t best_support = 0;
-
-	for (size_t candidate : sorted)
-	{
-		size_t support = 1;
-		for (size_t other : sorted)
-		{
-			if (other == candidate)
-				continue;
-			if (IsHarmonicOf(other, candidate, tolerance_ratio, max_harmonic))
-				++support;
-		}
-
-		if (support > best_support ||
-			(support == best_support && candidate < best_fund))
-		{
-			best_support = support;
-			best_fund = candidate;
-		}
-	}
-
-	if (best_support >= 2)
-		return best_fund;
-
-	return sorted.front();
-}
-
-bool PeakDetector::IsHarmonicOf(size_t p, size_t f, double tolerance, int max_harmonic) const
-{
-	if (f == 0 || p == 0)
-		return false;
-
-	double ratio = static_cast<double>(p) / static_cast<double>(f);
-	int nearest = static_cast<int>(std::round(ratio));
-	if (nearest < 1 || nearest > max_harmonic)
-		return false;
-
-	double expected = nearest * f;
-	double error = std::abs(static_cast<double>(p) - expected) / static_cast<double>(p);
-	return error <= tolerance;
 }

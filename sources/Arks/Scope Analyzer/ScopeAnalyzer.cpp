@@ -158,17 +158,23 @@ ArkType ScopeAnalyzer::GetArkType() const
 void scope_analyzer::ScopeAnalyzer::UpdateHarmonicInfo()
 {
 	auto req_dove = std::make_shared<analyzer::AnalyzeDove>(analyzer::AnalyzeDove::kGetHarmonicResult);
-	for (auto chart_iter : charts_) {
+	for (auto chart_iter : charts_) {		
 		chart_iter.second->PostDove(req_dove);
 		if (req_dove->peaks) {
-			auto &vec_of_peaks = *req_dove->peaks;
-			
-		}
-		window_->UpdateHarmonicResult(chart_iter.first, req_dove->peak_value.value(), req_dove->text_result.value().c_str());
-		req_dove->peak_value.reset();
+			auto &vec_of_peaks = *req_dove->peaks;	
+			estimator_.SetLocalisedPeaks(chart_iter.first, *req_dove->peaks);
+		}		
 	}
+	{
+		window_->UpdateHarmonicResult(analz_chart_type::kAcf,				estimator_.GetAcfMsec());
+		window_->UpdateHarmonicResult(analz_chart_type::kPhasorSpectrum,	estimator_.GetSymbolRateHz());
+		window_->UpdateHarmonicResult(analz_chart_type::kEnvelopeSpectrum,	estimator_.GetSymbolRateHz());
+		window_->UpdateHarmonicResult(analz_chart_type::kPowerSpectrum,		estimator_.GetCarrierHz());
+	}
+	//
+
 	req_dove->special_thought = analyzer::AnalyzeDove::kSetHarmonicInfo;
-	if(req_dove->symbol_rate_hz && req_dove->carrier_hz)
+	if(req_dove->symbol_rate_hz && req_dove->carrier_hz){}
 		charts_[analz_chart_type::kConstellation]->PostDove(req_dove);
 }
 

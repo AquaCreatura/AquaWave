@@ -141,3 +141,18 @@ void HarmonicEstimator::EstimateAcf(double& acf_msec)
 	}
 	return;	
 }
+
+bool HarmonicEstimator::IsHarmonicOf(size_t p, size_t f, double tolerance, int max_harmonic)
+{
+	if (f == 0 || p == 0)
+		return false;
+
+	double ratio = static_cast<double>(p) / static_cast<double>(f);
+	int nearest = static_cast<int>(std::round(ratio));
+	if (nearest < 1 || nearest > max_harmonic)
+		return false;
+
+	double expected = nearest * f;
+	double error = std::abs(static_cast<double>(p) - expected) / static_cast<double>(p);
+	return error <= tolerance;
+}

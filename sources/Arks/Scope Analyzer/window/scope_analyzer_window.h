@@ -18,7 +18,7 @@ public:
 	void ActivateWindow(analz_chart_type type_of_chart);
 	analz_chart_type GetCurrentChart();
 	void SetMaxFFtOrder(int max_fft_order);
-	void UpdateHarmonicResult(analz_chart_type type_of_chart, double value, QString modulation);
+	void UpdateHarmonicResult(analz_chart_type type_of_chart, double value, QString modulation = "");
 	void UpdateFFtCombobox(const int max_order, const int cur_fft_order);
 signals:
 	void FftChangeNeed(int new_fft);

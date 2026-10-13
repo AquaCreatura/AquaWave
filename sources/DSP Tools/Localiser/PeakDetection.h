@@ -41,8 +41,8 @@ namespace peak_detection{
 		struct estim_params {
 			int	   zero_shift = 0;
 			double norm_ratio = 1.;
-			double delta_before_ratio = 0.;
-			double result_delta = 0.;
+			double add_before_norm = 0.;
+			double add_after_norm = 0.;
 		};
 		// ќбновление MaxHold дл€ спектральных данных (с утечкой)
 		void UpdateMaxHold(const Ipp32f* data, size_t count_of_samples);
@@ -58,7 +58,7 @@ namespace peak_detection{
 		std::vector<Ipp32f> max_hold_;  // единый буфер: дл€ ACF Ц последний кадр, дл€ остальных Ц MaxHold с утечкой
 		size_t count_of_samples_;
 		bool valid_;
-		estim_params estim_params;
+		estim_params estim_params_;
 		int max_peaks_count_;
 	};
 };

@@ -303,6 +303,7 @@ void ChartInterface::UpdateControlButtonPositions()
 
 	ctrl_frame_->move((width()/ 2) * 0, (scale_info_.pix_info_.chart_size_px.vert - ctrl_frame_->height())*1);
 	ctrl_frame_->adjustSize();
+	ctrl_frame_->setVisible(scale_info_.pix_info_.chart_size_px.vert > 100);
 	//ctrl_frame_->move(0,0);
 }
 

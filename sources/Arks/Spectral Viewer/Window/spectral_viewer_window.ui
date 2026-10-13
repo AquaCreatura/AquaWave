@@ -202,6 +202,12 @@
        <verstretch>0</verstretch>
       </sizepolicy>
      </property>
+     <property name="minimumSize">
+      <size>
+       <width>10</width>
+       <height>10</height>
+      </size>
+     </property>
      <property name="orientation">
       <enum>Qt::Vertical</enum>
      </property>

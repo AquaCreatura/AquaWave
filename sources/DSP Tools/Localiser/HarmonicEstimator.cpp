@@ -1,5 +1,10 @@
 #include "HarmonicEstimator.h"
 
+HarmonicEstimator::HarmonicEstimator()
+{
+	Reset();
+}
+
 void HarmonicEstimator::SetBandwidth(const double bw_hz)
 {
 	bw_hz_ = bw_hz;
@@ -8,6 +13,7 @@ void HarmonicEstimator::SetBandwidth(const double bw_hz)
 void HarmonicEstimator::SetBaseCarrier(const double fc_hz)
 {
 	data_carrier_hz_ = fc_hz;
+	carrier_hz_ = data_carrier_hz_;
 }
 
 void HarmonicEstimator::SetLocalisedPeaks(analz_chart_type type, std::vector<float>& peaks)
@@ -17,23 +23,41 @@ void HarmonicEstimator::SetLocalisedPeaks(analz_chart_type type, std::vector<flo
 
 void HarmonicEstimator::Estimate()
 {
-	aqua_opt<double> matched_bd_hz, psk_bd_hz, am_bd_hz;
-	EstimateSymbolRate(matched_bd_hz, psk_bd_hz, am_bd_hz);
+	aqua_opt<double> opt_matched_bd_hz, opt_psk_bd_hz, opt_am_bd_hz;
+	aqua_opt<double> opt_carrier_hz;
+	EstimateSymbolRate(opt_matched_bd_hz, opt_psk_bd_hz, opt_am_bd_hz);
 
-	if (matched_bd_hz) {
-		symbol_rate_hz_ = matched_bd_hz.value();
+	if (opt_matched_bd_hz) {
+		symbol_rate_hz_ = opt_matched_bd_hz.value();
 	}
-	else if (psk_bd_hz || am_bd_hz) {
-		symbol_rate_hz_ = std::max(psk_bd_hz.value(), am_bd_hz.value());
+	else if ((opt_psk_bd_hz || opt_am_bd_hz)) {
+		symbol_rate_hz_ = std::max(opt_psk_bd_hz.value(), opt_am_bd_hz.value());
 	}
-	EstimateCarrier(carrier_hz_);
+	EstimateCarrier(opt_carrier_hz);
+	if (opt_carrier_hz) {
+		carrier_hz_ = opt_carrier_hz.value();
+	}
 	EstimateAcf(acf_msec_);
+}
+
+void HarmonicEstimator::Reset()
+{
+	storage_.clear();
+	symbol_rate_hz_ = 0.;
+	carrier_hz_ = 0.;
+	acf_msec_ = 0.;
+	bw_hz_ = 0.;
+	data_carrier_hz_ = 0.;
+	strength_symbol_rate_hz_ = 0;
+	strength_carrier_hz_ = 0;
+
 }
 
 void HarmonicEstimator::EstimateSymbolRate(aqua_opt<double>& matched_bd_hz, aqua_opt<double>& best_psk_hz, aqua_opt<double>& best_env_hz)
 {
 	auto &psk_vec = storage_[analz_chart_type::kPhasorSpectrum]; 
 	auto &env_vec = storage_[analz_chart_type::kEnvelopeSpectrum];
+	
 	//Находим совпадение
 	if(!psk_vec.empty() && !env_vec.empty())
 	{
@@ -47,22 +71,25 @@ void HarmonicEstimator::EstimateSymbolRate(aqua_opt<double>& matched_bd_hz, aqua
 		} //Хорошо бы ещё учитывать силу пика 
 		if (!matched_vec.empty()) {
 			matched_bd_hz = matched_vec.back();
+			strength_symbol_rate_hz_ = 1;
 			return;
 		}
 	}
+	
 	//Ещё можно исходить из символьной от спектра степени
-
-
+	
 	//Крайние варианты
-	if (!psk_vec.empty()) {
-		best_psk_hz = psk_vec.back();
-	}
-	if (!env_vec.empty()) {
-		best_env_hz = env_vec.back();
+	if (strength_symbol_rate_hz_ < 1) {
+		if (!psk_vec.empty()) {
+			best_psk_hz = psk_vec.back();
+		}
+		if (!env_vec.empty()) {
+			best_env_hz = env_vec.back();
+		}
 	}
 }
 
-void HarmonicEstimator::EstimateCarrier(double& mid_fc_hz)
+void HarmonicEstimator::EstimateCarrier(aqua_opt<double>& mid_fc_hz)
 {
 	bool is_centered = false;
 	auto& cur_storage = storage_[analz_chart_type::kPowerSpectrum];
@@ -76,6 +103,7 @@ void HarmonicEstimator::EstimateCarrier(double& mid_fc_hz)
 			if (std::abs(left_side - right_side) < 0.01 * bw_hz_) {
 				is_centered = true;
 				mid_fc_hz = cur_storage[mid_idx];
+				strength_carrier_hz_ = 1;
 				return;
 			}
 		}
@@ -83,19 +111,20 @@ void HarmonicEstimator::EstimateCarrier(double& mid_fc_hz)
 	//Есть ещё вариант, если заключена символьная...
 
 	//Находим ближайшую к центру
-	double closest_hz = 0;
-	{
-		auto min_delta = DBL_MAX;
-		for (auto& it : cur_storage) {
-			auto cur_delta = std::abs(it - data_carrier_hz_);
-			if (cur_delta < min_delta) {
-				min_delta = cur_delta;
-				closest_hz = it;
+	if (strength_carrier_hz_ < 1) {
+		double closest_hz = 0;
+		{
+			auto min_delta = DBL_MAX;
+			for (auto& it : cur_storage) {
+				auto cur_delta = std::abs(it - data_carrier_hz_);
+				if (cur_delta < min_delta) {
+					min_delta = cur_delta;
+					closest_hz = it;
+				}
 			}
 		}
+		mid_fc_hz = closest_hz;
 	}
-	mid_fc_hz = closest_hz;
-
 }
 
 void HarmonicEstimator::EstimateAcf(double& acf_msec)

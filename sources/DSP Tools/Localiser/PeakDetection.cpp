@@ -122,8 +122,9 @@ PeakDetector::PeakDetector()
 
 void PeakDetector::Init(kDpxChartType data_type, int n_fft, double sample_rate_hz, double carrier_hz)
 {
+
+
 	max_peaks_count_ = 5;
-	n_fft_ = n_fft;
 	data_type_ = data_type;
 	sample_rate_hz_ = sample_rate_hz;
 	carrier_hz_ = carrier_hz;
@@ -135,21 +136,21 @@ void PeakDetector::Init(kDpxChartType data_type, int n_fft, double sample_rate_h
 
 
 	case kDpxChartType::kACF:
-		estim_params.zero_shift = std::max<int>(n_fft_/100, 2);
-		estim_params.norm_ratio = 1000. / sample_rate_hz;
+		estim_params_.zero_shift = std::max<int>(n_fft_/100, 2);
+		estim_params_.norm_ratio = 1000. / sample_rate_hz;
 		break;
 	case kDpxChartType::kHarmonic:
 		break;
 	case kDpxChartType::kPower4x:
-		estim_params.result_delta = carrier_hz;
-		estim_params.norm_ratio = sample_rate_hz / n_fft_;
-		estim_params.delta_before_ratio = n_fft_ / 2;
+		estim_params_.add_after_norm = carrier_hz;
+		estim_params_.norm_ratio = sample_rate_hz / n_fft_;
+		estim_params_.add_before_norm = -1 * n_fft_ / 2;
 		break;
 	case kDpxChartType::kEnvelope:
 	case kDpxChartType::kPhasor:
-		estim_params.norm_ratio = sample_rate_hz / n_fft_;
+		estim_params_.norm_ratio = sample_rate_hz / n_fft_ ;
+		break;
 	}
-	Reset();
 }
 
 void PeakDetector::Reset()
@@ -201,11 +202,12 @@ std::vector<float> PeakDetector::CalculatePeak() const
 {
 	if (!valid_ || n_fft_ < 3 || sample_rate_hz_ <= 0.0)
 		return {};
-
-	std::vector<size_t> peaks = FindPeaksToAvg( max_hold_.data(), n_fft_, 1, kCheckAreaRatio, kMinDistRatio, kPeakThresholdDb);
+	auto zero_shift = estim_params_.zero_shift;
+	std::vector<size_t> peaks = FindPeaksToAvg( max_hold_.data() + zero_shift, n_fft_ - zero_shift, 1, kCheckAreaRatio, kMinDistRatio, kPeakThresholdDb);
 	std::vector<float> float_peaks(peaks.size());
 	for (int peak_counter = 0; peak_counter < peaks.size(); peak_counter++) {
-		float_peaks[peak_counter] = peaks[peak_counter];
+		
+		float_peaks[peak_counter] = (peaks[peak_counter] + estim_params_.zero_shift + estim_params_.add_before_norm) * estim_params_.norm_ratio + estim_params_.add_after_norm;
 	}
 
 	return float_peaks;

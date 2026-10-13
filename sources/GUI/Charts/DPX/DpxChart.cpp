@@ -6,8 +6,8 @@ ChartDPX::ChartDPX(QWidget * parrent, ChartDomainType domain, std::shared_ptr<Se
     Limits<double> random_bounds = {0, 100};
     SetHorizontalMinMaxBounds(random_bounds);
     SetHorizontalSuffix("counts");
-
     SetVerticalSuffix("power");
+	setMinimumHeight(50);
 }
 
 ChartDPX::~ChartDPX()

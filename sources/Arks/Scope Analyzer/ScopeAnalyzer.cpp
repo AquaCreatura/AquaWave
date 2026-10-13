@@ -166,6 +166,7 @@ void scope_analyzer::ScopeAnalyzer::UpdateHarmonicInfo()
 		}		
 	}
 	{
+		estimator_.Estimate();
 		window_->UpdateHarmonicResult(analz_chart_type::kAcf,				estimator_.GetAcfMsec());
 		window_->UpdateHarmonicResult(analz_chart_type::kPhasorSpectrum,	estimator_.GetSymbolRateHz());
 		window_->UpdateHarmonicResult(analz_chart_type::kEnvelopeSpectrum,	estimator_.GetSymbolRateHz());
@@ -205,6 +206,7 @@ bool ScopeAnalyzer::Restart(Limits<double> freq_bounds_Mhz, Limits<double> time_
 	selection_descr_.carrier_hz = selection_bounds_.mid();
 
 
+
 	{
 		auto req_dove = std::make_shared<file_source::FileSrcDove>();
 		req_dove->special_thought = file_source::FileSrcDove::kInitiate | file_source::FileSrcDove::kAskLoopInRange;
@@ -231,6 +233,11 @@ bool ScopeAnalyzer::Restart(Limits<double> freq_bounds_Mhz, Limits<double> time_
 	}
 	selection_descr_.count_of_samples = time_bounds.delta() * source_info_.descr.count_of_samples *
 											selection_descr_.samplerate_hz / source_info_.descr.samplerate_hz;
+
+
+	estimator_.Reset();
+	estimator_.SetBaseCarrier(selection_descr_.carrier_hz);
+	estimator_.SetBandwidth(selection_descr_.samplerate_hz);
 
 	if (GetFrontArks().empty()) {
 		for (auto chart_iter : charts_)

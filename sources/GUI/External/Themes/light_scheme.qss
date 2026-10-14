@@ -151,54 +151,61 @@ QDoubleSpinBox::down-button:hover {
 
 QComboBox {
     background-color: #FFFFFF;
-    border: 1px solid #E5E5EA;
-    border-radius: 8px;
-    color: #2D2D2D;
+    border: 1px solid #E0E0E0;
+    border-radius: 6px;
     padding: 6px 12px;
+    padding-right: 24px;
+    color: #333333;
     min-height: 20px;
 }
 
 QComboBox:hover {
-    border-color: #D0D0D8;
+    border-color: #BDBDBD;
 }
 
 QComboBox:focus {
-    border-color: #5B8DEF;
+    border-color: #2196F3;
 }
-
+/* Зона стрелки */
 QComboBox::drop-down {
     border: none;
-    width: 24px;
+    width: 0px;
+}
+
+/* Стрелка */
+QComboBox::down-arrow {
+    width: 0px;
+    height: 0px;
+    border-left: 3px solid transparent;
+    border-right: 3px solid transparent;
+    border-top: 4px solid #9E9E9E;
 }
 
 QComboBox::down-arrow {
-    image: none;
-    border-left: 4px solid transparent;
-    border-right: 4px solid transparent;
-    border-top: 5px solid #8E8E93;
-    margin-right: 6px;
+    width: 0px;
+    height: 0px;
+    border-left: 3px solid transparent;
+    border-right: 3px solid transparent;
+    border-top: 4px solid #9E9E9E;
 }
 
 QComboBox QAbstractItemView {
     background-color: #FFFFFF;
-    border: 1px solid #E5E5EA;
-    border-radius: 8px;
-    color: #2D2D2D;
-    selection-background-color: #EBEBF0;
-    selection-color: #2D2D2D;
-    padding: 4px;
+    border: 1px solid #E0E0E0;
+    border-radius: 6px;
+    selection-background-color: #E3F2FD;
+    selection-color: #333333;
     outline: none;
 }
 
 QComboBox QAbstractItemView::item {
     padding: 6px 10px;
-    border-radius: 6px;
+    min-height: 24px;
 }
 
 QComboBox QAbstractItemView::item:hover {
-    background-color: #EBEBF0;
+    background-color: #BBDEFB;
 }
-
 
 /* ========================  CHECKBOX / RADIO  ======================== */
 
@@ -240,8 +247,8 @@ QCheckBox::indicator:checked {
 }
 
 QRadioButton::indicator:checked {
-    background-color: #FFFFFF;
-    border: 5px solid #5B8DEF;
+    background-color: #B4C6E7;
+    border-color: #5B8DEF;
 }
 
 QCheckBox:disabled,

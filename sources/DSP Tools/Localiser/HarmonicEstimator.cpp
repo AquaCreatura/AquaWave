@@ -16,7 +16,7 @@ void HarmonicEstimator::SetBaseCarrier(const double fc_hz)
 	carrier_hz_ = data_carrier_hz_;
 }
 
-void HarmonicEstimator::SetLocalisedPeaks(analz_chart_type type, std::vector<float>& peaks)
+void HarmonicEstimator::SetLocalisedPeaks(analz_chart_type type, std::vector<double>& peaks)
 {
 	storage_[type] = peaks;
 }
@@ -137,16 +137,16 @@ void HarmonicEstimator::EstimateAcf(double& acf_msec)
 		acf_msec = cur_storage.front();
 	}
 
-	size_t best_fund = 0;
+	double best_fund = 0;
 	size_t best_support = 0;
 
 	int max_harmonic = 8; 
 	double tolerance_ratio = 0.01;
 
-	for (size_t candidate : cur_storage)
+	for (float candidate : cur_storage)
 	{
 		size_t support = 1;
-		for (size_t other : cur_storage)
+		for (float other : cur_storage)
 		{
 			if (other == candidate)
 				continue;
@@ -171,17 +171,17 @@ void HarmonicEstimator::EstimateAcf(double& acf_msec)
 	return;	
 }
 
-bool HarmonicEstimator::IsHarmonicOf(size_t p, size_t f, double tolerance, int max_harmonic)
+bool HarmonicEstimator::IsHarmonicOf(float value, float pivot, double tolerance, int max_harmonic)
 {
-	if (f == 0 || p == 0)
+	if (pivot == 0 || value == 0)
 		return false;
 
-	double ratio = static_cast<double>(p) / static_cast<double>(f);
+	double ratio = static_cast<double>(value) / static_cast<double>(pivot);
 	int nearest = static_cast<int>(std::round(ratio));
 	if (nearest < 1 || nearest > max_harmonic)
 		return false;
 
-	double expected = nearest * f;
-	double error = std::abs(static_cast<double>(p) - expected) / static_cast<double>(p);
+	double expected = nearest * pivot;
+	double error = std::abs(static_cast<double>(value) - expected) / static_cast<double>(value);
 	return error <= tolerance;
 }

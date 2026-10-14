@@ -1,5 +1,6 @@
 #include "DpxChart.h"
 #include "GUI/Tools/gui_worker.h"
+#include <qjsonarray.h>
 ChartDPX::ChartDPX(QWidget * parrent, ChartDomainType domain, std::shared_ptr<SelectionHolder> selection_holder):
     ChartInterface(parrent, selection_holder, domain), tiler_(scale_info_)
 {
@@ -7,7 +8,7 @@ ChartDPX::ChartDPX(QWidget * parrent, ChartDomainType domain, std::shared_ptr<Se
     SetHorizontalMinMaxBounds(random_bounds);
     SetHorizontalSuffix("counts");
     SetVerticalSuffix("power");
-	setMinimumHeight(50);
+	//setMinimumHeight(50);
 }
 
 ChartDPX::~ChartDPX()

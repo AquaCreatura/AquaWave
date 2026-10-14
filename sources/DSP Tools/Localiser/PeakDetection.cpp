@@ -115,28 +115,26 @@ namespace
 PeakDetector::PeakDetector()
 	: data_type_(kDpxChartType::kHarmonic),
 	sample_rate_hz_(1.0),
-	count_of_samples_(0),
+	n_fft_(0),
 	valid_(false)
 {
 }
 
 void PeakDetector::Init(kDpxChartType data_type, int n_fft, double sample_rate_hz, double carrier_hz)
 {
-
-
+	Reset();
 	max_peaks_count_ = 5;
 	data_type_ = data_type;
 	sample_rate_hz_ = sample_rate_hz;
 	carrier_hz_ = carrier_hz;
+	max_hold_.assign(n_fft, -std::numeric_limits<Ipp32f>::infinity());
+	n_fft_ = n_fft;
 
 	switch (data_type_)
 	{
 
-
-
-
 	case kDpxChartType::kACF:
-		estim_params_.zero_shift = std::max<int>(n_fft_/100, 2);
+		estim_params_.zero_shift = std::max<int>(n_fft_ /100, 2);
 		estim_params_.norm_ratio = 1000. / sample_rate_hz;
 		break;
 	case kDpxChartType::kHarmonic:
@@ -144,7 +142,7 @@ void PeakDetector::Init(kDpxChartType data_type, int n_fft, double sample_rate_h
 	case kDpxChartType::kPower4x:
 		estim_params_.add_after_norm = carrier_hz;
 		estim_params_.norm_ratio = sample_rate_hz / n_fft_;
-		estim_params_.add_before_norm = -1 * n_fft_ / 2;
+		estim_params_.add_before_norm = -1. * n_fft_;
 		break;
 	case kDpxChartType::kEnvelope:
 	case kDpxChartType::kPhasor:
@@ -156,8 +154,7 @@ void PeakDetector::Init(kDpxChartType data_type, int n_fft, double sample_rate_h
 void PeakDetector::Reset()
 {
 	max_hold_.clear();
-	n_fft_ = -1;
-	count_of_samples_ = 0;
+	n_fft_ = 0;
 	valid_ = false;
 }
 
@@ -170,12 +167,10 @@ void PeakDetector::Process(const Ipp32f* data, size_t count_of_samples)
 	}
 
 	// Если изменился размер, полностью сбрасываем состояние
-	if (count_of_samples_ != 0 && count_of_samples_ != count_of_samples)
+	if (n_fft_ != 0 && n_fft_ != count_of_samples)
 	{
-		Reset();
+		Init(data_type_, n_fft_, sample_rate_hz_, carrier_hz_);
 	}
-
-	count_of_samples_ = count_of_samples;
 
 	UpdateMaxHold(data, count_of_samples);
 
@@ -185,8 +180,8 @@ void PeakDetector::Process(const Ipp32f* data, size_t count_of_samples)
 void PeakDetector::UpdateMaxHold(const Ipp32f* data, size_t count_of_samples)
 {
 	if (n_fft_ != count_of_samples) {
-		max_hold_.assign(count_of_samples, -std::numeric_limits<Ipp32f>::infinity());
-		n_fft_ = count_of_samples;
+		return;
+		
 	}
 
 	for (size_t i = 0; i < count_of_samples; ++i)
@@ -198,19 +193,19 @@ void PeakDetector::UpdateMaxHold(const Ipp32f* data, size_t count_of_samples)
 	}
 }
 
-std::vector<float> PeakDetector::CalculatePeak() const
+std::vector<double> PeakDetector::CalculatePeak() const
 {
 	if (!valid_ || n_fft_ < 3 || sample_rate_hz_ <= 0.0)
 		return {};
 	auto zero_shift = estim_params_.zero_shift;
 	std::vector<size_t> peaks = FindPeaksToAvg( max_hold_.data() + zero_shift, n_fft_ - zero_shift, 1, kCheckAreaRatio, kMinDistRatio, kPeakThresholdDb);
-	std::vector<float> float_peaks(peaks.size());
+	std::vector<double> double_peaks(peaks.size());
 	for (int peak_counter = 0; peak_counter < peaks.size(); peak_counter++) {
 		
-		float_peaks[peak_counter] = (peaks[peak_counter] + estim_params_.zero_shift + estim_params_.add_before_norm) * estim_params_.norm_ratio + estim_params_.add_after_norm;
+		double_peaks[peak_counter] = (peaks[peak_counter] + estim_params_.zero_shift + estim_params_.add_before_norm) * estim_params_.norm_ratio + estim_params_.add_after_norm;
 	}
 
-	return float_peaks;
+	return double_peaks;
 }
 
 

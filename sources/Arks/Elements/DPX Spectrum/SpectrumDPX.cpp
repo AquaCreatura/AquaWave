@@ -197,8 +197,8 @@ void dpx_core::SpectrumDpx::UpdateAxisBounds()
 
 	Limits<double> bounds_x{};
 	std::string suffix;
-	double divider = 1.0;
-
+	double show_divider = 1.0;
+	int out_size_divider = 1;
 	switch (chart_type_)
 	{
 	case dpx_core::kDpxChartType::kACF:
@@ -214,8 +214,9 @@ void dpx_core::SpectrumDpx::UpdateAxisBounds()
 	{
 		double max_freq_hz = SR / 2.0;
 		bounds_x = { 0.0, max_freq_hz };
-		divider = 1e3;
+		show_divider = 1e3;
 		suffix = "kHz";
+		out_size_divider = 2;
 		break;
 	}
 
@@ -223,7 +224,7 @@ void dpx_core::SpectrumDpx::UpdateAxisBounds()
 	{
 		double half_band_hz = (SR / 4.0) / 2;
 		bounds_x = { Fc-half_band_hz, Fc + half_band_hz };
-		divider = 1e3;
+		show_divider = 1e3;
 		suffix = "kHz";
 		break;
 	}
@@ -231,14 +232,17 @@ void dpx_core::SpectrumDpx::UpdateAxisBounds()
 	default:
 	{
 		bounds_x = { Fc - SR / 2.0, Fc + SR / 2.0 };
-		divider = 1e6;
+		show_divider = 1e6;
 		suffix = "MHz";
 		break;
 	}
 	}
-	const auto chart_sr = chart_type_ == dpx_core::kDpxChartType::kACF ? SR : bounds_x.delta();
-	detector_.Init(chart_type_, n_fft_, chart_sr, Fc);
-	freq_divider_ = divider;
+	const auto chart_sr = (chart_type_ == dpx_core::kDpxChartType::kACF) ? SR : bounds_x.delta();
+
+	detector_.Init(chart_type_, n_fft_ / out_size_divider, chart_sr, Fc);
+
+
+	freq_divider_ = show_divider;
 	bounds_x = bounds_x / freq_divider_;
 	dpx_drawer_->SetHorizontalMinMaxBounds(bounds_x);
 	dpx_drawer_->SetHorizontalSuffix(suffix.c_str());

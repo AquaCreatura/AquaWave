@@ -27,16 +27,11 @@ ScopeAnalyzer::ScopeAnalyzer()
 		charts_[analz_chart_type::kConstellation] = std::make_shared<constel::Constellation>();
 		charts_[analz_chart_type::kConstellation].need_resampler = false;
 
-		charts_[analz_chart_type::kBandwidth]		 = std::make_shared<dpx_core::SpectrumDpx>(dpx_core::kDpxChartType::kFFT);
-
-		
-
-
 		charts_[analz_chart_type::kPhasorSpectrum]	= std::make_shared<dpx_core::SpectrumDpx>(dpx_core::kDpxChartType::kPhasor);
 		charts_[analz_chart_type::kEnvelopeSpectrum]	= std::make_shared<dpx_core::SpectrumDpx>(dpx_core::kDpxChartType::kEnvelope);
 		charts_[analz_chart_type::kPowerSpectrum]		= std::make_shared<dpx_core::SpectrumDpx>(dpx_core::kDpxChartType::kPower4x);
 		
-		for (auto chart_type : { analz_chart_type::kAcf, analz_chart_type::kPowerSpectrum , analz_chart_type::kPhasorSpectrum, analz_chart_type::kBandwidth, analz_chart_type::kEnvelopeSpectrum, analz_chart_type::kConstellation }) {
+		for (auto chart_type : { analz_chart_type::kAcf, analz_chart_type::kPowerSpectrum , analz_chart_type::kPhasorSpectrum, analz_chart_type::kEnvelopeSpectrum, analz_chart_type::kConstellation }) {
 			auto chart_window = ShipBuilder::GetWindow(charts_[chart_type]);
 			window_->AddChartWindow(chart_window, chart_type);
 		}

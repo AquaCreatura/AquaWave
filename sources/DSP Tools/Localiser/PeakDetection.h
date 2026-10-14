@@ -33,7 +33,7 @@ namespace peak_detection{
 		//   - kPower4x: частота центра симметрии в герцах
 		//   - kEnvelope, kPhasor: символьна€ скорость в герцах
 		// ≈сли данных недостаточно, возвращает NaN.
-		std::vector<float> CalculatePeak() const;
+		std::vector<double> CalculatePeak() const;
 
 		bool IsValid() const { return valid_; }
 
@@ -54,9 +54,8 @@ namespace peak_detection{
 		kDpxChartType data_type_;
 		double sample_rate_hz_;
 		double carrier_hz_;
-		int64_t				n_fft_;
 		std::vector<Ipp32f> max_hold_;  // единый буфер: дл€ ACF Ц последний кадр, дл€ остальных Ц MaxHold с утечкой
-		size_t count_of_samples_;
+		size_t n_fft_;
 		bool valid_;
 		estim_params estim_params_;
 		int max_peaks_count_;

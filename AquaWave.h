@@ -14,7 +14,7 @@ class AquaWave : public QMainWindow
 public:
     explicit AquaWave(QWidget *parent = nullptr, const QString& file_path = QString());
     ~AquaWave() override;
-
+    virtual void resizeEvent(QResizeEvent* event) override;
 private:
     void setupWindowAgent();
 

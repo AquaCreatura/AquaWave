@@ -6,14 +6,17 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>866</width>
-    <height>163</height>
+    <width>544</width>
+    <height>180</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Form</string>
   </property>
   <layout class="QGridLayout" name="gridLayout">
+   <property name="leftMargin">
+    <number>0</number>
+   </property>
    <property name="topMargin">
     <number>0</number>
    </property>
@@ -71,173 +74,9 @@
          <enum>QFrame::Raised</enum>
         </property>
         <layout class="QGridLayout" name="gridLayout_4">
-         <item row="0" column="0">
-          <widget class="QWidget" name="widget" native="true">
-           <layout class="QGridLayout" name="gridLayout_2">
-            <item row="0" column="4">
-             <widget class="QLabel" name="modulation_label">
-              <property name="text">
-               <string>APSK 64</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="4">
-             <widget class="QLabel" name="bandwidth_value_label">
-              <property name="text">
-               <string>250.000 kHz</string>
-              </property>
-             </widget>
-            </item>
-            <item row="2" column="0">
-             <widget class="QRadioButton" name="symbol_rate_am_radio_button">
-              <property name="text">
-               <string>Symbol Rate (AM)</string>
-              </property>
-              <attribute name="buttonGroup">
-               <string notr="true">radio_group_chart_type</string>
-              </attribute>
-             </widget>
-            </item>
-            <item row="2" column="3">
-             <widget class="QRadioButton" name="acf_radio_button">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="focusPolicy">
-               <enum>Qt::StrongFocus</enum>
-              </property>
-              <property name="text">
-               <string>ACF</string>
-              </property>
-              <attribute name="buttonGroup">
-               <string notr="true">radio_group_chart_type</string>
-              </attribute>
-             </widget>
-            </item>
-            <item row="0" column="0">
-             <widget class="QRadioButton" name="carrier_radio_button">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="text">
-               <string>Carrier</string>
-              </property>
-              <attribute name="buttonGroup">
-               <string notr="true">radio_group_chart_type</string>
-              </attribute>
-             </widget>
-            </item>
-            <item row="0" column="3">
-             <widget class="QRadioButton" name="modulation_radio_button">
-              <property name="text">
-               <string>Modulation:</string>
-              </property>
-              <attribute name="buttonGroup">
-               <string notr="true">radio_group_chart_type</string>
-              </attribute>
-             </widget>
-            </item>
-            <item row="0" column="1">
-             <widget class="QLabel" name="carrier_value_label">
-              <property name="text">
-               <string>15.567'123 MHz</string>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="0">
-             <widget class="QRadioButton" name="symbol_rate_psk_radio_button">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="text">
-               <string>Symbol Rate (PSK)</string>
-              </property>
-              <attribute name="buttonGroup">
-               <string notr="true">radio_group_chart_type</string>
-              </attribute>
-             </widget>
-            </item>
-            <item row="2" column="4">
-             <widget class="QLabel" name="acf_value_label">
-              <property name="text">
-               <string>4.674 sec</string>
-              </property>
-             </widget>
-            </item>
-            <item row="0" column="2">
-             <spacer name="horizontalSpacer_3">
-              <property name="orientation">
-               <enum>Qt::Horizontal</enum>
-              </property>
-              <property name="sizeType">
-               <enum>QSizePolicy::Fixed</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>20</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item row="1" column="3">
-             <widget class="QRadioButton" name="bandwidth_radio_button">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-              <property name="focusPolicy">
-               <enum>Qt::StrongFocus</enum>
-              </property>
-              <property name="text">
-               <string>Bandwidth:</string>
-              </property>
-              <attribute name="buttonGroup">
-               <string notr="true">radio_group_chart_type</string>
-              </attribute>
-             </widget>
-            </item>
-            <item row="3" column="1">
-             <spacer name="verticalSpacer">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-              <property name="sizeHint" stdset="0">
-               <size>
-                <width>20</width>
-                <height>40</height>
-               </size>
-              </property>
-             </spacer>
-            </item>
-            <item row="0" column="5" rowspan="4">
-             <widget class="Line" name="line">
-              <property name="orientation">
-               <enum>Qt::Vertical</enum>
-              </property>
-             </widget>
-            </item>
-            <item row="1" column="1" rowspan="2">
-             <widget class="QLabel" name="symbol_rate_label">
-              <property name="text">
-               <string>200.324 kHz</string>
-              </property>
-             </widget>
-            </item>
-           </layout>
-          </widget>
-         </item>
+         <property name="leftMargin">
+          <number>0</number>
+         </property>
          <item row="0" column="1">
           <widget class="QFrame" name="main_chart">
            <property name="sizePolicy">
@@ -279,10 +118,160 @@
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
+              <property name="focusPolicy">
+               <enum>Qt::WheelFocus</enum>
+              </property>
+              <property name="contextMenuPolicy">
+               <enum>Qt::NoContextMenu</enum>
+              </property>
               <property name="currentIndex">
                <number>-1</number>
               </property>
              </widget>
+            </item>
+           </layout>
+          </widget>
+         </item>
+         <item row="0" column="0">
+          <widget class="QWidget" name="widget" native="true">
+           <layout class="QGridLayout" name="gridLayout_2">
+            <property name="leftMargin">
+             <number>0</number>
+            </property>
+            <property name="rightMargin">
+             <number>4</number>
+            </property>
+            <property name="horizontalSpacing">
+             <number>9</number>
+            </property>
+            <item row="2" column="0">
+             <widget class="QRadioButton" name="acf_radio_button">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="focusPolicy">
+               <enum>Qt::StrongFocus</enum>
+              </property>
+              <property name="text">
+               <string>ACF: 4.674 sec</string>
+              </property>
+              <attribute name="buttonGroup">
+               <string notr="true">radio_group_chart_type</string>
+              </attribute>
+             </widget>
+            </item>
+            <item row="0" column="0" colspan="2">
+             <layout class="QGridLayout" name="gridLayout_3">
+              <property name="horizontalSpacing">
+               <number>0</number>
+              </property>
+              <item row="1" column="2">
+               <widget class="QComboBox" name="symbol_rate_combobox">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>63</width>
+                  <height>65536</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QRadioButton" name="symbol_rate_radio_button">
+                <property name="text">
+                 <string>Bd:</string>
+                </property>
+                <attribute name="buttonGroup">
+                 <string notr="true">radio_group_chart_type</string>
+                </attribute>
+               </widget>
+              </item>
+              <item row="0" column="1">
+               <widget class="QLabel" name="carrier_value_label">
+                <property name="cursor">
+                 <cursorShape>ArrowCursor</cursorShape>
+                </property>
+                <property name="frameShape">
+                 <enum>QFrame::WinPanel</enum>
+                </property>
+                <property name="frameShadow">
+                 <enum>QFrame::Raised</enum>
+                </property>
+                <property name="lineWidth">
+                 <number>3</number>
+                </property>
+                <property name="midLineWidth">
+                 <number>2</number>
+                </property>
+                <property name="text">
+                 <string>15.567'123 MHz</string>
+                </property>
+               </widget>
+              </item>
+              <item row="0" column="0">
+               <widget class="QRadioButton" name="carrier_radio_button">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string>Fc:</string>
+                </property>
+                <attribute name="buttonGroup">
+                 <string notr="true">radio_group_chart_type</string>
+                </attribute>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QLabel" name="symbol_rate_label">
+                <property name="cursor">
+                 <cursorShape>ArrowCursor</cursorShape>
+                </property>
+                <property name="frameShape">
+                 <enum>QFrame::WinPanel</enum>
+                </property>
+                <property name="frameShadow">
+                 <enum>QFrame::Raised</enum>
+                </property>
+                <property name="text">
+                 <string>200.324 kHz</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item row="2" column="1">
+             <widget class="QRadioButton" name="modulation_radio_button">
+              <property name="text">
+               <string>APSK 64</string>
+              </property>
+              <attribute name="buttonGroup">
+               <string notr="true">radio_group_chart_type</string>
+              </attribute>
+             </widget>
+            </item>
+            <item row="3" column="0">
+             <spacer name="verticalSpacer">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
             </item>
            </layout>
           </widget>

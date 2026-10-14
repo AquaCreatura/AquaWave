@@ -5,7 +5,7 @@
 #include "Utilities/qt_utility.h"
 #include "GUI/External/Window/QMainMenuHelper.h"
 #include "GUI/External/Window/QWindowKitHelper.h"
-
+#include <qtabbar.h>
 AquaWave::AquaWave(QWidget *parent, const QString& file_path)
     : QMainWindow(parent)
 {
@@ -58,7 +58,7 @@ AquaWave::AquaWave(QWidget *parent, const QString& file_path)
             ":/buttons/button_images/analyze_icon.png"
         },
     };
-
+    pages_.resize(1);
     for (auto& p : pages_) {
         QIcon icon = buildButtonIcon(p.iconPath, p.iconPath, p.iconPath, p.iconPath, p.iconPath);
         ui.main_tab_widget->addTab(p.widget, icon, p.title);
@@ -84,6 +84,19 @@ AquaWave::AquaWave(QWidget *parent, const QString& file_path)
 }
 
 AquaWave::~AquaWave() = default;
+
+void AquaWave::resizeEvent(QResizeEvent * event)
+{
+    ui.main_tab_widget->tabBar()->setVisible(height() > 350);
+    //if (need_hide_tab) {
+    //    ui.main_tab_widget->tabBar()->hide();
+    //}
+    //else {
+    //    ui.main_tab_widget->tabBar()->show();
+    //}
+    
+    
+}
 
 void AquaWave::setupWindowAgent()
 {

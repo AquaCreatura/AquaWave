@@ -6,11 +6,15 @@ using namespace analyzer;
 ScopeAnalyzerWindow::ScopeAnalyzerWindow()
 {
     ui_.setupUi(this);
+	ui_.symbol_rate_combobox->addItem("PSK", int(analz_chart_type::kPhasorSpectrum));
+	ui_.symbol_rate_combobox->addItem("ENV", int(analz_chart_type::kEnvelopeSpectrum));
+	connect(ui_.symbol_rate_combobox, QOverload<int>::of(&QComboBox::currentIndexChanged), [this]() {
+		ActivateWindow(analz_chart_type(ui_.symbol_rate_combobox->currentData().toInt()));
+	});
 
 	ui_.radio_group_chart_type->setId(ui_.carrier_radio_button		  , (int)analz_chart_type::kPowerSpectrum	);
-	ui_.radio_group_chart_type->setId(ui_.symbol_rate_psk_radio_button, (int)analz_chart_type::kPhasorSpectrum	);
-	ui_.radio_group_chart_type->setId(ui_.symbol_rate_am_radio_button , (int)analz_chart_type::kEnvelopeSpectrum	);
-	ui_.radio_group_chart_type->setId(ui_.bandwidth_radio_button	  , (int)analz_chart_type::kBandwidth		);
+	ui_.radio_group_chart_type->setId(ui_.symbol_rate_radio_button, (int)analz_chart_type::kSymbolRateGeneral);
+	//ui_.radio_group_chart_type->setId(ui_.symbol_rate_am_radio_button , (int)analz_chart_type::kEnvelopeSpectrum	);
 	ui_.radio_group_chart_type->setId(ui_.acf_radio_button			  , (int)analz_chart_type::kAcf				);
 	ui_.radio_group_chart_type->setId(ui_.modulation_radio_button	  , (int)analz_chart_type::kConstellation	);
 
@@ -54,26 +58,34 @@ void ScopeAnalyzerWindow::AddChartWindow(QWidget * widget_ptr, analz_chart_type 
 
 }
 
-void ScopeAnalyzerWindow::ActivateWindow(analz_chart_type type_of_chart)
+void ScopeAnalyzerWindow::ActivateWindow(analz_chart_type passed_chart_type)
 {
 	if (auto casted = dynamic_cast<ChartInterface*>(charts_[cur_chart_type_]))
 		casted->ActivateChart(false);
 
-	if (charts_.count(type_of_chart) == 0) return;
+	if (passed_chart_type == analz_chart_type::kSymbolRateGeneral)
+		passed_chart_type = analz_chart_type(ui_.symbol_rate_combobox->currentData().toInt());
+
+
+	if (charts_.count(passed_chart_type) == 0) return;
 	//Выставляем нажатие
 	{
-		QAbstractButton* button = ui_.radio_group_chart_type->button((int)type_of_chart);
+		analz_chart_type radio_box_type = passed_chart_type;
+		if (passed_chart_type == analz_chart_type::kPhasorSpectrum || passed_chart_type == analz_chart_type::kEnvelopeSpectrum)
+			radio_box_type = analz_chart_type::kSymbolRateGeneral;
+
+		QAbstractButton* button = ui_.radio_group_chart_type->button((int)radio_box_type);
 		button->blockSignals(true);
 		button->setChecked(true);
 		button->blockSignals(false);	
 	}
-	ui_.harmonic_chart_stacked->setCurrentWidget(charts_[type_of_chart]);
+	ui_.harmonic_chart_stacked->setCurrentWidget(charts_[passed_chart_type]);
 
-	if (auto casted = dynamic_cast<ChartInterface*>(charts_[type_of_chart])) {
+	if (auto casted = dynamic_cast<ChartInterface*>(charts_[passed_chart_type])) {
 		casted->ActivateChart(true);
 		casted->SetControlButtons(ui_.ctrl_buttons_frame);
 	}
-	cur_chart_type_ = type_of_chart;
+	cur_chart_type_ = passed_chart_type;
 }
 
 analz_chart_type scope_analyzer::ScopeAnalyzerWindow::GetCurrentChart()
@@ -105,13 +117,10 @@ void scope_analyzer::ScopeAnalyzerWindow::UpdateHarmonicResult(analz_chart_type 
 		label = ui_.symbol_rate_label; divider = 1e3; suffix = " kHz"; precision = 3; break;
 
 	case analz_chart_type::kAcf:
-		label = ui_.acf_value_label; suffix = " ms"; precision = 3; break;
-
-	case analz_chart_type::kBandwidth:
-		label = ui_.bandwidth_value_label; divider = 1e3; suffix = " kHz"; precision = 3; break;
-
+		ui_.acf_radio_button->setText(tr("ACF: %1ms").arg(value,0, 'f',3));
+		return;
 	case analz_chart_type::kConstellation:
-		ui_.modulation_label->setText(modulation);
+		ui_.modulation_radio_button->setText(modulation);
 		return;
 
 	default:

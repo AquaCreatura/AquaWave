@@ -18,7 +18,8 @@ namespace analyzer
 
 		kBandwidth = 16, //Ўирина полосы
 
-		kConstellation = 32
+		kConstellation = 32,
+		kSymbolRateGeneral = 1<<6,
 	};
 
 
@@ -37,10 +38,10 @@ namespace analyzer
         };
 		aqua::Limits<double> freq_bounds_hz; //In "Hz
 		aqua::Limits<double> file_bounds_ratio; //[0; 1]
-		aqua_opt<std::vector<float>> peaks;
-		aqua_opt<std::string>	text_result;
-		aqua_opt<double>		carrier_hz;
-		aqua_opt<double>		symbol_rate_hz;
+		aqua_opt<std::vector<double>>	peaks;
+		aqua_opt<std::string>			text_result;
+		aqua_opt<double>				carrier_hz;
+		aqua_opt<double>				symbol_rate_hz;
     };
 
 }

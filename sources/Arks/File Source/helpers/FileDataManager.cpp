@@ -83,16 +83,21 @@ void file_source::FileDataListener::SetBaseParams(InitParams &setup)
 	resampler_.SetBaseParams(file_params_.carrier_hz, file_params_.samplerate_hz);
 	resampler_.SetTargetParams(setup.carrier_hz, setup.samplerate_hz, setup.banwidth_hz);
 	resample_ratio_ = setup.samplerate_hz / double(file_params_.samplerate_hz);
-    block_size_ = setup.chunk_size;                     // Сохранение размера блока
-	const double supposed_size = 8. / resample_ratio_;
-	read_block_size_ = std::max<int>(1 << std::lround(log2(supposed_size)), block_size_);
+	SetChunkSize(setup.chunk_size);
+	
 }
 
 void file_source::FileDataListener::SetChunkSize(const int chunk_size)
 {
-	block_size_ = chunk_size;
-	const double supposed_size = 8. / resample_ratio_;
-	read_block_size_ = std::max<int>(1 << std::lround(log2(supposed_size)), block_size_);
+	send_block_size_ = chunk_size;
+	if (resample_ratio_ < 1.) {
+		const double supposed_size = send_block_size_ / resample_ratio_;
+		int power2_read_size = std::min<int>(30, (std::floor(log2(supposed_size) + 1)));
+		read_block_size_ = qBound<int64_t>(send_block_size_, 1 << power2_read_size, 1 << 30);
+	}
+	else {
+		read_block_size_ = send_block_size_;
+	}
 }
 
 // Остановка текущего асинхронного процесса
@@ -124,7 +129,7 @@ bool file_source::FileDataListener::StartSingleAround(const double pos_ratio)
                                 &FileDataListener::ReadAroundProcess, 
                                 this, 
                                 pos_ratio, 
-                                block_size_);
+                                send_block_size_);
 
 
     return true;
@@ -165,7 +170,7 @@ const file_source::FileDataListener::ListenerState file_source::FileDataListener
 
 void file_source::FileDataListener::ReadChunksInRangeProcess(const Limits<double>& time_bounds)
 {
-	const auto chunk_size = block_size_;
+	const auto chunk_size = send_block_size_;
 	const auto read_chunk_size  = read_block_size_;
 	StreamReader reader;
 	if (!reader.SetFileParams(file_params_))  // Настройка файлового читателя
@@ -223,7 +228,7 @@ void file_source::FileDataListener::ReadChunksInRangeProcess(const Limits<double
 void file_source::FileDataListener::LoopReadInRangeProcess(const Limits<double>& time_bounds)
 {
 	// Проверка на пустой диапазон
-	if (time_bounds.delta() <= 0 || (block_size_ < 0))
+	if (time_bounds.delta() <= 0 || (send_block_size_ < 0))
 	{
 		state_ = kProcessStopped;
 		return;
@@ -241,23 +246,23 @@ void file_source::FileDataListener::LoopReadInRangeProcess(const Limits<double>&
 		file_params_.samplerate_hz *
 		data_info_.freq_info_.samplerate_hz;
 	
-	auto chunk_size = block_size_;	
+	auto send_chunk_size = send_block_size_;	
 	auto read_chunk_size = read_block_size_;
 	reader.InitStartEndRatio(time_bounds);
 	std::vector<Ipp32fc> casted_vec(read_chunk_size);
-	std::vector<Ipp32fc> chunk_to_send(chunk_size);
+	std::vector<Ipp32fc> chunk_to_send(send_chunk_size);
 	std::vector<uint8_t> read_data;
 	size_t chunk_pos = 0;               // текущая позиция в выходном чанке
 	int64_t samples_processed = 0;      // общее число обработанных выходных отсчётов
 
 	while (state_ != kNeedStop)
 	{
-		if (block_size_ != chunk_size) {
-			chunk_size = block_size_;
+		if (send_block_size_ != send_chunk_size) {
+			send_chunk_size = send_block_size_;
 			read_chunk_size = read_block_size_;
 
 			casted_vec.resize(read_chunk_size);
-			chunk_to_send.resize(chunk_size);
+			chunk_to_send.resize(send_chunk_size);
 
 			chunk_pos = 0;               // текущая позиция в выходном чанке
 			samples_processed = 0;      // общее число обработанных выходных отсчётов
@@ -265,12 +270,12 @@ void file_source::FileDataListener::LoopReadInRangeProcess(const Limits<double>&
 			reader.InitStartEndRatio(time_bounds);
 		}
 		// Пытаемся прочитать очередной блок из файла
-		if (!reader.ReadStream(read_data, chunk_size))
+		if (!reader.ReadStream(read_data, read_chunk_size))
 		{
 			// Достигнут конец диапазона — переинициализируем читатель для нового прохода
 			reader.InitStartEndRatio(time_bounds);
 			// Пробуем прочитать снова; если опять неудача — фатальная ошибка
-			if (!reader.ReadStream(read_data, chunk_size))
+			if (!reader.ReadStream(read_data, read_chunk_size))
 			{
 				state_ = kProcessStopped;
 				return;
@@ -299,7 +304,7 @@ void file_source::FileDataListener::LoopReadInRangeProcess(const Limits<double>&
 		size_t processed_idx = 0;
 		while (processed_idx < processed_data.size())
 		{
-			size_t remaining = chunk_size - chunk_pos;
+			size_t remaining = send_chunk_size - chunk_pos;
 			size_t to_copy = std::min(remaining, processed_data.size() - processed_idx);
 
 			ippsCopy_32fc(processed_data.data() + processed_idx,
@@ -311,16 +316,16 @@ void file_source::FileDataListener::LoopReadInRangeProcess(const Limits<double>&
 			samples_processed += to_copy;
 
 			// Если выходной чанк заполнен — отправляем
-			if (chunk_pos == chunk_size)
+			if (chunk_pos == send_chunk_size)
 			{
 				// Вычисляем временную метку для отправляемого блока
-				data_info_.time_point = (samples_processed - chunk_size / 2) / supposed_samples;
+				data_info_.time_point = (samples_processed - send_chunk_size / 2) / supposed_samples;
 
 				data_info_.data_vec.swap((std::vector<uint8_t>&)(chunk_to_send));
 				SendPreparedData();
 
 				// Подготавливаем новый чанк
-				chunk_to_send.resize(chunk_size);
+				chunk_to_send.resize(send_chunk_size);
 				chunk_pos = 0;
 			}
 		}
@@ -333,7 +338,7 @@ void file_source::FileDataListener::LoopReadInRangeProcess(const Limits<double>&
 void file_source::FileDataListener::ReadAroundProcess(double pos_ratio, const int64_t chunk_size)
 {
 
-    if(!file_reader_.SetFileParams(file_params_) || (chunk_size <= 0))  // Настройка файлового читателя
+    if(!file_reader_.SetFileParams(file_params_) || (chunk_size <= 0) || pos_ratio > 1. || pos_ratio < 0.)  // Настройка файлового читателя
     {
 		state_ = kProcessStopped;  // Ошибка чтения
         return;
@@ -371,10 +376,10 @@ void file_source::FileDataListener::LoopReadPointsProcess()
 		state_ = kProcessStopped;  // Ошибка чтения
 		return;
 	}
-	int chunk_size = block_size_;
+	int chunk_size = send_block_size_;
 	while (state_ != kNeedStop)
 	{
-		chunk_size = block_size_;
+		chunk_size = send_block_size_;
 		if (chunk_size < 0)
 			break;
 		double pos_ratio = 0.;

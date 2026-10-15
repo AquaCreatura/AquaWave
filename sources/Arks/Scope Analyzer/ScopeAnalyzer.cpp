@@ -51,6 +51,25 @@ ScopeAnalyzer::~ScopeAnalyzer()
 
 bool ScopeAnalyzer::SendData(aqua::DataInfo const & passed_unit)
 {
+	if (!info_timer_.isActive())
+		return false;
+
+	{
+		static auto last_time = std::chrono::steady_clock::now();
+		static int call_count = 0;
+
+		call_count++;
+
+		auto now = std::chrono::steady_clock::now();
+		auto elapsed = std::chrono::duration_cast<std::chrono::seconds>(now - last_time).count();
+
+		if (elapsed >= 1) {
+			qDebug() << "SendData calls per second:" << call_count << "\n";
+			call_count = 0;
+			last_time = now;
+		}
+
+	}
 	int cur_block_size = n_fft_;
 	if (passed_unit.data_vec.size() != cur_block_size * sizeof(Ipp32fc))
 		return false;

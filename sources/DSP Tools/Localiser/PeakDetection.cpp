@@ -19,7 +19,7 @@ std::vector<size_t> peak_detection::FindPeaksToAvg(const Ipp32f * data, size_t c
 	};
 
 	std::vector<Peak> peaks;
-	peaks.reserve(count_of_samples / 4);
+	peaks.reserve(16);
 
 	// »щем локальные максимумы.
 	for (size_t i = 1; i + 1 < count_of_samples; ++i)
@@ -51,8 +51,6 @@ std::vector<size_t> peak_detection::FindPeaksToAvg(const Ipp32f * data, size_t c
 		else if (right_count > 0)
 			average = right_mean;
 
-		if (average <= 0.0)
-			continue;
 
 		const double quality = double(data[i]) - average;
 

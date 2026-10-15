@@ -71,7 +71,10 @@ void HarmonicEstimator::EstimateSymbolRate(aqua_opt<double>& matched_bd_hz, aqua
 		} //Хорошо бы ещё учитывать силу пика 
 		if (!matched_vec.empty()) {
 			matched_bd_hz = matched_vec.back();
-			strength_symbol_rate_hz_ = 1;
+			if (std::abs(symbol_rate_hz_ - matched_bd_hz) < 0.001 * bw_hz_) {
+				strength_symbol_rate_hz_ = 1;
+			}
+			
 			return;
 		}
 	}

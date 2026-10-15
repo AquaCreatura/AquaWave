@@ -52,45 +52,57 @@ void TileDPX::UpdateFromTile(const TileInterface* passed_data)
 	ApplyDecay();
 	// 2. Коэффициент масштабирования при переходе между уровнями детализации
 	double hor_ratio = passed_data->val_bounds_.hor.delta() / val_bounds_.hor.delta();
-	const bool is_relevant = (hor_ratio <= 1.0);   // для возможного использования в будущем
 
-												   // Размер «окна» для нормировки (можно взять из casted_past->data_speedometer_)
-	const size_t trans_column_size = 500'000; // 
+
+												   
+	const size_t trans_column_size = 2000; // 
 
 	int64_t new_max_trans_density = 0;
 
-	for (size_t x_idx = 0; x_idx < data_size_.hor; ++x_idx) {
+	for (size_t x_idx_base = 0; x_idx_base < data_size_.hor; ++x_idx_base) {
 		// Заполняем только те колонки, которые полностью пусты (вес == 0)
-		if (column_weight_vec_[x_idx] != 0) continue;
-		if (casted_past->column_weight_vec_[x_idx] == 0) continue;
+		if (column_weight_vec_[x_idx_base] != 0)
+		{
+			double norm_koeff = double(trans_column_size) / std::max(column_weight_vec_[x_idx_base], trans_column_size);
+			if (norm_koeff > 0.9 && norm_koeff < 1.1)
+				continue;
+			size_t new_summ = 0;
+			for (size_t y = 0; y < data_size_.vert; ++y) {
+				data_[y * data_size_.hor + x_idx_base] *= norm_koeff;
+				new_summ += data_[y * data_size_.hor + x_idx_base];
+			}
+			column_weight_vec_[x_idx_base] = new_summ;
+		}
 
 		// Мировое значение X для текущего пикселя
-		double src_val_x = val_bounds_.hor.lerp((x_idx + 0.5) / data_size_.hor);
-		if (!casted_past->val_bounds_.hor.has_inside(src_val_x)) continue;
+		double world_x = val_bounds_.hor.lerp((x_idx_base + 0.5) / data_size_.hor);
+		if (!casted_past->val_bounds_.hor.has_inside(world_x)) continue;
 
 		// Индекс в буфере вышестоящего тайла
-		size_t sx = static_cast<size_t>(std::round(casted_past->val_bounds_.hor.pos(src_val_x) * casted_past->data_size_.hor - 0.5));
-		sx = std::min(sx, casted_past->data_size_.hor - 1);
+		size_t x_idx_passed = static_cast<size_t>(std::round(casted_past->val_bounds_.hor.pos(world_x) * casted_past->data_size_.hor - 0.5));
+		x_idx_passed = std::min(x_idx_passed, casted_past->data_size_.hor - 1);
+		if (casted_past->column_weight_vec_[x_idx_passed] == 0) continue;
 
-		// Нормировочный коэффициент для приведения плотностей к текущему разрешению
-		double norm_koeff = double(trans_column_size) / std::max(casted_past->column_weight_vec_[x_idx], trans_column_size);
+
+		// Коэффициент для приведения плотностей к стандартной плотности
+		double norm_koeff = double(trans_column_size) / std::max(casted_past->column_weight_vec_[x_idx_passed], trans_column_size);
 
 		size_t sum = 0;
-		for (size_t y = 0; y < data_size_.vert; ++y) {
-			double wy = val_bounds_.vert.lerp((y + 0.5) / data_size_.vert);
-			if (!casted_past->val_bounds_.vert.has_inside(wy)) continue;
+		for (size_t base_y_idx = 0; base_y_idx < data_size_.vert; ++base_y_idx) {
+			double world_y = val_bounds_.vert.lerp((base_y_idx + 0.5) / data_size_.vert);
+			if (!casted_past->val_bounds_.vert.has_inside(world_y)) continue;
 
-			size_t sy = static_cast<size_t>(std::round(casted_past->val_bounds_.vert.pos(wy) * casted_past->data_size_.vert - 0.5));
-			sy = std::min(sy, casted_past->data_size_.vert - 1);
+			size_t passed_y_idx = static_cast<size_t>(std::round(casted_past->val_bounds_.vert.pos(world_y) * casted_past->data_size_.vert - 0.5));
+			passed_y_idx = std::min(passed_y_idx, casted_past->data_size_.vert - 1);
 
-			auto cur_val = casted_past->data_[sy * casted_past->data_size_.hor + sx];
-			cur_val = static_cast<int64_t>(std::ceil(cur_val * norm_koeff));
+			auto cur_val = casted_past->data_[passed_y_idx * casted_past->data_size_.hor + x_idx_passed];
+			cur_val = int64_t(std::ceil(cur_val * norm_koeff));
 			new_max_trans_density = std::max<int64_t>(new_max_trans_density, cur_val);
 
-			data_[y * data_size_.hor + x_idx] = cur_val;
+			data_[base_y_idx * data_size_.hor + x_idx_base] = cur_val;
 			sum += cur_val;
 		}
-		column_weight_vec_[x_idx] = sum;
+		column_weight_vec_[x_idx_base] = sum;
 	}
 
 	// Если мы что-то скопировали – ускоряем затухание (переходный режим)
@@ -99,8 +111,7 @@ void TileDPX::UpdateFromTile(const TileInterface* passed_data)
 	}
 
 	is_data_updated_ = true;
-
-	if (is_relevant || (last_average_density_ == 0.0f)) {
+	if ((hor_ratio <= 1.0) || (last_average_density_ == 0.0f)) {
 		last_average_density_ = passed_data->last_average_density_;
 	}
 }
@@ -154,7 +165,7 @@ void TileDPX::UpdateDecayInfo()
 {
 	//Здесь надо учитывать frame_time - если очень большое, то давать накопить хоть немного
 	const double real_frame_time = frame_timer_.restart() / 1000.;
-	const double min_time_for_good_image = 100 * (real_frame_time / last_samples_per_pixel_);
+	const double min_time_for_good_image = 100 * (real_frame_time / std::max<double>(1.0, last_samples_per_pixel_));
 	//Определяем время затухания при зумминге
 	{
 		double merged_data_decay_time = std::max<double>(min_time_for_good_image, 0.1);

@@ -36,7 +36,7 @@ ScopeAnalyzerWindow::ScopeAnalyzerWindow()
 			);
 			
 		});
-		UpdateFFtCombobox(21, 15);
+		UpdateFFtCombobox(21, 12);
 	}
 	
 };

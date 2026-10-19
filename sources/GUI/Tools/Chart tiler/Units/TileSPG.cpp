@@ -155,6 +155,7 @@ argb_t TileSPG::GetNormColor(double relative_density) const
 
 void TileSPG::Reset()
 {
+	data_.clear();
 	data_.resize(data_size_.hor * data_size_.vert, 0);
 	relevant_vec_.assign(data_size_.vert, false);
 	//pos_vec_.resize(data_size_.vert);

@@ -54,8 +54,14 @@ void TileDPX::UpdateFromTile(const TileInterface* passed_data)
 	double hor_ratio = passed_data->val_bounds_.hor.delta() / val_bounds_.hor.delta();
 
 
-												   
-	const size_t trans_column_size = 2000; // 
+	
+	size_t max_col_size = 0;
+	for (auto it : column_weight_vec_) 
+		max_col_size = std::max(it, max_col_size);
+	for (auto it : casted_past->column_weight_vec_)
+		max_col_size = std::max(it, max_col_size);
+
+	const size_t trans_column_size = std::min<size_t>(max_col_size, 200'000); // 
 
 	int64_t new_max_trans_density = 0;
 
@@ -63,8 +69,8 @@ void TileDPX::UpdateFromTile(const TileInterface* passed_data)
 		// Заполняем только те колонки, которые полностью пусты (вес == 0)
 		if (column_weight_vec_[x_idx_base] != 0)
 		{
-			double norm_koeff = double(trans_column_size) / std::max(column_weight_vec_[x_idx_base], trans_column_size);
-			if (norm_koeff > 0.9 && norm_koeff < 1.1)
+			double norm_koeff = double(trans_column_size) / column_weight_vec_[x_idx_base]; 
+			if (norm_koeff > 0.85 && norm_koeff < 1.0)
 				continue;
 			size_t new_summ = 0;
 			for (size_t y = 0; y < data_size_.vert; ++y) {
@@ -85,7 +91,7 @@ void TileDPX::UpdateFromTile(const TileInterface* passed_data)
 
 
 		// Коэффициент для приведения плотностей к стандартной плотности
-		double norm_koeff = double(trans_column_size) / std::max(casted_past->column_weight_vec_[x_idx_passed], trans_column_size);
+		double norm_koeff = double(trans_column_size) / casted_past->column_weight_vec_[x_idx_passed];
 
 		size_t sum = 0;
 		for (size_t base_y_idx = 0; base_y_idx < data_size_.vert; ++base_y_idx) {
@@ -153,6 +159,7 @@ void TileDPX::UpdateQimage(dynamic_qimage& dyn_qimage, const Limits<double>& pow
 // ------------------------------------------------------------------
 void TileDPX::Reset()
 {
+	data_.clear();
 	data_.resize(data_size_.hor * data_size_.vert, 0);
 	column_weight_vec_.resize(data_size_.hor, 0);
 	ippsZero_8u((Ipp8u*)column_weight_vec_.data(), column_weight_vec_.size() * sizeof(column_weight_vec_[0]));

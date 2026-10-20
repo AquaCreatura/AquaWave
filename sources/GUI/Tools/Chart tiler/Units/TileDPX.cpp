@@ -17,7 +17,7 @@ TileDPX::TileDPX(const bool need_decay)
 void TileDPX::SetData(const draw_data& passed_info)
 {
 	if (passed_info.data.empty() || data_size_.hor == 0) return;
-
+	periodical_block_counter_++;
 	is_data_updated_ = true;
 
 	const auto& vis = val_bounds_.hor;
@@ -78,6 +78,7 @@ void TileDPX::UpdateFromTile(const TileInterface* passed_data)
 				new_summ += data_[y * data_size_.hor + x_idx_base];
 			}
 			column_weight_vec_[x_idx_base] = new_summ;
+			continue;
 		}
 
 		// ћировое значение X дл€ текущего пиксел€
@@ -171,20 +172,24 @@ void TileDPX::Reset()
 void TileDPX::UpdateDecayInfo()
 {
 	//«десь надо учитывать frame_time - если очень большое, то давать накопить хоть немного
-	const double real_frame_time = frame_timer_.restart() / 1000.;
-	const double min_time_for_good_image = 100 * (real_frame_time / std::max<double>(1.0, last_samples_per_pixel_));
+	const double update_time_sec = update_elapsed_timer_.restart() / 1000.;
+	const double elapsed_samples_per_column = std::max<int64_t>(1, periodical_block_counter_) * std::max<double>(1.0, last_samples_per_pixel_);
+
+	const double min_time_for_good_image_sec = 100 * (update_time_sec / elapsed_samples_per_column);
 	//ќпредел€ем врем€ затухани€ при зумминге
 	{
-		double merged_data_decay_time = std::max<double>(min_time_for_good_image, 0.1);
-		trans_decay_rate_ = std::exp(-2.0 * real_frame_time / merged_data_decay_time);
+		double merged_data_decay_time = std::max<double>(min_time_for_good_image_sec, 1.);
+		trans_decay_rate_ = std::exp(-2.0 * update_time_sec / merged_data_decay_time);
 	}
 
 	if (!need_decay_) {
 		base_decay_rate_ = 1.0;
+		periodical_block_counter_ = 0;
 		return;
 	}
-	auto time_hold_sec = need_decay_ ? std::max<double>(min_time_for_good_image, 1.) : 1;
-	base_decay_rate_ = std::max(0.01, std::exp(-real_frame_time / time_hold_sec));
+	periodical_block_counter_ = 0;
+	auto time_hold_sec = need_decay_ ? std::max<double>(min_time_for_good_image_sec, 1.) : 1;
+	base_decay_rate_ = std::max(0.01, std::exp(-update_time_sec / time_hold_sec));
 }
 // ------------------------------------------------------------------
 // ¬спомогательные методы рисовани€ (без изменений, но с уточнени€ми)

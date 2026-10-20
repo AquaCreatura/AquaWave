@@ -140,7 +140,7 @@ void PeakDetector::Init(kDpxChartType data_type, int n_fft, double sample_rate_h
 	case kDpxChartType::kPower4x:
 		estim_params_.add_after_norm = carrier_hz;
 		estim_params_.norm_ratio = sample_rate_hz / n_fft_;
-		estim_params_.add_before_norm = -1. * n_fft_;
+		estim_params_.add_before_norm = std::round( - 0.5 * n_fft_);
 		break;
 	case kDpxChartType::kEnvelope:
 	case kDpxChartType::kPhasor:
@@ -195,8 +195,7 @@ std::vector<double> PeakDetector::CalculatePeak() const
 {
 	if (!valid_ || n_fft_ < 3 || sample_rate_hz_ <= 0.0)
 		return {};
-	auto zero_shift = estim_params_.zero_shift;
-	std::vector<size_t> peaks = FindPeaksToAvg( max_hold_.data() + zero_shift, n_fft_ - zero_shift, 1, kCheckAreaRatio, kMinDistRatio, kPeakThresholdDb);
+	std::vector<size_t> peaks = FindPeaksToAvg( max_hold_.data() + estim_params_.zero_shift, n_fft_ - estim_params_.zero_shift, 1, kCheckAreaRatio, kMinDistRatio, kPeakThresholdDb);
 	std::vector<double> double_peaks(peaks.size());
 	for (int peak_counter = 0; peak_counter < peaks.size(); peak_counter++) {
 		

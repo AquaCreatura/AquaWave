@@ -208,7 +208,7 @@ void spectral_viewer::SpectralViewer::StartSelectionRecord()
 
 void spectral_viewer::SpectralViewer::OnSelectionIsReady()
 {
-	auto analyze_dove = std::make_shared<analyzer::AnalyzeDove>(analyzer::AnalyzeDove::kStartFromFileSource);
+	auto analyze_dove = std::make_shared<analyzer::AnalyzeDove>(analyzer::AnalyzeDove::kInitWithFile);
 	auto cur_sel = selection_holder_->GetSelection();
 	if (cur_sel.freq_bounds.delta() < 0) std::swap(cur_sel.freq_bounds.low, cur_sel.freq_bounds.high);
 	if (cur_sel.time_bounds.delta() < 0) std::swap(cur_sel.time_bounds.low, cur_sel.time_bounds.high);

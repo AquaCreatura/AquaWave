@@ -20,7 +20,6 @@ public:
 protected:
 public:
 	std::atomic_bool	is_data_updated_;
-	double				last_samples_per_pixel_{1.};
 	HorVerLim<double>	val_bounds_; 
 	double last_average_density_{ 0.0 };
 	double max_density_{ 0.0 };

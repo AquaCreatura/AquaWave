@@ -51,7 +51,7 @@ ScopeAnalyzer::~ScopeAnalyzer()
 
 bool ScopeAnalyzer::SendData(aqua::DataInfo const & passed_unit)
 {
-	if (!info_timer_.isActive())
+	if (!is_active_)
 		return false;
 
 	{
@@ -128,13 +128,11 @@ bool ScopeAnalyzer::PostDove(aqua::DoveSptr const & sent_dove)
     }
 	if (base_thought & aqua::DoveParrent::DoveThought::kActivate)
 	{
-		window_->ActivateWindow(window_->GetCurrentChart());
-		info_timer_.start();
+		ActivateNode(true);
 	}
 	if (base_thought & aqua::DoveParrent::DoveThought::kDeactivate)
 	{
-		window_->ActivateWindow(analz_chart_type::undefined);
-		info_timer_.stop();
+		ActivateNode(false);
 	}
 
 	if (base_thought & aqua::DoveParrent::DoveThought::kGetDescription)
@@ -151,8 +149,10 @@ bool ScopeAnalyzer::PostDove(aqua::DoveSptr const & sent_dove)
 		const auto special_thought = sent_dove->special_thought;
 		if (auto spectral_dove = std::dynamic_pointer_cast<analyzer::AnalyzeDove>(sent_dove)) {
 
-			if (special_thought & analyzer::AnalyzeDove::kStartFromFileSource) {
-				return Restart(spectral_dove->freq_bounds_hz, spectral_dove->file_bounds_ratio);
+			if (special_thought & analyzer::AnalyzeDove::kInitWithFile) {
+				selection_time_bounds_ = spectral_dove->file_bounds_ratio;
+				selection_freq_bounds_ = spectral_dove->freq_bounds_hz * 1.e6;
+				if (is_active_) ActivateNode(true);
 			}
 		};
 		if (auto file_src_dove = std::dynamic_pointer_cast<file_source::FileSrcDove>(sent_dove)) {
@@ -168,7 +168,23 @@ ArkType ScopeAnalyzer::GetArkType() const
 {
     return ArkType::kScopeAnalyser;
 }
-#include <qdebug.h>
+void scope_analyzer::ScopeAnalyzer::ActivateNode(const bool do_activate)
+{	
+	window_->ActivateWindow(do_activate ? window_->GetCurrentChart() : analz_chart_type::undefined);
+	if (do_activate) {		
+		info_timer_.start();
+		Restart();
+	}
+	else {
+		info_timer_.stop();
+		if (auto file_src = source_info_.ark.lock()) {
+			auto req_dove = std::make_shared<DoveParrent>(file_source::FileSrcDove::kStop);
+			req_dove->target_ark = shared_from_this();
+			file_src->PostDove(req_dove);
+		}
+	}
+	is_active_ = do_activate;
+}
 void scope_analyzer::ScopeAnalyzer::UpdateHarmonicInfo()
 {
 	auto req_dove = std::make_shared<analyzer::AnalyzeDove>(analyzer::AnalyzeDove::kGetHarmonicResult);
@@ -185,12 +201,16 @@ void scope_analyzer::ScopeAnalyzer::UpdateHarmonicInfo()
 		window_->UpdateHarmonicResult(analz_chart_type::kPhasorSpectrum,	estimator_.GetSymbolRateHz());
 		window_->UpdateHarmonicResult(analz_chart_type::kEnvelopeSpectrum,	estimator_.GetSymbolRateHz());
 		window_->UpdateHarmonicResult(analz_chart_type::kPowerSpectrum,		estimator_.GetCarrierHz());
+
+		req_dove->symbol_rate_hz = estimator_.GetSymbolRateHz();
+		req_dove->carrier_hz	 = estimator_.GetCarrierHz();
 	}
 	//
 
 	req_dove->special_thought = analyzer::AnalyzeDove::kSetHarmonicInfo;
-	if(req_dove->symbol_rate_hz && req_dove->carrier_hz){}
+	if (req_dove->symbol_rate_hz && req_dove->carrier_hz) {
 		charts_[analz_chart_type::kConstellation]->PostDove(req_dove);
+	}
 }
 
 bool ScopeAnalyzer::Reload()
@@ -208,16 +228,14 @@ bool ScopeAnalyzer::Reload()
 	return true;
 }
 
-bool ScopeAnalyzer::Restart(Limits<double> freq_bounds_Mhz, Limits<double> time_bounds)
+bool ScopeAnalyzer::Restart()
 {
-	time_bounds_ = time_bounds;
-	selection_bounds_ = freq_bounds_Mhz * 1.e6;
 	auto file_src = source_info_.ark.lock();
-	if (time_bounds_.delta() == 0) return false;
+	if (selection_time_bounds_.delta() == 0) return false;
 	if (!file_src) return false;
 
 	selection_descr_.bw_ratio_ = source_info_.descr.bw_ratio_;
-	selection_descr_.carrier_hz = selection_bounds_.mid();
+	selection_descr_.carrier_hz = selection_freq_bounds_.mid();
 
 
 
@@ -226,13 +244,13 @@ bool ScopeAnalyzer::Restart(Limits<double> freq_bounds_Mhz, Limits<double> time_
 		req_dove->special_thought = file_source::FileSrcDove::kInitiate | file_source::FileSrcDove::kAskLoopInRange;
 		req_dove->target_ark = shared_from_this();
 
-		req_dove->time_bounds = time_bounds_;
+		req_dove->time_bounds = selection_time_bounds_;
 
 		req_dove->setup.emplace();
 		auto &setup = req_dove->setup;
 		setup->carrier_hz = selection_descr_.carrier_hz;
 		setup->chunk_size = n_fft_;		
-		setup->banwidth_hz	 = selection_bounds_.delta();
+		setup->banwidth_hz	 = selection_freq_bounds_.delta();
 		setup->samplerate_hz = setup->banwidth_hz / source_info_.descr.bw_ratio_;
 
 		if (!file_src->PostDove(req_dove))
@@ -245,7 +263,7 @@ bool ScopeAnalyzer::Restart(Limits<double> freq_bounds_Mhz, Limits<double> time_
 		resampler_.Init(setup->samplerate_hz, resampled_samplerate_, setup->samplerate_hz);
 		resampled_unit_.freq_info_.samplerate_hz = resampled_samplerate_;
 	}
-	selection_descr_.count_of_samples = time_bounds.delta() * source_info_.descr.count_of_samples *
+	selection_descr_.count_of_samples = selection_time_bounds_.delta() * source_info_.descr.count_of_samples *
 											selection_descr_.samplerate_hz / source_info_.descr.samplerate_hz;
 
 
@@ -288,7 +306,7 @@ void scope_analyzer::ScopeAnalyzer::SetNewFftOrder(int need_order)
 			chart_iter.second->PostDove(req_dove);
 
 	}
-	if (time_bounds_.delta() == 0) return;
+	if (selection_time_bounds_.delta() == 0) return;
 	auto file_src_ = arks.front();
 	auto req_dove = std::make_shared<file_source::FileSrcDove>();
 	req_dove->special_thought = file_source::FileSrcDove::kSetChunkSize;

@@ -32,9 +32,9 @@ namespace analyzer
         enum SpecThought : int64_t
         {
             kUnknown = 0, 
-			kStartFromFileSource = 1,
-			kGetHarmonicResult	 = 2,
-			kSetHarmonicInfo	 = 3
+			kInitWithFile = 1 << 0,
+			kGetHarmonicResult	 = 1<<1,
+			kSetHarmonicInfo	 = 1<<2
         };
 		aqua::Limits<double> freq_bounds_hz; //In "Hz
 		aqua::Limits<double> file_bounds_ratio; //[0; 1]

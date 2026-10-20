@@ -20,10 +20,10 @@ public:
 	virtual bool		PostDove(aqua::DoveSptr const & sent_dove) override;
 	aqua::ArkType	GetArkType() const override;
 protected:
-	
+	void ActivateNode(const bool do_activate);
 	void UpdateHarmonicInfo();
 	bool Reload();
-	bool Restart(aqua::Limits<double> freq_bounds_hz, aqua::Limits<double> time_bounds);
+	bool Restart();
 	void SetNewFftOrder(int n_fft_order);
 protected:
 	struct chart_info : ArkInterface::sptr{
@@ -34,11 +34,12 @@ protected:
 		bool				need_resampler = true;
 	};
 	SourceArk						source_info_;
-	Limits<double>					time_bounds_;
-	Limits<double>					selection_bounds_;
+	Limits<double>					selection_time_bounds_;
+	Limits<double>					selection_freq_bounds_;
 	SourceDescription				selection_descr_;
 	int64_t							resampled_samplerate_;
 	QTimer							info_timer_;
+	bool							is_active_{ false };
 
 	QPointer<ScopeAnalyzerWindow>	window_;
 	HarmonicEstimator				estimator_;

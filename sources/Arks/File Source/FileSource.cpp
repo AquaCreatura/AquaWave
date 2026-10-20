@@ -38,6 +38,9 @@ bool file_source::FileSourceArk::PostDove(aqua::DoveSptr const& sent_dove)
     }
     if (parrent_type & aqua::DoveParrent::kStop)
     {
+        if(sent_dove->target_ark)
+            listener_man_.DeleteReader(sent_dove->target_ark);
+        else
         listener_man_.StopAllReaders(); 
     }
     if (parrent_type & aqua::DoveParrent::kRemoveSink)

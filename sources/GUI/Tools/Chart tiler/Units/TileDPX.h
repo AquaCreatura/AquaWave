@@ -38,6 +38,9 @@ private:
 	double			decay_factor_ = 1.0;       // текущий множитель затухания (применяется за кадр)
 	double			base_decay_rate_ = 1.0;   // базовая скорость затухания (1.0 – без затухания)
 	double			trans_decay_rate_ = 1.0;   // переходная скорость затухания (1.0 – без затухания)
-	QElapsedTimer	frame_timer_;
+	QElapsedTimer	update_elapsed_timer_;
+
+	double				last_samples_per_pixel_{ 1. };
+	int64_t				periodical_block_counter_{ 0 };
 	
 };

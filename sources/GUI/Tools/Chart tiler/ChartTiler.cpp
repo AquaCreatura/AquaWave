@@ -68,7 +68,7 @@ void ChartTiler::UpdateTileView()
 			break;
 		}
 	}
-
+	new_tile_id = -1;
 	//Если нет подходящего тайла - создаём его...
 	if (new_tile_id == -1) {
 		auto calculate_new_bounds = [&](const Limits<double>& passed, const Limits<double>& base) -> Limits<double> {

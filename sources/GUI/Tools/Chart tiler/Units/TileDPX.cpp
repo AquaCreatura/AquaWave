@@ -17,7 +17,6 @@ TileDPX::TileDPX(const bool need_decay)
 void TileDPX::SetData(const draw_data& passed_info)
 {
 	if (passed_info.data.empty() || data_size_.hor == 0) return;
-	periodical_block_counter_++;
 	is_data_updated_ = true;
 
 	const auto& vis = val_bounds_.hor;
@@ -25,7 +24,8 @@ void TileDPX::SetData(const draw_data& passed_info)
 
 	double lo = std::max(full.low, vis.low);
 	double hi = std::min(full.high, vis.high);
-	if (lo >= hi) return;
+	if (lo >= hi) 
+		return;
 
 	size_t n = passed_info.data.size();
 	auto count = static_cast<int64_t>(full.pos(hi) * (n - 1)) - static_cast<int64_t>(full.pos(lo) * (n - 1));
@@ -37,6 +37,7 @@ void TileDPX::SetData(const draw_data& passed_info)
 		DrawOnlyPoints(passed_info.data, passed_info.freq_bounds);
 
 	last_samples_per_pixel_ = samples_per_pixel;
+	periodical_block_counter_++;
 }
 
 // ------------------------------------------------------------------
@@ -175,11 +176,11 @@ void TileDPX::UpdateDecayInfo()
 	const double update_time_sec = update_elapsed_timer_.restart() / 1000.;
 	const double elapsed_samples_per_column = std::max<int64_t>(1, periodical_block_counter_) * std::max<double>(1.0, last_samples_per_pixel_);
 
-	const double min_time_for_good_image_sec = 100 * (update_time_sec / elapsed_samples_per_column);
+	const double min_time_for_good_image_sec = 1000 * (update_time_sec / elapsed_samples_per_column);
 	//Определяем время затухания при зумминге
 	{
 		double merged_data_decay_time = std::max<double>(min_time_for_good_image_sec, 1.);
-		trans_decay_rate_ = std::exp(-2.0 * update_time_sec / merged_data_decay_time);
+		trans_decay_rate_ = std::exp(-1.0 * update_time_sec / merged_data_decay_time);
 	}
 
 	if (!need_decay_) {
@@ -188,8 +189,8 @@ void TileDPX::UpdateDecayInfo()
 		return;
 	}
 	periodical_block_counter_ = 0;
-	auto time_hold_sec = need_decay_ ? std::max<double>(min_time_for_good_image_sec, 1.) : 1;
-	base_decay_rate_ = std::max(0.01, std::exp(-update_time_sec / time_hold_sec));
+	auto time_hold_sec = std::max<double>(min_time_for_good_image_sec, 1.);
+	base_decay_rate_ = std::max(0.9, std::exp(-update_time_sec / time_hold_sec));
 }
 // ------------------------------------------------------------------
 // Вспомогательные методы рисования (без изменений, но с уточнениями)

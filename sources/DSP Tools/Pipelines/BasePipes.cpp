@@ -103,13 +103,17 @@ void pipes::SamplesDiffPipe::ProcessData(PipeHolder::sptr meta_data)
 
 void pipes::PowerToDbPipe::ProcessData(PipeHolder::sptr meta_data)
 {
-	auto &processed_data = meta_data->float_data;
 	// Вычисляем магнитуду (амплитуду) комплексных чисел.
-	ippsAddC_32f_I(0.0001, processed_data.data(), processed_data.size());
-	ippsLog10_32f_A11(processed_data.data(), processed_data.data(), processed_data.size());
-	ippsMulC_32f_I(10, processed_data.data(), processed_data.size());
+	ProcessData(meta_data->float_data.data(), meta_data->float_data.size());
 
 	if (next_) next_->ProcessData(meta_data);
+}
+
+void pipes::PowerToDbPipe::ProcessData(Ipp32f* passed_data_ptr, size_t passed_data_size)
+{
+	ippsAddC_32f_I(0.0001, passed_data_ptr, passed_data_size);
+	ippsLog10_32f_A11(passed_data_ptr, passed_data_ptr, passed_data_size);
+	ippsMulC_32f_I(10, passed_data_ptr, passed_data_size);
 }
 
 pipes::PrecisedPartSaver::PrecisedPartSaver(double start_ratio, double end_ratio): start_ratio_(start_ratio), end_ratio_(end_ratio)

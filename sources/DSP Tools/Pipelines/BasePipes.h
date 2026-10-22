@@ -50,6 +50,7 @@ class PowerToDbPipe : public PipeInterface
 {
 public:
 	void ProcessData(PipeHolder::sptr meta_data) override;
+	void ProcessData(Ipp32f* data, size_t data_size);
 };
 
 class PrecisedPartSaver: public PipeInterface

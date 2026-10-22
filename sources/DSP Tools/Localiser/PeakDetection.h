@@ -5,6 +5,7 @@
 
 #include <limits>
 #include "Interfaces/special_defs/spectral_viewer_defs.h"
+#include "DSP Tools/Pipelines/BasePipes.h"
 using namespace dpx_core;
 
 namespace peak_detection{
@@ -55,9 +56,13 @@ namespace peak_detection{
 		double sample_rate_hz_;
 		double carrier_hz_;
 		std::vector<Ipp32f> max_hold_;  // единый буфер: дл€ ACF Ц последний кадр, дл€ остальных Ц MaxHold с утечкой
+		
 		size_t n_fft_;
 		bool valid_;
 		estim_params estim_params_;
 		int max_peaks_count_;
+
+		mutable std::vector<Ipp32f> db_scaled_;
+		mutable pipes::PowerToDbPipe power_to_db_pipe_;		
 	};
 };

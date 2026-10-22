@@ -163,13 +163,11 @@ void PeakDetector::Process(const Ipp32f* data, size_t count_of_samples)
 		valid_ = false;
 		return;
 	}
-
 	// Если изменился размер, полностью сбрасываем состояние
 	if (n_fft_ != 0 && n_fft_ != count_of_samples)
 	{
 		Init(data_type_, n_fft_, sample_rate_hz_, carrier_hz_);
 	}
-
 	UpdateMaxHold(data, count_of_samples);
 
 	valid_ = true;
@@ -185,9 +183,7 @@ void PeakDetector::UpdateMaxHold(const Ipp32f* data, size_t count_of_samples)
 	for (size_t i = 0; i < count_of_samples; ++i)
 	{
 		// Утечка в dB: вычитаем фиксированную величину
-		max_hold_[i] = std::max(
-			data[i],
-			max_hold_[i] - static_cast<Ipp32f>(kMaxHoldDecayDb));
+		max_hold_[i] = std::max( data[i],max_hold_[i] - static_cast<Ipp32f>(kMaxHoldDecayDb));
 	}
 }
 
@@ -195,6 +191,8 @@ std::vector<double> PeakDetector::CalculatePeak() const
 {
 	if (!valid_ || n_fft_ < 3 || sample_rate_hz_ <= 0.0)
 		return {};
+	db_scaled_ = max_hold_;
+	power_to_db_pipe_.ProcessData(db_scaled_.data(), db_scaled_.size());;
 	std::vector<size_t> peaks = FindPeaksToAvg( max_hold_.data() + estim_params_.zero_shift, n_fft_ - estim_params_.zero_shift, 1, kCheckAreaRatio, kMinDistRatio, kPeakThresholdDb);
 	std::vector<double> double_peaks(peaks.size());
 	for (int peak_counter = 0; peak_counter < peaks.size(); peak_counter++) {

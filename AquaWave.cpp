@@ -55,10 +55,9 @@ AquaWave::AquaWave(QWidget *parent, const QString& file_path)
             ShipBuilder::GetWindow(demodulator_),
             [this](auto d) { demodulator_->PostDove(d); },
             "Demodulator",
-            ":/buttons/button_images/analyze_icon.png"
+            ":/buttons/button_images/ccm_demod.png"
         },
     };
-    pages_.resize(1);
     for (auto& p : pages_) {
         QIcon icon = buildButtonIcon(p.iconPath, p.iconPath, p.iconPath, p.iconPath, p.iconPath);
         ui.main_tab_widget->addTab(p.widget, icon, p.title);

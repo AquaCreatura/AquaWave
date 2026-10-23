@@ -6,5 +6,6 @@
         <file>button_images/graph.png</file>
         <file>button_images/AquaWave.png</file>
         <file>button_images/horizontal_extended.png</file>
+        <file>button_images/ccm_demod.png</file>
     </qresource>
 </RCC>

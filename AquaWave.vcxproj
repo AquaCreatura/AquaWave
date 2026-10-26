@@ -185,6 +185,7 @@
     <ClInclude Include="sources\aqua_defines.h" />
     <QtMoc Include="sources\Arks\Demodulation\AquaDemod.h" />
     <QtMoc Include="sources\Arks\Demodulation\window\AquaDemodWindow.h" />
+    <ClInclude Include="sources\Arks\Interfaces\special_defs\demodulator_defs.h" />
     <ClInclude Include="sources\Arks\Interfaces\special_defs\file_writer_defs.h" />
     <ClInclude Include="sources\Arks\SelectionWriter\SelectionWriter.h" />
     <QtMoc Include="sources\Arks\SelectionWriter\window\selection_writer_window.h" />

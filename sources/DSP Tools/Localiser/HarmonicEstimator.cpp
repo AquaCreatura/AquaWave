@@ -43,9 +43,11 @@ void HarmonicEstimator::Estimate()
 void HarmonicEstimator::Reset()
 {
 	storage_.clear();
-	symbol_rate_hz_ = 0.;
-	carrier_hz_ = 0.;
-	acf_msec_ = 0.;
+	symbol_rate_hz_.reset();
+	carrier_hz_.reset();
+	acf_msec_.reset();
+
+
 	bw_hz_ = 0.;
 	data_carrier_hz_ = 0.;
 	strength_symbol_rate_hz_ = 0;
@@ -71,7 +73,7 @@ void HarmonicEstimator::EstimateSymbolRate(aqua_opt<double>& matched_bd_hz, aqua
 		} //Хорошо бы ещё учитывать силу пика 
 		if (!matched_vec.empty()) {
 			matched_bd_hz = matched_vec.back();
-			if (std::abs(symbol_rate_hz_ - matched_bd_hz) < 0.001 * bw_hz_) {
+			if (symbol_rate_hz_ && std::abs(symbol_rate_hz_.value() - matched_bd_hz) < 0.001 * bw_hz_) {
 				strength_symbol_rate_hz_ = 1;
 			}
 			
@@ -130,7 +132,7 @@ void HarmonicEstimator::EstimateCarrier(aqua_opt<double>& mid_fc_hz)
 	}
 }
 
-void HarmonicEstimator::EstimateAcf(double& acf_msec)
+void HarmonicEstimator::EstimateAcf(aqua_opt<double>& acf_msec)
 {
 	auto& cur_storage = storage_[analz_chart_type::kAcf];
 	if (cur_storage.empty())

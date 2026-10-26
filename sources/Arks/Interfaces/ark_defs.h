@@ -48,7 +48,7 @@ namespace aqua
 		kScopeAnalyser	= 5,
 		kConstellation  = 6,
 		kSelectionWriter = 7,
-		kBaseDemodulator = 8,
+		kCcmDemodulator = 8,
     };
 
 

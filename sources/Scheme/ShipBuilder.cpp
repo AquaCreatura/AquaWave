@@ -17,7 +17,7 @@ aqua::ArkSptr ShipBuilder::BuildNewShip(aqua::ArkType ship_type, QWidget* main)
 		break;
 	case aqua::kSelectionWriter:	ark = std::make_shared<file_writer::SelectionWriter>();
 		break;
-	case aqua::kBaseDemodulator:	ark = std::make_shared<demodulation::AquaDemod>();
+	case aqua::kCcmDemodulator:	ark = std::make_shared<demodulator::AquaDemod>();
 		break;
 	default:
 		break;

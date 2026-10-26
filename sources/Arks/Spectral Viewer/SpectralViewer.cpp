@@ -100,6 +100,11 @@ bool SpectralViewer::PostDove(aqua::DoveSptr const & sent_dove)
 			
 		}
     }
+	if (base_thought == aqua::DoveParrent::DoveThought::kAddSink)
+	{
+		if(target_val->GetArkType() == ArkType::kCcmDemodulator)
+			ShipBuilder::Bind_SrcSink(scoper_, target_val);		
+	}
 	if (base_thought & aqua::DoveParrent::DoveThought::kActivate)
 	{
 		aqua::DoveSptr req_dove = std::make_shared<aqua::DoveParrent>(aqua::DoveParrent::kActivate);

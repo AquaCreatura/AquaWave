@@ -25,6 +25,7 @@ protected:
 	bool Reload();
 	bool Restart();
 	void SetNewFftOrder(int n_fft_order);
+	void SetDemodParam(aqua_opt<double> carrier_hz, aqua_opt<double> symbolrate_hz);
 protected:
 	struct chart_info : ArkInterface::sptr{
 		chart_info& operator=(const ArkInterface::sptr& other) {
@@ -50,6 +51,7 @@ protected:
 	aqua_resampler::MultiRateResampler	resampler_;
 	aqua::DataInfo					resampled_unit_;
 	std::vector<Ipp32fc>				resampled_buff_;
+	bool							inner_attached_{ false };
 };
 
 

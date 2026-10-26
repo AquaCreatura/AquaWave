@@ -64,14 +64,6 @@ namespace aqua
         W low;
         W high;
     };
-
-	template <typename T>
-	struct mutex_vec : std::vector<T> {
-		tbb::spin_mutex mutex;
-	};
-
-	template <typename T>
-	using shared_vec = std::shared_ptr<mutex_vec<T>>;
 }
 
 #endif // !AQUA_DEFINES_GUARD

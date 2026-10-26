@@ -1,6 +1,7 @@
 #include "ScopeAnalyzer.h"
 #include "special_defs/file_souce_defs.h"
 #include "special_defs/analyzer_defs.h"
+#include "special_defs/demodulator_defs.h"
 #include "Scheme/ShipBuilder.h"
 #include <ippvm.h>
 
@@ -197,10 +198,10 @@ void scope_analyzer::ScopeAnalyzer::UpdateHarmonicInfo()
 	}
 	{
 		estimator_.Estimate();
-		window_->UpdateHarmonicResult(analz_chart_type::kAcf,				estimator_.GetAcfMsec());
-		window_->UpdateHarmonicResult(analz_chart_type::kPhasorSpectrum,	estimator_.GetSymbolRateHz());
-		window_->UpdateHarmonicResult(analz_chart_type::kEnvelopeSpectrum,	estimator_.GetSymbolRateHz());
-		window_->UpdateHarmonicResult(analz_chart_type::kPowerSpectrum,		estimator_.GetCarrierHz());
+		window_->UpdateHarmonicResult(analz_chart_type::kAcf,				estimator_.GetAcfMsec().value_or(0.));
+		window_->UpdateHarmonicResult(analz_chart_type::kPhasorSpectrum,	estimator_.GetSymbolRateHz().value_or(0.));
+		window_->UpdateHarmonicResult(analz_chart_type::kEnvelopeSpectrum,	estimator_.GetSymbolRateHz().value_or(0.));
+		window_->UpdateHarmonicResult(analz_chart_type::kPowerSpectrum,		estimator_.GetCarrierHz().value_or(0.));
 
 		req_dove->symbol_rate_hz = estimator_.GetSymbolRateHz();
 		req_dove->carrier_hz	 = estimator_.GetCarrierHz();
@@ -211,6 +212,7 @@ void scope_analyzer::ScopeAnalyzer::UpdateHarmonicInfo()
 	if (req_dove->symbol_rate_hz && req_dove->carrier_hz) {
 		charts_[analz_chart_type::kConstellation]->PostDove(req_dove);
 	}
+	SetDemodParam(estimator_.GetCarrierHz(), estimator_.GetSymbolRateHz());
 }
 
 bool ScopeAnalyzer::Reload()
@@ -271,9 +273,10 @@ bool ScopeAnalyzer::Restart()
 	estimator_.SetBaseCarrier(selection_descr_.carrier_hz);
 	estimator_.SetBandwidth(selection_descr_.samplerate_hz);
 
-	if (GetFrontArks().empty()) {
+	if (!inner_attached_) {
 		for (auto chart_iter : charts_)
 			ShipBuilder::Bind_SrcSink(shared_from_this(), chart_iter.second);
+		inner_attached_ = true;
 	}
 	
 
@@ -320,5 +323,19 @@ void scope_analyzer::ScopeAnalyzer::SetNewFftOrder(int need_order)
 
 
 	return;
+}
+
+void scope_analyzer::ScopeAnalyzer::SetDemodParam(aqua_opt<double> carrier_hz, aqua_opt<double> symbolrate_hz)
+{
+	
+	auto front_arks = GetFrontArks();
+	for (auto front_iter : front_arks) {
+		if (front_iter->GetArkType() == aqua::kCcmDemodulator) {
+			auto demod_dove = std::make_shared<demodulator::DemodulatorDove>(demodulator::DemodulatorDove::kInitialise);
+			demod_dove->symbol_rate_hz = symbolrate_hz; demod_dove->carrier_hz = carrier_hz;
+			front_iter->PostDove(demod_dove);
+		}
+	}
+	
 }
 

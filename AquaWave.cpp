@@ -27,12 +27,13 @@ AquaWave::AquaWave(QWidget *parent, const QString& file_path)
     file_src_ = ship_builder_.BuildNewShip(aqua::kFileSource, this);
     spectral_viewer_ = ship_builder_.BuildNewShip(aqua::kSpectralViewer);
     selection_writer_ = ship_builder_.BuildNewShip(aqua::kSelectionWriter);
-    demodulator_ = ship_builder_.BuildNewShip(aqua::kBaseDemodulator);
+    demodulator_ = ship_builder_.BuildNewShip(aqua::kCcmDemodulator);
 
     ShipBuilder::Bind_SrcSink(file_src_, spectral_viewer_);
     ShipBuilder::Bind_SrcSink(file_src_, selection_writer_);
     ShipBuilder::Bind_SrcSink(file_src_, demodulator_);
     ShipBuilder::Bind_SrcSink(spectral_viewer_, selection_writer_);
+    ShipBuilder::Bind_SrcSink(spectral_viewer_, demodulator_);
 
     auto file_window = ShipBuilder::GetWindow(file_src_);
     qApp->setStyleSheet(styleSheet());

@@ -501,6 +501,9 @@
     <ClInclude Include="sources\DSP Tools\Localiser\HarmonicEstimator.h">
       <Filter>DSP Tools\Localiser</Filter>
     </ClInclude>
+    <ClInclude Include="sources\Arks\Interfaces\special_defs\demodulator_defs.h">
+      <Filter>ARKS\Interfaces\special_defs</Filter>
+    </ClInclude>
   </ItemGroup>
   <!-- QtMoc (For Headers Requiring Moc) -->
   <ItemGroup>

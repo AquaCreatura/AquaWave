@@ -3,7 +3,7 @@
 #include "Arks/Interfaces/base_impl/ark_base.h"
 #include "window/AquaDemodWindow.h"
 using namespace aqua;
-namespace demodulation{
+namespace demodulator{
 	class AquaDemod : public aqua::ArkBase
 	{
 		Q_OBJECT

@@ -82,7 +82,7 @@ void ChartConstel::resizeEvent(QResizeEvent* event)
 
     // chart_size_px Ч квадрат минимального размера
     auto min_size = std::min(cur_size.hor, cur_size.vert);
-    pix_info.chart_size_px = { min_size, min_size } - pix_info.margin_px;
+    pix_info.chart_size_px = HV_Info<int>({ min_size, min_size }) - pix_info.margin_px;
 }
 
 bool ChartConstel::ShouldRedraw()

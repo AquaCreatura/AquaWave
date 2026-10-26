@@ -26,22 +26,24 @@ public:
 
 	void SetLocalisedPeaks(analz_chart_type type, std::vector<double> &peaks);
 	void Estimate(); //main function, which updates return values
-	double GetSymbolRateHz	() const { return symbol_rate_hz_; };
-	double GetAcfMsec		() const { return acf_msec_; };
-	double GetCarrierHz		() const { return carrier_hz_; };
+	aqua_opt<double> GetSymbolRateHz() const { return symbol_rate_hz_; };
+	aqua_opt<double> GetAcfMsec() const { return acf_msec_; };
+	aqua_opt<double> GetCarrierHz		() const { return carrier_hz_; };
 	void Reset();
 private:
 	void EstimateSymbolRate(aqua_opt<double>& matched_bd_hz, aqua_opt<double>& best_psk_hz, aqua_opt<double>& best_env_hz);
 	void EstimateCarrier(aqua_opt<double>&mid_fc_hz);
-	void EstimateAcf(double& acf_msec);
+	void EstimateAcf(aqua_opt<double>& acf_msec);
 	static bool IsHarmonicOf(float value, float pivot, double tolerance = 0.01, int max_harmonic = 8);
 protected:
 	std::map<analz_chart_type, std::vector<double>> storage_;
-	double symbol_rate_hz_;
+	aqua_opt<double> symbol_rate_hz_;
+	aqua_opt<double> carrier_hz_;
+	aqua_opt<double> acf_msec_;
+
 	int    strength_symbol_rate_hz_ = 0;
-	double carrier_hz_;
+
 	int	   strength_carrier_hz_ = 0;
-	double acf_msec_;
 	double bw_hz_;
 	double data_carrier_hz_ = 0.;
 };

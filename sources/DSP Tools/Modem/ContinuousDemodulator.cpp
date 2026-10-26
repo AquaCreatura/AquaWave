@@ -102,7 +102,6 @@ bool ContinuousDemodulator::SynchroniseIQ(
 
 	if (synced_iq.empty())
 		return true;
-
 	// --- Automatic Gain Control ---
 
 	ApplyAGC(synced_iq);

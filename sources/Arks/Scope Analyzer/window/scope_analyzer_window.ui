@@ -187,7 +187,7 @@
               <item row="1" column="0">
                <widget class="QRadioButton" name="symbol_rate_radio_button">
                 <property name="text">
-                 <string>Bd:</string>
+                 <string>Bd: </string>
                 </property>
                 <attribute name="buttonGroup">
                  <string notr="true">radio_group_chart_type</string>
@@ -225,7 +225,7 @@
                  </sizepolicy>
                 </property>
                 <property name="text">
-                 <string>Fc:</string>
+                 <string>Fc: </string>
                 </property>
                 <attribute name="buttonGroup">
                  <string notr="true">radio_group_chart_type</string>

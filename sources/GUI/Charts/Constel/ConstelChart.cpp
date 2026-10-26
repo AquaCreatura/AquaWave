@@ -38,38 +38,51 @@ void ChartConstel::ClearData()
 	core_.Emplace();
 }
 
-void ChartConstel::paintEvent(QPaintEvent * paint_event)
+void ChartConstel::paintEvent(QPaintEvent* paint_event)
 {
-	QPainter new_frame_painter(this);
+    QPainter new_frame_painter(this);
+    new_frame_painter.setRenderHint(QPainter::Antialiasing, true);
 
-	//Выставляем закруглённые края
-	{
-		new_frame_painter.setRenderHint(QPainter::Antialiasing, true);
-		QPainterPath path;
-		path.addRoundedRect(rect(), 10, 10);
-		new_frame_painter.setClipPath(path);
-	}
+    // Вычисляем смещение и размер квадрата
+    auto chart_size = scale_info_.pix_info_.chart_size_px;
+    int offset_x = (this->width() - chart_size.hor) / 2;
+    int offset_y = (this->height() - chart_size.vert) / 2;
 
-	bg_image_.DrawImage(new_frame_painter);
+    // Сохраняем состояние и применяем трансформацию
+    new_frame_painter.save();
+    new_frame_painter.translate(offset_x, offset_y);
 
-	{
-		auto chart_size = scale_info_.pix_info_.chart_size_px;
-		auto data_pixmap = core_.GetRelevantPixmap(std::min(chart_size.hor, chart_size.vert));
-		new_frame_painter.drawPixmap(0,0, data_pixmap);
-	}
+    // Закруглённые края для квадратной области
+    {
+        QPainterPath path;
+        path.addRoundedRect(0, 0, chart_size.hor, chart_size.vert, 10, 10);
+        new_frame_painter.setClipPath(path);
+    }
 
+    // Рисуем фон (относительно смещённой системы координат)
+    bg_image_.DrawImage(new_frame_painter);
+
+    {
+        auto data_pixmap = core_.GetRelevantPixmap(std::min(chart_size.hor, chart_size.vert));
+        new_frame_painter.drawPixmap(0, 0, data_pixmap);
+    }
+
+    new_frame_painter.restore();
 }
 
-void ChartConstel::resizeEvent(QResizeEvent * event)
+void ChartConstel::resizeEvent(QResizeEvent* event)
 {
-	aqua_gui::HV_Info<int> cur_size = { this->width(), this->height() };
-	auto        &pix_info = scale_info_.pix_info_;
-	if (pix_info.widget_size_px == cur_size) return;
-	auto min_size = std::min(cur_size.hor, cur_size.vert);
+    aqua_gui::HV_Info<int> cur_size = { this->width(), this->height() };
+    auto& pix_info = scale_info_.pix_info_;
 
-	pix_info.widget_size_px = { min_size , min_size };
-	pix_info.chart_size_px = pix_info.widget_size_px - pix_info.margin_px;
-	resize({ min_size , min_size });
+    if (pix_info.widget_size_px == cur_size) return;
+
+    // Сохраняем реальный размер виджета
+    pix_info.widget_size_px = cur_size;
+
+    // chart_size_px — квадрат минимального размера
+    auto min_size = std::min(cur_size.hor, cur_size.vert);
+    pix_info.chart_size_px = { min_size, min_size } - pix_info.margin_px;
 }
 
 bool ChartConstel::ShouldRedraw()

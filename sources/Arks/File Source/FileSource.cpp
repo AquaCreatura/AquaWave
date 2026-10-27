@@ -113,7 +113,7 @@ void file_source::FileSourceArk::UpdateSource()
 	//if (qmain_window_) qmain_window_->setWindowTitle(tr("[AquaWave v.2.3]   %1").arg(descr_.file_name_));
     //Reset out arks
     {
-        auto out_fleet   = GetFrontArks();
+        auto out_fleet   = GetSinkArks();
         aqua::DoveSptr message   = std::make_shared<aqua::DoveParrent>();
         message->base_thought       = DoveParrent::kReset;
         for(auto &out_ark: out_fleet) out_ark->PostDove(message);

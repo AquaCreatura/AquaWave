@@ -42,6 +42,19 @@ bool ShipBuilder::Bind_SrcSink(aqua::ArkSptr source_ark, aqua::ArkSptr sink_ark)
 	return true;
 }
 
+bool ShipBuilder::Bind_Cmd(aqua::ArkSptr first_ark, aqua::ArkSptr second_ark)
+{
+	aqua::DoveSptr req_dove = std::make_shared<aqua::DoveParrent>(aqua::DoveParrent::kAddCmd);
+
+	req_dove->target_ark = first_ark;
+	if (!second_ark->PostDove(req_dove)) return false;
+
+	req_dove->target_ark = second_ark;
+	if (!first_ark->PostDove(req_dove)) return false;
+
+	return true;
+}
+
 QPointer<QWidget> ShipBuilder::GetWindow(aqua::ArkSptr ship)
 {
 	aqua::DoveSptr req_dove = std::make_shared<aqua::DoveParrent>(); 

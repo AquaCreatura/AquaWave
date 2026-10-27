@@ -46,6 +46,9 @@ public:
 	void ProcessData(PipeHolder::sptr meta_data) override;
 };
 
+
+
+
 class PowerToDbPipe : public PipeInterface
 {
 public:
@@ -72,6 +75,20 @@ protected:
 	const double zero_ratio_;
 };
 
+class MulByConstPipe : public PipeInterface
+{
+public:
+	MulByConstPipe(const float div_koeff) : mul_koeff_(div_koeff) {};
+	void ProcessData(PipeHolder::sptr meta_data) override;
+protected:
+	const float mul_koeff_;
+};
+
+class SqrtPipe: public PipeInterface
+{
+public:
+	void ProcessData(PipeHolder::sptr meta_data) override;
+};
 class ResamplerPipe : public PipeInterface
 {
 public:

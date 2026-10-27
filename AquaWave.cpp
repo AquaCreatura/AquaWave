@@ -33,7 +33,7 @@ AquaWave::AquaWave(QWidget *parent, const QString& file_path)
     ShipBuilder::Bind_SrcSink(file_src_, selection_writer_);
     ShipBuilder::Bind_SrcSink(file_src_, demodulator_);
     ShipBuilder::Bind_SrcSink(spectral_viewer_, selection_writer_);
-    ShipBuilder::Bind_SrcSink(spectral_viewer_, demodulator_);
+    ShipBuilder::Bind_Cmd(spectral_viewer_, demodulator_);
 
     auto file_window = ShipBuilder::GetWindow(file_src_);
     qApp->setStyleSheet(styleSheet());

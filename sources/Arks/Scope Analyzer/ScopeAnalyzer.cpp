@@ -296,7 +296,7 @@ bool ScopeAnalyzer::Restart()
 
 void scope_analyzer::ScopeAnalyzer::SetNewFftOrder(int need_order)
 {
-	auto arks = GetBehindArks();
+	auto arks = GetSourceArks();
 	if (arks.empty()) return;
 
 	n_fft_ = 1 << need_order;
@@ -328,7 +328,7 @@ void scope_analyzer::ScopeAnalyzer::SetNewFftOrder(int need_order)
 void scope_analyzer::ScopeAnalyzer::SetDemodParam(aqua_opt<double> carrier_hz, aqua_opt<double> symbolrate_hz)
 {
 	
-	auto front_arks = GetFrontArks();
+	auto front_arks = GetCmdArks();
 	for (auto front_iter : front_arks) {
 		if (front_iter->GetArkType() == aqua::kCcmDemodulator) {
 			auto demod_dove = std::make_shared<demodulator::DemodulatorDove>(demodulator::DemodulatorDove::kInitialise);

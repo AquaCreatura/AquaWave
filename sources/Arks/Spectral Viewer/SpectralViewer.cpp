@@ -100,10 +100,10 @@ bool SpectralViewer::PostDove(aqua::DoveSptr const & sent_dove)
 			
 		}
     }
-	if (base_thought == aqua::DoveParrent::DoveThought::kAddSink)
+	if (base_thought == aqua::DoveParrent::DoveThought::kAddCmd)
 	{
 		if(target_val->GetArkType() == ArkType::kCcmDemodulator)
-			ShipBuilder::Bind_SrcSink(scoper_, target_val);		
+			ShipBuilder::Bind_Cmd(scoper_, target_val);		
 	}
 	if (base_thought & aqua::DoveParrent::DoveThought::kActivate)
 	{
@@ -196,7 +196,7 @@ void SpectralViewer::SetNewFftOrder(int n_fft_order)
 
 void spectral_viewer::SpectralViewer::StartSelectionRecord()
 {
-	auto front_arks = GetFrontArks();
+	auto front_arks = GetSinkArks();
 	for (auto front_iter : front_arks) {
 		if (front_iter->GetArkType() == aqua::kSelectionWriter) {
 			auto analyze_dove = std::make_shared<file_writer::FileWriterDove>(file_writer::FileWriterDove::kRecordSelection);

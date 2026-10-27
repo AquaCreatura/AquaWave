@@ -36,6 +36,7 @@ void AcfPipe::ProcessData(PipeHolder::sptr meta_data)
 	if (passed_data.size() < 16) return;
 
 	acf_worker_.AbsProcess32fc( passed_data, processed_data, ippAlgAuto | ippsNormA );
+	
 	const int samples_to_zero =  std::max(2ui64, processed_data.size() / 100); //Чтобы лучше нормировалось
 	ippsZero_32f(processed_data.data(), samples_to_zero);
 	if (next_) next_->ProcessData(meta_data);
@@ -199,4 +200,18 @@ void pipes::DcRemovePipe::ProcessData(PipeHolder::sptr meta_data)
 
 	if (next_)
 		next_->ProcessData(meta_data);
+}
+
+void pipes::MulByConstPipe::ProcessData(PipeHolder::sptr meta_data)
+{
+	auto& complex_data = meta_data->complex_float_data;
+	ippsMulC_32f_I(mul_koeff_, (float*)complex_data.data(), complex_data.size() * 2); //2
+	if (next_) next_->ProcessData(meta_data);
+}
+
+void pipes::SqrtPipe::ProcessData(PipeHolder::sptr meta_data)
+{
+	auto& float_data = meta_data->float_data;
+	ippsSqrt_32f_I((float*)float_data.data(), float_data.size()); //2
+	if (next_) next_->ProcessData(meta_data);
 }

@@ -34,8 +34,10 @@ bool AcfWorker::AbsProcess32fc(const Ipp32fc* src, std::size_t size, Ipp32f* dst
 	calc_buff_.resize(size);
 	if (!Process32fc(src, size, calc_buff_.data(), acf_flags))
 		return false;
-
-	return ippsPowerSpectr_32fc(calc_buff_.data(), dst, static_cast<int>(size)) == ippStsNoErr;
+	
+	ippsMagnitude_32fc(calc_buff_.data(), dst, static_cast<int>(size)) == ippStsNoErr;
+	ippsSqrt_32f_I(dst, size);
+	return true;
 }
 
 // =======================================================

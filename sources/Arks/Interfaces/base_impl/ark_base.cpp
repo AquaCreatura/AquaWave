@@ -12,125 +12,112 @@ bool aqua::ArkBase::PostDove(DoveSptr const & sent_dove)
     //connect input connection
     else if (base_thought & DoveParrent::DoveThought::kAddSource)
     {
-        if (!target_val)
-            throw std::invalid_argument("Wrong target ark! (Behind tie)");
-        std::lock_guard<std::mutex> guard_con(con_mutex_);
-        auto found_elem = std::find_if(behind_fleet_.begin(), behind_fleet_.end(),
-            [&](aqua::ArkWptr elem) {return elem.lock() == target_val;  });
-        if (found_elem != behind_fleet_.end())
-            throw std::logic_error("Element allready exists!");
-        behind_fleet_.push_back(target_val);
-        return true;
-
+        AddElemToTheFleet(true, source_fleet_, target_val);
     }
-    //connect output connection
     else if (base_thought & DoveParrent::DoveThought::kAddSink)
     {   
-        if (!target_val)
-            throw std::invalid_argument("Wrong target ark (front tie)");
-        std::lock_guard<std::mutex> guard_con(con_mutex_);
-        auto found_elem = std::find_if(front_fleet_.begin(), front_fleet_.end(), 
-            [&](aqua::ArkWptr elem) {return elem.lock() == target_val;  });
-        if (found_elem != front_fleet_.end())
-            throw std::logic_error("Element allready exists!");
-        front_fleet_.push_back(target_val);
-        return true;
+        AddElemToTheFleet(true, sink_fleet_, target_val);
     }
-    //disconnect input
-    else if (base_thought & DoveParrent::DoveThought::kRemoveSink)
+    else if (base_thought & DoveParrent::DoveThought::kAddCmd)
     {
-        bool is_deleted = false;
-        if (!target_val)
-            throw std::invalid_argument("Wrong target ark (front untie)!");
-        std::lock_guard<std::mutex> guard_con(con_mutex_);
-        //Go through elements and delete passed target
-        for (auto in_iter = front_fleet_.begin(); in_iter != front_fleet_.end(); in_iter++)
-        {
-            if (in_iter->lock() == target_val)
-            {
-                front_fleet_.erase(in_iter);
-                is_deleted = true;
-                break;
-            }
-        }
-        if (!is_deleted)
-            throw std::logic_error("Can not delete not existed ark!");
-        return true;
+        AddElemToTheFleet(true, cmd_fleet_, target_val);
     }
-    //disconnect output
     else if (base_thought & DoveParrent::DoveThought::kRemoveSource)
     {
-        bool is_deleted = false;
-        if (!target_val)
-            throw std::invalid_argument("Wrong target ark! (untie behind)");
-        //Go through elements and delete passed target
-        std::lock_guard<std::mutex> guard_con(con_mutex_);
-        for (auto out_iter = behind_fleet_.begin(); out_iter != behind_fleet_.end(); out_iter++)
-        {
-            if (out_iter->lock() == (target_val))
-            {
-                behind_fleet_.erase(out_iter);
-                is_deleted = true;
-                break;
-            }
-        }
-        if (!is_deleted)
-            throw std::logic_error("Can not delete not existed ark!");
-        return true;
-
+        AddElemToTheFleet(false, source_fleet_, target_val);
     }
+    else if (base_thought & DoveParrent::DoveThought::kRemoveSink)
+    {
+        AddElemToTheFleet(false, sink_fleet_, target_val);
+    }
+    else if (base_thought & DoveParrent::DoveThought::kRemoveCmd)
+    {
+        AddElemToTheFleet(false, cmd_fleet_, target_val);
+    }
+
     return true;
 }
 
-aqua::StrongFleet aqua::ArkBase::GetBehindArks()
+aqua::StrongFleet aqua::ArkBase::GetSourceArks()
 {
-    std::lock_guard<std::mutex> guard_con(con_mutex_);
-    StrongFleet res_fleet;
-    //Can not be this situation - exception!
-    if (false)
-    {
-        //Remove expired
-        behind_fleet_.remove_if([](const aqua::ArkWptr& passed_param)
-            {
-                return passed_param.expired();
-            });
-    }
-    //Go through data and update descr
-    for (auto ark_iter = behind_fleet_.begin(); ark_iter != behind_fleet_.end(); ark_iter++)
-    {
-        if (auto locked_ptr = ark_iter->lock())
-        {
-            res_fleet.push_back(locked_ptr);
-        }
-    }
-    return res_fleet;
+    return WeakToStrongFleet(source_fleet_);
 }
 
-aqua::StrongFleet aqua::ArkBase::GetFrontArks()
+aqua::StrongFleet aqua::ArkBase::GetSinkArks()
 {
-    std::lock_guard<std::mutex> guard_con(con_mutex_);
-    StrongFleet res_fleet;
-    //Can not be this situation - exception!
-    if (false)
-    {
-        //Remove expired
-        front_fleet_.remove_if([](const aqua::ArkWptr& passed_param)
-            {
-                return passed_param.expired();
-            });
-    }
-    //Go through data and update descr
-    for (auto ark_iter = front_fleet_.begin(); ark_iter != front_fleet_.end(); ark_iter++)
-    {
-        if(auto locked_ptr = ark_iter->lock())
-        {
-            res_fleet.push_back(locked_ptr);
-        }
-    }
-    return res_fleet;
+    return WeakToStrongFleet(sink_fleet_);
+}
+
+StrongFleet aqua::ArkBase::GetCmdArks()
+{
+    return WeakToStrongFleet(cmd_fleet_);
 }
 
 ArkType aqua::ArkBase::GetArkType() const
 {
     return ArkType::kUnknown;
+}
+
+StrongFleet aqua::ArkBase::WeakToStrongFleet(WeakFleet& weak_fleet)
+{
+    tbb::spin_mutex::scoped_lock guard_con(con_mutex_);
+    //Can not be this situation - exception!
+    if (false)
+    {
+        //Remove expired
+        weak_fleet.remove_if([](const aqua::ArkWptr& passed_param)
+            {
+                return passed_param.expired();
+            });
+    }
+
+    StrongFleet strong_fleet;
+    for (const auto& weak_ptr : weak_fleet)
+    {
+        if (auto locked_ptr = weak_ptr.lock())
+        {
+            strong_fleet.push_back(std::move(locked_ptr));
+        }
+    }
+    return strong_fleet;
+  
+}
+
+bool aqua::ArkBase::AddElemToTheFleet(bool do_add, WeakFleet& fleet, const ArkSptr& target_val)
+{
+    if (!target_val)
+        throw std::invalid_argument("Wrong target ark!");
+
+    tbb::spin_mutex::scoped_lock guard_con(con_mutex_);
+
+    if (do_add)
+    {
+        // Проверяем, нет ли уже такого элемента
+        auto found_elem = std::find_if(fleet.begin(), fleet.end(),
+            [&](const aqua::ArkWptr& elem) {
+                auto locked = elem.lock();
+                return locked && locked == target_val;
+            });
+
+        if (found_elem != fleet.end())
+            throw std::logic_error("Element already exists!");
+
+        fleet.push_back(target_val);
+    }
+    else
+    {
+        // Удаляем элемент
+        auto found_elem = std::find_if(fleet.begin(), fleet.end(),
+            [&](const aqua::ArkWptr& elem) {
+                auto locked = elem.lock();
+                return locked && locked == target_val;
+            });
+
+        if (found_elem == fleet.end())
+            throw std::logic_error("Can not delete non-existent ark!");
+
+        fleet.erase(found_elem);
+    }
+
+    return true;
 }

@@ -198,8 +198,7 @@ void pipes::DcRemovePipe::ProcessData(PipeHolder::sptr meta_data)
 
 	ippsSubC_32fc_I( mean, data.data(), static_cast<int>(data.size()));
 
-	if (next_)
-		next_->ProcessData(meta_data);
+	if (next_) next_->ProcessData(meta_data);
 }
 
 void pipes::MulByConstPipe::ProcessData(PipeHolder::sptr meta_data)
@@ -213,5 +212,36 @@ void pipes::SqrtPipe::ProcessData(PipeHolder::sptr meta_data)
 {
 	auto& float_data = meta_data->float_data;
 	ippsSqrt_32f_I((float*)float_data.data(), float_data.size()); //2
+	if (next_) next_->ProcessData(meta_data);
+}
+
+void pipes::RmsNormPipe::ProcessData(PipeHolder::sptr meta_data)
+{
+	auto& float_data = meta_data->float_data;
+	float norm_val = 1.f;
+	IppStatus status = ippsNorm_L2_32f(float_data.data(), float_data.size(), &norm_val);
+	if (status != ippStsNoErr) {
+		return;
+	}
+	constexpr Ipp64f EPSILON = 1e-12;
+	if (norm_val < 1e-12 || !std::isfinite(norm_val)) {
+		return;
+	}
+	ippsDivC_32f_I(norm_val / upscale_val_, float_data.data(), float_data.size());
+	if (next_) next_->ProcessData(meta_data);
+	return;
+}
+
+void pipes::LinearScalePipe::ProcessData(PipeHolder::sptr meta_data)
+{
+	target_koeff_;
+	auto& data = meta_data->complex_float_data;
+	if (data.empty()) { if (next_) next_->ProcessData(meta_data); return; }
+
+	Ipp32f max_abs = 0;
+	ippsMaxAbs_32f((float*)data.data(), data.size() * 2, &max_abs);
+
+	ippsMulC_32f_I(target_koeff_ / max_abs, (float*)data.data(), data.size() * 2);
+
 	if (next_) next_->ProcessData(meta_data);
 }

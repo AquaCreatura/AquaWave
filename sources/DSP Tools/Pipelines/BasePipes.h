@@ -84,6 +84,17 @@ protected:
 	const float mul_koeff_;
 };
 
+class LinearScalePipe: public PipeInterface
+{
+public:
+	LinearScalePipe(const float target_scale = 1.f) : target_koeff_(target_scale) {};
+	void ProcessData(PipeHolder::sptr meta_data) override;
+protected:
+	const float target_koeff_;
+};
+
+
+
 class SqrtPipe: public PipeInterface
 {
 public:
@@ -102,5 +113,14 @@ class DcRemovePipe : public PipeInterface
 {
 public:
 	void ProcessData(PipeHolder::sptr meta_data) override;
+};
+class RmsNormPipe: public PipeInterface
+{
+public:
+	RmsNormPipe(float target_val = 1.0f):upscale_val_(target_val) {};
+	void ProcessData(PipeHolder::sptr meta_data) override;
+protected:
+	float upscale_val_ = 1.f;
+
 };
 }

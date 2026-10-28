@@ -234,7 +234,7 @@ bool IsInBound(const W left_val, const W passed_val, const W right_val)
 {
     return (passed_val > left_val) && (passed_val < right_val);
 }
-
+#include <qdebug.h>
 bool AxisManager::LinesInfo::FillLineVectors(const int distance_px_, const Limits<double>& val_bounds)
 {
 	grid_lines_.clear();
@@ -246,8 +246,11 @@ bool AxisManager::LinesInfo::FillLineVectors(const int distance_px_, const Limit
 	const double low = is_inverted ? val_bounds.high : val_bounds.low;
 	const double high = is_inverted ? val_bounds.low : val_bounds.high;
 	const double delta_val = high - low;
-	if (delta_val <= 0.0 || distance_px_ <= 0)
-		return false;                       // некорректные данные
+    if (delta_val <= 0.0 || distance_px_ <= 0 || !std::isfinite(delta_val)) {
+        qDebug() << "FillLineVectors error passed values\n";
+        return false;                       // некорректные данные
+    }
+		
 
 											// ћаксимально допустимое количество линий, исход€ из пиксельного шага
 	const int max_lines_count = distance_px_ / range_between_lines_px_ + 1;

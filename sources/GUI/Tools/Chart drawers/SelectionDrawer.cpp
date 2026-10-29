@@ -1,7 +1,8 @@
-#include "SelectionDrawer.h"
-#include "Utilities/parse_tools.h"
+п»ї#include "SelectionDrawer.h"
+
 #include "GUI/Tools/gui_worker.h"
-#include "ChartColorScheme.h"
+#include "Utilities/parse_tools.h"
+
 using namespace aqua_gui;
 
 //============================ SelectionHolder ================================
@@ -87,7 +88,7 @@ bool aqua_gui::SelectionDrawer::DrawSelections(QPainter & painter)
 	{
 		auto val_hv = sel_holder_->GetHorVert(scale_info_);
 		auto &vert_sel = val_hv.vert;
-		if (domain == ChartDomainType::kAnalyzeDomain) //Не отрисовываем вертикальный selection при анализе
+		if (domain == ChartDomainType::kAnalyzeDomain) //РќРµ РѕС‚СЂРёСЃРѕРІС‹РІР°РµРј РІРµСЂС‚РёРєР°Р»СЊРЅС‹Р№ selection РїСЂРё Р°РЅР°Р»РёР·Рµ
 			vert_sel.high = vert_sel.low;
 
 		auto &hor_sel = val_hv.hor;
@@ -122,18 +123,18 @@ void aqua_gui::SelectionDrawer::EditableEvent(const QPoint& mouse_location, cons
 	switch (event_type)
 	{
 	case aqua_gui::mouse_event_type::kMove:
-		if (!is_pressed_) return; //Выходим при пустой отрисовке.
+		if (!is_pressed_) return; //Р’С‹С…РѕРґРёРј РїСЂРё РїСѓСЃС‚РѕР№ РѕС‚СЂРёСЃРѕРІРєРµ.
 		
 		cur_hv_.hor.high = value_pos.hor;
 		cur_hv_.vert.high   = value_pos.vert;
 		
 		break;
-	case aqua_gui::mouse_event_type::kPressedLeft:	//Начинаем
+	case aqua_gui::mouse_event_type::kPressedLeft:	//РќР°С‡РёРЅР°РµРј
 		is_pressed_ = true;
 		cur_hv_.hor = { value_pos.hor,value_pos.hor };
 		cur_hv_.vert	  =	{ value_pos.vert  ,value_pos.vert };
 		break;
-	case aqua_gui::mouse_event_type::kReleasedLeft:	//Заканчиваем
+	case aqua_gui::mouse_event_type::kReleasedLeft:	//Р—Р°РєР°РЅС‡РёРІР°РµРј
 		is_pressed_ = false;
 		break;
 	default:
@@ -186,7 +187,7 @@ bool aqua_gui::SelectionDrawer::DrawRectangles(QPainter & painter, const HorVerL
 		painter.setPen(sel_pen);
 
 		if (is_hor_valid) {
-			painter.drawLine(pixel_rect.left(), 0, pixel_rect.left(), chart_size_px.vert); //Вертикальные линии
+			painter.drawLine(pixel_rect.left(), 0, pixel_rect.left(), chart_size_px.vert); //Р’РµСЂС‚РёРєР°Р»СЊРЅС‹Рµ Р»РёРЅРёРё
 			painter.drawLine(pixel_rect.right() + 1, 0, pixel_rect.right() + 1, chart_size_px.vert);
 
 			if (scale_info_.val_info_.domain_type != ChartDomainType::kTimeFrequency) {
@@ -197,7 +198,7 @@ bool aqua_gui::SelectionDrawer::DrawRectangles(QPainter & painter, const HorVerL
 
 
 		if (is_vert_valid) {
-			painter.drawLine(0, pixel_rect.top(), chart_size_px.hor, pixel_rect.top()); //Горизонтальные линии
+			painter.drawLine(0, pixel_rect.top(), chart_size_px.hor, pixel_rect.top()); //Р“РѕСЂРёР·РѕРЅС‚Р°Р»СЊРЅС‹Рµ Р»РёРЅРёРё
 			painter.drawLine(0, pixel_rect.bottom() + 1, chart_size_px.hor, pixel_rect.bottom() + 1);
 
 			if (scale_info_.val_info_.domain_type == ChartDomainType::kTimeFrequency) {
@@ -209,7 +210,7 @@ bool aqua_gui::SelectionDrawer::DrawRectangles(QPainter & painter, const HorVerL
 
 	}
 
-	//Отрисовка самого селекшена
+	//РћС‚СЂРёСЃРѕРІРєР° СЃР°РјРѕРіРѕ СЃРµР»РµРєС€РµРЅР°
 	if (is_hor_valid && is_vert_valid)
 	{
 		QPen pen;
@@ -223,8 +224,8 @@ bool aqua_gui::SelectionDrawer::DrawRectangles(QPainter & painter, const HorVerL
 	return true;
 }
 /*
-user_rect - прямоугольник в пикселях.
-hv_val	  - прямоугольник в значениях
+user_rect - РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРє РІ РїРёРєСЃРµР»СЏС….
+hv_val	  - РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРє РІ Р·РЅР°С‡РµРЅРёСЏС…
 
 */
 #define M_PI 3.14
@@ -251,7 +252,7 @@ bool aqua_gui::SelectionDrawer::DrawSizes(
 	int top = user_rect.vert.low;
 	int bottom = user_rect.vert.high;
 
-	// Вспомогательная функция для отрисовки только "головы" стрелки
+	// Р’СЃРїРѕРјРѕРіР°С‚РµР»СЊРЅР°СЏ С„СѓРЅРєС†РёСЏ РґР»СЏ РѕС‚СЂРёСЃРѕРІРєРё С‚РѕР»СЊРєРѕ "РіРѕР»РѕРІС‹" СЃС‚СЂРµР»РєРё
 	auto drawArrowHead = [&](QPointF tip, double angle) {
 		QPointF p1 = tip + QPointF(std::cos(angle + M_PI / 6) * arrowSize,
 			std::sin(angle + M_PI / 6) * arrowSize);
@@ -261,7 +262,7 @@ bool aqua_gui::SelectionDrawer::DrawSizes(
 	};
 
 	/* ===============================
-	ЛОГИКА ПОЗИЦИОНИРОВАНИЯ И ОТРИСОВКИ
+	Р›РћР“РРљРђ РџРћР—РР¦РРћРќРР РћР’РђРќРРЇ Р РћРўР РРЎРћР’РљР
 	=============================== */
 	const int textGap = 1;
 	const int arrowExt = 15;
@@ -270,7 +271,7 @@ bool aqua_gui::SelectionDrawer::DrawSizes(
 		(top - offset - 5 >= 0) ? (top - offset) : qBound(5, bottom + offset, chartH - 5);
 	if (user_rect.vert.delta() == 0)
 		y = chartH - 5;
-	// Определение X (для высоты) - Приоритет СПРАВА
+	// РћРїСЂРµРґРµР»РµРЅРёРµ X (РґР»СЏ РІС‹СЃРѕС‚С‹) - РџСЂРёРѕСЂРёС‚РµС‚ РЎРџР РђР’Рђ
 	int x = (right + offset + 15 <= chartW) ? (right + offset) :
 		(left - offset - 15 >= 0) ? (left - offset) : qBound(5, right + offset, chartW - 5);
 	if (user_rect.hor.delta() == 0) 
@@ -280,7 +281,7 @@ bool aqua_gui::SelectionDrawer::DrawSizes(
 		double len = isVertical ? std::abs(p2.y() - p1.y()) : std::abs(p2.x() - p1.x());
 		bool small = len < 40;
 
-		// 1. Линия и стрелки
+		// 1. Р›РёРЅРёСЏ Рё СЃС‚СЂРµР»РєРё
 		painter.setPen(QPen(colors_.text_color, 1));
 		painter.drawLine(p1, p2);
 
@@ -301,7 +302,7 @@ bool aqua_gui::SelectionDrawer::DrawSizes(
 			}
 		}
 
-		// 2. Текст с фоном
+		// 2. РўРµРєСЃС‚ СЃ С„РѕРЅРѕРј
 		QFontMetrics fm(painter.font());
 		QRectF txtRect = fm.boundingRect(text);
 		txtRect.adjust(-3, 0, 3, 0);
@@ -335,7 +336,7 @@ bool aqua_gui::SelectionDrawer::DrawSizes(
 		painter.restore();
 	};
 
-	// Вызовы отрисовки
+	// Р’С‹Р·РѕРІС‹ РѕС‚СЂРёСЃРѕРІРєРё
 	if ((user_rect.hor.delta())) {
 		QString hor_text = aqua_parse_tools::ValueToString(hv_val.hor.delta(), -1).c_str();
 		drawDimension(QPointF(left, y), QPointF(right, y), false, hor_text);
@@ -357,19 +358,19 @@ bool aqua_gui::SelectionDrawer::DrawMarks(QPainter & painter, const HorVerLim<in
 
 	using namespace aqua_parse_tools;
 
-	// 1. Настройка стиля
+	// 1. РќР°СЃС‚СЂРѕР№РєР° СЃС‚РёР»СЏ
 	QPen dashPen(colors_.grid_line_color);
 	dashPen.setDashPattern({ 7, 7 });
 	painter.setPen(dashPen);
 
-	// 2. Компактная лямбда для отрисовки плашки
-	// Принимает только текст, позицию на оси и флаг ориентации
+	// 2. РљРѕРјРїР°РєС‚РЅР°СЏ Р»СЏРјР±РґР° РґР»СЏ РѕС‚СЂРёСЃРѕРІРєРё РїР»Р°С€РєРё
+	// РџСЂРёРЅРёРјР°РµС‚ С‚РѕР»СЊРєРѕ С‚РµРєСЃС‚, РїРѕР·РёС†РёСЋ РЅР° РѕСЃРё Рё С„Р»Р°Рі РѕСЂРёРµРЅС‚Р°С†РёРё
 	auto drawLabel = [&](const QString& text, int p, bool isHor) {
 		QFontMetrics fm = painter.fontMetrics();
 		QRect tr = fm.boundingRect(text);
 		int w = tr.width() + 12, h = tr.height() + 4;
 
-		// Определяем координаты
+		// РћРїСЂРµРґРµР»СЏРµРј РєРѕРѕСЂРґРёРЅР°С‚С‹
 		QRect bg = isHor ? QRect(p - w / 2, chart_size_px.vert + 5, w, h)
 			: QRect(chart_size_px.hor + 5, p - h / 2, w, h);
 
@@ -378,7 +379,7 @@ bool aqua_gui::SelectionDrawer::DrawMarks(QPainter & painter, const HorVerLim<in
 		painter.drawText(bg, Qt::AlignCenter, text);
 	};
 
-	// 3. Главная логика обработки оси
+	// 3. Р“Р»Р°РІРЅР°СЏ Р»РѕРіРёРєР° РѕР±СЂР°Р±РѕС‚РєРё РѕСЃРё
 	auto processAxis = [&](bool isHor) {
 		const auto& v = isHor ? hv_val.hor : hv_val.vert;
 		const auto& p = isHor ? user_rect.hor : user_rect.vert;
@@ -388,7 +389,7 @@ bool aqua_gui::SelectionDrawer::DrawMarks(QPainter & painter, const HorVerLim<in
 		double total_delta = isHor ? cur_chart_val.hor.delta() : cur_chart_val.vert.delta();
 		int precision = GetPrecission(total_delta);
 
-		// Рисуем центральную линию и метку, если совпадает тип домена
+		// Р РёСЃСѓРµРј С†РµРЅС‚СЂР°Р»СЊРЅСѓСЋ Р»РёРЅРёСЋ Рё РјРµС‚РєСѓ, РµСЃР»Рё СЃРѕРІРїР°РґР°РµС‚ С‚РёРї РґРѕРјРµРЅР°
 		bool needLine = isHor ? (domain == ChartDomainType::kFreqDomain || domain == ChartDomainType::kAnalyzeDomain)
 			: (domain == ChartDomainType::kTimeFrequency);
 
@@ -401,14 +402,14 @@ bool aqua_gui::SelectionDrawer::DrawMarks(QPainter & painter, const HorVerLim<in
 			drawLabel(ValueToString(v.low + v.delta() / 2, precision).c_str(), mid_p, isHor);
 		}
 
-		// Дополнительные метки по краям (> 60px)
+		// Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅС‹Рµ РјРµС‚РєРё РїРѕ РєСЂР°СЏРј (> 60px)
 		if (p.delta() > 60) {
 			drawLabel(ValueToString(v.low, precision).c_str(), p.low, isHor);
 			drawLabel(ValueToString(v.high, precision).c_str(), p.high, isHor);
 		}
 	};
 
-	// 4. Вызов для обеих осей
+	// 4. Р’С‹Р·РѕРІ РґР»СЏ РѕР±РµРёС… РѕСЃРµР№
 	processAxis(true);  // Horizontal
 	processAxis(false); // Vertical
 
@@ -417,7 +418,7 @@ bool aqua_gui::SelectionDrawer::DrawMarks(QPainter & painter, const HorVerLim<in
 
 
 //============================================ MouseDrawer ====================================================
-// ---- Конструктор ----
+// ---- РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ ----
 aqua_gui::MouseDrawer::MouseDrawer(ChartScaleInfo& base_scale_info)
 	: scale_info_(base_scale_info)
 {
@@ -435,7 +436,7 @@ void aqua_gui::MouseDrawer::ApplyColorScheme(const ChartColorScheme& scheme)
 	colors_ = scheme;
 }
 
-// ---- Обработка событий мыши ----
+// ---- РћР±СЂР°Р±РѕС‚РєР° СЃРѕР±С‹С‚РёР№ РјС‹С€Рё ----
 void aqua_gui::MouseDrawer::MouseEvent(const QPoint& mouse_location, mouse_event_type event_type)
 {
 	pos_ = mouse_location;
@@ -446,7 +447,7 @@ void aqua_gui::MouseDrawer::MouseEvent(const QPoint& mouse_location, mouse_event
 			is_panning_ = true;
 			pan_start_pos_ = mouse_location;
 
-			// Вычисляем мировые координаты в точке клика
+			// Р’С‹С‡РёСЃР»СЏРµРј РјРёСЂРѕРІС‹Рµ РєРѕРѕСЂРґРёРЅР°С‚С‹ РІ С‚РѕС‡РєРµ РєР»РёРєР°
 			const auto& cur_bounds = scale_info_.val_info_.view_bounds;
 			const auto& px_info = scale_info_.pix_info_;
 
@@ -480,28 +481,28 @@ void aqua_gui::MouseDrawer::MouseEvent(const QPoint& mouse_location, mouse_event
 	}
 }
 
-// ---- Установка состояния "внутри виджета" ----
+// ---- РЈСЃС‚Р°РЅРѕРІРєР° СЃРѕСЃС‚РѕСЏРЅРёСЏ "РІРЅСѓС‚СЂРё РІРёРґР¶РµС‚Р°" ----
 void aqua_gui::MouseDrawer::SetWidgetInsideState(bool is_enter)
 {
 	is_inside_widget_ = is_enter;
 	if (!is_enter) {
-		is_panning_ = false;   // если мышь вышла, прерываем панорамирование
+		is_panning_ = false;   // РµСЃР»Рё РјС‹С€СЊ РІС‹С€Р»Р°, РїСЂРµСЂС‹РІР°РµРј РїР°РЅРѕСЂР°РјРёСЂРѕРІР°РЅРёРµ
 	}
 }
 
-// ---- Возврат формы курсора ----
+// ---- Р’РѕР·РІСЂР°С‚ С„РѕСЂРјС‹ РєСѓСЂСЃРѕСЂР° ----
 Qt::CursorShape aqua_gui::MouseDrawer::GetCursor() const
 {
 	if (is_panning_) {
-		return Qt::ClosedHandCursor;   // зажатая рука – перетаскивание активно
+		return Qt::ClosedHandCursor;   // Р·Р°Р¶Р°С‚Р°СЏ СЂСѓРєР° вЂ“ РїРµСЂРµС‚Р°СЃРєРёРІР°РЅРёРµ Р°РєС‚РёРІРЅРѕ
 	}
 	if (is_inside_widget_) {
-		return Qt::ArrowCursor;     // открытая рука – можно перетаскивать
+		return Qt::ArrowCursor;     // РѕС‚РєСЂС‹С‚Р°СЏ СЂСѓРєР° вЂ“ РјРѕР¶РЅРѕ РїРµСЂРµС‚Р°СЃРєРёРІР°С‚СЊ
 	}
 	return Qt::ArrowCursor;
 }
 
-// ---- Отрисовка ----
+// ---- РћС‚СЂРёСЃРѕРІРєР° ----
 bool aqua_gui::MouseDrawer::Draw(QPainter& painter)
 {
 	using namespace aqua_parse_tools;

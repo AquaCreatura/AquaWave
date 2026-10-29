@@ -1,9 +1,11 @@
-#pragma once
-#include "Units/TileInterface.h"
-#include "GUI/Tools/Chart drawers//QimageZoomer.h"
+п»ї#pragma once
+#include "GUI/Tools/Chart drawers/QimageZoomer.h"
 #include "GUI/Tools/gui_worker.h"
-#include <future>
+#include "Units/TileInterface.h"
+
 #include <qelapsedtimer.h>
+#include <tbb/spin_mutex.h>
+
 using namespace aqua_gui;
 //Works synchoniously
 class ChartTiler { 
@@ -26,14 +28,14 @@ protected:
 	std::atomic<int>				 tile_id_;
 	bool							 need_update_qimage_{false};
 	const ChartScaleInfo&			scale_info_;
-	dynamic_qimage					dyn_qim_; //Структура для работы с QImage в качестве обёртки
+	dynamic_qimage					dyn_qim_; //РЎС‚СЂСѓРєС‚СѓСЂР° РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ QImage РІ РєР°С‡РµСЃС‚РІРµ РѕР±С‘СЂС‚РєРё
 	QimageZoomer					zoomer_;
 	const double					zoom_step_sqrt_ = 1.5;
 
 	bool							is_spg_{ false };
 	QElapsedTimer					image_update_timer_;
-	tbb::spin_mutex					data_mutex_; //обновлять данные можем из разных потоков
-	tbb::spin_mutex					bounds_mutex_; //обновлять границы можем из разных потоков...
+	tbb::spin_mutex					data_mutex_; //РѕР±РЅРѕРІР»СЏС‚СЊ РґР°РЅРЅС‹Рµ РјРѕР¶РµРј РёР· СЂР°Р·РЅС‹С… РїРѕС‚РѕРєРѕРІ
+	tbb::spin_mutex					bounds_mutex_; //РѕР±РЅРѕРІР»СЏС‚СЊ РіСЂР°РЅРёС†С‹ РјРѕР¶РµРј РёР· СЂР°Р·РЅС‹С… РїРѕС‚РѕРєРѕРІ...
 	double							fps_default_ = 10;
 	double							fps_optimization_ = 1;
 	double							life_time_sec_;

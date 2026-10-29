@@ -1,21 +1,21 @@
-#include "FileDataManager.h"
-#include <qdebug.h>
+п»ї#include "FileDataManager.h"
+
 using namespace file_source;
 
 //=================================== FileDataManager Implementation =============================
 
-// Конструктор: инициализирует параметры файла
+// РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ: РёРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РїР°СЂР°РјРµС‚СЂС‹ С„Р°Р№Р»Р°
 file_source::FileDataManager::FileDataManager(const aqua::SourceDescription& params) : 
-    params_(params)  // Инициализация константной ссылки на параметры
+    params_(params)  // РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РєРѕРЅСЃС‚Р°РЅС‚РЅРѕР№ СЃСЃС‹Р»РєРё РЅР° РїР°СЂР°РјРµС‚СЂС‹
 {
 }
 
-// Инициализация слушателя для конкретного ARK
+// РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ СЃР»СѓС€Р°С‚РµР»СЏ РґР»СЏ РєРѕРЅРєСЂРµС‚РЅРѕРіРѕ ARK
 void file_source::FileDataManager::InitReader(const aqua::ArkWptr& reader, InitParams &setup)
 {
-	auto& listener = listeners_.try_emplace(reader, reader, params_).first->second; // Создает или получает существующий listener
-    listener.WaitProcess();             // Останавливает текущий процесс (если работает)
-    listener.SetBaseParams(setup);		// Настраивает базовые параметры
+	auto& listener = listeners_.try_emplace(reader, reader, params_).first->second; // РЎРѕР·РґР°РµС‚ РёР»Рё РїРѕР»СѓС‡Р°РµС‚ СЃСѓС‰РµСЃС‚РІСѓСЋС‰РёР№ listener
+    listener.WaitProcess();             // РћСЃС‚Р°РЅР°РІР»РёРІР°РµС‚ С‚РµРєСѓС‰РёР№ РїСЂРѕС†РµСЃСЃ (РµСЃР»Рё СЂР°Р±РѕС‚Р°РµС‚)
+    listener.SetBaseParams(setup);		// РќР°СЃС‚СЂР°РёРІР°РµС‚ Р±Р°Р·РѕРІС‹Рµ РїР°СЂР°РјРµС‚СЂС‹
 }
 
 void file_source::FileDataManager::UpdateChunkSize(const aqua::ArkWptr & reader, const int chunk_size)
@@ -26,11 +26,11 @@ void file_source::FileDataManager::UpdateChunkSize(const aqua::ArkWptr & reader,
 
 void file_source::FileDataManager::StartReading(const aqua::ArkWptr & reader, Limits<double> time_bounds, const FileSrcDove::SpecThought read_type)
 {
-	auto& listener = listeners_.try_emplace(reader, reader, params_).first->second;  // Получает listener (должен быть инициализирован)
-	// Асинхронный запуск чтения
+	auto& listener = listeners_.try_emplace(reader, reader, params_).first->second;  // РџРѕР»СѓС‡Р°РµС‚ listener (РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ РёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°РЅ)
+	// РђСЃРёРЅС…СЂРѕРЅРЅС‹Р№ Р·Р°РїСѓСЃРє С‡С‚РµРЅРёСЏ
 	switch (read_type)
 	{
-	case FileSrcDove::SpecThought::kAskChunkAround: // Запуск чтения вокруг позиции 
+	case FileSrcDove::SpecThought::kAskChunkAround: // Р—Р°РїСѓСЃРє С‡С‚РµРЅРёСЏ РІРѕРєСЂСѓРі РїРѕР·РёС†РёРё 
 		listener.StartSingleAround(time_bounds.low);
 		break;
 	case FileSrcDove::SpecThought::kAskChunksInRange:
@@ -47,13 +47,13 @@ void file_source::FileDataManager::StartReading(const aqua::ArkWptr & reader, Li
 
 
 
-// Удаление слушателя для указанного ARK
+// РЈРґР°Р»РµРЅРёРµ СЃР»СѓС€Р°С‚РµР»СЏ РґР»СЏ СѓРєР°Р·Р°РЅРЅРѕРіРѕ ARK
 void file_source::FileDataManager::DeleteReader(const aqua::ArkWptr& reader)
 {
     auto it = listeners_.find(reader);
-    if(it == listeners_.end()) return;   // Выход, если listener не найден
-    it->second.WaitProcessLocked();           // Остановка процесса перед удалением
-    listeners_.erase(it);                // Удаление из map
+    if(it == listeners_.end()) return;   // Р’С‹С…РѕРґ, РµСЃР»Рё listener РЅРµ РЅР°Р№РґРµРЅ
+    it->second.WaitProcessLocked();           // РћСЃС‚Р°РЅРѕРІРєР° РїСЂРѕС†РµСЃСЃР° РїРµСЂРµРґ СѓРґР°Р»РµРЅРёРµРј
+    listeners_.erase(it);                // РЈРґР°Р»РµРЅРёРµ РёР· map
 }
 
 void file_source::FileDataManager::StopAllReaders()
@@ -65,20 +65,20 @@ void file_source::FileDataManager::StopAllReaders()
 
 //=================================== FileDataListener Implementation ============================
 
-// Конструктор: инициализирует weak_ptr на ARK и параметры файла
+// РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ: РёРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ weak_ptr РЅР° ARK Рё РїР°СЂР°РјРµС‚СЂС‹ С„Р°Р№Р»Р°
 file_source::FileDataListener::FileDataListener(const aqua::ArkWptr& weak_ptr, const SourceDescription& params):
-    target_ark_(weak_ptr),  // Инициализация ссылки на weak_ptr
-    file_params_(params)         // Инициализация константной ссылки на параметры
+    target_ark_(weak_ptr),  // РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ СЃСЃС‹Р»РєРё РЅР° weak_ptr
+    file_params_(params)         // РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РєРѕРЅСЃС‚Р°РЅС‚РЅРѕР№ СЃСЃС‹Р»РєРё РЅР° РїР°СЂР°РјРµС‚СЂС‹
 {
 	
 }
 
-// Установка базовых параметров (частота, sample rate)
+// РЈСЃС‚Р°РЅРѕРІРєР° Р±Р°Р·РѕРІС‹С… РїР°СЂР°РјРµС‚СЂРѕРІ (С‡Р°СЃС‚РѕС‚Р°, sample rate)
 void file_source::FileDataListener::SetBaseParams(InitParams &setup)
 {
 	tbb::spin_mutex::scoped_lock scoped_locker(init_mutex_);
-    data_info_.freq_info_.carrier_hz = setup.carrier_hz;      // Установка несущей частоты
-    data_info_.freq_info_.samplerate_hz = setup.samplerate_hz; // Установка частоты дискретизации
+    data_info_.freq_info_.carrier_hz = setup.carrier_hz;      // РЈСЃС‚Р°РЅРѕРІРєР° РЅРµСЃСѓС‰РµР№ С‡Р°СЃС‚РѕС‚С‹
+    data_info_.freq_info_.samplerate_hz = setup.samplerate_hz; // РЈСЃС‚Р°РЅРѕРІРєР° С‡Р°СЃС‚РѕС‚С‹ РґРёСЃРєСЂРµС‚РёР·Р°С†РёРё
 
 	resampler_.SetBaseParams(file_params_.carrier_hz, file_params_.samplerate_hz);
 	resampler_.SetTargetParams(setup.carrier_hz, setup.samplerate_hz, setup.banwidth_hz);
@@ -100,12 +100,12 @@ void file_source::FileDataListener::SetChunkSize(const int chunk_size)
 	}
 }
 
-// Остановка текущего асинхронного процесса
+// РћСЃС‚Р°РЅРѕРІРєР° С‚РµРєСѓС‰РµРіРѕ Р°СЃРёРЅС…СЂРѕРЅРЅРѕРіРѕ РїСЂРѕС†РµСЃСЃР°
 void file_source::FileDataListener::WaitProcess()
 {
 	state_ = kNeedStop;
     if(process_anchor_.valid()) 
-        process_anchor_.get();  // Блокирует, пока поток не завершится
+        process_anchor_.get();  // Р‘Р»РѕРєРёСЂСѓРµС‚, РїРѕРєР° РїРѕС‚РѕРє РЅРµ Р·Р°РІРµСЂС€РёС‚СЃСЏ
 }
 
 void file_source::FileDataListener::WaitProcessLocked()
@@ -115,7 +115,7 @@ void file_source::FileDataListener::WaitProcessLocked()
 
 }
 
-// Асинхронный запуск чтения вокруг позиции
+// РђСЃРёРЅС…СЂРѕРЅРЅС‹Р№ Р·Р°РїСѓСЃРє С‡С‚РµРЅРёСЏ РІРѕРєСЂСѓРі РїРѕР·РёС†РёРё
 bool file_source::FileDataListener::StartSingleAround(const double pos_ratio)
 {  
 	tbb::spin_mutex::scoped_lock scoped_locker(init_mutex_);
@@ -153,16 +153,16 @@ bool file_source::FileDataListener::StartLoopInRange(const Limits<double>& time_
 	return true;
 }
 
-// Отправка подготовленных данных в ARK
+// РћС‚РїСЂР°РІРєР° РїРѕРґРіРѕС‚РѕРІР»РµРЅРЅС‹С… РґР°РЅРЅС‹С… РІ ARK
 void file_source::FileDataListener::SendPreparedData()
 {
-    auto locked_ark = target_ark_.lock();  // Попытка получить shared_ptr из weak_ptr
+    auto locked_ark = target_ark_.lock();  // РџРѕРїС‹С‚РєР° РїРѕР»СѓС‡РёС‚СЊ shared_ptr РёР· weak_ptr
     if (!locked_ark)
         throw std::exception("ark doesn't exist - can not send data!");
-    locked_ark->SendData(data_info_);  // Отправка данных
+    locked_ark->SendData(data_info_);  // РћС‚РїСЂР°РІРєР° РґР°РЅРЅС‹С…
 }
 
-// Получение текущего состояния слушателя
+// РџРѕР»СѓС‡РµРЅРёРµ С‚РµРєСѓС‰РµРіРѕ СЃРѕСЃС‚РѕСЏРЅРёСЏ СЃР»СѓС€Р°С‚РµР»СЏ
 const file_source::FileDataListener::ListenerState file_source::FileDataListener::GetState() const
 {
     return state_;
@@ -173,9 +173,9 @@ void file_source::FileDataListener::ReadChunksInRangeProcess(const Limits<double
 	const auto chunk_size = send_block_size_;
 	const auto read_chunk_size  = read_block_size_;
 	StreamReader reader;
-	if (!reader.SetFileParams(file_params_))  // Настройка файлового читателя
+	if (!reader.SetFileParams(file_params_))  // РќР°СЃС‚СЂРѕР№РєР° С„Р°Р№Р»РѕРІРѕРіРѕ С‡РёС‚Р°С‚РµР»СЏ
 	{
-		state_ = kProcessStopped;  // Ошибка чтения
+		state_ = kProcessStopped;  // РћС€РёР±РєР° С‡С‚РµРЅРёСЏ
 		return;
 	}
 	data_info_.time_point = 0.;
@@ -222,25 +222,25 @@ void file_source::FileDataListener::ReadChunksInRangeProcess(const Limits<double
 			}
 		}
 	}
-	state_ = kNoProcess;  // Сброс состояния
+	state_ = kNoProcess;  // РЎР±СЂРѕСЃ СЃРѕСЃС‚РѕСЏРЅРёСЏ
 }
 
 void file_source::FileDataListener::LoopReadInRangeProcess(const Limits<double>& time_bounds)
 {
-	// Проверка на пустой диапазон
+	// РџСЂРѕРІРµСЂРєР° РЅР° РїСѓСЃС‚РѕР№ РґРёР°РїР°Р·РѕРЅ
 	if (time_bounds.delta() <= 0 || (send_block_size_ < 0))
 	{
 		state_ = kProcessStopped;
 		return;
 	}
 	StreamReader reader;
-	// Однократная настройка файлового читателя
+	// РћРґРЅРѕРєСЂР°С‚РЅР°СЏ РЅР°СЃС‚СЂРѕР№РєР° С„Р°Р№Р»РѕРІРѕРіРѕ С‡РёС‚Р°С‚РµР»СЏ
 	if (!reader.SetFileParams(file_params_))
 	{
 		state_ = kProcessStopped;
 		return;
 	}
-	// Ожидаемое количество выходных отсчётов за один проход диапазона
+	// РћР¶РёРґР°РµРјРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ РІС‹С…РѕРґРЅС‹С… РѕС‚СЃС‡С‘С‚РѕРІ Р·Р° РѕРґРёРЅ РїСЂРѕС…РѕРґ РґРёР°РїР°Р·РѕРЅР°
 	const double supposed_samples = (time_bounds.delta()) *
 		file_params_.count_of_samples /
 		file_params_.samplerate_hz *
@@ -252,8 +252,8 @@ void file_source::FileDataListener::LoopReadInRangeProcess(const Limits<double>&
 	std::vector<Ipp32fc> casted_vec(read_chunk_size);
 	std::vector<Ipp32fc> chunk_to_send(send_chunk_size);
 	std::vector<uint8_t> read_data;
-	size_t chunk_pos = 0;               // текущая позиция в выходном чанке
-	int64_t samples_processed = 0;      // общее число обработанных выходных отсчётов
+	size_t chunk_pos = 0;               // С‚РµРєСѓС‰Р°СЏ РїРѕР·РёС†РёСЏ РІ РІС‹С…РѕРґРЅРѕРј С‡Р°РЅРєРµ
+	int64_t samples_processed = 0;      // РѕР±С‰РµРµ С‡РёСЃР»Рѕ РѕР±СЂР°Р±РѕС‚Р°РЅРЅС‹С… РІС‹С…РѕРґРЅС‹С… РѕС‚СЃС‡С‘С‚РѕРІ
 
 	while (state_ != kNeedStop)
 	{
@@ -264,17 +264,17 @@ void file_source::FileDataListener::LoopReadInRangeProcess(const Limits<double>&
 			casted_vec.resize(read_chunk_size);
 			chunk_to_send.resize(send_chunk_size);
 
-			chunk_pos = 0;               // текущая позиция в выходном чанке
-			samples_processed = 0;      // общее число обработанных выходных отсчётов
+			chunk_pos = 0;               // С‚РµРєСѓС‰Р°СЏ РїРѕР·РёС†РёСЏ РІ РІС‹С…РѕРґРЅРѕРј С‡Р°РЅРєРµ
+			samples_processed = 0;      // РѕР±С‰РµРµ С‡РёСЃР»Рѕ РѕР±СЂР°Р±РѕС‚Р°РЅРЅС‹С… РІС‹С…РѕРґРЅС‹С… РѕС‚СЃС‡С‘С‚РѕРІ
 
 			reader.InitStartEndRatio(time_bounds);
 		}
-		// Пытаемся прочитать очередной блок из файла
+		// РџС‹С‚Р°РµРјСЃСЏ РїСЂРѕС‡РёС‚Р°С‚СЊ РѕС‡РµСЂРµРґРЅРѕР№ Р±Р»РѕРє РёР· С„Р°Р№Р»Р°
 		if (!reader.ReadStream(read_data, read_chunk_size))
 		{
-			// Достигнут конец диапазона — переинициализируем читатель для нового прохода
+			// Р”РѕСЃС‚РёРіРЅСѓС‚ РєРѕРЅРµС† РґРёР°РїР°Р·РѕРЅР° вЂ” РїРµСЂРµРёРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј С‡РёС‚Р°С‚РµР»СЊ РґР»СЏ РЅРѕРІРѕРіРѕ РїСЂРѕС…РѕРґР°
 			reader.InitStartEndRatio(time_bounds);
-			// Пробуем прочитать снова; если опять неудача — фатальная ошибка
+			// РџСЂРѕР±СѓРµРј РїСЂРѕС‡РёС‚Р°С‚СЊ СЃРЅРѕРІР°; РµСЃР»Рё РѕРїСЏС‚СЊ РЅРµСѓРґР°С‡Р° вЂ” С„Р°С‚Р°Р»СЊРЅР°СЏ РѕС€РёР±РєР°
 			if (!reader.ReadStream(read_data, read_chunk_size))
 			{
 				state_ = kProcessStopped;
@@ -282,7 +282,7 @@ void file_source::FileDataListener::LoopReadInRangeProcess(const Limits<double>&
 			}
 		}
 
-		// Преобразование int16 -> float (комплексные отсчёты)
+		// РџСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёРµ int16 -> float (РєРѕРјРїР»РµРєСЃРЅС‹Рµ РѕС‚СЃС‡С‘С‚С‹)
 		casted_vec.resize(read_data.size() / sizeof(Ipp32fc));
 		switch (file_params_.data_type_)
 		{
@@ -296,11 +296,11 @@ void file_source::FileDataListener::LoopReadInRangeProcess(const Limits<double>&
 		}
 		
 
-		// Ресемплинг блока
+		// Р РµСЃРµРјРїР»РёРЅРі Р±Р»РѕРєР°
 		resampler_.ProcessBlock(casted_vec.data(), casted_vec.size());
 		const auto& processed_data = resampler_.GetProcessedData();
 
-		// Копируем обработанные отсчёты в выходной чанк
+		// РљРѕРїРёСЂСѓРµРј РѕР±СЂР°Р±РѕС‚Р°РЅРЅС‹Рµ РѕС‚СЃС‡С‘С‚С‹ РІ РІС‹С…РѕРґРЅРѕР№ С‡Р°РЅРє
 		size_t processed_idx = 0;
 		while (processed_idx < processed_data.size())
 		{
@@ -315,16 +315,16 @@ void file_source::FileDataListener::LoopReadInRangeProcess(const Limits<double>&
 			processed_idx += to_copy;
 			samples_processed += to_copy;
 
-			// Если выходной чанк заполнен — отправляем
+			// Р•СЃР»Рё РІС‹С…РѕРґРЅРѕР№ С‡Р°РЅРє Р·Р°РїРѕР»РЅРµРЅ вЂ” РѕС‚РїСЂР°РІР»СЏРµРј
 			if (chunk_pos == send_chunk_size)
 			{
-				// Вычисляем временную метку для отправляемого блока
+				// Р’С‹С‡РёСЃР»СЏРµРј РІСЂРµРјРµРЅРЅСѓСЋ РјРµС‚РєСѓ РґР»СЏ РѕС‚РїСЂР°РІР»СЏРµРјРѕРіРѕ Р±Р»РѕРєР°
 				data_info_.time_point = (samples_processed - send_chunk_size / 2) / supposed_samples;
 
 				data_info_.data_vec.swap((std::vector<uint8_t>&)(chunk_to_send));
 				SendPreparedData();
 
-				// Подготавливаем новый чанк
+				// РџРѕРґРіРѕС‚Р°РІР»РёРІР°РµРј РЅРѕРІС‹Р№ С‡Р°РЅРє
 				chunk_to_send.resize(send_chunk_size);
 				chunk_pos = 0;
 			}
@@ -334,20 +334,20 @@ void file_source::FileDataListener::LoopReadInRangeProcess(const Limits<double>&
 	state_ = kNoProcess;
 }
 
-// Основной процесс чтения данных вокруг позиции
+// РћСЃРЅРѕРІРЅРѕР№ РїСЂРѕС†РµСЃСЃ С‡С‚РµРЅРёСЏ РґР°РЅРЅС‹С… РІРѕРєСЂСѓРі РїРѕР·РёС†РёРё
 void file_source::FileDataListener::ReadAroundProcess(double pos_ratio, const int64_t chunk_size)
 {
 
-    if(!file_reader_.SetFileParams(file_params_) || (chunk_size <= 0) || pos_ratio > 1. || pos_ratio < 0.)  // Настройка файлового читателя
+    if(!file_reader_.SetFileParams(file_params_) || (chunk_size <= 0) || pos_ratio > 1. || pos_ratio < 0.)  // РќР°СЃС‚СЂРѕР№РєР° С„Р°Р№Р»РѕРІРѕРіРѕ С‡РёС‚Р°С‚РµР»СЏ
     {
-		state_ = kProcessStopped;  // Ошибка чтения
+		state_ = kProcessStopped;  // РћС€РёР±РєР° С‡С‚РµРЅРёСЏ
         return;
     }
-    // Чтение данных вокруг позиции
+    // Р§С‚РµРЅРёРµ РґР°РЅРЅС‹С… РІРѕРєСЂСѓРі РїРѕР·РёС†РёРё
     if(!file_reader_.GetDataAround(pos_ratio, chunk_size, data_info_.data_vec) ||
 		(data_info_.data_vec.size() != chunk_size * GetSampleSize(file_params_.data_type_) ))
     {
-        state_ = kProcessStopped;  // Ошибка чтения
+        state_ = kProcessStopped;  // РћС€РёР±РєР° С‡С‚РµРЅРёСЏ
         return;
     }
 
@@ -365,15 +365,15 @@ void file_source::FileDataListener::ReadAroundProcess(double pos_ratio, const in
     data_info_.data_vec.swap((std::vector<uint8_t>&)casted_vec);
     data_info_.time_point = pos_ratio;
 
-    SendPreparedData();   // Успешное чтение - отправка данных
-    state_ = kNoProcess;  // Сброс состояния
+    SendPreparedData();   // РЈСЃРїРµС€РЅРѕРµ С‡С‚РµРЅРёРµ - РѕС‚РїСЂР°РІРєР° РґР°РЅРЅС‹С…
+    state_ = kNoProcess;  // РЎР±СЂРѕСЃ СЃРѕСЃС‚РѕСЏРЅРёСЏ
 }
 
 void file_source::FileDataListener::LoopReadPointsProcess()
 {
-	if (!file_reader_.SetFileParams(file_params_))  // Настройка файлового читателя
+	if (!file_reader_.SetFileParams(file_params_))  // РќР°СЃС‚СЂРѕР№РєР° С„Р°Р№Р»РѕРІРѕРіРѕ С‡РёС‚Р°С‚РµР»СЏ
 	{
-		state_ = kProcessStopped;  // Ошибка чтения
+		state_ = kProcessStopped;  // РћС€РёР±РєР° С‡С‚РµРЅРёСЏ
 		return;
 	}
 	int chunk_size = send_block_size_;
@@ -383,11 +383,11 @@ void file_source::FileDataListener::LoopReadPointsProcess()
 		if (chunk_size < 0)
 			break;
 		double pos_ratio = 0.;
-		// Чтение данных вокруг позиции
+		// Р§С‚РµРЅРёРµ РґР°РЅРЅС‹С… РІРѕРєСЂСѓРі РїРѕР·РёС†РёРё
 		if (!file_reader_.GetDataAround(pos_ratio, chunk_size, data_info_.data_vec) ||
 			(data_info_.data_vec.size() != chunk_size * GetSampleSize(file_params_.data_type_)))
 		{
-			state_ = kProcessStopped;  // Ошибка чтения
+			state_ = kProcessStopped;  // РћС€РёР±РєР° С‡С‚РµРЅРёСЏ
 			return;
 		}
 
@@ -405,8 +405,8 @@ void file_source::FileDataListener::LoopReadPointsProcess()
 		data_info_.data_vec.swap((std::vector<uint8_t>&)casted_vec);
 		data_info_.time_point = pos_ratio;
 
-		SendPreparedData();   // Успешное чтение - отправка данных
+		SendPreparedData();   // РЈСЃРїРµС€РЅРѕРµ С‡С‚РµРЅРёРµ - РѕС‚РїСЂР°РІРєР° РґР°РЅРЅС‹С…
 	}
 	
-	state_ = kNoProcess;  // Сброс состояния
+	state_ = kNoProcess;  // РЎР±СЂРѕСЃ СЃРѕСЃС‚РѕСЏРЅРёСЏ
 }

@@ -1,11 +1,11 @@
-#ifndef IMAGEBG_H
+﻿#ifndef IMAGEBG_H
 #define IMAGEBG_H
 
-#include <qimage.h>
-#include <qpixmap.h>
-#include <qpainter.h>
-#include "GUI/gui_defs.h"
 #include "QimageZoomer.h"
+
+#include <qimage.h>
+#include <qpainter.h>
+#include <qpixmap.h>
 
 namespace aqua_gui
 {

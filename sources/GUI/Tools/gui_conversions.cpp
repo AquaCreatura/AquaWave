@@ -1,6 +1,7 @@
 ﻿#include "gui_conversions.h"
 
 #include <cmath>
+
 using namespace aqua_gui;
 
 

@@ -1,10 +1,9 @@
-#pragma once
-#include <ipps.h>
+п»ї#pragma once
 #include <algorithm>
-#include <vector>
 #include <atomic>
 #include <chrono>
 #include <cstdint>
+#include <vector>
 
 namespace utility_aqua
 {
@@ -16,7 +15,7 @@ namespace utility_aqua
 		buff.resize(data_size);
 		std::copy(data, data + data_size, buff.begin());
 
-		// Вычисляем индекс с округлением до ближайшего целого
+		// Р’С‹С‡РёСЃР»СЏРµРј РёРЅРґРµРєСЃ СЃ РѕРєСЂСѓРіР»РµРЅРёРµРј РґРѕ Р±Р»РёР¶Р°Р№С€РµРіРѕ С†РµР»РѕРіРѕ
 		int k = static_cast<int>(std::round(percentile_ratio * (data_size - 1)));
 
 		std::nth_element(buff.begin(), buff.begin() + k, buff.end());
@@ -25,15 +24,15 @@ namespace utility_aqua
 
 	class DataSpeedEstimator {
 	public:
-		DataSpeedEstimator(const int test_interval_msec); //Задаём максимальный интервал в течении которого считаем
-		void Process(const size_t data_size); //Обновляем наш счётчик (при превышении интервала - буфферезируем)
-		void Reset(); //Сбрасываем текущие счётчики
-		int  GetSamplesPerSec(); //Отдаём валидное значение
+		DataSpeedEstimator(const int test_interval_msec); //Р—Р°РґР°С‘Рј РјР°РєСЃРёРјР°Р»СЊРЅС‹Р№ РёРЅС‚РµСЂРІР°Р» РІ С‚РµС‡РµРЅРёРё РєРѕС‚РѕСЂРѕРіРѕ СЃС‡РёС‚Р°РµРј
+		void Process(const size_t data_size); //РћР±РЅРѕРІР»СЏРµРј РЅР°С€ СЃС‡С‘С‚С‡РёРє (РїСЂРё РїСЂРµРІС‹С€РµРЅРёРё РёРЅС‚РµСЂРІР°Р»Р° - Р±СѓС„С„РµСЂРµР·РёСЂСѓРµРј)
+		void Reset(); //РЎР±СЂР°СЃС‹РІР°РµРј С‚РµРєСѓС‰РёРµ СЃС‡С‘С‚С‡РёРєРё
+		int  GetSamplesPerSec(); //РћС‚РґР°С‘Рј РІР°Р»РёРґРЅРѕРµ Р·РЅР°С‡РµРЅРёРµ
 	protected:
 		const int64_t interval_ms_;
 
-		std::atomic<int64_t> current_{ 0 };   // данные текущего неполного интервала
-		std::atomic<int64_t> last_{ 0 };      // данные за последний завершённый интервал
+		std::atomic<int64_t> current_{ 0 };   // РґР°РЅРЅС‹Рµ С‚РµРєСѓС‰РµРіРѕ РЅРµРїРѕР»РЅРѕРіРѕ РёРЅС‚РµСЂРІР°Р»Р°
+		std::atomic<int64_t> last_{ 0 };      // РґР°РЅРЅС‹Рµ Р·Р° РїРѕСЃР»РµРґРЅРёР№ Р·Р°РІРµСЂС€С‘РЅРЅС‹Р№ РёРЅС‚РµСЂРІР°Р»
 		std::atomic<int64_t> last_swap_time_ms_;
 
 		static int64_t now_ms() {

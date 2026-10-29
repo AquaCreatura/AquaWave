@@ -1,7 +1,8 @@
-#pragma once
-#include <utility>
-#include <qimage.h>
+п»ї#pragma once
 #include "aqua_defines.h"
+
+#include <qimage.h>
+
 //#include "Interfaces/ark_defs.h"
 
 using namespace aqua;
@@ -48,10 +49,10 @@ using HorVerLim = HV_Info<Limits<T>>;
 
 enum class ChartDomainType
 {
-	kFreqDomain,    // Default АЧХ
-	kTimeFrequency, // Частотно временная область
-	kTimeDomain,    // Амплитудно временная область
-	kAnalyzeDomain, // График для анализа
+	kFreqDomain,    // Default РђР§РҐ
+	kTimeFrequency, // Р§Р°СЃС‚РѕС‚РЅРѕ РІСЂРµРјРµРЅРЅР°СЏ РѕР±Р»Р°СЃС‚СЊ
+	kTimeDomain,    // РђРјРїР»РёС‚СѓРґРЅРѕ РІСЂРµРјРµРЅРЅР°СЏ РѕР±Р»Р°СЃС‚СЊ
+	kAnalyzeDomain, // Р“СЂР°С„РёРє РґР»СЏ Р°РЅР°Р»РёР·Р°
 };
 
 
@@ -84,7 +85,7 @@ struct ChartScaleInfo
 	Limits<double> power_bounds_;
 };
 /*
-Когда qimage выступает в роли обёртки
+РљРѕРіРґР° qimage РІС‹СЃС‚СѓРїР°РµС‚ РІ СЂРѕР»Рё РѕР±С‘СЂС‚РєРё
 */
 struct dynamic_qimage
 {   
@@ -95,9 +96,9 @@ struct dynamic_qimage
 
 struct draw_data
 {
-    std::vector<float>  data;           //Данные, которые планируем отрисовать 
-    Limits<double>      freq_bounds;    //Границы в частотной области наших данных
-    double              time_pos;       //Временная метка наших данных
+    std::vector<float>  data;           //Р”Р°РЅРЅС‹Рµ, РєРѕС‚РѕСЂС‹Рµ РїР»Р°РЅРёСЂСѓРµРј РѕС‚СЂРёСЃРѕРІР°С‚СЊ 
+    Limits<double>      freq_bounds;    //Р“СЂР°РЅРёС†С‹ РІ С‡Р°СЃС‚РѕС‚РЅРѕР№ РѕР±Р»Р°СЃС‚Рё РЅР°С€РёС… РґР°РЅРЅС‹С…
+    double              time_pos;       //Р’СЂРµРјРµРЅРЅР°СЏ РјРµС‚РєР° РЅР°С€РёС… РґР°РЅРЅС‹С…
 };
 
 struct selection_info {

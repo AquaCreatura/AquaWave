@@ -1,4 +1,7 @@
-#include "qt_utility.h"
+п»ї#include "qt_utility.h"
+
+#include <QIcon>
+
 using namespace utility_aqua;
 
 
@@ -76,8 +79,6 @@ QString buildButtonStyleSheet(
 		.arg(imgDisabled);
 }
 
-#include <QIcon>
-#include <QPushButton>
 
 QIcon buildButtonIcon(
 	const QString& imgChecked,
@@ -92,7 +93,7 @@ QIcon buildButtonIcon(
 	// unchecked
 	icon.addPixmap(QPixmap(imgUnchecked), QIcon::Normal, QIcon::Off);
 
-	// hover (Qt считает это Active)
+	// hover (Qt СЃС‡РёС‚Р°РµС‚ СЌС‚Рѕ Active)
 	icon.addPixmap(QPixmap(imgUncheckedHover), QIcon::Active, QIcon::Off);
 
 	// checked
@@ -101,7 +102,7 @@ QIcon buildButtonIcon(
 	// checked + hover
 	icon.addPixmap(QPixmap(imgCheckedHover), QIcon::Active, QIcon::On);
 
-	// disabled (для обоих состояний)
+	// disabled (РґР»СЏ РѕР±РѕРёС… СЃРѕСЃС‚РѕСЏРЅРёР№)
 	icon.addPixmap(QPixmap(imgDisabled), QIcon::Disabled, QIcon::Off);
 	icon.addPixmap(QPixmap(imgDisabled), QIcon::Disabled, QIcon::On);
 

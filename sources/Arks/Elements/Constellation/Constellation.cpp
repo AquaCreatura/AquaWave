@@ -1,7 +1,11 @@
-#include "Constellation.h"
-#include <qdebug.h>
-#include "special_defs/analyzer_defs.h"
+п»ї#include "Constellation.h"
+
 #include "DSP Tools/Pipelines/DemodPipes.h"
+#include "special_defs/analyzer_defs.h"
+#include "special_defs/spectral_viewer_defs.h"
+
+#include <qdebug.h>
+
 using namespace constel;
 using namespace aqua;
 using namespace pipes;
@@ -32,19 +36,19 @@ bool constel::Constellation::SendData(aqua::DataInfo const & data_info)
 
 bool constel::Constellation::PostDove(aqua::DoveSptr const & sent_dove)
 {
-	// Если сообщение недействительно, выбрасываем исключение.
+	// Р•СЃР»Рё СЃРѕРѕР±С‰РµРЅРёРµ РЅРµРґРµР№СЃС‚РІРёС‚РµР»СЊРЅРѕ, РІС‹Р±СЂР°СЃС‹РІР°РµРј РёСЃРєР»СЋС‡РµРЅРёРµ.
 	if (!sent_dove) throw std::invalid_argument("Not created message sent!");
 
-	// Получаем целевое значение и "мысль" из сообщения.
+	// РџРѕР»СѓС‡Р°РµРј С†РµР»РµРІРѕРµ Р·РЅР°С‡РµРЅРёРµ Рё "РјС‹СЃР»СЊ" РёР· СЃРѕРѕР±С‰РµРЅРёСЏ.
 	auto target_val = sent_dove->target_ark;
 	auto base_thought = sent_dove->base_thought;
 
-	// Если "мысль" - запрос на диалог.
+	// Р•СЃР»Рё "РјС‹СЃР»СЊ" - Р·Р°РїСЂРѕСЃ РЅР° РґРёР°Р»РѕРі.
 	if (base_thought & aqua::DoveParrent::DoveThought::kGetWindow)
 	{
-		// Прикрепляем отрисовщик спектра к виджету сообщения.
+		// РџСЂРёРєСЂРµРїР»СЏРµРј РѕС‚СЂРёСЃРѕРІС‰РёРє СЃРїРµРєС‚СЂР° Рє РІРёРґР¶РµС‚Сѓ СЃРѕРѕР±С‰РµРЅРёСЏ.
 		sent_dove->show_widget = constel_drawer_;
-		return true; // Запрос обработан.
+		return true; // Р—Р°РїСЂРѕСЃ РѕР±СЂР°Р±РѕС‚Р°РЅ.
 	}
 	if (base_thought & aqua::DoveParrent::DoveThought::kAddSource)
 	{
@@ -73,7 +77,7 @@ bool constel::Constellation::PostDove(aqua::DoveSptr const & sent_dove)
 			}
 		};
 	}
-	// Передаём сообщение базовому классу для дальнейшей обработки.
+	// РџРµСЂРµРґР°С‘Рј СЃРѕРѕР±С‰РµРЅРёРµ Р±Р°Р·РѕРІРѕРјСѓ РєР»Р°СЃСЃСѓ РґР»СЏ РґР°Р»СЊРЅРµР№С€РµР№ РѕР±СЂР°Р±РѕС‚РєРё.
 	return ArkBase::PostDove(sent_dove);
 	
 }
@@ -107,7 +111,7 @@ void constel::Constellation::UpdatePipeline(int64_t new_fc_hz, int64_t new_symbo
 		return;
 	}
 
-	{ //Для наглядности ограничем scope
+	{ //Р”Р»СЏ РЅР°РіР»СЏРґРЅРѕСЃС‚Рё РѕРіСЂР°РЅРёС‡РµРј scope
 		tbb::spin_mutex::scoped_lock scoped_locker(pipe_mutex_);
 
 		estim_symbol_rate_ = new_symbol_rate_hz;

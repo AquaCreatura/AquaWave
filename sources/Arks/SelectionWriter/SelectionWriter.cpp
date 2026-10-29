@@ -1,10 +1,13 @@
-#include "SelectionWriter.h"
-#include <qmessagebox.h>
-#include "Arks/Interfaces/special_defs/file_writer_defs.h"
+п»ї#include "SelectionWriter.h"
+
 #include "Arks/Interfaces/special_defs/file_souce_defs.h"
+#include "Arks/Interfaces/special_defs/file_writer_defs.h"
 #include "Utilities/parse_tools.h"
-#include <qfile.h>
+
 #include <qdebug.h>
+#include <qfile.h>
+#include <qmessagebox.h>
+
 constexpr int c_expr_read_chunk_size_ = 128;
 file_writer::SelectionWriter::SelectionWriter()
 {
@@ -13,7 +16,7 @@ file_writer::SelectionWriter::SelectionWriter()
 	connect(&window_, &SelectionWriterWindow::IsStarted, [this]()->bool {return is_started_.load(); });
 
 
-	{ //Таймер
+	{ //РўР°Р№РјРµСЂ
 		connect(&stop_timer_, &QTimer::timeout,this, &SelectionWriter::OnStopTimerEvent);
 		stop_timer_.setInterval(interval_stop_msec_);
 		stop_timer_.setSingleShot(true);
@@ -24,9 +27,9 @@ file_writer::SelectionWriter::~SelectionWriter()
 	qDebug() << "Selection writer destroyed! \n";
 }
 
-bool file_writer::SelectionWriter::SendData(aqua::DataInfo const & data_info) //Вызывается асинхронно не в потоке GUI
+bool file_writer::SelectionWriter::SendData(aqua::DataInfo const & data_info) //Р’С‹Р·С‹РІР°РµС‚СЃСЏ Р°СЃРёРЅС…СЂРѕРЅРЅРѕ РЅРµ РІ РїРѕС‚РѕРєРµ GUI
 {
-	//Закидываем данные
+	//Р—Р°РєРёРґС‹РІР°РµРј РґР°РЅРЅС‹Рµ
 	{
 		std::vector<Ipp32fc>& passed_32fc = (std::vector<Ipp32fc>&)data_info.data_vec;
 		casted_16sc_.resize(passed_32fc.size());
@@ -37,7 +40,7 @@ bool file_writer::SelectionWriter::SendData(aqua::DataInfo const & data_info) //
 			return false;
 		}
 	}
-	//Обновляем статус
+	//РћР±РЅРѕРІР»СЏРµРј СЃС‚Р°С‚СѓСЃ
 	if (status_update_timer_.elapsed() > 0) {
 		double passed_ratio = data_info.time_point; time_bounds_.pos(data_info.time_point);
 		QMetaObject::invokeMethod(&window_, [=]() {
@@ -52,7 +55,7 @@ bool file_writer::SelectionWriter::SendData(aqua::DataInfo const & data_info) //
 
 bool file_writer::SelectionWriter::PostDove(aqua::DoveSptr const & sent_dove)
 {
-	// Получаем целевое значение и "мысль" из сообщения.
+	// РџРѕР»СѓС‡Р°РµРј С†РµР»РµРІРѕРµ Р·РЅР°С‡РµРЅРёРµ Рё "РјС‹СЃР»СЊ" РёР· СЃРѕРѕР±С‰РµРЅРёСЏ.
 	auto target_val = sent_dove->target_ark;
 	auto base_thought = sent_dove->base_thought;
 
@@ -74,7 +77,7 @@ bool file_writer::SelectionWriter::PostDove(aqua::DoveSptr const & sent_dove)
 			}
 		};
 	}
-	// Передаём сообщение базовому классу для дальнейшей обработки.
+	// РџРµСЂРµРґР°С‘Рј СЃРѕРѕР±С‰РµРЅРёРµ Р±Р°Р·РѕРІРѕРјСѓ РєР»Р°СЃСЃСѓ РґР»СЏ РґР°Р»СЊРЅРµР№С€РµР№ РѕР±СЂР°Р±РѕС‚РєРё.
 	return ArkBase::PostDove(sent_dove);
 }
 
@@ -111,7 +114,7 @@ bool file_writer::SelectionWriter::InitSelectionRecord(aqua::Limits<double> freq
 	return true;
 }
 
-//folder_path может прийти в любом формате, в том числе и пустой, может с /,а может и с \\, может иметь в конце слэш, а может нет.
+//folder_path РјРѕР¶РµС‚ РїСЂРёР№С‚Рё РІ Р»СЋР±РѕРј С„РѕСЂРјР°С‚Рµ, РІ С‚РѕРј С‡РёСЃР»Рµ Рё РїСѓСЃС‚РѕР№, РјРѕР¶РµС‚ СЃ /,Р° РјРѕР¶РµС‚ Рё СЃ \\, РјРѕР¶РµС‚ РёРјРµС‚СЊ РІ РєРѕРЅС†Рµ СЃР»СЌС€, Р° РјРѕР¶РµС‚ РЅРµС‚.
 bool file_writer::SelectionWriter::StartRecording(const std::string folder_path)
 {
 	window_.UpdateProgressRatio(0.);

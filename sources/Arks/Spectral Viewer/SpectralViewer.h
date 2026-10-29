@@ -1,10 +1,9 @@
-#pragma once
-#include <qpointer.h>
-#include "Arks/Interfaces/base_impl/ark_base.h"
-
-#include "Window/spectral_viewer_window.h"
-#include "special_defs/spectral_viewer_defs.h"
+﻿#pragma once
 #include "Arks/Scope Analyzer/ScopeAnalyzer.h"
+#include "special_defs/spectral_viewer_defs.h"
+#include "Window/spectral_viewer_window.h"
+
+#include <qpointer.h>
 
 namespace spectral_viewer {
 	class SpectralViewer : public aqua::ArkBase

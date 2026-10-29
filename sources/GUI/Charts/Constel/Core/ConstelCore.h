@@ -1,7 +1,8 @@
-#pragma once
-#include <ipps.h>
-#include "constel_defs.h"
+﻿#pragma once
 #include "ConstelRenderer.h"
+
+#include <ipps.h>
+
 namespace constel {
 
 

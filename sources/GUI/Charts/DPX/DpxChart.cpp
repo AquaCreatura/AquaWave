@@ -1,6 +1,5 @@
-#include "DpxChart.h"
-#include "GUI/Tools/gui_worker.h"
-#include <qjsonarray.h>
+п»ї#include "DpxChart.h"
+
 ChartDPX::ChartDPX(QWidget * parrent, ChartDomainType domain, std::shared_ptr<SelectionHolder> selection_holder):
     ChartInterface(parrent, selection_holder, domain), tiler_(scale_info_)
 {
@@ -25,7 +24,7 @@ void ChartDPX::DrawData(QPainter & passed_painter, const bool need_fast)
 
 void ChartDPX::PushData(const draw_data& draw_data )
 {
-	//Обновляем порог по мощности
+	//РћР±РЅРѕРІР»СЏРµРј РїРѕСЂРѕРі РїРѕ РјРѕС‰РЅРѕСЃС‚Рё
 	{
 		power_man_.Process(draw_data.data, draw_data.freq_bounds);
 		scale_info_.power_bounds_ = power_man_.GetPowerBounds();

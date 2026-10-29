@@ -1,10 +1,10 @@
-#pragma once
-#include "GUI/gui_defs.h" // Assuming this contains WH_Info and Limits definitions
+ï»¿#pragma once
+#include "GUI/gui_defs.h"
+
+#include <qelapsedtimer.h>
 #include <qimage.h>
 #include <qpixmap.h>
-#include <qpainter.h> 
-#include <algorithm> // Äëÿ std::min, std::max
-#include <qelapsedtimer.h>
+
 namespace aqua_gui
 {
 
@@ -84,4 +84,4 @@ private:
 	bool need_max_pooling_ = false;
 };
 
-} // namespace aqua_guií
+} // namespace aqua_guiÐ½

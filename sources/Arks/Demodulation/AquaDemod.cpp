@@ -1,5 +1,7 @@
-#include "AquaDemod.h"
+п»ї#include "AquaDemod.h"
+
 #include "Interfaces/special_defs/demodulator_defs.h"
+
 demodulator::AquaDemod::AquaDemod()
 {
 	window_ = new AquaDemodWindow;
@@ -16,13 +18,13 @@ bool demodulator::AquaDemod::SendData(aqua::DataInfo const & data_info)
 
 bool demodulator::AquaDemod::PostDove(aqua::DoveSptr const & sent_dove)
 {
-	// Получаем целевое значение и "мысль" из сообщения.
+	// РџРѕР»СѓС‡Р°РµРј С†РµР»РµРІРѕРµ Р·РЅР°С‡РµРЅРёРµ Рё "РјС‹СЃР»СЊ" РёР· СЃРѕРѕР±С‰РµРЅРёСЏ.
 	auto target_val = sent_dove->target_ark;
 	auto base_thought = sent_dove->base_thought;
 	if (base_thought & aqua::DoveParrent::DoveThought::kGetWindow)
 	{		
 		sent_dove->show_widget = window_;
-		return true; // Запрос обработан.
+		return true; // Р—Р°РїСЂРѕСЃ РѕР±СЂР°Р±РѕС‚Р°РЅ.
 	}
 	if (base_thought & aqua::DoveParrent::DoveThought::kSpecialThought) {
 		const auto special_thought = sent_dove->special_thought;
@@ -32,7 +34,7 @@ bool demodulator::AquaDemod::PostDove(aqua::DoveSptr const & sent_dove)
 			}
 		};
 	}
-	// Передаём сообщение базовому классу для дальнейшей обработки.
+	// РџРµСЂРµРґР°С‘Рј СЃРѕРѕР±С‰РµРЅРёРµ Р±Р°Р·РѕРІРѕРјСѓ РєР»Р°СЃСЃСѓ РґР»СЏ РґР°Р»СЊРЅРµР№С€РµР№ РѕР±СЂР°Р±РѕС‚РєРё.
 	return ArkBase::PostDove(sent_dove);
 }
 

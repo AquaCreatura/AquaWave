@@ -1,6 +1,7 @@
-#include "selection_writer_window.h"
-#include <QFileDialog>
+ï»¿#include "selection_writer_window.h"
+
 #include <QFile>
+#include <QFileDialog>
 #include <QTextStream>
 
 const char* txt_name = "out_folder_path.txt";
@@ -104,15 +105,15 @@ FileSavedDialog::FileSavedDialog(const std::string& file_path,
 
 	ui_.file_path_label->setText(path);
 
-	// Ðàçðåøàåì âûäåëåíèå è êîïèðîâàíèå
+	// Ð Ð°Ð·Ñ€ÐµÑˆÐ°ÐµÐ¼ Ð²Ñ‹Ð´ÐµÐ»ÐµÐ½Ð¸Ðµ Ð¸ ÐºÐ¾Ð¿Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð¸Ðµ
 	ui_.file_path_label->setTextInteractionFlags(
 		Qt::TextSelectableByMouse |
 		Qt::TextSelectableByKeyboard);
 
-	// Ïîêàçûâàåì ïîëíûé ïóòü âî âñïëûâàþùåé ïîäñêàçêå
+	// ÐŸÐ¾ÐºÐ°Ð·Ñ‹Ð²Ð°ÐµÐ¼ Ð¿Ð¾Ð»Ð½Ñ‹Ð¹ Ð¿ÑƒÑ‚ÑŒ Ð²Ð¾ Ð²ÑÐ¿Ð»Ñ‹Ð²Ð°ÑŽÑ‰ÐµÐ¹ Ð¿Ð¾Ð´ÑÐºÐ°Ð·ÐºÐµ
 	ui_.file_path_label->setToolTip(path);
 
-	// Ïîäãîíÿåì øèðèíó ïîä òåêñò, íî íå áîëåå 400 px
+	// ÐŸÐ¾Ð´Ð³Ð¾Ð½ÑÐµÐ¼ ÑˆÐ¸Ñ€Ð¸Ð½Ñƒ Ð¿Ð¾Ð´ Ñ‚ÐµÐºÑÑ‚, Ð½Ð¾ Ð½Ðµ Ð±Ð¾Ð»ÐµÐµ 400 px
 	int width = ui_.file_path_label->sizeHint().width();
 	ui_.file_path_label->setFixedWidth(std::min(width, 400));
 	ui_.file_path_label->setWordWrap(true);

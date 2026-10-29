@@ -1,8 +1,7 @@
-#include "ChartInterface.h"
-#include <qsizepolicy.h>
-#include <qshortcut.h>
-#include "GUI/Tools/Chart drawers/ChartColorScheme.h"
+п»ї#include "ChartInterface.h"
+
 #include "GUI/Tools/gui_worker.h"
+
 ChartInterface::ChartInterface(QWidget* parent, std::shared_ptr<SelectionHolder> selection_holder, ChartDomainType passed_domain) :
     QWidget(parent), scale_info_(passed_domain), axis_man_(scale_info_), bg_image_(scale_info_), selection_drawer_(scale_info_),
 	mouse_man_(scale_info_)
@@ -43,18 +42,18 @@ void ChartInterface::SetBackgroundImages(const QString& dark_path, const QString
 void ChartInterface::SetVerticalMinMaxBounds(const Limits<double>& vertical_bounds)
 {
     auto& cur_min_max = scale_info_.val_info_.min_max_bounds.vert;
-    // Если ничего не изменилось — выходим
+    // Р•СЃР»Рё РЅРёС‡РµРіРѕ РЅРµ РёР·РјРµРЅРёР»РѕСЃСЊ вЂ” РІС‹С…РѕРґРёРј
     if (cur_min_max == vertical_bounds) return;
 
     cur_min_max = vertical_bounds;
     scale_info_.val_info_.view_bounds.vert = vertical_bounds;
 }
 
-// Установка границ по горизонтали
+// РЈСЃС‚Р°РЅРѕРІРєР° РіСЂР°РЅРёС† РїРѕ РіРѕСЂРёР·РѕРЅС‚Р°Р»Рё
 void ChartInterface::SetHorizontalMinMaxBounds(const Limits<double>& hor_bounds)
 {
     auto& cur_val_info = scale_info_.val_info_.min_max_bounds.hor;
-    // Если ничего не изменилось — выходим
+    // Р•СЃР»Рё РЅРёС‡РµРіРѕ РЅРµ РёР·РјРµРЅРёР»РѕСЃСЊ вЂ” РІС‹С…РѕРґРёРј
     if (cur_val_info == hor_bounds) return;
 
     cur_val_info = hor_bounds;
@@ -121,7 +120,7 @@ void ChartInterface::mousePressEvent(QMouseEvent* mouse_event)
 	selection_drawer_.EditableEvent(mouse_event->pos(), type);
 	mouse_man_.MouseEvent(mouse_event->pos(), type);
 
-	// Обновляем курсор после обработки (может стать ClosedHandCursor)
+	// РћР±РЅРѕРІР»СЏРµРј РєСѓСЂСЃРѕСЂ РїРѕСЃР»Рµ РѕР±СЂР°Р±РѕС‚РєРё (РјРѕР¶РµС‚ СЃС‚Р°С‚СЊ ClosedHandCursor)
 	setCursor(mouse_man_.GetCursor());
 }
 
@@ -130,7 +129,7 @@ void ChartInterface::mouseMoveEvent(QMouseEvent* mouse_event)
 	selection_drawer_.EditableEvent(mouse_event->pos(), mouse_event_type::kMove);
 	mouse_man_.MouseEvent(mouse_event->pos(), mouse_event_type::kMove);
 
-	// Обновляем курсор в зависимости от состояния панорамирования
+	// РћР±РЅРѕРІР»СЏРµРј РєСѓСЂСЃРѕСЂ РІ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё РѕС‚ СЃРѕСЃС‚РѕСЏРЅРёСЏ РїР°РЅРѕСЂР°РјРёСЂРѕРІР°РЅРёСЏ
 	setCursor(mouse_man_.GetCursor());
 
 	update();
@@ -153,7 +152,7 @@ void ChartInterface::mouseReleaseEvent(QMouseEvent* mouse_event)
 	selection_drawer_.EditableEvent(mouse_event->pos(), type);
 	mouse_man_.MouseEvent(mouse_event->pos(), type);
 
-	// После отпускания правой кнопки курсор должен стать открытой рукой
+	// РџРѕСЃР»Рµ РѕС‚РїСѓСЃРєР°РЅРёСЏ РїСЂР°РІРѕР№ РєРЅРѕРїРєРё РєСѓСЂСЃРѕСЂ РґРѕР»Р¶РµРЅ СЃС‚Р°С‚СЊ РѕС‚РєСЂС‹С‚РѕР№ СЂСѓРєРѕР№
 	setCursor(mouse_man_.GetCursor());
 
 	if (mouse_event->button() == Qt::LeftButton) {
@@ -185,13 +184,13 @@ void ChartInterface::paintEvent(QPaintEvent * paint_event)
 {
     UpdateWidgetSizeInfo();     //if widget size was changed
 
-	//Для ЛЧМ не используем
+	//Р”Р»СЏ Р›Р§Рњ РЅРµ РёСЃРїРѕР»СЊР·СѓРµРј
     if(scale_info_.val_info_.domain_type != ChartDomainType::kTimeFrequency) 
 		aqua_gui::AdaptVertPowerBounds(scale_info_);
 
     
     QPainter new_frame_painter(this);
-	//Выставляем закруглённые края
+	//Р’С‹СЃС‚Р°РІР»СЏРµРј Р·Р°РєСЂСѓРіР»С‘РЅРЅС‹Рµ РєСЂР°СЏ
 	{
 		new_frame_painter.setRenderHint(QPainter::Antialiasing, true);
 		QPainterPath path;
@@ -226,7 +225,7 @@ void ChartInterface::paintEvent(QPaintEvent * paint_event)
 
 void ChartInterface::leaveEvent(QEvent * event)
 {
-	QWidget::leaveEvent(event); // вызов базового метода
+	QWidget::leaveEvent(event); // РІС‹Р·РѕРІ Р±Р°Р·РѕРІРѕРіРѕ РјРµС‚РѕРґР°
 	setCursor(Qt::ArrowCursor);
 	mouse_man_.SetWidgetInsideState(false);
 }

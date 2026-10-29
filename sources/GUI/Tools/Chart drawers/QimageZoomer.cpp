@@ -1,7 +1,9 @@
-#include "QimageZoomer.h"
-#include <algorithm> // For std::min and std::max
-#include <QDebug> // Для отладочных сообщений, можно удалить в релизе
+п»ї#include "QimageZoomer.h"
+
 #include "GUI/Tools/gui_conversions.h"
+
+#include <algorithm>
+
 using namespace aqua_gui;
 
 
@@ -87,7 +89,7 @@ QPixmap& QimageZoomer::GetPrecisedPart(const HorVerLim<double>& full_image_value
     last_min_max_value_bounds_ = full_image_value_bounds;
     last_target_value_bounds_ = target_display_value_bounds;
     target_output_size_ = target_output_size;
-	need_high_quality_ = false; //По умолчанию, хорошее качество не нужно
+	need_high_quality_ = false; //РџРѕ СѓРјРѕР»С‡Р°РЅРёСЋ, С…РѕСЂРѕС€РµРµ РєР°С‡РµСЃС‚РІРѕ РЅРµ РЅСѓР¶РЅРѕ
 
     if (NeedRedraw()) {
         UpdateQPixmap();
@@ -98,38 +100,38 @@ QPixmap& QimageZoomer::GetPrecisedPart(const HorVerLim<double>& full_image_value
 
 QImage QimageZoomer::HorMaxPoolingScale(QImage & base_qimage, HV_Info<int> target)
 {
-	// Некорректные размеры – возвращаем пустое изображение
+	// РќРµРєРѕСЂСЂРµРєС‚РЅС‹Рµ СЂР°Р·РјРµСЂС‹ вЂ“ РІРѕР·РІСЂР°С‰Р°РµРј РїСѓСЃС‚РѕРµ РёР·РѕР±СЂР°Р¶РµРЅРёРµ
 	if (base_qimage.isNull() || target.hor <= 0 || target.vert <= 0)
 		return QImage();
 
-	// Приводим исходное изображение к формату ARGB32 для единообразного доступа к пикселям
+	// РџСЂРёРІРѕРґРёРј РёСЃС…РѕРґРЅРѕРµ РёР·РѕР±СЂР°Р¶РµРЅРёРµ Рє С„РѕСЂРјР°С‚Сѓ ARGB32 РґР»СЏ РµРґРёРЅРѕРѕР±СЂР°Р·РЅРѕРіРѕ РґРѕСЃС‚СѓРїР° Рє РїРёРєСЃРµР»СЏРј
 	QImage src = base_qimage; //convertToFormat(QImage::Format_ARGB32);
 	int src_w = src.width();
 	int src_h = src.height();
 
-	// Если размеры не изменились, возвращаем копию
+	// Р•СЃР»Рё СЂР°Р·РјРµСЂС‹ РЅРµ РёР·РјРµРЅРёР»РёСЃСЊ, РІРѕР·РІСЂР°С‰Р°РµРј РєРѕРїРёСЋ
 	if (src_w == target.hor && src_h == target.vert)
 		return src.copy();
 
-	// Результирующее изображение (ARGB32)
+	// Р РµР·СѓР»СЊС‚РёСЂСѓСЋС‰РµРµ РёР·РѕР±СЂР°Р¶РµРЅРёРµ (ARGB32)
 	QImage result(target.hor, target.vert, QImage::Format_ARGB32);
 	if (result.isNull())
 		return QImage();
 
-	// Предварительно вычисляем шаги для вертикального отображения (целочисленное деление)
-	// Для каждого y вычисляем исходную строку src_y = (y * src_h) / target_vertical
+	// РџСЂРµРґРІР°СЂРёС‚РµР»СЊРЅРѕ РІС‹С‡РёСЃР»СЏРµРј С€Р°РіРё РґР»СЏ РІРµСЂС‚РёРєР°Р»СЊРЅРѕРіРѕ РѕС‚РѕР±СЂР°Р¶РµРЅРёСЏ (С†РµР»РѕС‡РёСЃР»РµРЅРЅРѕРµ РґРµР»РµРЅРёРµ)
+	// Р”Р»СЏ РєР°Р¶РґРѕРіРѕ y РІС‹С‡РёСЃР»СЏРµРј РёСЃС…РѕРґРЅСѓСЋ СЃС‚СЂРѕРєСѓ src_y = (y * src_h) / target_vertical
 
 	for (int y = 0; y < target.vert; ++y) {
-		int src_y = (y * src_h) / target.vert;               // децимация / дублирование
+		int src_y = (y * src_h) / target.vert;               // РґРµС†РёРјР°С†РёСЏ / РґСѓР±Р»РёСЂРѕРІР°РЅРёРµ
 		const QRgb* src_line = reinterpret_cast<const QRgb*>(src.constScanLine(src_y));
 		QRgb* dst_line = reinterpret_cast<QRgb*>(result.scanLine(y));
 
-		// Обработка горизонтали: max pooling
+		// РћР±СЂР°Р±РѕС‚РєР° РіРѕСЂРёР·РѕРЅС‚Р°Р»Рё: max pooling
 		for (int x = 0; x < target.hor; ++x) {
 			int left = (x * src_w) / target.hor;
 			int right = ((x + 1) * src_w) / target.hor;
 
-			// Гарантируем, что в диапазоне есть хотя бы один пиксель
+			// Р“Р°СЂР°РЅС‚РёСЂСѓРµРј, С‡С‚Рѕ РІ РґРёР°РїР°Р·РѕРЅРµ РµСЃС‚СЊ С…РѕС‚СЏ Р±С‹ РѕРґРёРЅ РїРёРєСЃРµР»СЊ
 			if (right <= left)
 				right = left + 1;
 
@@ -192,7 +194,7 @@ bool QimageZoomer::NeedRedraw() const
 	if (is_change_by_user) {
 		good_quality_timer_.restart();
 	} 
-	//Отрисовываем только в хорошем качестве, если не трогаем отрисовщик какое-то время
+	//РћС‚СЂРёСЃРѕРІС‹РІР°РµРј С‚РѕР»СЊРєРѕ РІ С…РѕСЂРѕС€РµРј РєР°С‡РµСЃС‚РІРµ, РµСЃР»Рё РЅРµ С‚СЂРѕРіР°РµРј РѕС‚СЂРёСЃРѕРІС‰РёРє РєР°РєРѕРµ-С‚Рѕ РІСЂРµРјСЏ
 	else if ((need_redraw || !is_rendered_high_quality_) && good_quality_timer_.elapsed() > 100) {
 		need_high_quality_ = true;
 		need_redraw = true;

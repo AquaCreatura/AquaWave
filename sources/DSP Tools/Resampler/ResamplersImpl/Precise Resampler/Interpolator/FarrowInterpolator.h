@@ -1,10 +1,11 @@
-// FarrowInterpolator.h
+п»ї// FarrowInterpolator.h
 #ifndef FARROWINTERPOLATOR_H
 #define FARROWINTERPOLATOR_H
 
 #include <ipps.h>
-#include <vector>
+
 #include <array>
+#include <vector>
 
 class FarrowInterpolator {
 public:
@@ -28,7 +29,7 @@ private:
 	double ratio_;
 	double virtual_index_;
 
-	// Всегда храним 4 последних семпла, даже если это нули
+	// Р’СЃРµРіРґР° С…СЂР°РЅРёРј 4 РїРѕСЃР»РµРґРЅРёС… СЃРµРјРїР»Р°, РґР°Р¶Рµ РµСЃР»Рё СЌС‚Рѕ РЅСѓР»Рё
 	std::array<Ipp32fc, 4> tail_;
 };
 

@@ -1,5 +1,6 @@
-#pragma once
+﻿#pragma once
 #include <QTimer>
+
 #include <functional>
 
 namespace utility_aqua

@@ -1,8 +1,11 @@
-#include "window/selection_writer_window.h"
-#include "Arks/Interfaces/base_impl/ark_base.h"
+﻿#include "Arks/Interfaces/base_impl/ark_base.h"
 #include "Utilities/file_helpers.h"
+#include "window/selection_writer_window.h"
+
+#include <ipps.h>
 #include <qelapsedtimer.h>
 #include <qtimer.h>
+
 using namespace aqua;
 namespace file_writer
 {

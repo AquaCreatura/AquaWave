@@ -1,15 +1,15 @@
-#include "SpectrumDPX.h" // Включаем заголовок класса SpectrumDpx
-#include "special_defs/file_souce_defs.h"
-#include "special_defs/analyzer_defs.h"
-#include <ippvm.h>
+п»ї#include "SpectrumDPX.h"
 
-#include <qmessagebox.h>
+#include "special_defs/analyzer_defs.h"
+
+#include <ippvm.h>
 #include <qdebug.h>
+
 using namespace spectral_viewer;
-using namespace dpx_core; // Используем пространство имён dpx_core
+using namespace dpx_core; // РСЃРїРѕР»СЊР·СѓРµРј РїСЂРѕСЃС‚СЂР°РЅСЃС‚РІРѕ РёРјС‘РЅ dpx_core
 using namespace pipes; 
-// Конструктор: Инициализирует компонент для отрисовки спектра.
-// parrent: Указатель на родительский QWidget.
+// РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ: РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РєРѕРјРїРѕРЅРµРЅС‚ РґР»СЏ РѕС‚СЂРёСЃРѕРІРєРё СЃРїРµРєС‚СЂР°.
+// parrent: РЈРєР°Р·Р°С‚РµР»СЊ РЅР° СЂРѕРґРёС‚РµР»СЊСЃРєРёР№ QWidget.
 dpx_core::SpectrumDpx::SpectrumDpx(kDpxChartType chart_type)
 {
 	chart_type_ = chart_type;
@@ -17,7 +17,7 @@ dpx_core::SpectrumDpx::SpectrumDpx(kDpxChartType chart_type)
 	{
 		const bool is_analyze_chart = (chart_type != kDpxChartType::kFFT);
 		const auto chart_type = is_analyze_chart ? aqua_gui::ChartDomainType::kAnalyzeDomain : aqua_gui::ChartDomainType::kFreqDomain;
-		dpx_drawer_ = new ChartDPX(nullptr, chart_type); // Создаём указатель на объект DpxChart для отрисовки.
+		dpx_drawer_ = new ChartDPX(nullptr, chart_type); // РЎРѕР·РґР°С‘Рј СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РѕР±СЉРµРєС‚ DpxChart РґР»СЏ РѕС‚СЂРёСЃРѕРІРєРё.
 	}
 	switch (chart_type)
 	{
@@ -35,6 +35,7 @@ dpx_core::SpectrumDpx::SpectrumDpx(kDpxChartType chart_type)
 		pipe_line_.AddNextPipe(std::make_shared<EnvelopePipe>());
 		pipe_line_.AddNextPipe(std::make_shared<FFtPipe>());
 		pipe_line_.AddNextPipe(std::make_shared<PrecisedPartSaver>(0.5, 1));
+		pipe_line_.AddNextPipe(std::make_shared<ZeroFirstSamples>(0.1));
 		pipe_line_.AddNextPipe(std::make_shared<RmsNormPipe>(100));
 
 		break;	
@@ -43,13 +44,14 @@ dpx_core::SpectrumDpx::SpectrumDpx(kDpxChartType chart_type)
 		pipe_line_.AddNextPipe(std::make_shared<PhasorPipe>());
 		pipe_line_.AddNextPipe(std::make_shared<FFtPipe>());
 		pipe_line_.AddNextPipe(std::make_shared<PrecisedPartSaver>(0.5, 1));
+		pipe_line_.AddNextPipe(std::make_shared<ZeroFirstSamples>(0.1));
 		pipe_line_.AddNextPipe(std::make_shared<RmsNormPipe>(100));
 		break;
 	case dpx_core::kDpxChartType::kPower4x: 
 		pipe_line_.AddNextPipe(std::make_shared<DcRemovePipe>());
 		pipe_line_.AddNextPipe(std::make_shared<LinearScalePipe>(1.));
-		pipe_line_.AddNextPipe(std::make_shared<MulByItSelfPipe>()); //2 степень		
-		pipe_line_.AddNextPipe(std::make_shared<MulByItSelfPipe>()); //4 степень
+		pipe_line_.AddNextPipe(std::make_shared<MulByItSelfPipe>()); //2 СЃС‚РµРїРµРЅСЊ		
+		pipe_line_.AddNextPipe(std::make_shared<MulByItSelfPipe>()); //4 СЃС‚РµРїРµРЅСЊ
 		pipe_line_.AddNextPipe(std::make_shared<FFtPipe>());
 		pipe_line_.AddNextPipe(std::make_shared<RmsNormPipe>(100));
 		break;
@@ -62,13 +64,13 @@ dpx_core::SpectrumDpx::~SpectrumDpx()
 	qDebug() << "Dpx spectrum destroyed! \n";
 }
 
-// Отправляет данные для обработки спектра и отображения.
-// data_info: Структура с входными данными и информацией о частоте.
+// РћС‚РїСЂР°РІР»СЏРµС‚ РґР°РЅРЅС‹Рµ РґР»СЏ РѕР±СЂР°Р±РѕС‚РєРё СЃРїРµРєС‚СЂР° Рё РѕС‚РѕР±СЂР°Р¶РµРЅРёСЏ.
+// data_info: РЎС‚СЂСѓРєС‚СѓСЂР° СЃ РІС…РѕРґРЅС‹РјРё РґР°РЅРЅС‹РјРё Рё РёРЅС„РѕСЂРјР°С†РёРµР№ Рѕ С‡Р°СЃС‚РѕС‚Рµ.
 bool SpectrumDpx::SendData(aqua::DataInfo const & data_info)
 {
-    if(data_info.data_vec.empty()) return true; // Если входные данные пусты, выходим.
+    if(data_info.data_vec.empty()) return true; // Р•СЃР»Рё РІС…РѕРґРЅС‹Рµ РґР°РЅРЅС‹Рµ РїСѓСЃС‚С‹, РІС‹С…РѕРґРёРј.
     auto &freq_info  = data_info.freq_info_;
-    auto &passed_data = (std::vector<Ipp32fc>&)data_info.data_vec; // Приведение типа.
+    auto &passed_data = (std::vector<Ipp32fc>&)data_info.data_vec; // РџСЂРёРІРµРґРµРЅРёРµ С‚РёРїР°.
 	if (n_fft_ != passed_data.size()) return false;
 
 	pipe_line_.Process(passed_data);
@@ -91,23 +93,23 @@ bool SpectrumDpx::SendData(aqua::DataInfo const & data_info)
     return true; 
 }
 
-// Обрабатывает сообщения "Dove".
-// sent_dove: Умный указатель на сообщение Dove.
+// РћР±СЂР°Р±Р°С‚С‹РІР°РµС‚ СЃРѕРѕР±С‰РµРЅРёСЏ "Dove".
+// sent_dove: РЈРјРЅС‹Р№ СѓРєР°Р·Р°С‚РµР»СЊ РЅР° СЃРѕРѕР±С‰РµРЅРёРµ Dove.
 bool dpx_core::SpectrumDpx::PostDove(aqua::DoveSptr const & sent_dove)
 {
-    // Если сообщение недействительно, выбрасываем исключение.
+    // Р•СЃР»Рё СЃРѕРѕР±С‰РµРЅРёРµ РЅРµРґРµР№СЃС‚РІРёС‚РµР»СЊРЅРѕ, РІС‹Р±СЂР°СЃС‹РІР°РµРј РёСЃРєР»СЋС‡РµРЅРёРµ.
     if (!sent_dove) throw std::invalid_argument("Not created message sent!");
     
-    // Получаем целевое значение и "мысль" из сообщения.
+    // РџРѕР»СѓС‡Р°РµРј С†РµР»РµРІРѕРµ Р·РЅР°С‡РµРЅРёРµ Рё "РјС‹СЃР»СЊ" РёР· СЃРѕРѕР±С‰РµРЅРёСЏ.
     auto target_val = sent_dove->target_ark;
     auto base_thought = sent_dove->base_thought;
     
-    // Если "мысль" - запрос на диалог.
+    // Р•СЃР»Рё "РјС‹СЃР»СЊ" - Р·Р°РїСЂРѕСЃ РЅР° РґРёР°Р»РѕРі.
     if (base_thought & aqua::DoveParrent::DoveThought::kGetWindow)
     {
-        // Прикрепляем отрисовщик спектра к виджету сообщения.
+        // РџСЂРёРєСЂРµРїР»СЏРµРј РѕС‚СЂРёСЃРѕРІС‰РёРє СЃРїРµРєС‚СЂР° Рє РІРёРґР¶РµС‚Сѓ СЃРѕРѕР±С‰РµРЅРёСЏ.
         sent_dove->show_widget = dpx_drawer_;
-        return true; // Запрос обработан.
+        return true; // Р—Р°РїСЂРѕСЃ РѕР±СЂР°Р±РѕС‚Р°РЅ.
     }
     if(base_thought & aqua::DoveParrent::DoveThought::kAddSource)
     {
@@ -149,7 +151,7 @@ bool dpx_core::SpectrumDpx::PostDove(aqua::DoveSptr const & sent_dove)
 			}
 		};
 	}
-    // Передаём сообщение базовому классу для дальнейшей обработки.
+    // РџРµСЂРµРґР°С‘Рј СЃРѕРѕР±С‰РµРЅРёРµ Р±Р°Р·РѕРІРѕРјСѓ РєР»Р°СЃСЃСѓ РґР»СЏ РґР°Р»СЊРЅРµР№С€РµР№ РѕР±СЂР°Р±РѕС‚РєРё.
     return ArkBase::PostDove(sent_dove);
 }
 

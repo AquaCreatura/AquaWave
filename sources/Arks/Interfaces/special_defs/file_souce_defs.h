@@ -1,10 +1,12 @@
-#pragma once
+п»ї#pragma once
 #ifndef FILE_SRC_DEFINES
 #define FILE_SRC_DEFINES
-#include <ipps.h>
-#include <stdint.h>
-#include <qstring.h>
 #include "Arks/Interfaces/ark_interface.h"
+
+#include <ipps.h>
+
+#include <stdint.h>
+
 using namespace utility_aqua;
 namespace file_source
 {
@@ -35,26 +37,26 @@ namespace file_source
         {
             case ipp1u:    return 1;
             case ipp8u:    return 1;
-            case ipp8uc:   return 2; // комплексный: 2 * 1 байт
+            case ipp8uc:   return 2; // РєРѕРјРїР»РµРєСЃРЅС‹Р№: 2 * 1 Р±Р°Р№С‚
             case ipp8s:    return 1;
-            case ipp8sc:   return 2; // комплексный: 2 * 1 байт
+            case ipp8sc:   return 2; // РєРѕРјРїР»РµРєСЃРЅС‹Р№: 2 * 1 Р±Р°Р№С‚
             case ipp16u:   return 2;
-            case ipp16uc:  return 4; // комплексный: 2 * 2 байта
+            case ipp16uc:  return 4; // РєРѕРјРїР»РµРєСЃРЅС‹Р№: 2 * 2 Р±Р°Р№С‚Р°
             case ipp16s:   return 2;
-            case ipp16sc:  return 4; // комплексный: 2 * 2 байта
+            case ipp16sc:  return 4; // РєРѕРјРїР»РµРєСЃРЅС‹Р№: 2 * 2 Р±Р°Р№С‚Р°
             case ipp32u:   return 4;
-            case ipp32uc:  return 8; // комплексный: 2 * 4 байта
+            case ipp32uc:  return 8; // РєРѕРјРїР»РµРєСЃРЅС‹Р№: 2 * 4 Р±Р°Р№С‚Р°
             case ipp32s:   return 4;
-            case ipp32sc:  return 8; // комплексный: 2 * 4 байта
+            case ipp32sc:  return 8; // РєРѕРјРїР»РµРєСЃРЅС‹Р№: 2 * 4 Р±Р°Р№С‚Р°
             case ipp32f:   return 4;
-            case ipp32fc:  return 8; // комплексный: 2 * 4 байта
+            case ipp32fc:  return 8; // РєРѕРјРїР»РµРєСЃРЅС‹Р№: 2 * 4 Р±Р°Р№С‚Р°
             case ipp64u:   return 8;
-            case ipp64uc:  return 16; // комплексный: 2 * 8 байт
+            case ipp64uc:  return 16; // РєРѕРјРїР»РµРєСЃРЅС‹Р№: 2 * 8 Р±Р°Р№С‚
             case ipp64s:   return 8;
-            case ipp64sc:  return 16; // комплексный: 2 * 8 байт
+            case ipp64sc:  return 16; // РєРѕРјРїР»РµРєСЃРЅС‹Р№: 2 * 8 Р±Р°Р№С‚
             case ipp64f:   return 8;
-            case ipp64fc:  return 16; // комплексный: 2 * 8 байт
-            default:       return 0; // неопределенный или неподдерживаемый тип
+            case ipp64fc:  return 16; // РєРѕРјРїР»РµРєСЃРЅС‹Р№: 2 * 8 Р±Р°Р№С‚
+            default:       return 0; // РЅРµРѕРїСЂРµРґРµР»РµРЅРЅС‹Р№ РёР»Рё РЅРµРїРѕРґРґРµСЂР¶РёРІР°РµРјС‹Р№ С‚РёРї
         };
     };
 }

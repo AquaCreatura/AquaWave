@@ -1,7 +1,7 @@
-#include <qdialog.h>
+﻿#include "special_defs/file_souce_defs.h"
 
+#include <qdialog.h>
 #include "ui_file_settings_dialog.h"
-#include "special_defs/file_souce_defs.h"
 
 using namespace aqua;
 namespace file_source

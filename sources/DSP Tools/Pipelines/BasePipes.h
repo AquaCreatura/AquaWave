@@ -1,8 +1,9 @@
-#pragma once
-#include "PipeInterface.h"
-#include "DSP Tools/FFT/FFT_Worker.h"
+﻿#pragma once
 #include "DSP Tools/basic/acf_worker.h"
+#include "DSP Tools/FFT/FFT_Worker.h"
 #include "DSP Tools/Resampler/ResamplerMan.h"
+#include "PipeInterface.h"
+
 namespace pipes {
 
 

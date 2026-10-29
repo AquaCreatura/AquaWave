@@ -1,9 +1,10 @@
-#pragma once
-#include <qwidget.h>
-#include "GUI/gui_defs.h"
-#include "GUI/Tools/Chart drawers//ImageBackGround.h"
+﻿#pragma once
 #include "Core/ConstelCore.h"
+#include "GUI/Tools/Chart drawers/ImageBackGround.h"
+
 #include <qtimer.h>
+#include <qwidget.h>
+
 using namespace aqua_gui;
 namespace constel {
 

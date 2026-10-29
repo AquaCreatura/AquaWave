@@ -1,13 +1,15 @@
-#pragma once
+п»ї#pragma once
 #include "constel_defs.h"
+
 #include <qpixmap.h>
+
 namespace constel {
 
 
 class ConstellRenderer {
 public:
 	ConstellRenderer(constellation_data &constel_struct);
-	QPixmap& DrawData(const int side_size_px); //отрисовка 
+	QPixmap& DrawData(const int side_size_px); //РѕС‚СЂРёСЃРѕРІРєР° 
 protected:
 	void UpdatePixmap(const int side_size_px);
 	argb_t GetRgbFromDensity(double density);
@@ -18,7 +20,7 @@ protected:
 		QPixmap pixmap;
 		int64_t last_dots_count;
 	};
-	dynamic_qimage          dyn_qimage_; // Структура для работы с QImage в качестве обёркти
+	dynamic_qimage          dyn_qimage_; // РЎС‚СЂСѓРєС‚СѓСЂР° РґР»СЏ СЂР°Р±РѕС‚С‹ СЃ QImage РІ РєР°С‡РµСЃС‚РІРµ РѕР±С‘СЂРєС‚Рё
 	cache_pixmap_structure	cache_;
 	constellation_data		&constel_;
 };

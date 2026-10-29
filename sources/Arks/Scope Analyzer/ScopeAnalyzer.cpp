@@ -1,16 +1,15 @@
-#include "ScopeAnalyzer.h"
-#include "special_defs/file_souce_defs.h"
-#include "special_defs/analyzer_defs.h"
-#include "special_defs/demodulator_defs.h"
-#include "Scheme/ShipBuilder.h"
-#include <ippvm.h>
+п»ї#include "ScopeAnalyzer.h"
 
-#include <qdebug.h>
-#include <qmessagebox.h>
-
+#include "Elements/Constellation/Constellation.h"
 #include "Elements/DPX Spectrum/SpectrumDPX.h"
 #include "Elements/Static SPG/Spectrogram.h"
-#include "Elements/Constellation/Constellation.h"
+#include "Scheme/ShipBuilder.h"
+#include "special_defs/demodulator_defs.h"
+#include "special_defs/file_souce_defs.h"
+
+#include <ippvm.h>
+#include <qdebug.h>
+#include <qmessagebox.h>
 
 using namespace aqua;
 using namespace scope_analyzer;
@@ -20,7 +19,7 @@ ScopeAnalyzer::ScopeAnalyzer()
 {
     window_ = new ScopeAnalyzerWindow;
 
-	//Определяем графики гармонического анализа
+	//РћРїСЂРµРґРµР»СЏРµРј РіСЂР°С„РёРєРё РіР°СЂРјРѕРЅРёС‡РµСЃРєРѕРіРѕ Р°РЅР°Р»РёР·Р°
 	{
 		charts_[analz_chart_type::kAcf]			 = std::make_shared<dpx_core::SpectrumDpx>(dpx_core::kDpxChartType::kACF);
 		charts_[analz_chart_type::kAcf].need_resampler = false;
@@ -40,7 +39,7 @@ ScopeAnalyzer::ScopeAnalyzer()
 	window_->ActivateWindow(analz_chart_type::kPowerSpectrum);
 	resampler_.SetPrecision(0);
 	connect(window_, &ScopeAnalyzerWindow::FftChangeNeed, this, &ScopeAnalyzer::SetNewFftOrder);
-	info_timer_.setInterval(1000); // Интервал 1 секунда (1000 мс), задается один раз
+	info_timer_.setInterval(1000); // РРЅС‚РµСЂРІР°Р» 1 СЃРµРєСѓРЅРґР° (1000 РјСЃ), Р·Р°РґР°РµС‚СЃСЏ РѕРґРёРЅ СЂР°Р·
 	info_timer_.callOnTimeout(this, &ScopeAnalyzer::UpdateHarmonicInfo);
 
 }
@@ -79,7 +78,7 @@ bool ScopeAnalyzer::SendData(aqua::DataInfo const & passed_unit)
 			chart_iter.second->SendData(passed_unit);
 	}
 
-	//Обработка с повышением ЧД
+	//РћР±СЂР°Р±РѕС‚РєР° СЃ РїРѕРІС‹С€РµРЅРёРµРј Р§Р”
 	{
 		auto &resampled = (std::vector<Ipp32fc>&)resampled_unit_.data_vec;
 		resampler_.ProcessData((std::vector<Ipp32fc>&)passed_unit.data_vec, resampled_buff_);
@@ -98,23 +97,23 @@ bool ScopeAnalyzer::SendData(aqua::DataInfo const & passed_unit)
 }
 
 
-// Обрабатывает сообщения "Dove".
-// sent_dove: Умный указатель на сообщение Dove.
+// РћР±СЂР°Р±Р°С‚С‹РІР°РµС‚ СЃРѕРѕР±С‰РµРЅРёСЏ "Dove".
+// sent_dove: РЈРјРЅС‹Р№ СѓРєР°Р·Р°С‚РµР»СЊ РЅР° СЃРѕРѕР±С‰РµРЅРёРµ Dove.
 bool ScopeAnalyzer::PostDove(aqua::DoveSptr const & sent_dove)
 {
-    // Если сообщение недействительно, выбрасываем исключение.
+    // Р•СЃР»Рё СЃРѕРѕР±С‰РµРЅРёРµ РЅРµРґРµР№СЃС‚РІРёС‚РµР»СЊРЅРѕ, РІС‹Р±СЂР°СЃС‹РІР°РµРј РёСЃРєР»СЋС‡РµРЅРёРµ.
     if (!sent_dove) throw std::invalid_argument("Not created message sent!");
     
-    // Получаем целевое значение и "мысль" из сообщения.
+    // РџРѕР»СѓС‡Р°РµРј С†РµР»РµРІРѕРµ Р·РЅР°С‡РµРЅРёРµ Рё "РјС‹СЃР»СЊ" РёР· СЃРѕРѕР±С‰РµРЅРёСЏ.
     auto target_val = sent_dove->target_ark;
     auto base_thought = sent_dove->base_thought;
     
-    // Если "мысль" - запрос на диалог.
+    // Р•СЃР»Рё "РјС‹СЃР»СЊ" - Р·Р°РїСЂРѕСЃ РЅР° РґРёР°Р»РѕРі.
     if (base_thought & aqua::DoveParrent::DoveThought::kGetWindow)
     {
-        // Прикрепляем отрисовщик спектра к виджету сообщения.
+        // РџСЂРёРєСЂРµРїР»СЏРµРј РѕС‚СЂРёСЃРѕРІС‰РёРє СЃРїРµРєС‚СЂР° Рє РІРёРґР¶РµС‚Сѓ СЃРѕРѕР±С‰РµРЅРёСЏ.
         sent_dove->show_widget = window_;
-        return true; // Запрос обработан.
+        return true; // Р—Р°РїСЂРѕСЃ РѕР±СЂР°Р±РѕС‚Р°РЅ.
     }
     if(base_thought == aqua::DoveParrent::DoveThought::kAddSource)
     {
@@ -161,7 +160,7 @@ bool ScopeAnalyzer::PostDove(aqua::DoveSptr const & sent_dove)
 		}
 
 	}
-    // Передаём сообщение базовому классу для дальнейшей обработки.
+    // РџРµСЂРµРґР°С‘Рј СЃРѕРѕР±С‰РµРЅРёРµ Р±Р°Р·РѕРІРѕРјСѓ РєР»Р°СЃСЃСѓ РґР»СЏ РґР°Р»СЊРЅРµР№С€РµР№ РѕР±СЂР°Р±РѕС‚РєРё.
     return ArkBase::PostDove(sent_dove);
 }
 
@@ -260,7 +259,7 @@ bool ScopeAnalyzer::Restart()
 			QMessageBox::warning( nullptr, "Cannot Send Data", "Do something with DPX or file source, or...");
 			return false;
 		}
-		selection_descr_.samplerate_hz = setup->samplerate_hz; //Выставляем ЧД
+		selection_descr_.samplerate_hz = setup->samplerate_hz; //Р’С‹СЃС‚Р°РІР»СЏРµРј Р§Р”
 		resampled_samplerate_ = setup->banwidth_hz * 2;
 		resampler_.Init(setup->samplerate_hz, resampled_samplerate_, setup->samplerate_hz);
 		resampled_unit_.freq_info_.samplerate_hz = resampled_samplerate_;

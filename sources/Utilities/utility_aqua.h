@@ -1,5 +1,4 @@
-#pragma once
-#include <ipps.h>
+п»ї#pragma once
 #include <memory>
 
 namespace utility_aqua
@@ -8,17 +7,17 @@ namespace utility_aqua
     struct aqua_opt
     {
     public:
-        // 1. Конструктор по умолчанию
+        // 1. РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
         aqua_opt() = default;
 
-        // 2. Конструктор копирования (Глубокая копия)
+        // 2. РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РєРѕРїРёСЂРѕРІР°РЅРёСЏ (Р“Р»СѓР±РѕРєР°СЏ РєРѕРїРёСЏ)
         aqua_opt(const aqua_opt& other) {
             if (other.val) {
                 val = std::make_unique<W>(*other.val);
             }
         }
 
-        // 3. Оператор присваивания копированием
+        // 3. РћРїРµСЂР°С‚РѕСЂ РїСЂРёСЃРІР°РёРІР°РЅРёСЏ РєРѕРїРёСЂРѕРІР°РЅРёРµРј
         aqua_opt& operator=(const aqua_opt& other) {
             if (this != &other) {
                 if (other.val) {
@@ -34,13 +33,13 @@ namespace utility_aqua
             return *this;
         }
 
-        // 4. Конструктор перемещения (для оптимизации)
+        // 4. РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РїРµСЂРµРјРµС‰РµРЅРёСЏ (РґР»СЏ РѕРїС‚РёРјРёР·Р°С†РёРё)
         aqua_opt(aqua_opt&& other) noexcept = default;
 
-        // 5. Оператор присваивания перемещением
+        // 5. РћРїРµСЂР°С‚РѕСЂ РїСЂРёСЃРІР°РёРІР°РЅРёСЏ РїРµСЂРµРјРµС‰РµРЅРёРµРј
         aqua_opt& operator=(aqua_opt&& other) noexcept = default;
 
-        // Деструктор теперь не нужен, unique_ptr все сделает сам
+        // Р”РµСЃС‚СЂСѓРєС‚РѕСЂ С‚РµРїРµСЂСЊ РЅРµ РЅСѓР¶РµРЅ, unique_ptr РІСЃРµ СЃРґРµР»Р°РµС‚ СЃР°Рј
 
         W* emplace() {
             if (val)

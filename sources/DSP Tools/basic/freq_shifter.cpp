@@ -1,6 +1,7 @@
-﻿#include <corecrt_math_defines.h>
+﻿#include "freq_shifter.h"
+
 #include <vector>
-#include "freq_shifter.h"
+
 using namespace aqua_dsp_tools;
 
 // Конструктор. Вычисляет частоту тона для сдвига (в радианах на отсчет)

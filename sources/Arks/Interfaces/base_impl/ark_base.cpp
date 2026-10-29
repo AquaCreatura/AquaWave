@@ -1,4 +1,5 @@
-#include "ark_base.h"
+п»ї#include "ark_base.h"
+
 using namespace aqua;
 bool aqua::ArkBase::PostDove(DoveSptr const & sent_dove)
 {
@@ -92,7 +93,7 @@ bool aqua::ArkBase::AddElemToTheFleet(bool do_add, WeakFleet& fleet, const ArkSp
 
     if (do_add)
     {
-        // Проверяем, нет ли уже такого элемента
+        // РџСЂРѕРІРµСЂСЏРµРј, РЅРµС‚ Р»Рё СѓР¶Рµ С‚Р°РєРѕРіРѕ СЌР»РµРјРµРЅС‚Р°
         auto found_elem = std::find_if(fleet.begin(), fleet.end(),
             [&](const aqua::ArkWptr& elem) {
                 auto locked = elem.lock();
@@ -106,7 +107,7 @@ bool aqua::ArkBase::AddElemToTheFleet(bool do_add, WeakFleet& fleet, const ArkSp
     }
     else
     {
-        // Удаляем элемент
+        // РЈРґР°Р»СЏРµРј СЌР»РµРјРµРЅС‚
         auto found_elem = std::find_if(fleet.begin(), fleet.end(),
             [&](const aqua::ArkWptr& elem) {
                 auto locked = elem.lock();

@@ -1,8 +1,9 @@
+п»ї#include "BasePipes.h"
+
 #include <ippvm.h>
+
 #include <algorithm>
-#include "PipeInterface.h"
-#include "BasePipes.h"
-#include "aqua_defines.h"
+
 using namespace pipes;
 //===================================================== FFt ====================================================
 void FFtPipe::ProcessData(PipeHolder::sptr meta_data)
@@ -37,7 +38,7 @@ void AcfPipe::ProcessData(PipeHolder::sptr meta_data)
 
 	acf_worker_.AbsProcess32fc( passed_data, processed_data, ippAlgAuto | ippsNormA );
 	
-	const int samples_to_zero =  std::max(2ui64, processed_data.size() / 100); //Чтобы лучше нормировалось
+	const int samples_to_zero =  std::max(2ui64, processed_data.size() / 100); //Р§С‚РѕР±С‹ Р»СѓС‡С€Рµ РЅРѕСЂРјРёСЂРѕРІР°Р»РѕСЃСЊ
 	ippsZero_32f(processed_data.data(), samples_to_zero);
 	if (next_) next_->ProcessData(meta_data);
 }
@@ -50,7 +51,7 @@ void pipes::EnvelopePipe::ProcessData(PipeHolder::sptr meta_data)
 
 	float_data.resize(complex_data.size());
 	ippsMagnitude_32fc(complex_data.data(), float_data.data(), float_data.size());
-	complex_data.clear(); //Больше неактуально
+	complex_data.clear(); //Р‘РѕР»СЊС€Рµ РЅРµР°РєС‚СѓР°Р»СЊРЅРѕ
 	if (next_) next_->ProcessData(meta_data);
 }
 
@@ -104,7 +105,7 @@ void pipes::SamplesDiffPipe::ProcessData(PipeHolder::sptr meta_data)
 
 void pipes::PowerToDbPipe::ProcessData(PipeHolder::sptr meta_data)
 {
-	// Вычисляем магнитуду (амплитуду) комплексных чисел.
+	// Р’С‹С‡РёСЃР»СЏРµРј РјР°РіРЅРёС‚СѓРґСѓ (Р°РјРїР»РёС‚СѓРґСѓ) РєРѕРјРїР»РµРєСЃРЅС‹С… С‡РёСЃРµР».
 	ProcessData(meta_data->float_data.data(), meta_data->float_data.size());
 
 	if (next_) next_->ProcessData(meta_data);
@@ -132,12 +133,12 @@ void pipes::PrecisedPartSaver::ProcessData(PipeHolder::sptr meta_data)
 		aqua::Limits<size_t> pos_bounds = { low, high };
 	
 
-		// защита от выхода за границы
+		// Р·Р°С‰РёС‚Р° РѕС‚ РІС‹С…РѕРґР° Р·Р° РіСЂР°РЅРёС†С‹
 		if (pos_bounds.delta() <= 0) {
 			vec.clear();
 			return;
 		}
-		// если это не первая часть — сдвигаем
+		// РµСЃР»Рё СЌС‚Рѕ РЅРµ РїРµСЂРІР°СЏ С‡Р°СЃС‚СЊ вЂ” СЃРґРІРёРіР°РµРј
 		if (pos_bounds.low > 0) {
 			std::move(vec.begin() + pos_bounds.low,
 				vec.begin() + pos_bounds.high,

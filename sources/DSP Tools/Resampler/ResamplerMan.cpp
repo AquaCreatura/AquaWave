@@ -1,14 +1,15 @@
-#include "ResamplerMan.h"
+п»ї#include "ResamplerMan.h"
+
 #include "ResamplersImpl/MR Resampler/MultiRateResampler.h"
 #include "ResamplersImpl/Precise Resampler/PreciseResampler.h"
-#include <cmath>
+
 #include <algorithm>
 
 constexpr double max_error = 1.e-4;
 using namespace aqua_resampler;
 
 ResamplerManager::ResamplerManager() {
-	settings_.denom_quality = 10; // Настройки по умолчанию для MR
+	settings_.denom_quality = 10; // РќР°СЃС‚СЂРѕР№РєРё РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ РґР»СЏ MR
 	settings_.need_precise = true;
 	settings_.skip_precise_fir = true;
 	mr_resampler_		= std::make_unique<MultiRateResampler>();
@@ -39,7 +40,7 @@ bool aqua_resampler::ResamplerManager::SetTargetParams(const int64_t fc_tgt_hz, 
 
 	resample_ratio_ = static_cast<double>(sr_tgt_hz) / base_params_.samplerate_hz;
 
-	if (resample_ratio_ == 1.0) { //Передискретизация не требуется
+	if (resample_ratio_ == 1.0) { //РџРµСЂРµРґРёСЃРєСЂРµС‚РёР·Р°С†РёСЏ РЅРµ С‚СЂРµР±СѓРµС‚СЃСЏ
 		return true;
 	}
 
@@ -99,12 +100,12 @@ std::vector<Ipp32fc>& ResamplerManager::GetProcessedData() {
 
 void ResamplerManager::FreeResources() {
 	
-	//Чистим наших работников
+	//Р§РёСЃС‚РёРј РЅР°С€РёС… СЂР°Р±РѕС‚РЅРёРєРѕРІ
 	mr_resampler_->Clear();	
 	precise_resampler_->Clear();	
 	freq_shifter_.Clear();
 
-	//Очищаем буфферы
+	//РћС‡РёС‰Р°РµРј Р±СѓС„С„РµСЂС‹
 	processed_data_.clear();
 	shifted_data_.clear();
 }

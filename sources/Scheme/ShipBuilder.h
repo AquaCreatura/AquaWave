@@ -1,6 +1,6 @@
-#pragma once
+﻿#pragma once
 #include "Interfaces/ark_interface.h"
-#include <qwindow.h>
+
 class ShipBuilder {
 
 public:

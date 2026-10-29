@@ -1,5 +1,7 @@
-#include "ConstelRenderer.h"
+﻿#include "ConstelRenderer.h"
+
 #include "GUI/Tools/gui_conversions.h"
+
 using namespace constel;
 constel::ConstellRenderer::ConstellRenderer(constellation_data & constel_struct) : 
 	constel_(constel_struct)

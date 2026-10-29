@@ -1,8 +1,9 @@
-#pragma once
+п»ї#pragma once
 
-#include <vector>
 #include <atomic>
 #include <cstddef>
+#include <vector>
+
 namespace aqua_queue {
 
 template<typename T>
@@ -18,7 +19,7 @@ public:
 
 	void Resize(size_t capacity)
 	{
-		// +1 позволяет отличить full от empty без доп. флага
+		// +1 РїРѕР·РІРѕР»СЏРµС‚ РѕС‚Р»РёС‡РёС‚СЊ full РѕС‚ empty Р±РµР· РґРѕРї. С„Р»Р°РіР°
 		m_capacity = capacity + 1;
 		m_buffer.resize(m_capacity);
 		Reset();
@@ -27,7 +28,7 @@ public:
 
 	void Reset()
 	{
-		// relaxed достаточно — нет межпоточной зависимости при reset
+		// relaxed РґРѕСЃС‚Р°С‚РѕС‡РЅРѕ вЂ” РЅРµС‚ РјРµР¶РїРѕС‚РѕС‡РЅРѕР№ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё РїСЂРё reset
 		m_head.store(0, std::memory_order_relaxed);
 		m_tail.store(0, std::memory_order_relaxed);
 	}
@@ -37,7 +38,7 @@ public:
 	{
 		size_t head = m_head.load(std::memory_order_relaxed);
 		size_t tail = m_tail.load(std::memory_order_acquire);
-		// acquire нужен чтобы видеть данные, прочитанные consumer-ом
+		// acquire РЅСѓР¶РµРЅ С‡С‚РѕР±С‹ РІРёРґРµС‚СЊ РґР°РЅРЅС‹Рµ, РїСЂРѕС‡РёС‚Р°РЅРЅС‹Рµ consumer-РѕРј
 
 		size_t free = WriteAvailableSizeInternal(head, tail);
 		size_t to_write = std::min(count, free);
@@ -45,13 +46,13 @@ public:
 		if (to_write == 0)
 			return 0;
 
-		// разбиваем на 2 копирования чтобы избежать ветки wrap-around внутри цикла
+		// СЂР°Р·Р±РёРІР°РµРј РЅР° 2 РєРѕРїРёСЂРѕРІР°РЅРёСЏ С‡С‚РѕР±С‹ РёР·Р±РµР¶Р°С‚СЊ РІРµС‚РєРё wrap-around РІРЅСѓС‚СЂРё С†РёРєР»Р°
 		size_t first_part = std::min(to_write, m_capacity - head);
 
 		ippsCopy_8u(
 			reinterpret_cast<const Ipp8u*>(data),
 			reinterpret_cast<Ipp8u*>(&m_buffer[head]),
-			first_part * sizeof(T) // ipps работает в байтах
+			first_part * sizeof(T) // ipps СЂР°Р±РѕС‚Р°РµС‚ РІ Р±Р°Р№С‚Р°С…
 		);
 
 		size_t second_part = to_write - first_part;
@@ -65,7 +66,7 @@ public:
 			);
 		}
 
-		// release гарантирует, что данные записаны до обновления head
+		// release РіР°СЂР°РЅС‚РёСЂСѓРµС‚, С‡С‚Рѕ РґР°РЅРЅС‹Рµ Р·Р°РїРёСЃР°РЅС‹ РґРѕ РѕР±РЅРѕРІР»РµРЅРёСЏ head
 		m_head.store(next(head, to_write), std::memory_order_release);
 		return to_write;
 	}
@@ -75,7 +76,7 @@ public:
 	{
 		size_t tail = m_tail.load(std::memory_order_relaxed);
 		size_t head = m_head.load(std::memory_order_acquire);
-		// acquire нужен чтобы видеть данные, записанные producer-ом
+		// acquire РЅСѓР¶РµРЅ С‡С‚РѕР±С‹ РІРёРґРµС‚СЊ РґР°РЅРЅС‹Рµ, Р·Р°РїРёСЃР°РЅРЅС‹Рµ producer-РѕРј
 
 		size_t available = ReadAvailableSizeInternal(head, tail);
 		size_t to_read = std::min(count, available);
@@ -83,7 +84,7 @@ public:
 		if (to_read == 0)
 			return 0;
 
-		// аналогично write — избегаем условной логики внутри копирования
+		// Р°РЅР°Р»РѕРіРёС‡РЅРѕ write вЂ” РёР·Р±РµРіР°РµРј СѓСЃР»РѕРІРЅРѕР№ Р»РѕРіРёРєРё РІРЅСѓС‚СЂРё РєРѕРїРёСЂРѕРІР°РЅРёСЏ
 		size_t first_part = std::min(to_read, m_capacity - tail);
 
 		ippsCopy_8u(
@@ -103,7 +104,7 @@ public:
 			);
 		}
 
-		// release — consumer "освобождает" данные после чтения
+		// release вЂ” consumer "РѕСЃРІРѕР±РѕР¶РґР°РµС‚" РґР°РЅРЅС‹Рµ РїРѕСЃР»Рµ С‡С‚РµРЅРёСЏ
 		m_tail.store(next(tail, to_read), std::memory_order_release);
 		return to_read;
 	}
@@ -148,13 +149,13 @@ private:
 private:
 	size_t next(size_t index, size_t step = 1) const
 	{
-		// модуль даёт цикличность без ветвлений
+		// РјРѕРґСѓР»СЊ РґР°С‘С‚ С†РёРєР»РёС‡РЅРѕСЃС‚СЊ Р±РµР· РІРµС‚РІР»РµРЅРёР№
 		return (index + step) % m_capacity;
 	}
 
 	size_t ReadAvailableSizeInternal(size_t head, size_t tail) const
 	{
-		// разница зависит от того, "перешли ли через ноль"
+		// СЂР°Р·РЅРёС†Р° Р·Р°РІРёСЃРёС‚ РѕС‚ С‚РѕРіРѕ, "РїРµСЂРµС€Р»Рё Р»Рё С‡РµСЂРµР· РЅРѕР»СЊ"
 		if (head >= tail)
 			return head - tail;
 
@@ -163,7 +164,7 @@ private:
 
 	size_t WriteAvailableSizeInternal(size_t head, size_t tail) const
 	{
-		// -1 чтобы не допустить состояния head == tail при full
+		// -1 С‡С‚РѕР±С‹ РЅРµ РґРѕРїСѓСЃС‚РёС‚СЊ СЃРѕСЃС‚РѕСЏРЅРёСЏ head == tail РїСЂРё full
 		return m_capacity - 1 - ReadAvailableSizeInternal(head, tail);
 	}
 }; 

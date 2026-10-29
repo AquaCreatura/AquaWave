@@ -1,8 +1,9 @@
-#include "TileDPX.h"
-#include "GUI/Tools/gui_worker.h"
-#include "GUI/Tools/gui_conversions.h"
+п»ї#include "TileDPX.h"
 
-// Конструктор
+#include "GUI/Tools/gui_conversions.h"
+#include "GUI/Tools/gui_worker.h"
+
+// РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ
 TileDPX::TileDPX(const bool need_decay)
 {
 	is_spg_ = false;
@@ -12,7 +13,7 @@ TileDPX::TileDPX(const bool need_decay)
 }
 
 // ------------------------------------------------------------------
-// SetData – добавление новых данных (без немедленного затухания)
+// SetData вЂ“ РґРѕР±Р°РІР»РµРЅРёРµ РЅРѕРІС‹С… РґР°РЅРЅС‹С… (Р±РµР· РЅРµРјРµРґР»РµРЅРЅРѕРіРѕ Р·Р°С‚СѓС…Р°РЅРёСЏ)
 // ------------------------------------------------------------------
 void TileDPX::SetData(const draw_data& passed_info)
 {
@@ -41,7 +42,7 @@ void TileDPX::SetData(const draw_data& passed_info)
 }
 
 // ------------------------------------------------------------------
-// UpdateFromTile – заполнение пустых колонок из вышестоящего тайла
+// UpdateFromTile вЂ“ Р·Р°РїРѕР»РЅРµРЅРёРµ РїСѓСЃС‚С‹С… РєРѕР»РѕРЅРѕРє РёР· РІС‹С€РµСЃС‚РѕСЏС‰РµРіРѕ С‚Р°Р№Р»Р°
 // ------------------------------------------------------------------
 void TileDPX::UpdateFromTile(const TileInterface* passed_data)
 {
@@ -49,9 +50,9 @@ void TileDPX::UpdateFromTile(const TileInterface* passed_data)
 	if (!casted_past) return;
 	if(casted_past->data_size_.hor == 0 || casted_past->data_size_.vert == 0 || passed_data->val_bounds_.hor.delta() == 0)
 		return;
-	// 1. Применяем затухание к текущим данным, чтобы они «постарели»
+	// 1. РџСЂРёРјРµРЅСЏРµРј Р·Р°С‚СѓС…Р°РЅРёРµ Рє С‚РµРєСѓС‰РёРј РґР°РЅРЅС‹Рј, С‡С‚РѕР±С‹ РѕРЅРё В«РїРѕСЃС‚Р°СЂРµР»РёВ»
 	ApplyDecay();
-	// 2. Коэффициент масштабирования при переходе между уровнями детализации
+	// 2. РљРѕСЌС„С„РёС†РёРµРЅС‚ РјР°СЃС€С‚Р°Р±РёСЂРѕРІР°РЅРёСЏ РїСЂРё РїРµСЂРµС…РѕРґРµ РјРµР¶РґСѓ СѓСЂРѕРІРЅСЏРјРё РґРµС‚Р°Р»РёР·Р°С†РёРё
 	double hor_ratio = passed_data->val_bounds_.hor.delta() / val_bounds_.hor.delta();
 
 
@@ -67,7 +68,7 @@ void TileDPX::UpdateFromTile(const TileInterface* passed_data)
 	int64_t new_max_trans_density = 0;
 
 	for (size_t x_idx_base = 0; x_idx_base < data_size_.hor; ++x_idx_base) {
-		// Заполняем только те колонки, которые полностью пусты (вес == 0)
+		// Р—Р°РїРѕР»РЅСЏРµРј С‚РѕР»СЊРєРѕ С‚Рµ РєРѕР»РѕРЅРєРё, РєРѕС‚РѕСЂС‹Рµ РїРѕР»РЅРѕСЃС‚СЊСЋ РїСѓСЃС‚С‹ (РІРµСЃ == 0)
 		if (column_weight_vec_[x_idx_base] != 0)
 		{
 			double norm_koeff = double(trans_column_size) / column_weight_vec_[x_idx_base]; 
@@ -82,17 +83,17 @@ void TileDPX::UpdateFromTile(const TileInterface* passed_data)
 			continue;
 		}
 
-		// Мировое значение X для текущего пикселя
+		// РњРёСЂРѕРІРѕРµ Р·РЅР°С‡РµРЅРёРµ X РґР»СЏ С‚РµРєСѓС‰РµРіРѕ РїРёРєСЃРµР»СЏ
 		double world_x = val_bounds_.hor.lerp((x_idx_base + 0.5) / data_size_.hor);
 		if (!casted_past->val_bounds_.hor.has_inside(world_x)) continue;
 
-		// Индекс в буфере вышестоящего тайла
+		// РРЅРґРµРєСЃ РІ Р±СѓС„РµСЂРµ РІС‹С€РµСЃС‚РѕСЏС‰РµРіРѕ С‚Р°Р№Р»Р°
 		size_t x_idx_passed = static_cast<size_t>(std::round(casted_past->val_bounds_.hor.pos(world_x) * casted_past->data_size_.hor - 0.5));
 		x_idx_passed = std::min(x_idx_passed, casted_past->data_size_.hor - 1);
 		if (casted_past->column_weight_vec_[x_idx_passed] == 0) continue;
 
 
-		// Коэффициент для приведения плотностей к стандартной плотности
+		// РљРѕСЌС„С„РёС†РёРµРЅС‚ РґР»СЏ РїСЂРёРІРµРґРµРЅРёСЏ РїР»РѕС‚РЅРѕСЃС‚РµР№ Рє СЃС‚Р°РЅРґР°СЂС‚РЅРѕР№ РїР»РѕС‚РЅРѕСЃС‚Рё
 		double norm_koeff = double(trans_column_size) / casted_past->column_weight_vec_[x_idx_passed];
 
 		size_t sum = 0;
@@ -113,7 +114,7 @@ void TileDPX::UpdateFromTile(const TileInterface* passed_data)
 		column_weight_vec_[x_idx_base] = sum;
 	}
 
-	// Если мы что-то скопировали – ускоряем затухание (переходный режим)
+	// Р•СЃР»Рё РјС‹ С‡С‚Рѕ-С‚Рѕ СЃРєРѕРїРёСЂРѕРІР°Р»Рё вЂ“ СѓСЃРєРѕСЂСЏРµРј Р·Р°С‚СѓС…Р°РЅРёРµ (РїРµСЂРµС…РѕРґРЅС‹Р№ СЂРµР¶РёРј)
 	if (new_max_trans_density > 0) {
 		trans_decrease_counter_ = std::max(trans_decrease_counter_, new_max_trans_density);
 	}
@@ -125,14 +126,14 @@ void TileDPX::UpdateFromTile(const TileInterface* passed_data)
 }
 
 // ------------------------------------------------------------------
-// UpdateQimage – отрисовка кадра с предварительным затуханием
+// UpdateQimage вЂ“ РѕС‚СЂРёСЃРѕРІРєР° РєР°РґСЂР° СЃ РїСЂРµРґРІР°СЂРёС‚РµР»СЊРЅС‹Рј Р·Р°С‚СѓС…Р°РЅРёРµРј
 // ------------------------------------------------------------------
 void TileDPX::UpdateQimage(dynamic_qimage& dyn_qimage, const Limits<double>& power_bounds)
 {
-	// 1. Применяем затухание к данным перед отрисовкой
+	// 1. РџСЂРёРјРµРЅСЏРµРј Р·Р°С‚СѓС…Р°РЅРёРµ Рє РґР°РЅРЅС‹Рј РїРµСЂРµРґ РѕС‚СЂРёСЃРѕРІРєРѕР№
 	ApplyDecay();
 
-	// 2. Пересчитываем максимум и среднюю плотность (для цвета)
+	// 2. РџРµСЂРµСЃС‡РёС‚С‹РІР°РµРј РјР°РєСЃРёРјСѓРј Рё СЃСЂРµРґРЅСЋСЋ РїР»РѕС‚РЅРѕСЃС‚СЊ (РґР»СЏ С†РІРµС‚Р°)
 	UpdateDensityPivot();
 
 	const int grid_height = data_size_.vert;
@@ -142,7 +143,7 @@ void TileDPX::UpdateQimage(dynamic_qimage& dyn_qimage, const Limits<double>& pow
 	for (int vert_number = 0; vert_number < grid_height; ++vert_number)
 	{
 		const size_t* column_weight_iter = &column_weight_vec_[0];
-		const auto matrix_idx_y = grid_height - vert_number - 1; // инверсия Y
+		const auto matrix_idx_y = grid_height - vert_number - 1; // РёРЅРІРµСЂСЃРёСЏ Y
 		const int64_t* dpx_iter = &data_[matrix_idx_y * grid_width];
 
 		for (int hor_number = 0; hor_number < grid_width; ++hor_number)
@@ -157,7 +158,7 @@ void TileDPX::UpdateQimage(dynamic_qimage& dyn_qimage, const Limits<double>& pow
 }
 
 // ------------------------------------------------------------------
-// Reset – полная очистка
+// Reset вЂ“ РїРѕР»РЅР°СЏ РѕС‡РёСЃС‚РєР°
 // ------------------------------------------------------------------
 void TileDPX::Reset()
 {
@@ -172,15 +173,26 @@ void TileDPX::Reset()
 
 void TileDPX::UpdateDecayInfo()
 {
-	//Здесь надо учитывать frame_time - если очень большое, то давать накопить хоть немного
+	//Р—РґРµСЃСЊ РЅР°РґРѕ СѓС‡РёС‚С‹РІР°С‚СЊ frame_time - РµСЃР»Рё РѕС‡РµРЅСЊ Р±РѕР»СЊС€РѕРµ, С‚Рѕ РґР°РІР°С‚СЊ РЅР°РєРѕРїРёС‚СЊ С…РѕС‚СЊ РЅРµРјРЅРѕРіРѕ
 	const double update_time_sec = update_elapsed_timer_.restart() / 1000.;
 	const double elapsed_samples_per_column = std::max<int64_t>(1, periodical_block_counter_) * std::max<double>(1.0, last_samples_per_pixel_);
 
 	const double min_time_for_good_image_sec = 1000 * (update_time_sec / elapsed_samples_per_column);
-	//Определяем время затухания при зумминге
+	//РћРїСЂРµРґРµР»СЏРµРј РІСЂРµРјСЏ Р·Р°С‚СѓС…Р°РЅРёСЏ РїСЂРё Р·СѓРјРјРёРЅРіРµ
 	{
 		double merged_data_decay_time = std::max<double>(min_time_for_good_image_sec, 1.);
 		trans_decay_rate_ = std::exp(-1.0 * update_time_sec / merged_data_decay_time);
+	}
+
+	if (trans_decrease_counter_ > 1000)
+		trans_decay_rate_ = 0.6;
+	if (trans_decrease_counter_ < 1000 && trans_decrease_counter_ > 100) 
+		trans_decay_rate_ = 0.9;
+	if (trans_decay_rate_ > 0 && trans_decay_rate_ < 100) {
+		size_t max_val = 0;
+		for (auto it : column_weight_vec_) max_val = std::max(max_val, it);
+		if (max_val < 100)
+			trans_decay_rate_ = 1;
 	}
 
 	if (!need_decay_) {
@@ -193,7 +205,7 @@ void TileDPX::UpdateDecayInfo()
 	base_decay_rate_ = std::max(0.9, std::exp(-update_time_sec / time_hold_sec));
 }
 // ------------------------------------------------------------------
-// Вспомогательные методы рисования (без изменений, но с уточнениями)
+// Р’СЃРїРѕРјРѕРіР°С‚РµР»СЊРЅС‹Рµ РјРµС‚РѕРґС‹ СЂРёСЃРѕРІР°РЅРёСЏ (Р±РµР· РёР·РјРµРЅРµРЅРёР№, РЅРѕ СЃ СѓС‚РѕС‡РЅРµРЅРёСЏРјРё)
 // ------------------------------------------------------------------
 void TileDPX::DrawOnlyPoints(const std::vector<float>& data, const Limits<double>& src_freq)
 {
@@ -262,7 +274,7 @@ void TileDPX::DrawInterpolated(const std::vector<float>& values, const Limits<do
 }
 
 // ------------------------------------------------------------------
-// GetNormColor – без изменений
+// GetNormColor вЂ“ Р±РµР· РёР·РјРµРЅРµРЅРёР№
 // ------------------------------------------------------------------
 argb_t TileDPX::GetNormColor(double relative_density) const
 {
@@ -284,8 +296,8 @@ void TileDPX::ApplyDecay()
 	if (trans_decrease_counter_ > 0) {
 		const double counter = static_cast<double>(trans_decrease_counter_);
 
-		// До 100 transition затухает пропорционально мягко.
-		// От 100 и выше используется максимальное transition decay.
+		// Р”Рѕ 100 transition Р·Р°С‚СѓС…Р°РµС‚ РїСЂРѕРїРѕСЂС†РёРѕРЅР°Р»СЊРЅРѕ РјСЏРіРєРѕ.
+		// РћС‚ 100 Рё РІС‹С€Рµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РјР°РєСЃРёРјР°Р»СЊРЅРѕРµ transition decay.
 		const double factor = std::min(1.0, counter / 2000.0);
 
 		const double trans_factor = trans_decay_rate_;
@@ -296,7 +308,7 @@ void TileDPX::ApplyDecay()
 
 	decay_factor = std::clamp(decay_factor, 0.001, 1.0);
 
-	// Один и тот же итоговый коэффициент применяется ко всему состоянию.
+	// РћРґРёРЅ Рё С‚РѕС‚ Р¶Рµ РёС‚РѕРіРѕРІС‹Р№ РєРѕСЌС„С„РёС†РёРµРЅС‚ РїСЂРёРјРµРЅСЏРµС‚СЃСЏ РєРѕ РІСЃРµРјСѓ СЃРѕСЃС‚РѕСЏРЅРёСЋ.
 	for (auto& val : data_)
 		val = static_cast<int64_t>(val * decay_factor);
 
@@ -311,17 +323,17 @@ void TileDPX::ApplyDecay()
 	is_data_updated_ = true;
 }
 // ------------------------------------------------------------------
-// UpdateDensityPivot – пересчёт максимума и средней плотности
+// UpdateDensityPivot вЂ“ РїРµСЂРµСЃС‡С‘С‚ РјР°РєСЃРёРјСѓРјР° Рё СЃСЂРµРґРЅРµР№ РїР»РѕС‚РЅРѕСЃС‚Рё
 // ------------------------------------------------------------------
 void TileDPX::UpdateDensityPivot()
 {
-	// Здесь можно вычислить реальный максимум по данным, но для простоты оставим эмпирику
-	// или вычислим на основе текущего состояния.
-	// Важно, чтобы max_density_ и last_average_density_ отражали текущее состояние.
-	// Предлагается простой способ: 
-	//   max_density_ = 3.0 / data_size_.vert  (как в оригинале) 
-	//   last_average_density_ – можно вычислить как среднее по всем ненулевым колонкам,
-	//   но для упрощения оставим константу.
+	// Р—РґРµСЃСЊ РјРѕР¶РЅРѕ РІС‹С‡РёСЃР»РёС‚СЊ СЂРµР°Р»СЊРЅС‹Р№ РјР°РєСЃРёРјСѓРј РїРѕ РґР°РЅРЅС‹Рј, РЅРѕ РґР»СЏ РїСЂРѕСЃС‚РѕС‚С‹ РѕСЃС‚Р°РІРёРј СЌРјРїРёСЂРёРєСѓ
+	// РёР»Рё РІС‹С‡РёСЃР»РёРј РЅР° РѕСЃРЅРѕРІРµ С‚РµРєСѓС‰РµРіРѕ СЃРѕСЃС‚РѕСЏРЅРёСЏ.
+	// Р’Р°Р¶РЅРѕ, С‡С‚РѕР±С‹ max_density_ Рё last_average_density_ РѕС‚СЂР°Р¶Р°Р»Рё С‚РµРєСѓС‰РµРµ СЃРѕСЃС‚РѕСЏРЅРёРµ.
+	// РџСЂРµРґР»Р°РіР°РµС‚СЃСЏ РїСЂРѕСЃС‚РѕР№ СЃРїРѕСЃРѕР±: 
+	//   max_density_ = 3.0 / data_size_.vert  (РєР°Рє РІ РѕСЂРёРіРёРЅР°Р»Рµ) 
+	//   last_average_density_ вЂ“ РјРѕР¶РЅРѕ РІС‹С‡РёСЃР»РёС‚СЊ РєР°Рє СЃСЂРµРґРЅРµРµ РїРѕ РІСЃРµРј РЅРµРЅСѓР»РµРІС‹Рј РєРѕР»РѕРЅРєР°Рј,
+	//   РЅРѕ РґР»СЏ СѓРїСЂРѕС‰РµРЅРёСЏ РѕСЃС‚Р°РІРёРј РєРѕРЅСЃС‚Р°РЅС‚Сѓ.
 	last_average_density_ = 0.05;
 	max_density_ = 1.0 / data_size_.vert * 3.0;
 }

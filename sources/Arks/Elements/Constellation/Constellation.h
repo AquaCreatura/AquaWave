@@ -1,10 +1,11 @@
-#pragma once
-#include <qpointer.h>
-#include "DSP Tools/Pipelines/BasePipes.h"
+﻿#pragma once
 #include "Arks/Interfaces/base_impl/ark_base.h"
+#include "DSP Tools/Pipelines/BasePipes.h"
 #include "GUI/Charts/Constel/ConstelChart.h"
-#include "special_defs/spectral_viewer_defs.h"
+
+#include <qpointer.h>
 #include <tbb/spin_mutex.h>
+
 namespace constel
 {
 

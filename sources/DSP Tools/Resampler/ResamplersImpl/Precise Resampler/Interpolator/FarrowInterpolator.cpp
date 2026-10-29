@@ -1,23 +1,24 @@
-// FarrowInterpolator.cpp
+п»ї// FarrowInterpolator.cpp
 #include "FarrowInterpolator.h"
-#include <stdexcept>
+
 #include <algorithm>
 #include <cmath>
+#include <stdexcept>
 
 FarrowInterpolator::FarrowInterpolator() : ratio_(1.0), virtual_index_(0.0) {
 	tail_.fill({ 0.0f, 0.0f });
 }
-//Перед резамплингом отрабатывает КИХ фильтр
+//РџРµСЂРµРґ СЂРµР·Р°РјРїР»РёРЅРіРѕРј РѕС‚СЂР°Р±Р°С‚С‹РІР°РµС‚ РљРРҐ С„РёР»СЊС‚СЂ
 void FarrowInterpolator::SetResampleRatio(double resample_ratio) {
 	if (resample_ratio <= 0.0 || resample_ratio > 2000.0) {
 		throw std::invalid_argument("Invalid resample ratio");
 	}
-	ratio_ = resample_ratio; //По факту резамплер для уменьшения ЧД, в иной концепции не предполагается
+	ratio_ = resample_ratio; //РџРѕ С„Р°РєС‚Сѓ СЂРµР·Р°РјРїР»РµСЂ РґР»СЏ СѓРјРµРЅСЊС€РµРЅРёСЏ Р§Р”, РІ РёРЅРѕР№ РєРѕРЅС†РµРїС†РёРё РЅРµ РїСЂРµРґРїРѕР»Р°РіР°РµС‚СЃСЏ
 }
 
 bool FarrowInterpolator::can_interpolate(int base_index, size_t input_size) const {
-	// Нужны 3 точки: base-1, base, base+1, base+2
-	// base, base+1 и base+2 должны быть доступны (в текущем блоке или через get_sample)
+	// РќСѓР¶РЅС‹ 3 С‚РѕС‡РєРё: base-1, base, base+1, base+2
+	// base, base+1 Рё base+2 РґРѕР»Р¶РЅС‹ Р±С‹С‚СЊ РґРѕСЃС‚СѓРїРЅС‹ (РІ С‚РµРєСѓС‰РµРј Р±Р»РѕРєРµ РёР»Рё С‡РµСЂРµР· get_sample)
 
 	if (base_index < -2 || base_index + 2 >= static_cast<int>(input_size)) {
 		return false;
@@ -28,7 +29,7 @@ bool FarrowInterpolator::can_interpolate(int base_index, size_t input_size) cons
 
 Ipp32fc FarrowInterpolator::get_sample(int index, const Ipp32fc* input, size_t input_size) const {
 	if (index < 0) {
-		// Берем из хвоста: индексы -1, -2, -3
+		// Р‘РµСЂРµРј РёР· С…РІРѕСЃС‚Р°: РёРЅРґРµРєСЃС‹ -1, -2, -3
 		int tail_idx = 3 + index; // -1 -> 3, -2 -> 2, -3 -> 1
 		if (tail_idx >= 0) {
 			return tail_[tail_idx];
@@ -44,7 +45,7 @@ Ipp32fc FarrowInterpolator::get_sample(int index, const Ipp32fc* input, size_t i
 }
 
 void FarrowInterpolator::update_tail(const Ipp32fc* input, size_t input_size) {
-	// Всегда сохраняем последние 3 семпла текущего блока
+	// Р’СЃРµРіРґР° СЃРѕС…СЂР°РЅСЏРµРј РїРѕСЃР»РµРґРЅРёРµ 3 СЃРµРјРїР»Р° С‚РµРєСѓС‰РµРіРѕ Р±Р»РѕРєР°
 	if (input_size < 3) return;
 
 	size_t copy_count = 3;
@@ -61,11 +62,11 @@ void FarrowInterpolator::process(
 	std::vector<Ipp32fc>& output)
 {
 	output.clear();
-	if (input_size <= 4) return; //Работаем только с нормальными длинами
+	if (input_size <= 4) return; //Р Р°Р±РѕС‚Р°РµРј С‚РѕР»СЊРєРѕ СЃ РЅРѕСЂРјР°Р»СЊРЅС‹РјРё РґР»РёРЅР°РјРё
 
-	// virtual_index_ указывает на позицию интерполяции
-	// base = floor(virtual_index_) соответствует индексу y0
-	// интерполяция выполняется на интервале [base, base+1]
+	// virtual_index_ СѓРєР°Р·С‹РІР°РµС‚ РЅР° РїРѕР·РёС†РёСЋ РёРЅС‚РµСЂРїРѕР»СЏС†РёРё
+	// base = floor(virtual_index_) СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓРµС‚ РёРЅРґРµРєСЃСѓ y0
+	// РёРЅС‚РµСЂРїРѕР»СЏС†РёСЏ РІС‹РїРѕР»РЅСЏРµС‚СЃСЏ РЅР° РёРЅС‚РµСЂРІР°Р»Рµ [base, base+1]
 
 	output.reserve(static_cast<size_t>(input_size / ratio_) + 10);
 	while (true) {
@@ -87,7 +88,7 @@ void FarrowInterpolator::process(
 
 		virtual_index_ += ratio_;
 	}
-	// Обновляем хвост для следующего блока
+	// РћР±РЅРѕРІР»СЏРµРј С…РІРѕСЃС‚ РґР»СЏ СЃР»РµРґСѓСЋС‰РµРіРѕ Р±Р»РѕРєР°
 	update_tail(input, input_size);
 	virtual_index_ -= input_size;
 }
@@ -98,10 +99,10 @@ void FarrowInterpolator::reset() {
 }
 
 FarrowInterpolator::FarrowCoeffs::FarrowCoeffs(const Ipp32fc* samples) {
-	// Входящие точки теперь:
+	// Р’С…РѕРґСЏС‰РёРµ С‚РѕС‡РєРё С‚РµРїРµСЂСЊ:
 	// samples[0] -> y_m1 (x = -1)
-	// samples[1] -> y0   (x = 0)  <-- Начало интервала t
-	// samples[2] -> y1   (x = 1)  <-- Конец интервала t
+	// samples[1] -> y0   (x = 0)  <-- РќР°С‡Р°Р»Рѕ РёРЅС‚РµСЂРІР°Р»Р° t
+	// samples[2] -> y1   (x = 1)  <-- РљРѕРЅРµС† РёРЅС‚РµСЂРІР°Р»Р° t
 	// samples[3] -> y2   (x = 2)
 
 	const Ipp32fc& y_m1 = samples[0];
@@ -111,7 +112,7 @@ FarrowInterpolator::FarrowCoeffs::FarrowCoeffs(const Ipp32fc* samples) {
 
 	const float half = 0.5f;
 
-	// Сплайн Catmull-Rom:
+	// РЎРїР»Р°Р№РЅ Catmull-Rom:
 	// a0 = y0
 	// a1 = 1/2 * (y1 - y_m1)
 	// a2 = y_m1 - 5/2*y0 + 2*y1 - 1/2*y2

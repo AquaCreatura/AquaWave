@@ -1,10 +1,10 @@
+п»ї#include "SpgRequester.h"
+
 #include "special_defs/file_souce_defs.h"
-#include "GUI/Tools/gui_worker.h"
-#include "SpgRequester.h"
-#include <qmessagebox.h>
-#include <ippvm.h>
+
 #include <thread>
-using namespace spg_core; // Используем пространство имён dpx_core
+
+using namespace spg_core; // РСЃРїРѕР»СЊР·СѓРµРј РїСЂРѕСЃС‚СЂР°РЅСЃС‚РІРѕ РёРјС‘РЅ dpx_core
 
 spg_core::SpgRequester::SpgRequester(const ChartTiler& tiler, const ChartScaleInfo& scale_info) :
     tiler_(tiler), scale_info_(scale_info)
@@ -31,7 +31,7 @@ void spg_core::SpgRequester::Initialise(const ArkWptr & file_source, const ArkWp
 void spg_core::SpgRequester::StartProcess(bool do_start)
 {
 	if (do_start) {
-		if (is_running_process_) return; // уже работает
+		if (is_running_process_) return; // СѓР¶Рµ СЂР°Р±РѕС‚Р°РµС‚
 		is_running_process_ = true;
 		process_anchor_ = std::async(std::launch::async, [this] {
 			this->LoopProcess();
@@ -40,14 +40,13 @@ void spg_core::SpgRequester::StartProcess(bool do_start)
 	else {
 		for (auto &it : last_sent_positions_) it = -1;
 		
-		if (!is_running_process_) return; // уже остановлено
+		if (!is_running_process_) return; // СѓР¶Рµ РѕСЃС‚Р°РЅРѕРІР»РµРЅРѕ
 		is_running_process_ = false;
 		if (process_anchor_.valid()) {
-			process_anchor_.wait(); // дождаться завершения
+			process_anchor_.wait(); // РґРѕР¶РґР°С‚СЊСЃСЏ Р·Р°РІРµСЂС€РµРЅРёСЏ
 		}
 	}
 }
-#include <qdebug.h>
 void spg_core::SpgRequester::LoopProcess()
 {
 	while (is_running_process_) {
@@ -60,7 +59,7 @@ void spg_core::SpgRequester::LoopProcess()
 		}
 
 		auto start = std::chrono::high_resolution_clock::now();
-		// В конце участка
+		// Р’ РєРѕРЅС†Рµ СѓС‡Р°СЃС‚РєР°
 		auto end = std::chrono::high_resolution_clock::now();
 		std::chrono::duration<double, std::micro> ms = end - start;
 		//qDebug() << "Time: " << ms.count() << " microsec";

@@ -1,9 +1,9 @@
-#pragma once
-
-#include <vector>
-#include <cstddef>
+﻿#pragma once
 
 #include <ipp.h>
+
+#include <cstddef>
+#include <vector>
 
 class AcfWorker
 {

@@ -1,5 +1,7 @@
-#include "SpgChart.h"
+﻿#include "SpgChart.h"
+
 #include <qshortcut.h>
+
 using namespace spg_core;
 ChartSPG::ChartSPG(QWidget * parrent, std::shared_ptr<SelectionHolder> selection_holder):
     ChartInterface(parrent, selection_holder, ChartDomainType::kTimeFrequency), tiler_(scale_info_)

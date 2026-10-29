@@ -1,18 +1,21 @@
-#pragma once
+п»ї#pragma once
 #ifndef ARK_DEFINES
 #define ARK_DEFINES
 
 
 
 
-#include <memory>
-#include <vector>
-#include <list>
-#include <qwidget.h>
-#include <qdialog.h>
-#include <qpointer.h>
 #include "aqua_defines.h"
 #include "Utilities/utility_aqua.h"
+
+#include <ipps.h>
+#include <qpointer.h>
+#include <qwidget.h>
+
+#include <list>
+#include <memory>
+#include <vector>
+
 namespace aqua
 {
     class ArkInterface;
@@ -76,7 +79,7 @@ namespace aqua
 		IppDataType data_type_{ ipp16sc };
 		double		bw_ratio_;
 
-		//Актуально для файлового источника
+		//РђРєС‚СѓР°Р»СЊРЅРѕ РґР»СЏ С„Р°Р№Р»РѕРІРѕРіРѕ РёСЃС‚РѕС‡РЅРёРєР°
 		QString     file_name_;				
 		bool        is_signal{ true };		
 		int64_t     count_of_samples   {0i64};

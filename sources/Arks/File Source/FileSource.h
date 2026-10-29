@@ -1,9 +1,8 @@
-#include <qdialog.h>
+﻿
 
 
-
-#include "helpers/FileDataManager.h"
 #include "Arks/Interfaces/base_impl/ark_base.h"
+#include "helpers/FileDataManager.h"
 #include "window/FileSourceDialog.h"
 
 namespace file_source

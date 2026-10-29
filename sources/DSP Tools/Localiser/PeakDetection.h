@@ -1,39 +1,40 @@
-#pragma once
-#include <ipps.h>
-#include <vector>
-#include <cstddef>
-
-#include <limits>
-#include "Interfaces/special_defs/spectral_viewer_defs.h"
+п»ї#pragma once
 #include "DSP Tools/Pipelines/BasePipes.h"
+#include "Interfaces/special_defs/spectral_viewer_defs.h"
+
+#include <ipps.h>
+
+#include <cstddef>
+#include <vector>
+
 using namespace dpx_core;
 
 namespace peak_detection{
-	//Находит N лучших пиков методом змейки, где качество пика определяется отношением значения самого пика к среднему значения в пределах зоны проверки. 
-	//При этом минимальное расстояние между пиками = min_dist_ratio. Может выдать и ничего, если пиков нет.
+	//РќР°С…РѕРґРёС‚ N Р»СѓС‡С€РёС… РїРёРєРѕРІ РјРµС‚РѕРґРѕРј Р·РјРµР№РєРё, РіРґРµ РєР°С‡РµСЃС‚РІРѕ РїРёРєР° РѕРїСЂРµРґРµР»СЏРµС‚СЃСЏ РѕС‚РЅРѕС€РµРЅРёРµРј Р·РЅР°С‡РµРЅРёСЏ СЃР°РјРѕРіРѕ РїРёРєР° Рє СЃСЂРµРґРЅРµРјСѓ Р·РЅР°С‡РµРЅРёСЏ РІ РїСЂРµРґРµР»Р°С… Р·РѕРЅС‹ РїСЂРѕРІРµСЂРєРё. 
+	//РџСЂРё СЌС‚РѕРј РјРёРЅРёРјР°Р»СЊРЅРѕРµ СЂР°СЃСЃС‚РѕСЏРЅРёРµ РјРµР¶РґСѓ РїРёРєР°РјРё = min_dist_ratio. РњРѕР¶РµС‚ РІС‹РґР°С‚СЊ Рё РЅРёС‡РµРіРѕ, РµСЃР»Рё РїРёРєРѕРІ РЅРµС‚.
 	std::vector<size_t> FindPeaksToAvg(const Ipp32f* data, size_t count_of_samples, int count_of_peaks, double check_area_ratio = 0.1, double min_dist_ratio = 0.1, double threshold = 2.0);
 
-	//Сам класс
+	//РЎР°Рј РєР»Р°СЃСЃ
 	class PeakDetector {
 	public:
 		PeakDetector();
 		~PeakDetector() = default;
 
-		// Инициализация: тип данных и частота дискретизации (Гц)
+		// РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ: С‚РёРї РґР°РЅРЅС‹С… Рё С‡Р°СЃС‚РѕС‚Р° РґРёСЃРєСЂРµС‚РёР·Р°С†РёРё (Р“С†)
 		void Init(kDpxChartType data_type, int n_fft, double sample_rate_hz, double carrier_hz = 0);
 
-		// Полный сброс состояния
+		// РџРѕР»РЅС‹Р№ СЃР±СЂРѕСЃ СЃРѕСЃС‚РѕСЏРЅРёСЏ
 		void Reset();
 
-		// Обработка нового кадра данных
+		// РћР±СЂР°Р±РѕС‚РєР° РЅРѕРІРѕРіРѕ РєР°РґСЂР° РґР°РЅРЅС‹С…
 		void Process(const Ipp32f* data, size_t count_of_samples);
 
-		// Возвращает текущую оценку пика:
-		//   - kACF: период в миллисекундах
-		//   - kFFT: частота максимального пика в герцах
-		//   - kPower4x: частота центра симметрии в герцах
-		//   - kEnvelope, kPhasor: символьная скорость в герцах
-		// Если данных недостаточно, возвращает NaN.
+		// Р’РѕР·РІСЂР°С‰Р°РµС‚ С‚РµРєСѓС‰СѓСЋ РѕС†РµРЅРєСѓ РїРёРєР°:
+		//   - kACF: РїРµСЂРёРѕРґ РІ РјРёР»Р»РёСЃРµРєСѓРЅРґР°С…
+		//   - kFFT: С‡Р°СЃС‚РѕС‚Р° РјР°РєСЃРёРјР°Р»СЊРЅРѕРіРѕ РїРёРєР° РІ РіРµСЂС†Р°С…
+		//   - kPower4x: С‡Р°СЃС‚РѕС‚Р° С†РµРЅС‚СЂР° СЃРёРјРјРµС‚СЂРёРё РІ РіРµСЂС†Р°С…
+		//   - kEnvelope, kPhasor: СЃРёРјРІРѕР»СЊРЅР°СЏ СЃРєРѕСЂРѕСЃС‚СЊ РІ РіРµСЂС†Р°С…
+		// Р•СЃР»Рё РґР°РЅРЅС‹С… РЅРµРґРѕСЃС‚Р°С‚РѕС‡РЅРѕ, РІРѕР·РІСЂР°С‰Р°РµС‚ NaN.
 		std::vector<double> CalculatePeak() const;
 
 		bool IsValid() const { return valid_; }
@@ -45,17 +46,17 @@ namespace peak_detection{
 			double add_before_norm = 0.;
 			double add_after_norm = 0.;
 		};
-		// Обновление MaxHold для спектральных данных (с утечкой)
+		// РћР±РЅРѕРІР»РµРЅРёРµ MaxHold РґР»СЏ СЃРїРµРєС‚СЂР°Р»СЊРЅС‹С… РґР°РЅРЅС‹С… (СЃ СѓС‚РµС‡РєРѕР№)
 		void UpdateMaxHold(const Ipp32f* data, size_t count_of_samples);
 
 
-		// Параболическая интерполяция позиции пика
+		// РџР°СЂР°Р±РѕР»РёС‡РµСЃРєР°СЏ РёРЅС‚РµСЂРїРѕР»СЏС†РёСЏ РїРѕР·РёС†РёРё РїРёРєР°
 		double GetInterpolatedPeak(size_t peak_index, const std::vector<Ipp32f>& data) const;
 
 		kDpxChartType data_type_;
 		double sample_rate_hz_;
 		double carrier_hz_;
-		std::vector<Ipp32f> max_hold_;  // единый буфер: для ACF – последний кадр, для остальных – MaxHold с утечкой
+		std::vector<Ipp32f> max_hold_;  // РµРґРёРЅС‹Р№ Р±СѓС„РµСЂ: РґР»СЏ ACF вЂ“ РїРѕСЃР»РµРґРЅРёР№ РєР°РґСЂ, РґР»СЏ РѕСЃС‚Р°Р»СЊРЅС‹С… вЂ“ MaxHold СЃ СѓС‚РµС‡РєРѕР№
 		
 		size_t n_fft_;
 		bool valid_;

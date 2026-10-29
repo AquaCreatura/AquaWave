@@ -1,8 +1,8 @@
-#pragma once
+﻿#pragma once
+
+#include "ark_defs.h"
 
 #include <qobject.h>
-#include <QWidget>
-#include "ark_defs.h"
 
 namespace aqua
 {

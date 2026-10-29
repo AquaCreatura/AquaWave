@@ -1,9 +1,12 @@
-#include "file_helpers.h"
+п»ї#include "file_helpers.h"
+
+#include <ipps.h>
+#include <qdir.h>
 #include <Windows.h>
+
+#include <algorithm>
 #include <string>
 #include <vector>
-#include <algorithm>
-#include <ipps.h>
 
 static const char* TEMP_PREFIX = "tmp";
 
@@ -57,7 +60,6 @@ std::string FsHelper::GetTempFileDirectory() {
 		return std::string(tempPath);
 	return "";
 }
-#include <qdir.h>
 bool FsHelper::CreateDirectories(const std::string& dir_path)
 {
 	if (dir_path.empty())
@@ -71,7 +73,7 @@ int64_t FsHelper::GetFileSize(const std::string & file_path)
 	struct _stat64 st;
 	if (_stat64(file_path.c_str(), &st) == 0)
 		return st.st_size;
-	return -1; // ошибка
+	return -1; // РѕС€РёР±РєР°
 }
 
 bool FsHelper::IsFileExist(const std::string& file_path)
@@ -104,12 +106,12 @@ bool FsHelper::IsFile32Float(const std::string & file_path)
 		float mn, mx;
 		ippsMinMax_32f(buf.data(), floats_read, &mn, &mx);
 
-		// Встретилось значение вне допустимого диапазона.
+		// Р’СЃС‚СЂРµС‚РёР»РѕСЃСЊ Р·РЅР°С‡РµРЅРёРµ РІРЅРµ РґРѕРїСѓСЃС‚РёРјРѕРіРѕ РґРёР°РїР°Р·РѕРЅР°.
 		if (mx > 32768.0f || mn < -32768.0f || !std::isfinite(mn) || !std::isfinite(mx))
 			return false;
 		if (std::abs(mx) < 1.e-20 && std::abs(mn) < 1.e-20)
 			return false;
-		// Ненулевой блок.
+		// РќРµРЅСѓР»РµРІРѕР№ Р±Р»РѕРє.
 		if (std::abs(mx) > 1.e-5 && std::abs(mn) > 1.e-5)
 		{
 			++valid_blocks;
@@ -123,7 +125,7 @@ bool FsHelper::IsFile32Float(const std::string & file_path)
 bool FsHelper::CopyPrecisedFile(const std::string & from, const std::string & to)
 
 {
-	// Получаем путь к директории назначения
+	// РџРѕР»СѓС‡Р°РµРј РїСѓС‚СЊ Рє РґРёСЂРµРєС‚РѕСЂРёРё РЅР°Р·РЅР°С‡РµРЅРёСЏ
 	size_t slashPos = to.find_last_of("\\/");
 	if (slashPos != std::string::npos)
 	{
@@ -132,7 +134,7 @@ bool FsHelper::CopyPrecisedFile(const std::string & from, const std::string & to
 			return false;
 	}
 
-	// FALSE — перезаписывать существующий файл
+	// FALSE вЂ” РїРµСЂРµР·Р°РїРёСЃС‹РІР°С‚СЊ СЃСѓС‰РµСЃС‚РІСѓСЋС‰РёР№ С„Р°Р№Р»
 	if (!CopyFileA(from.c_str(), to.c_str(), FALSE))
 		return false;
 
@@ -143,8 +145,8 @@ bool FsHelper::CopyPrecisedFile(const std::string & from, const std::string & to
 bool FileWriter::CaptureFile(const std::string& file_path, bool do_rewrite)
 {
 	if (IsCaptured())
-		return false;   // уже захвачен другой файл
-						// Извлечь директорию из пути
+		return false;   // СѓР¶Рµ Р·Р°С…РІР°С‡РµРЅ РґСЂСѓРіРѕР№ С„Р°Р№Р»
+						// РР·РІР»РµС‡СЊ РґРёСЂРµРєС‚РѕСЂРёСЋ РёР· РїСѓС‚Рё
 	size_t pos = file_path.find_last_of("/\\");
 	if (pos != std::string::npos)
 	{
@@ -153,7 +155,7 @@ bool FileWriter::CaptureFile(const std::string& file_path, bool do_rewrite)
 			return false;
 	}
 
-	// Определяем режим открытия
+	// РћРїСЂРµРґРµР»СЏРµРј СЂРµР¶РёРј РѕС‚РєСЂС‹С‚РёСЏ
 	std::ios::openmode mode = std::ios::out | std::ios::binary;
 	if (do_rewrite)
 		mode |= std::ios::trunc;

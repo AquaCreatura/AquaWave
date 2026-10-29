@@ -1,4 +1,5 @@
-#include "PreciseResampler.h"
+п»ї#include "PreciseResampler.h"
+
 using namespace aqua_resampler;
 
 PreciseResampler::PreciseResampler()
@@ -22,15 +23,15 @@ void aqua_resampler::PreciseResampler::SetSettings(const ResamplerSettings s)
 
 bool aqua_resampler::PreciseResampler::Init(const int64_t base_sr_hz, int64_t & target_sr_hz, const int64_t bw_hz)
 {
-	// Мило проверяем, чтобы входная частота была положительной
+	// РњРёР»Рѕ РїСЂРѕРІРµСЂСЏРµРј, С‡С‚РѕР±С‹ РІС…РѕРґРЅР°СЏ С‡Р°СЃС‚РѕС‚Р° Р±С‹Р»Р° РїРѕР»РѕР¶РёС‚РµР»СЊРЅРѕР№
 	if (base_sr_hz <= 0 || target_sr_hz <= 0 || bw_hz > target_sr_hz)
 		return false;
 
 
-	// Нежно сохраняем входную и выходную частоты
+	// РќРµР¶РЅРѕ СЃРѕС…СЂР°РЅСЏРµРј РІС…РѕРґРЅСѓСЋ Рё РІС‹С…РѕРґРЅСѓСЋ С‡Р°СЃС‚РѕС‚С‹
 	input_rate_ = base_sr_hz;
 	output_rate_ = target_sr_hz;
-	// Любовно вычисляем соотношение для пересчёта
+	// Р›СЋР±РѕРІРЅРѕ РІС‹С‡РёСЃР»СЏРµРј СЃРѕРѕС‚РЅРѕС€РµРЅРёРµ РґР»СЏ РїРµСЂРµСЃС‡С‘С‚Р°
 	resample_ratio_ = static_cast<double>(output_rate_) / input_rate_;
 
 	if (settings_.skip_precise_fir) {
@@ -42,13 +43,13 @@ bool aqua_resampler::PreciseResampler::Init(const int64_t base_sr_hz, int64_t & 
 
 	const double filter_koeff = double(bw_hz) / base_sr_hz;
 
-	// Бережно берём длину фильтра из настроек
+	// Р‘РµСЂРµР¶РЅРѕ Р±РµСЂС‘Рј РґР»РёРЅСѓ С„РёР»СЊС‚СЂР° РёР· РЅР°СЃС‚СЂРѕРµРє
 	int filter_len = GetFirLenPow2(1., std::max(0.95, filter_koeff));
 	filter_len = std::min(std::max(16, filter_len), 1024);
 
-	// Создаём уютный вектор для коэффициентов фильтра
+	// РЎРѕР·РґР°С‘Рј СѓСЋС‚РЅС‹Р№ РІРµРєС‚РѕСЂ РґР»СЏ РєРѕСЌС„С„РёС†РёРµРЅС‚РѕРІ С„РёР»СЊС‚СЂР°
 	std::vector<Ipp32fc> taps(filter_len);
-	// С любовью проектируем фильтр с окошком Блэкмана
+	// РЎ Р»СЋР±РѕРІСЊСЋ РїСЂРѕРµРєС‚РёСЂСѓРµРј С„РёР»СЊС‚СЂ СЃ РѕРєРѕС€РєРѕРј Р‘Р»СЌРєРјР°РЅР°
 	const double window_cutoff = 0.5 * filter_koeff;
 	if (!GenerateWindowKoeffs(window_cutoff, filter_len, ippWinBlackman, taps))
 		return false;
@@ -57,39 +58,39 @@ bool aqua_resampler::PreciseResampler::Init(const int64_t base_sr_hz, int64_t & 
 		const Ipp32fc norm_koeff = { float(1 / std::pow(resample_ratio_, 0.5)) , 0 };
 		ippsMulC_32fc_I(norm_koeff, taps.data(), taps.size());
 	}
-	// Дружелюбно определяем размеры для спецификации и буфера
+	// Р”СЂСѓР¶РµР»СЋР±РЅРѕ РѕРїСЂРµРґРµР»СЏРµРј СЂР°Р·РјРµСЂС‹ РґР»СЏ СЃРїРµС†РёС„РёРєР°С†РёРё Рё Р±СѓС„РµСЂР°
 	int spec_size = 0, buf_size = 0;
 	IppStatus status = ippsFIRSRGetSize(filter_len, ipp32fc, &spec_size, &buf_size);
-	// Если что-то пошло не так, ласково возвращаем false
+	// Р•СЃР»Рё С‡С‚Рѕ-С‚Рѕ РїРѕС€Р»Рѕ РЅРµ С‚Р°Рє, Р»Р°СЃРєРѕРІРѕ РІРѕР·РІСЂР°С‰Р°РµРј false
 	if (status != ippStsNoErr)
 		return false;
 
 
 
-	// Аккуратно освобождаем старые ресурсы, если они были
+	// РђРєРєСѓСЂР°С‚РЅРѕ РѕСЃРІРѕР±РѕР¶РґР°РµРј СЃС‚Р°СЂС‹Рµ СЂРµСЃСѓСЂСЃС‹, РµСЃР»Рё РѕРЅРё Р±С‹Р»Рё
 	Clear();
 
-	// С заботой выделяем память для спецификации фильтра и буфера
+	// РЎ Р·Р°Р±РѕС‚РѕР№ РІС‹РґРµР»СЏРµРј РїР°РјСЏС‚СЊ РґР»СЏ СЃРїРµС†РёС„РёРєР°С†РёРё С„РёР»СЊС‚СЂР° Рё Р±СѓС„РµСЂР°
 	fir_spec_ = reinterpret_cast<IppsFIRSpec_32fc*>(ippsMalloc_8u(spec_size));
 	fir_buf_ = ippsMalloc_8u(buf_size);
 
-	// Нежно инициализируем FIR-фильтр с нашими милыми коэффициентами
+	// РќРµР¶РЅРѕ РёРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј FIR-С„РёР»СЊС‚СЂ СЃ РЅР°С€РёРјРё РјРёР»С‹РјРё РєРѕСЌС„С„РёС†РёРµРЅС‚Р°РјРё
 	status = ippsFIRSRInit_32fc(taps.data(), filter_len, ippAlgAuto, fir_spec_);
-	// Если что-то не получилось, заботливо очищаем и уходим
+	// Р•СЃР»Рё С‡С‚Рѕ-С‚Рѕ РЅРµ РїРѕР»СѓС‡РёР»РѕСЃСЊ, Р·Р°Р±РѕС‚Р»РёРІРѕ РѕС‡РёС‰Р°РµРј Рё СѓС…РѕРґРёРј
 	if (status != ippStsNoErr)
 	{
 		Clear();
 		return false;
 	}
 
-	// С теплом заполняем буфер задержки нуликами
+	// РЎ С‚РµРїР»РѕРј Р·Р°РїРѕР»РЅСЏРµРј Р±СѓС„РµСЂ Р·Р°РґРµСЂР¶РєРё РЅСѓР»РёРєР°РјРё
 	delay_line_.resize(filter_len, { 0.0f, 0.0f });
 
-	// Радостно отмечаем, что всё готово
+	// Р Р°РґРѕСЃС‚РЅРѕ РѕС‚РјРµС‡Р°РµРј, С‡С‚Рѕ РІСЃС‘ РіРѕС‚РѕРІРѕ
 	initialized_ = true;
-	// Ласково настраиваем интерполятор на нужное соотношение
+	// Р›Р°СЃРєРѕРІРѕ РЅР°СЃС‚СЂР°РёРІР°РµРј РёРЅС‚РµСЂРїРѕР»СЏС‚РѕСЂ РЅР° РЅСѓР¶РЅРѕРµ СЃРѕРѕС‚РЅРѕС€РµРЅРёРµ
 	interpolator_.SetResampleRatio(1 / resample_ratio_);
-	// С улыбкой возвращаем успех
+	// РЎ СѓР»С‹Р±РєРѕР№ РІРѕР·РІСЂР°С‰Р°РµРј СѓСЃРїРµС…
 	return true;
 
 }
@@ -104,17 +105,17 @@ bool PreciseResampler::ProcessData(const Ipp32fc* passed_data, size_t data_size,
 		return true;
 	}
 
-    // Ресайз вектора для хранения отфильтрованных данных
+    // Р РµСЃР°Р№Р· РІРµРєС‚РѕСЂР° РґР»СЏ С…СЂР°РЅРµРЅРёСЏ РѕС‚С„РёР»СЊС‚СЂРѕРІР°РЅРЅС‹С… РґР°РЅРЅС‹С…
     filtered_vec_.resize(data_size);
 
-    // Применение FIR-фильтра к входным данным с использованием буфера задержки
+    // РџСЂРёРјРµРЅРµРЅРёРµ FIR-С„РёР»СЊС‚СЂР° Рє РІС…РѕРґРЅС‹Рј РґР°РЅРЅС‹Рј СЃ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРµРј Р±СѓС„РµСЂР° Р·Р°РґРµСЂР¶РєРё
     IppStatus status = ippsFIRSR_32fc(passed_data, filtered_vec_.data(), static_cast<int>(data_size),
                                       fir_spec_, delay_line_.data(), delay_line_.data(), fir_buf_);
     if (status != ippStsNoErr) {
         res_data.clear();
         return false;
     }
-    // Интерполяция отфильтрованных данных для достижения требуемой частоты дискретизации
+    // РРЅС‚РµСЂРїРѕР»СЏС†РёСЏ РѕС‚С„РёР»СЊС‚СЂРѕРІР°РЅРЅС‹С… РґР°РЅРЅС‹С… РґР»СЏ РґРѕСЃС‚РёР¶РµРЅРёСЏ С‚СЂРµР±СѓРµРјРѕР№ С‡Р°СЃС‚РѕС‚С‹ РґРёСЃРєСЂРµС‚РёР·Р°С†РёРё
     interpolator_.process(filtered_vec_.data(), filtered_vec_.size(), res_data);
     return true;
 }

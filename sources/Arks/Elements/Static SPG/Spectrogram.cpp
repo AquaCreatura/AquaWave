@@ -1,12 +1,14 @@
-#include "Spectrogram.h"
+п»ї#include "Spectrogram.h"
+
+#include "special_defs/spectral_viewer_defs.h"
+
 #include <ippvm.h>
-#include "special_defs/file_souce_defs.h"
-#include "qmessagebox.h"
 #include <qdebug.h>
-using namespace spg_core; // Используем пространство имён dpx_core
+
+using namespace spg_core; // РСЃРїРѕР»СЊР·СѓРµРј РїСЂРѕСЃС‚СЂР°РЅСЃС‚РІРѕ РёРјС‘РЅ dpx_core
 using namespace pipes;
-// Конструктор: Инициализирует компонент для отрисовки спектра.
-// parrent: Указатель на родительский QWidget.
+// РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ: РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РєРѕРјРїРѕРЅРµРЅС‚ РґР»СЏ РѕС‚СЂРёСЃРѕРІРєРё СЃРїРµРєС‚СЂР°.
+// parrent: РЈРєР°Р·Р°С‚РµР»СЊ РЅР° СЂРѕРґРёС‚РµР»СЊСЃРєРёР№ QWidget.
 StaticSpg::StaticSpg(QWidget * parrent) : 
     spg_drawer_(new spg_core::ChartSPG()),
     requester_(spg_drawer_->GetTiler(), spg_drawer_->GetScaleInfo())
@@ -23,53 +25,53 @@ spg_core::StaticSpg::~StaticSpg()
 	requester_.StartProcess(false);
 }
 
-// Отправляет данные для обработки спектра и отображения.
-// data_info: Структура с входными данными и информацией о частоте.
+// РћС‚РїСЂР°РІР»СЏРµС‚ РґР°РЅРЅС‹Рµ РґР»СЏ РѕР±СЂР°Р±РѕС‚РєРё СЃРїРµРєС‚СЂР° Рё РѕС‚РѕР±СЂР°Р¶РµРЅРёСЏ.
+// data_info: РЎС‚СЂСѓРєС‚СѓСЂР° СЃ РІС…РѕРґРЅС‹РјРё РґР°РЅРЅС‹РјРё Рё РёРЅС„РѕСЂРјР°С†РёРµР№ Рѕ С‡Р°СЃС‚РѕС‚Рµ.
 bool StaticSpg::SendData(aqua::DataInfo const & data_info)
 {
-    // Если входные данные пусты, выходим.
+    // Р•СЃР»Рё РІС…РѕРґРЅС‹Рµ РґР°РЅРЅС‹Рµ РїСѓСЃС‚С‹, РІС‹С…РѕРґРёРј.
     if(data_info.data_vec.empty()) return true;
 
-    // Ссылки на информацию о частоте и входные комплексные данные.
+    // РЎСЃС‹Р»РєРё РЅР° РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ С‡Р°СЃС‚РѕС‚Рµ Рё РІС…РѕРґРЅС‹Рµ РєРѕРјРїР»РµРєСЃРЅС‹Рµ РґР°РЅРЅС‹Рµ.
     auto &freq_info  = data_info.freq_info_;
-    auto &passed_data = (std::vector<Ipp32fc>&)data_info.data_vec; // Приведение типа.
+    auto &passed_data = (std::vector<Ipp32fc>&)data_info.data_vec; // РџСЂРёРІРµРґРµРЅРёРµ С‚РёРїР°.
 
 	pipe_line_.Process(passed_data);
     
-    // Определяем границы частотного диапазона для отображения.
+    // РћРїСЂРµРґРµР»СЏРµРј РіСЂР°РЅРёС†С‹ С‡Р°СЃС‚РѕС‚РЅРѕРіРѕ РґРёР°РїР°Р·РѕРЅР° РґР»СЏ РѕС‚РѕР±СЂР°Р¶РµРЅРёСЏ.
     Limits<double> freq_bounds = {freq_info.carrier_hz - freq_info.samplerate_hz / 2.,
                                    freq_info.carrier_hz + freq_info.samplerate_hz / 2.};
     
-    // Отправляем вычисленные магнитуды и частотные границы в отрисовщик.
+    // РћС‚РїСЂР°РІР»СЏРµРј РІС‹С‡РёСЃР»РµРЅРЅС‹Рµ РјР°РіРЅРёС‚СѓРґС‹ Рё С‡Р°СЃС‚РѕС‚РЅС‹Рµ РіСЂР°РЅРёС†С‹ РІ РѕС‚СЂРёСЃРѕРІС‰РёРє.
     draw_data draw_data;
     draw_data.freq_bounds = freq_bounds / freq_divider_;
     draw_data.time_pos    = data_info.time_point;
 	draw_data.data	      = pipe_line_.meta->float_data;
     spg_drawer_->PushData(draw_data);
     
-    return true; // Успех.
+    return true; // РЈСЃРїРµС….
 }
 
-// Обрабатывает сообщения "Dove".
-// sent_dove: Умный указатель на сообщение Dove.
+// РћР±СЂР°Р±Р°С‚С‹РІР°РµС‚ СЃРѕРѕР±С‰РµРЅРёСЏ "Dove".
+// sent_dove: РЈРјРЅС‹Р№ СѓРєР°Р·Р°С‚РµР»СЊ РЅР° СЃРѕРѕР±С‰РµРЅРёРµ Dove.
 bool StaticSpg::PostDove(aqua::DoveSptr const & sent_dove)
 {
-    // Если сообщение недействительно, выбрасываем исключение.
+    // Р•СЃР»Рё СЃРѕРѕР±С‰РµРЅРёРµ РЅРµРґРµР№СЃС‚РІРёС‚РµР»СЊРЅРѕ, РІС‹Р±СЂР°СЃС‹РІР°РµРј РёСЃРєР»СЋС‡РµРЅРёРµ.
     if (!sent_dove) throw std::invalid_argument("Not created message sent!");
     
-    // Получаем целевое значение и "мысль" из сообщения.
+    // РџРѕР»СѓС‡Р°РµРј С†РµР»РµРІРѕРµ Р·РЅР°С‡РµРЅРёРµ Рё "РјС‹СЃР»СЊ" РёР· СЃРѕРѕР±С‰РµРЅРёСЏ.
     auto target_val = sent_dove->target_ark;
     auto base_thought = sent_dove->base_thought;
     
         
-    // Если "мысль" - запрос на диалог.
+    // Р•СЃР»Рё "РјС‹СЃР»СЊ" - Р·Р°РїСЂРѕСЃ РЅР° РґРёР°Р»РѕРі.
     if (base_thought & aqua::DoveParrent::DoveThought::kGetWindow)
     {
-        // Прикрепляем отрисовщик спектра к виджету сообщения.
+        // РџСЂРёРєСЂРµРїР»СЏРµРј РѕС‚СЂРёСЃРѕРІС‰РёРє СЃРїРµРєС‚СЂР° Рє РІРёРґР¶РµС‚Сѓ СЃРѕРѕР±С‰РµРЅРёСЏ.
         sent_dove->show_widget = spg_drawer_;
-        return true; // Запрос обработан.
+        return true; // Р—Р°РїСЂРѕСЃ РѕР±СЂР°Р±РѕС‚Р°РЅ.
     }
-    // Передаём сообщение базовому классу для дальнейшей обработки.
+    // РџРµСЂРµРґР°С‘Рј СЃРѕРѕР±С‰РµРЅРёРµ Р±Р°Р·РѕРІРѕРјСѓ РєР»Р°СЃСЃСѓ РґР»СЏ РґР°Р»СЊРЅРµР№С€РµР№ РѕР±СЂР°Р±РѕС‚РєРё.
     if(base_thought & DoveParrent::DoveThought::kAddSource)
     {
         src_info_.ark = target_val;

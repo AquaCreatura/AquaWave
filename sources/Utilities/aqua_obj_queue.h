@@ -1,9 +1,9 @@
-#pragma once
+﻿#pragma once
 
-#include <vector>
 #include <atomic>
-#include <optional>
 #include <cstddef>
+#include <vector>
+
 namespace aqua_queue {
 
 template<typename T>

@@ -1,5 +1,7 @@
-#include "ConstelCore.h"
+ï»¿#include "ConstelCore.h"
+
 #include <tbb/parallel_for.h>
+
 using namespace constel;
 constel::ConstelCore::ConstelCore():
 	renderer_(constel_)
@@ -52,7 +54,7 @@ void constel::ConstelCore::CheckPassedMaximum(const std::vector<Ipp32fc>& passed
 		constel_.averaged_amplitude = constel_.averaged_amplitude * (1.0f - alpha_down) + amplitude * alpha_down;
 
 	if (constel_.averaged_amplitude > constel_.max_power || constel_.averaged_amplitude * scale_shift * scale_shift < constel_.max_power)
-		SetNewMaximum(constel_.averaged_amplitude * scale_shift); //Äîáàâëÿåì ìèíèìàëüíûé çàçîð
+		SetNewMaximum(constel_.averaged_amplitude * scale_shift); //Ð”Ð¾Ð±Ð°Ð²Ð»ÑÐµÐ¼ Ð¼Ð¸Ð½Ð¸Ð¼Ð°Ð»ÑŒÐ½Ñ‹Ð¹ Ð·Ð°Ð·Ð¾Ñ€
 }
 
 void constel::ConstelCore::SetNewMaximum(const Ipp32f max_value)

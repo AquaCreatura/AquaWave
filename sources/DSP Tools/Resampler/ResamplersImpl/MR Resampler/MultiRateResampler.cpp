@@ -1,5 +1,7 @@
+п»ї#include "MultiRateResampler.h"
+
 #include <algorithm>
-#include "MultiRateResampler.h"
+
 using namespace aqua_resampler;
 
 MultiRateResampler::MultiRateResampler() 
@@ -32,25 +34,25 @@ bool MultiRateResampler::Init(const int64_t base_fs_hz, int64_t& tgt_sr_hz, cons
 {
 	if (base_fs_hz <= 0 || tgt_sr_hz <= 0 || bw_hz > tgt_sr_hz)
         return false;
-	// Расчёт коэффициентов ресэмплинга
+	// Р Р°СЃС‡С‘С‚ РєРѕСЌС„С„РёС†РёРµРЅС‚РѕРІ СЂРµСЃСЌРјРїР»РёРЅРіР°
     const double need_ratio = static_cast<double>(tgt_sr_hz) / base_fs_hz;
 
 	int max_nom_denom = int(std::ceil(std::max(need_ratio, 1 / need_ratio)));
 	max_nom_denom = std::max(settings_.denom_quality, max_nom_denom);
     const auto up_down = aqua_resampler::FindBestFraction(need_ratio, max_nom_denom, true);
 
-	// Корректировка конечной частоты
+	// РљРѕСЂСЂРµРєС‚РёСЂРѕРІРєР° РєРѕРЅРµС‡РЅРѕР№ С‡Р°СЃС‚РѕС‚С‹
 	tgt_sr_hz = (base_fs_hz * up_down.first) / up_down.second;
 
-	//Нет необходимости переинициализировать
+	//РќРµС‚ РЅРµРѕР±С…РѕРґРёРјРѕСЃС‚Рё РїРµСЂРµРёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°С‚СЊ
 	if (!need_reset_ && up_down.first == up_factor_ && up_down.second == down_factor_) 
 		return true;
     up_factor_ = up_down.first;
     down_factor_ = up_down.second;
 
 	const double bw_ratio = double(bw_hz) / tgt_sr_hz;
-	double fir_coeff_after_interp = bw_ratio / down_factor_; 	//Делим на down_factor_ т.к. FIR после интерполяции. 
-    // Проектирование фильтра с правильной частотой среза
+	double fir_coeff_after_interp = bw_ratio / down_factor_; 	//Р”РµР»РёРј РЅР° down_factor_ С‚.Рє. FIR РїРѕСЃР»Рµ РёРЅС‚РµСЂРїРѕР»СЏС†РёРё. 
+    // РџСЂРѕРµРєС‚РёСЂРѕРІР°РЅРёРµ С„РёР»СЊС‚СЂР° СЃ РїСЂР°РІРёР»СЊРЅРѕР№ С‡Р°СЃС‚РѕС‚РѕР№ СЃСЂРµР·Р°
     const double cutoff_after_interp = std::min(0.5 * fir_coeff_after_interp,  0.5 / std::max(up_factor_, down_factor_));
 
 	int fir_len = GetFirLenPow2(1. / down_factor_, std::max(0.95, bw_ratio));
@@ -64,7 +66,7 @@ bool MultiRateResampler::Init(const int64_t base_fs_hz, int64_t& tgt_sr_hz, cons
         const Ipp32fc norm_koeff = {powf(up_factor_ * down_factor_, 0.5), 0};
         ippsMulC_32fc_I(norm_koeff , taps.data(), taps.size());
     }
-    // Получение размеров буферов
+    // РџРѕР»СѓС‡РµРЅРёРµ СЂР°Р·РјРµСЂРѕРІ Р±СѓС„РµСЂРѕРІ
     int specSize = 0, bufSize = 0;
     IppStatus status = ippsFIRMRGetSize(
 		fir_len,
@@ -77,20 +79,20 @@ bool MultiRateResampler::Init(const int64_t base_fs_hz, int64_t& tgt_sr_hz, cons
     if (status != ippStsNoErr) 
         return false;
 
-    // Выделение памяти с выравниванием (critical для IPP!)
+    // Р’С‹РґРµР»РµРЅРёРµ РїР°РјСЏС‚Рё СЃ РІС‹СЂР°РІРЅРёРІР°РЅРёРµРј (critical РґР»СЏ IPP!)
     spec_buffer_.resize(specSize/sizeof(Ipp8u) + 64);
     work_buffer_.resize(bufSize + 64);
     pSpec_ = (IppsFIRSpec_32fc*)spec_buffer_.data();
-    // Инициализация спецификации с правильными фазами
+    // РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ СЃРїРµС†РёС„РёРєР°С†РёРё СЃ РїСЂР°РІРёР»СЊРЅС‹РјРё С„Р°Р·Р°РјРё
     status = ippsFIRMRInit_32fc(
-        taps.data(),                  // коэффициенты фильтра
-		fir_len,     // длина фильтра
+        taps.data(),                  // РєРѕСЌС„С„РёС†РёРµРЅС‚С‹ С„РёР»СЊС‚СЂР°
+		fir_len,     // РґР»РёРЅР° С„РёР»СЊС‚СЂР°
         up_factor_,                  0,  // upPhase
         down_factor_,                0,               // downPhase 
-        pSpec_// выравнивание 
+        pSpec_// РІС‹СЂР°РІРЅРёРІР°РЅРёРµ 
         
     );
-    // Инициализация линии задержки
+    // РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ Р»РёРЅРёРё Р·Р°РґРµСЂР¶РєРё
     delay_line_.resize(fir_len + up_factor_ - 1, {0,0});
 	need_reset_ = false;
 	decim_tail_buffer_.clear();
@@ -111,7 +113,7 @@ bool MultiRateResampler::ProcessData(const Ipp32fc* passed_data,
 		return true;
 	}
 
-	// Объединяем хвост с новыми данными.
+	// РћР±СЉРµРґРёРЅСЏРµРј С…РІРѕСЃС‚ СЃ РЅРѕРІС‹РјРё РґР°РЅРЅС‹РјРё.
 	merged_data_ = decim_tail_buffer_;
 	merged_data_.insert(merged_data_.end(), passed_data, passed_data + passed_size);
 

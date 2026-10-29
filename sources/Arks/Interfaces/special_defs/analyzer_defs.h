@@ -1,22 +1,21 @@
-#pragma once
-#include <ipps.h>
-#include <stdint.h>
-#include <qstring.h>
+п»ї#pragma once
 #include "Arks/Interfaces/ark_interface.h"
-#include "Utilities/utility_aqua.h"
+
+#include <stdint.h>
+
 using namespace utility_aqua;
 namespace analyzer
 {
 	enum class analz_chart_type : int {
 		undefined = 0,
-		kAcf = 1, //АКФ
+		kAcf = 1, //РђРљР¤
 
-		kPhasorSpectrum = 2, //Спектр мгновенной частоты (Символьная для PSK)
-		kEnvelopeSpectrum = 4, //Спектр огибающей (Символьная для AM)
+		kPhasorSpectrum = 2, //РЎРїРµРєС‚СЂ РјРіРЅРѕРІРµРЅРЅРѕР№ С‡Р°СЃС‚РѕС‚С‹ (РЎРёРјРІРѕР»СЊРЅР°СЏ РґР»СЏ PSK)
+		kEnvelopeSpectrum = 4, //РЎРїРµРєС‚СЂ РѕРіРёР±Р°СЋС‰РµР№ (РЎРёРјРІРѕР»СЊРЅР°СЏ РґР»СЏ AM)
 
-		kPowerSpectrum = 8, //Спектр степени (Отстройка несущей)
+		kPowerSpectrum = 8, //РЎРїРµРєС‚СЂ СЃС‚РµРїРµРЅРё (РћС‚СЃС‚СЂРѕР№РєР° РЅРµСЃСѓС‰РµР№)
 
-		kBandwidth = 16, //Ширина полосы
+		kBandwidth = 16, //РЁРёСЂРёРЅР° РїРѕР»РѕСЃС‹
 
 		kConstellation = 32,
 		kSymbolRateGeneral = 1<<6,

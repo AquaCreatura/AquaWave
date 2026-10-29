@@ -1,9 +1,10 @@
-
+п»ї
 #pragma once
+#include "../../tools/resampler_tools.h"
+#include "../ResamperInterface.h"
+
 #include <ipps.h>
-#include <memory>
-#include "..\ResamperInterface.h"
-#include "..\..\tools\resampler_tools.h"
+
 namespace aqua_resampler
 
 {
@@ -12,7 +13,7 @@ class MultiRateResampler : public ResamplerInterface {
 public:
     MultiRateResampler();
     virtual ~MultiRateResampler() override;
-	void	SetPrecision(const int quality); //Выше точность - ниже скорость. Определяет максимальный числитель
+	void	SetPrecision(const int quality); //Р’С‹С€Рµ С‚РѕС‡РЅРѕСЃС‚СЊ - РЅРёР¶Рµ СЃРєРѕСЂРѕСЃС‚СЊ. РћРїСЂРµРґРµР»СЏРµС‚ РјР°РєСЃРёРјР°Р»СЊРЅС‹Р№ С‡РёСЃР»РёС‚РµР»СЊ
     virtual void SetSettings    (const ResamplerSettings settings													) override;
     virtual bool Init           (const int64_t base_fs_hz, int64_t& tgt_sr_hz, const int64_t bw_hz					) override;
     virtual bool ProcessData    (const Ipp32fc* passed_data, const size_t data_size, std::vector<Ipp32fc>& res_data	) override;

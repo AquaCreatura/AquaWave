@@ -1,5 +1,9 @@
-#include "AxisPainter.h"
-#include "ChartColorScheme.h"
+п»ї#include "AxisPainter.h"
+
+#include "Utilities/parse_tools.h"
+
+#include <qdebug.h>
+
 using namespace aqua_gui;
 constexpr int hatch_size_px_c_expr  =  10;
 
@@ -38,7 +42,7 @@ void AxisManager::InitVertical(const QString & oy_name)
 }
 bool AxisManager::DrawAxis(QPainter& passed_painter)
 {
-    // Если ничего не изменилось — рисуем кэшированное изображение
+    // Р•СЃР»Рё РЅРёС‡РµРіРѕ РЅРµ РёР·РјРµРЅРёР»РѕСЃСЊ вЂ” СЂРёСЃСѓРµРј РєСЌС€РёСЂРѕРІР°РЅРЅРѕРµ РёР·РѕР±СЂР°Р¶РµРЅРёРµ
     if (!ShouldRedraw()) 
     {
         if (user_action_timer_.elapsed() > 100)
@@ -48,7 +52,7 @@ bool AxisManager::DrawAxis(QPainter& passed_painter)
     }
     user_action_mode_ = true;
     user_action_timer_.restart();
-    // Пересоздаём Pixmap, если размеры изменились
+    // РџРµСЂРµСЃРѕР·РґР°С‘Рј Pixmap, РµСЃР»Рё СЂР°Р·РјРµСЂС‹ РёР·РјРµРЅРёР»РёСЃСЊ
     if (last_widget_size_ != scale_info_.pix_info_.widget_size_px || last_chart_size_!= scale_info_.pix_info_.chart_size_px)
     {
         cache_pixmap_ = QPixmap(scale_info_.pix_info_.widget_size_px.hor,
@@ -56,13 +60,13 @@ bool AxisManager::DrawAxis(QPainter& passed_painter)
         last_widget_size_ = scale_info_.pix_info_.widget_size_px;
 		last_chart_size_  = scale_info_.pix_info_.chart_size_px;
     }
-    // Заполняем прозрачным фоном
+    // Р—Р°РїРѕР»РЅСЏРµРј РїСЂРѕР·СЂР°С‡РЅС‹Рј С„РѕРЅРѕРј
     cache_pixmap_.fill(Qt::transparent);
-    // Привязываем QPainter к Pixmap
+    // РџСЂРёРІСЏР·С‹РІР°РµРј QPainter Рє Pixmap
     QPainter cur_painter(&cache_pixmap_);
 	if(scale_info_.val_info_.view_bounds.vert.high == 100) 
 		cache_pixmap_.fill(Qt::transparent);
-    // Инициализация перьев
+    // РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РїРµСЂСЊРµРІ
     QPen text_pen;
     text_pen.setColor(colors_.text_color);
 
@@ -75,7 +79,7 @@ bool AxisManager::DrawAxis(QPainter& passed_painter)
 
     DrawMarginBackGround(cur_painter, frame_pen);
 
-    // Горизонтальная ось
+    // Р“РѕСЂРёР·РѕРЅС‚Р°Р»СЊРЅР°СЏ РѕСЃСЊ
     {
         Limits<double> scaled_bounds = scale_info_.val_info_.view_bounds.hor; 
 
@@ -84,34 +88,34 @@ bool AxisManager::DrawAxis(QPainter& passed_painter)
         auto& cur_line_info = axis_.hor.grid_info;
         const int axis_height = scale_info_.pix_info_.chart_size_px.vert;
         const int axis_width = scale_info_.pix_info_.chart_size_px.hor;
-        // Получаем порядок для форматирования чисел с плавающей точкой
+        // РџРѕР»СѓС‡Р°РµРј РїРѕСЂСЏРґРѕРє РґР»СЏ С„РѕСЂРјР°С‚РёСЂРѕРІР°РЅРёСЏ С‡РёСЃРµР» СЃ РїР»Р°РІР°СЋС‰РµР№ С‚РѕС‡РєРѕР№
         const int dot_power_string = axis_.hor.grid_info.GetFloatStringPower();
 
-        // Подпись оси
+        // РџРѕРґРїРёСЃСЊ РѕСЃРё
         {
             cur_painter.setPen(text_pen);
             cur_painter.drawText(5, scale_info_.pix_info_.widget_size_px.vert - 5, 
                                 axis_.hor.qstr_suffix);
         }
 
-        // Проходим по всем линиям сетки
+        // РџСЂРѕС…РѕРґРёРј РїРѕ РІСЃРµРј Р»РёРЅРёСЏРј СЃРµС‚РєРё
         for (const auto& hor_line : cur_line_info.grid_lines_)
         {
-            // Точка на оси
+            // РўРѕС‡РєР° РЅР° РѕСЃРё
             const QPoint axis_point = {hor_line.pixel_number_, axis_height};
-            // Рисуем линию сетки
+            // Р РёСЃСѓРµРј Р»РёРЅРёСЋ СЃРµС‚РєРё
             {
                 const QPoint end_point = {hor_line.pixel_number_, 0};
                 cur_painter.setPen(grid_pen);
                 cur_painter.drawLine(axis_point, end_point);
             }
-            // Рисуем метку
+            // Р РёСЃСѓРµРј РјРµС‚РєСѓ
             {
                 const QPoint mark_point = {hor_line.pixel_number_, axis_height + hatch_size_px_c_expr};
                 cur_painter.setPen(frame_pen);
                 cur_painter.drawLine(axis_point, mark_point);
             }
-            // Если линия сопровождается текстом — отображаем его
+            // Р•СЃР»Рё Р»РёРЅРёСЏ СЃРѕРїСЂРѕРІРѕР¶РґР°РµС‚СЃСЏ С‚РµРєСЃС‚РѕРј вЂ” РѕС‚РѕР±СЂР°Р¶Р°РµРј РµРіРѕ
             if (hor_line.is_text_line_)
             {
                 cur_painter.setPen(text_pen);
@@ -122,40 +126,40 @@ bool AxisManager::DrawAxis(QPainter& passed_painter)
         }
     }
 
-    // Вертикальная ось
+    // Р’РµСЂС‚РёРєР°Р»СЊРЅР°СЏ РѕСЃСЊ
     {
         axis_.vert.grid_info.FillLineVectors(scale_info_.pix_info_.chart_size_px.vert, 
                                                         scale_info_.val_info_.view_bounds.vert);
         auto& cur_line_info = axis_.vert.grid_info;
         const int axis_height = scale_info_.pix_info_.chart_size_px.vert;
         const int axis_width = scale_info_.pix_info_.chart_size_px.hor;
-        // Получаем порядок для форматирования чисел с плавающей точкой
+        // РџРѕР»СѓС‡Р°РµРј РїРѕСЂСЏРґРѕРє РґР»СЏ С„РѕСЂРјР°С‚РёСЂРѕРІР°РЅРёСЏ С‡РёСЃРµР» СЃ РїР»Р°РІР°СЋС‰РµР№ С‚РѕС‡РєРѕР№
         const int dot_power_string = axis_.vert.grid_info.GetFloatStringPower();
 
-        // Подпись оси
+        // РџРѕРґРїРёСЃСЊ РѕСЃРё
         {
             cur_painter.setPen(text_pen);
             cur_painter.drawText(axis_width + 5, 15, axis_.vert.qstr_suffix);
         }
-        // Проходим по всем линиям сетки
+        // РџСЂРѕС…РѕРґРёРј РїРѕ РІСЃРµРј Р»РёРЅРёСЏРј СЃРµС‚РєРё
         for (const auto& vert_line : cur_line_info.grid_lines_)
         {
-            // Точка на оси
+            // РўРѕС‡РєР° РЅР° РѕСЃРё
             const QPoint axis_point = {axis_width, scale_info_.pix_info_.chart_size_px.vert - vert_line.pixel_number_};
 
-            // Рисуем линию сетки
+            // Р РёСЃСѓРµРј Р»РёРЅРёСЋ СЃРµС‚РєРё
             {
                 const QPoint end_point = {0, axis_point.y()};
                 cur_painter.setPen(grid_pen);
                 cur_painter.drawLine(axis_point, end_point);
             }
-            // Рисуем метку
+            // Р РёСЃСѓРµРј РјРµС‚РєСѓ
             {
                 const QPoint mark_point = {axis_width + hatch_size_px_c_expr, axis_point.y()};
                 cur_painter.setPen(frame_pen);
                 cur_painter.drawLine(axis_point, mark_point);
             }
-            // Если линия сопровождается текстом — отображаем его
+            // Р•СЃР»Рё Р»РёРЅРёСЏ СЃРѕРїСЂРѕРІРѕР¶РґР°РµС‚СЃСЏ С‚РµРєСЃС‚РѕРј вЂ” РѕС‚РѕР±СЂР°Р¶Р°РµРј РµРіРѕ
             if (vert_line.is_text_line_)
             {
                 cur_painter.setPen(text_pen);
@@ -234,13 +238,12 @@ bool IsInBound(const W left_val, const W passed_val, const W right_val)
 {
     return (passed_val > left_val) && (passed_val < right_val);
 }
-#include <qdebug.h>
 bool AxisManager::LinesInfo::FillLineVectors(const int distance_px_, const Limits<double>& val_bounds)
 {
 	grid_lines_.clear();
 
 	// ---------------------------------------------------------------------
-	// 1. Подготовительные вычисления
+	// 1. РџРѕРґРіРѕС‚РѕРІРёС‚РµР»СЊРЅС‹Рµ РІС‹С‡РёСЃР»РµРЅРёСЏ
 	// ---------------------------------------------------------------------
 	const bool is_inverted = val_bounds.high < val_bounds.low;
 	const double low = is_inverted ? val_bounds.high : val_bounds.low;
@@ -248,26 +251,26 @@ bool AxisManager::LinesInfo::FillLineVectors(const int distance_px_, const Limit
 	const double delta_val = high - low;
     if (delta_val <= 0.0 || distance_px_ <= 0 || !std::isfinite(delta_val)) {
         qDebug() << "FillLineVectors error passed values\n";
-        return false;                       // некорректные данные
+        return false;                       // РЅРµРєРѕСЂСЂРµРєС‚РЅС‹Рµ РґР°РЅРЅС‹Рµ
     }
 		
 
-											// Максимально допустимое количество линий, исходя из пиксельного шага
+											// РњР°РєСЃРёРјР°Р»СЊРЅРѕ РґРѕРїСѓСЃС‚РёРјРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ Р»РёРЅРёР№, РёСЃС…РѕРґСЏ РёР· РїРёРєСЃРµР»СЊРЅРѕРіРѕ С€Р°РіР°
 	const int max_lines_count = distance_px_ / range_between_lines_px_ + 1;
 
 	// ---------------------------------------------------------------------
-	// 2. Выбор оптимального шага между линиями (step)
+	// 2. Р’С‹Р±РѕСЂ РѕРїС‚РёРјР°Р»СЊРЅРѕРіРѕ С€Р°РіР° РјРµР¶РґСѓ Р»РёРЅРёСЏРјРё (step)
 	// ---------------------------------------------------------------------
-	// Желаемое количество линий (обычно 5-10, но не больше max_lines_count)
+	// Р–РµР»Р°РµРјРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ Р»РёРЅРёР№ (РѕР±С‹С‡РЅРѕ 5-10, РЅРѕ РЅРµ Р±РѕР»СЊС€Рµ max_lines_count)
 	const int desired_lines_count = std::min(10, max_lines_count);
 	const double rough_step = delta_val / desired_lines_count;
 
-	// Функция подбирает "красивый" шаг, кратный 1,2,5 * 10^n
+	// Р¤СѓРЅРєС†РёСЏ РїРѕРґР±РёСЂР°РµС‚ "РєСЂР°СЃРёРІС‹Р№" С€Р°Рі, РєСЂР°С‚РЅС‹Р№ 1,2,5 * 10^n
 	auto nice_step = [](double x) -> double {
 		if (x <= 0.0) return 1.0;
 		double exponent = floor(log10(x));
 		double mantissa = x / pow(10, exponent);
-		// выбираем ближайшее из набора {1, 2, 5}
+		// РІС‹Р±РёСЂР°РµРј Р±Р»РёР¶Р°Р№С€РµРµ РёР· РЅР°Р±РѕСЂР° {1, 2, 5}
 		if (mantissa < 1.5)      mantissa = 1.0;
 		else if (mantissa < 3.0) mantissa = 2.0;
 		else if (mantissa < 7.0) mantissa = 5.0;
@@ -277,65 +280,65 @@ bool AxisManager::LinesInfo::FillLineVectors(const int distance_px_, const Limit
 
 	double step = nice_step(rough_step);
 
-	// Убедимся, что при этом шаге количество линий не превышает максимум
+	// РЈР±РµРґРёРјСЃСЏ, С‡С‚Рѕ РїСЂРё СЌС‚РѕРј С€Р°РіРµ РєРѕР»РёС‡РµСЃС‚РІРѕ Р»РёРЅРёР№ РЅРµ РїСЂРµРІС‹С€Р°РµС‚ РјР°РєСЃРёРјСѓРј
 	int lines_count = static_cast<int>(delta_val / step) + 1;
 	if (lines_count > max_lines_count) {
-		// Если линий слишком много, увеличиваем шаг до следующего "красивого"
-		step = nice_step(step * 1.1);   // небольшое смещение, чтобы гарантированно перейти на следующий уровень
+		// Р•СЃР»Рё Р»РёРЅРёР№ СЃР»РёС€РєРѕРј РјРЅРѕРіРѕ, СѓРІРµР»РёС‡РёРІР°РµРј С€Р°Рі РґРѕ СЃР»РµРґСѓСЋС‰РµРіРѕ "РєСЂР°СЃРёРІРѕРіРѕ"
+		step = nice_step(step * 1.1);   // РЅРµР±РѕР»СЊС€РѕРµ СЃРјРµС‰РµРЅРёРµ, С‡С‚РѕР±С‹ РіР°СЂР°РЅС‚РёСЂРѕРІР°РЅРЅРѕ РїРµСЂРµР№С‚Рё РЅР° СЃР»РµРґСѓСЋС‰РёР№ СѓСЂРѕРІРµРЅСЊ
 		lines_count = static_cast<int>(delta_val / step) + 1;
 	}
 
 	// ---------------------------------------------------------------------
-	// 3. Определение шага для текстовых подписей (text_step)
+	// 3. РћРїСЂРµРґРµР»РµРЅРёРµ С€Р°РіР° РґР»СЏ С‚РµРєСЃС‚РѕРІС‹С… РїРѕРґРїРёСЃРµР№ (text_step)
 	// ---------------------------------------------------------------------
 	const int lines_per_text = (lines_count >= 5) ? 2 : 1;
 	const double text_step = step * lines_per_text;
 
-	grid_lines_delta_ = text_step;   // сохраняем для внешнего использования
+	grid_lines_delta_ = text_step;   // СЃРѕС…СЂР°РЅСЏРµРј РґР»СЏ РІРЅРµС€РЅРµРіРѕ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёСЏ
 
 									 // ---------------------------------------------------------------------
-									 // 4. Генерация линий
+									 // 4. Р“РµРЅРµСЂР°С†РёСЏ Р»РёРЅРёР№
 									 // ---------------------------------------------------------------------
 	const double x_scale = distance_px_ / delta_val;
 	const int right_text_limit = (distance_px_ > empty_margin_.second)
 		? distance_px_ - empty_margin_.second
 		: 0;
 
-	// Находим первую линию, не меньшую low и кратную step
+	// РќР°С…РѕРґРёРј РїРµСЂРІСѓСЋ Р»РёРЅРёСЋ, РЅРµ РјРµРЅСЊС€СѓСЋ low Рё РєСЂР°С‚РЅСѓСЋ step
 	double first_line = low;
 	double remainder = fmod(low, step);
-	if (std::abs(remainder) > 1e-12) {               // учитываем погрешность
+	if (std::abs(remainder) > 1e-12) {               // СѓС‡РёС‚С‹РІР°РµРј РїРѕРіСЂРµС€РЅРѕСЃС‚СЊ
 		if (remainder < 0)
-			first_line = low - remainder;            // для отрицательных: low - (-rem) = low + |rem|
+			first_line = low - remainder;            // РґР»СЏ РѕС‚СЂРёС†Р°С‚РµР»СЊРЅС‹С…: low - (-rem) = low + |rem|
 		else
 			first_line = low + (step - remainder);
 	}
 
-	// Проходим по всем линиям от first_line до high включительно
+	// РџСЂРѕС…РѕРґРёРј РїРѕ РІСЃРµРј Р»РёРЅРёСЏРј РѕС‚ first_line РґРѕ high РІРєР»СЋС‡РёС‚РµР»СЊРЅРѕ
 	for (double value = first_line; value <= high + 1e-12; value += step) {
-		// Контроль выхода за границы из-за погрешностей
+		// РљРѕРЅС‚СЂРѕР»СЊ РІС‹С…РѕРґР° Р·Р° РіСЂР°РЅРёС†С‹ РёР·-Р·Р° РїРѕРіСЂРµС€РЅРѕСЃС‚РµР№
 		if (value < low - 1e-12 || value > high + 1e-12)
 			continue;
 
-		// Пиксельная координата
+		// РџРёРєСЃРµР»СЊРЅР°СЏ РєРѕРѕСЂРґРёРЅР°С‚Р°
 		int pixel = static_cast<int>((value - low) * x_scale);
 		if (!IsInBound(5, pixel, distance_px_ - 5))
-			continue;   // слишком близко к краям
+			continue;   // СЃР»РёС€РєРѕРј Р±Р»РёР·РєРѕ Рє РєСЂР°СЏРј
 
 		LineInfo info;
 		info.pixel_number_ = pixel;
 
-		// Проверка, должна ли линия иметь текстовую подпись
-		// Линия считается текстовой, если она близка к целому кратному text_step
+		// РџСЂРѕРІРµСЂРєР°, РґРѕР»Р¶РЅР° Р»Рё Р»РёРЅРёСЏ РёРјРµС‚СЊ С‚РµРєСЃС‚РѕРІСѓСЋ РїРѕРґРїРёСЃСЊ
+		// Р›РёРЅРёСЏ СЃС‡РёС‚Р°РµС‚СЃСЏ С‚РµРєСЃС‚РѕРІРѕР№, РµСЃР»Рё РѕРЅР° Р±Р»РёР·РєР° Рє С†РµР»РѕРјСѓ РєСЂР°С‚РЅРѕРјСѓ text_step
 		double rem = fmod(value, text_step);
-		// Приводим остаток к положительному значению в [0, text_step)
+		// РџСЂРёРІРѕРґРёРј РѕСЃС‚Р°С‚РѕРє Рє РїРѕР»РѕР¶РёС‚РµР»СЊРЅРѕРјСѓ Р·РЅР°С‡РµРЅРёСЋ РІ [0, text_step)
 		if (rem < 0) rem += text_step;
 		double dist_to_multiple = std::min(rem, text_step - rem);
-		if (dist_to_multiple < text_step * 0.1) {   // допуск 10% от шага
-													// Дополнительно проверяем, попадает ли подпись в область без отступов
+		if (dist_to_multiple < text_step * 0.1) {   // РґРѕРїСѓСЃРє 10% РѕС‚ С€Р°РіР°
+													// Р”РѕРїРѕР»РЅРёС‚РµР»СЊРЅРѕ РїСЂРѕРІРµСЂСЏРµРј, РїРѕРїР°РґР°РµС‚ Р»Рё РїРѕРґРїРёСЃСЊ РІ РѕР±Р»Р°СЃС‚СЊ Р±РµР· РѕС‚СЃС‚СѓРїРѕРІ
 			if (IsInBound(empty_margin_.first, pixel, right_text_limit)) {
 				info.is_text_line_ = true;
-				info.value_ = value;                 // сохраняем значение для подписи
+				info.value_ = value;                 // СЃРѕС…СЂР°РЅСЏРµРј Р·РЅР°С‡РµРЅРёРµ РґР»СЏ РїРѕРґРїРёСЃРё
 			}
 		}
 

@@ -1,18 +1,19 @@
-#include "FileReadCore.h"
-#include <algorithm>
-#include <climits>
-#include <iostream> // For potential logging/debugging
+п»ї#include "FileReadCore.h"
+
 #include <qdebug.h>
+
+#include <algorithm>
+
 namespace file_source {
 
 FileReader::~FileReader() {
     if (ifstream_.is_open()) {
-        ifstream_.close(); // Закрыть файл при уничтожении объекта
+        ifstream_.close(); // Р—Р°РєСЂС‹С‚СЊ С„Р°Р№Р» РїСЂРё СѓРЅРёС‡С‚РѕР¶РµРЅРёРё РѕР±СЉРµРєС‚Р°
     }
 }
 
 bool FileReader::SetFileParams(const aqua::SourceDescription &params) {
-    // Закрываем любой ранее открытый файл
+    // Р—Р°РєСЂС‹РІР°РµРј Р»СЋР±РѕР№ СЂР°РЅРµРµ РѕС‚РєСЂС‹С‚С‹Р№ С„Р°Р№Р»
     if (ifstream_.is_open()) {
 		auto &a = last_params_; auto &b = params;
 		if (std::tie(a.carrier_hz, a.samplerate_hz, a.data_type_, a.bw_ratio_, a.file_name_,
@@ -27,7 +28,7 @@ bool FileReader::SetFileParams(const aqua::SourceDescription &params) {
     ifstream_.open(params.file_name_.toLocal8Bit().constData(), std::ios::binary | std::ios::ate);
     if (!ifstream_.is_open()) {
         qDebug() << "Error: Could not open file " << params.file_name_ ;
-        return false; // Ошибка открытия файла
+        return false; // РћС€РёР±РєР° РѕС‚РєСЂС‹С‚РёСЏ С„Р°Р№Р»Р°
     }
 
     data_type_ = params.data_type_;
@@ -56,21 +57,21 @@ bool FileReader::ReadDataFrom(const size_t start_sample, const size_t count_of_s
     }
 
     if (count_of_samples == 0) {
-        return true; // Запрошено 0 сэмплов, считаем успешным
+        return true; // Р—Р°РїСЂРѕС€РµРЅРѕ 0 СЃСЌРјРїР»РѕРІ, СЃС‡РёС‚Р°РµРј СѓСЃРїРµС€РЅС‹Рј
     }
 
-    // Вычисляем фактическое количество сэмплов, которое можно прочитать
+    // Р’С‹С‡РёСЃР»СЏРµРј С„Р°РєС‚РёС‡РµСЃРєРѕРµ РєРѕР»РёС‡РµСЃС‚РІРѕ СЃСЌРјРїР»РѕРІ, РєРѕС‚РѕСЂРѕРµ РјРѕР¶РЅРѕ РїСЂРѕС‡РёС‚Р°С‚СЊ
     size_t actual_read_samples = 0;
     if (start_sample >= file_size_samples_) {
         qDebug() << "Warning: Start sample " << start_sample << " is beyond file size " << file_size_samples_ << "." ;
-        return false; // Начальный сэмпл за пределами файла
+        return false; // РќР°С‡Р°Р»СЊРЅС‹Р№ СЃСЌРјРїР» Р·Р° РїСЂРµРґРµР»Р°РјРё С„Р°Р№Р»Р°
     } else {
         size_t available_samples = file_size_samples_ - start_sample;
         actual_read_samples = std::min(count_of_samples, available_samples);
     }
 
     if (actual_read_samples == 0) {
-        return true; // Ничего не нужно читать, но это не ошибка
+        return true; // РќРёС‡РµРіРѕ РЅРµ РЅСѓР¶РЅРѕ С‡РёС‚Р°С‚СЊ, РЅРѕ СЌС‚Рѕ РЅРµ РѕС€РёР±РєР°
     }
 
     size_t bytes_to_read = actual_read_samples * sample_size;
@@ -80,21 +81,21 @@ bool FileReader::ReadDataFrom(const size_t start_sample, const size_t count_of_s
     if (ifstream_.fail()) {
         qDebug() << "Error: Failed to seek to position " << start_sample * sample_size << " bytes." ;
         read_data.clear();
-        return false; // Ошибка позиционирования
+        return false; // РћС€РёР±РєР° РїРѕР·РёС†РёРѕРЅРёСЂРѕРІР°РЅРёСЏ
     }
 
     ifstream_.read(reinterpret_cast<char*>(read_data.data()), bytes_to_read);
 
-    // Проверяем, сколько байт было фактически прочитано
+    // РџСЂРѕРІРµСЂСЏРµРј, СЃРєРѕР»СЊРєРѕ Р±Р°Р№С‚ Р±С‹Р»Рѕ С„Р°РєС‚РёС‡РµСЃРєРё РїСЂРѕС‡РёС‚Р°РЅРѕ
     std::streamsize bytes_gcount = ifstream_.gcount();
     if (bytes_gcount != static_cast<std::streamsize>(bytes_to_read)) {
         qDebug() << "Warning: Expected to read " << bytes_to_read << " bytes, but read " << bytes_gcount << " bytes." ;
         size_t full_samples_read = static_cast<size_t>(bytes_gcount) / sample_size;
-        read_data.resize(full_samples_read * sample_size); // Обрезать буфер, если прочитано меньше
-        return false; // Частичное чтение или ошибка чтения
+        read_data.resize(full_samples_read * sample_size); // РћР±СЂРµР·Р°С‚СЊ Р±СѓС„РµСЂ, РµСЃР»Рё РїСЂРѕС‡РёС‚Р°РЅРѕ РјРµРЅСЊС€Рµ
+        return false; // Р§Р°СЃС‚РёС‡РЅРѕРµ С‡С‚РµРЅРёРµ РёР»Рё РѕС€РёР±РєР° С‡С‚РµРЅРёСЏ
     }
 
-    return true; // Прочитано успешно
+    return true; // РџСЂРѕС‡РёС‚Р°РЅРѕ СѓСЃРїРµС€РЅРѕ
 }
 
 bool FileReader::IsFileReady() const {

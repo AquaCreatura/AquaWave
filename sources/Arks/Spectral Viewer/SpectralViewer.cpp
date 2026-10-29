@@ -1,24 +1,26 @@
-#include "SpectralViewer.h"
-#include "special_defs/file_souce_defs.h"
-#include "special_defs/analyzer_defs.h"
-#include "special_defs/file_writer_defs.h"
-#include "Scheme/ShipBuilder.h"
-#include <qmessagebox.h>
-#include <qdebug.h>
-using namespace spectral_viewer;
-using namespace aqua_gui;
+п»ї#include "SpectralViewer.h"
+
 #include "Elements/DPX Spectrum/SpectrumDPX.h"
 #include "Elements/Static SPG/Spectrogram.h"
+#include "Scheme/ShipBuilder.h"
+#include "special_defs/file_souce_defs.h"
+#include "special_defs/file_writer_defs.h"
 
-// Конструктор: Инициализирует компонент для отрисовки спектра.
-// parrent: Указатель на родительский QWidget.
+#include <qdebug.h>
+#include <qmessagebox.h>
+
+using namespace spectral_viewer;
+using namespace aqua_gui;
+
+// РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ: РРЅРёС†РёР°Р»РёР·РёСЂСѓРµС‚ РєРѕРјРїРѕРЅРµРЅС‚ РґР»СЏ РѕС‚СЂРёСЃРѕРІРєРё СЃРїРµРєС‚СЂР°.
+// parrent: РЈРєР°Р·Р°С‚РµР»СЊ РЅР° СЂРѕРґРёС‚РµР»СЊСЃРєРёР№ QWidget.
 SpectralViewer::SpectralViewer()
 {
 	selection_holder_ = std::make_shared<aqua_gui::SelectionHolder>();
     window_ = new SpectralViewerWindow;
 	{
-		spectrum_ = std::make_shared<dpx_core::SpectrumDpx>(dpx_core::kDpxChartType::kFFT); // Создание компонента для спектрального графика.
-		spg_ = std::make_shared<spg_core::StaticSpg>(); // Создание компонента для спектрограммы.
+		spectrum_ = std::make_shared<dpx_core::SpectrumDpx>(dpx_core::kDpxChartType::kFFT); // РЎРѕР·РґР°РЅРёРµ РєРѕРјРїРѕРЅРµРЅС‚Р° РґР»СЏ СЃРїРµРєС‚СЂР°Р»СЊРЅРѕРіРѕ РіСЂР°С„РёРєР°.
+		spg_ = std::make_shared<spg_core::StaticSpg>(); // РЎРѕР·РґР°РЅРёРµ РєРѕРјРїРѕРЅРµРЅС‚Р° РґР»СЏ СЃРїРµРєС‚СЂРѕРіСЂР°РјРјС‹.
 		ShipBuilder		ship_builder;
 		scoper_ = ship_builder.BuildNewShip(aqua::kScopeAnalyser);
 
@@ -56,34 +58,34 @@ SpectralViewer::~SpectralViewer()
 }
 
 
-// Отправляет данные для обработки спектра и отображения.
-// data_info: Структура с входными данными и информацией о частоте.
+// РћС‚РїСЂР°РІР»СЏРµС‚ РґР°РЅРЅС‹Рµ РґР»СЏ РѕР±СЂР°Р±РѕС‚РєРё СЃРїРµРєС‚СЂР° Рё РѕС‚РѕР±СЂР°Р¶РµРЅРёСЏ.
+// data_info: РЎС‚СЂСѓРєС‚СѓСЂР° СЃ РІС…РѕРґРЅС‹РјРё РґР°РЅРЅС‹РјРё Рё РёРЅС„РѕСЂРјР°С†РёРµР№ Рѕ С‡Р°СЃС‚РѕС‚Рµ.
 bool SpectralViewer::SendData(aqua::DataInfo const & data_info)
 {
-    // Если входные данные пусты, выходим.
+    // Р•СЃР»Рё РІС…РѕРґРЅС‹Рµ РґР°РЅРЅС‹Рµ РїСѓСЃС‚С‹, РІС‹С…РѕРґРёРј.
     if(data_info.data_vec.empty()) return true;
 	//tiler_->SendData	(data_info);
 	spectrum_->SendData	(data_info);
-    return true; // Успех.
+    return true; // РЈСЃРїРµС….
 }
 
-// Обрабатывает сообщения "Dove".
-// sent_dove: Умный указатель на сообщение Dove.
+// РћР±СЂР°Р±Р°С‚С‹РІР°РµС‚ СЃРѕРѕР±С‰РµРЅРёСЏ "Dove".
+// sent_dove: РЈРјРЅС‹Р№ СѓРєР°Р·Р°С‚РµР»СЊ РЅР° СЃРѕРѕР±С‰РµРЅРёРµ Dove.
 bool SpectralViewer::PostDove(aqua::DoveSptr const & sent_dove)
 {
-    // Если сообщение недействительно, выбрасываем исключение.
+    // Р•СЃР»Рё СЃРѕРѕР±С‰РµРЅРёРµ РЅРµРґРµР№СЃС‚РІРёС‚РµР»СЊРЅРѕ, РІС‹Р±СЂР°СЃС‹РІР°РµРј РёСЃРєР»СЋС‡РµРЅРёРµ.
     if (!sent_dove) throw std::invalid_argument("Not created message sent!");
     
-    // Получаем целевое значение и "мысль" из сообщения.
+    // РџРѕР»СѓС‡Р°РµРј С†РµР»РµРІРѕРµ Р·РЅР°С‡РµРЅРёРµ Рё "РјС‹СЃР»СЊ" РёР· СЃРѕРѕР±С‰РµРЅРёСЏ.
     auto target_val = sent_dove->target_ark;
     auto base_thought = sent_dove->base_thought;
     
-    // Если "мысль" - запрос на диалог.
+    // Р•СЃР»Рё "РјС‹СЃР»СЊ" - Р·Р°РїСЂРѕСЃ РЅР° РґРёР°Р»РѕРі.
     if (base_thought & aqua::DoveParrent::DoveThought::kGetWindow)
     {
-        // Прикрепляем отрисовщик спектра к виджету сообщения.
+        // РџСЂРёРєСЂРµРїР»СЏРµРј РѕС‚СЂРёСЃРѕРІС‰РёРє СЃРїРµРєС‚СЂР° Рє РІРёРґР¶РµС‚Сѓ СЃРѕРѕР±С‰РµРЅРёСЏ.
         sent_dove->show_widget = window_;
-        return true; // Запрос обработан.
+        return true; // Р—Р°РїСЂРѕСЃ РѕР±СЂР°Р±РѕС‚Р°РЅ.
     }
     if(base_thought == aqua::DoveParrent::DoveThought::kAddSource)
     {
@@ -91,7 +93,7 @@ bool SpectralViewer::PostDove(aqua::DoveSptr const & sent_dove)
 		ShipBuilder::Bind_SrcSink(target_val, scoper_);
 		ShipBuilder::Bind_SrcSink(shared_from_this(), scoper_);
         src_info_.ark = target_val;
-		//Определяем командное соединение
+		//РћРїСЂРµРґРµР»СЏРµРј РєРѕРјР°РЅРґРЅРѕРµ СЃРѕРµРґРёРЅРµРЅРёРµ
 		{
 			aqua::DoveSptr req_dove = std::make_shared<aqua::DoveParrent>(aqua::DoveParrent::kAddSource);
 			req_dove->target_ark = target_val;
@@ -123,7 +125,7 @@ bool SpectralViewer::PostDove(aqua::DoveSptr const & sent_dove)
         return Reload();
     }
 
-    // Передаём сообщение базовому классу для дальнейшей обработки.
+    // РџРµСЂРµРґР°С‘Рј СЃРѕРѕР±С‰РµРЅРёРµ Р±Р°Р·РѕРІРѕРјСѓ РєР»Р°СЃСЃСѓ РґР»СЏ РґР°Р»СЊРЅРµР№С€РµР№ РѕР±СЂР°Р±РѕС‚РєРё.
     return ArkBase::PostDove(sent_dove);
 }
 

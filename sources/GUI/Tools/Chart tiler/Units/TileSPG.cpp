@@ -1,5 +1,7 @@
-#include "TileSPG.h"
+п»ї#include "TileSPG.h"
+
 #include "GUI/Tools/gui_conversions.h"
+
 TileSPG::TileSPG() {
 	is_spg_ = true;
 	is_rotated_ = true;
@@ -9,8 +11,8 @@ void TileSPG::SetData(const draw_data & passed_draw)
 {
 	const auto& passed_freq = passed_draw.freq_bounds;
 	const auto& src_data = passed_draw.data;
-	//По вертикали время, по горизонтале - частота
-	//Проецируем диапазон мировых координат на диапазон данных
+	//РџРѕ РІРµСЂС‚РёРєР°Р»Рё РІСЂРµРјСЏ, РїРѕ РіРѕСЂРёР·РѕРЅС‚Р°Р»Рµ - С‡Р°СЃС‚РѕС‚Р°
+	//РџСЂРѕРµС†РёСЂСѓРµРј РґРёР°РїР°Р·РѕРЅ РјРёСЂРѕРІС‹С… РєРѕРѕСЂРґРёРЅР°С‚ РЅР° РґРёР°РїР°Р·РѕРЅ РґР°РЅРЅС‹С…
 	auto make_range = [](const Limits<double>& from, const Limits<double>& to, size_t to_size) -> Limits<size_t> {
 		auto to_idx = [&](double val) {
 			long idx = static_cast<long>(std::floor(to.pos(val) * to_size));
@@ -18,12 +20,12 @@ void TileSPG::SetData(const draw_data & passed_draw)
 		};
 		return { to_idx(from.low), to_idx(from.high) };
 	};
-	//Какая часть от диапазона входных данных лежит внутри нашего тайла (проецируем диапазон тайла на данные)
+	//РљР°РєР°СЏ С‡Р°СЃС‚СЊ РѕС‚ РґРёР°РїР°Р·РѕРЅР° РІС…РѕРґРЅС‹С… РґР°РЅРЅС‹С… Р»РµР¶РёС‚ РІРЅСѓС‚СЂРё РЅР°С€РµРіРѕ С‚Р°Р№Р»Р° (РїСЂРѕРµС†РёСЂСѓРµРј РґРёР°РїР°Р·РѕРЅ С‚Р°Р№Р»Р° РЅР° РґР°РЅРЅС‹Рµ)
 	auto passed_cut_range = make_range(val_bounds_.hor, passed_freq, src_data.size());
-	//Какая часть от диапазона тайла лежит внутри диапазона входных данных (проецируем входной диапазон на тайлы - обычно 100%)
+	//РљР°РєР°СЏ С‡Р°СЃС‚СЊ РѕС‚ РґРёР°РїР°Р·РѕРЅР° С‚Р°Р№Р»Р° Р»РµР¶РёС‚ РІРЅСѓС‚СЂРё РґРёР°РїР°Р·РѕРЅР° РІС…РѕРґРЅС‹С… РґР°РЅРЅС‹С… (РїСЂРѕРµС†РёСЂСѓРµРј РІС…РѕРґРЅРѕР№ РґРёР°РїР°Р·РѕРЅ РЅР° С‚Р°Р№Р»С‹ - РѕР±С‹С‡РЅРѕ 100%)
 	auto tile_draw_bounds = make_range(passed_freq, val_bounds_.hor, data_size_.hor);
 
-	// delta() == 0 сразу отсекает пустые или некорректные диапазоны
+	// delta() == 0 СЃСЂР°Р·Сѓ РѕС‚СЃРµРєР°РµС‚ РїСѓСЃС‚С‹Рµ РёР»Рё РЅРµРєРѕСЂСЂРµРєС‚РЅС‹Рµ РґРёР°РїР°Р·РѕРЅС‹
 	if (passed_cut_range.delta() == 0 || tile_draw_bounds.delta() == 0) return;
 
 	SetDataToRow(src_data.data() + passed_cut_range.low, passed_cut_range.delta(), tile_draw_bounds, passed_draw.time_pos, true);
@@ -31,7 +33,7 @@ void TileSPG::SetData(const draw_data & passed_draw)
 void TileSPG::UpdateFromTile(const TileInterface* passed_tile) {
 	const auto* src = static_cast<const TileSPG*>(passed_tile);
 
-	// Вспомогательная функция: значение -> индекс в сетке
+	// Р’СЃРїРѕРјРѕРіР°С‚РµР»СЊРЅР°СЏ С„СѓРЅРєС†РёСЏ: Р·РЅР°С‡РµРЅРёРµ -> РёРЅРґРµРєСЃ РІ СЃРµС‚РєРµ
 	auto to_index = [](const Limits<double>& bounds, size_t size, double value) -> size_t {
 		long idx = static_cast<long>(std::floor(bounds.pos(value) * size));
 		return static_cast<size_t>(std::clamp(idx, 0L, static_cast<long>(size - 1)));
@@ -47,14 +49,14 @@ void TileSPG::UpdateFromTile(const TileInterface* passed_tile) {
 		size_t dst_row = static_cast<size_t>(std::floor(val_bounds_.vert.pos(time) * data_size_.vert));
 		if (pos_vec_[dst_row] > 0.f) continue;
 
-		// Пересечение частотных диапазонов
+		// РџРµСЂРµСЃРµС‡РµРЅРёРµ С‡Р°СЃС‚РѕС‚РЅС‹С… РґРёР°РїР°Р·РѕРЅРѕРІ
 		Limits<double> overlap{
 			std::max(val_bounds_.hor.low, src->val_bounds_.hor.low),
 			std::min(val_bounds_.hor.high, src->val_bounds_.hor.high)
 		};
 		if (overlap.delta() <= 0) continue;
 		is_good_density = true;
-		// Диапазоны индексов в исходных и целевых данных (high эксклюзивный)
+		// Р”РёР°РїР°Р·РѕРЅС‹ РёРЅРґРµРєСЃРѕРІ РІ РёСЃС…РѕРґРЅС‹С… Рё С†РµР»РµРІС‹С… РґР°РЅРЅС‹С… (high СЌРєСЃРєР»СЋР·РёРІРЅС‹Р№)
 		Limits<size_t> src_indices{
 			to_index(src->val_bounds_.hor, src->data_size_.hor, overlap.low),
 			to_index(src->val_bounds_.hor, src->data_size_.hor, overlap.high) + 1
@@ -101,7 +103,7 @@ void TileSPG::UpdateQimage(dynamic_qimage & dyn_qimage, const Limits<double> &po
 			argb_t color = GetNormColor(density);
 
 			*(qimage_ptr++) = color;
-			//Собираем статистические данные
+			//РЎРѕР±РёСЂР°РµРј СЃС‚Р°С‚РёСЃС‚РёС‡РµСЃРєРёРµ РґР°РЅРЅС‹Рµ
 			if (density > 0.)
 			{
 				max_density = std::max(max_density, density);
@@ -128,7 +130,7 @@ void TileSPG::SetDataToRow(const float * passed_data, int data_size, const Limit
 	const double pos_ratio = val_bounds_.vert.pos(time_pos);
 	const int res_idx = std::floor(pos_ratio * data_size_.vert);
 
-	// Проверка попадания в row и флаг актуальности
+	// РџСЂРѕРІРµСЂРєР° РїРѕРїР°РґР°РЅРёСЏ РІ row Рё С„Р»Р°Рі Р°РєС‚СѓР°Р»СЊРЅРѕСЃС‚Рё
 	if (!val_bounds_.vert.has_inside(time_pos) || res_idx < 0 || relevant_vec_[res_idx])
 		return;
 

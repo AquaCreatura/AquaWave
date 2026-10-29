@@ -1,6 +1,8 @@
-#include "scope_analyzer_window.h"
-#include "Utilities/parse_tools.h"
+п»ї#include "scope_analyzer_window.h"
+
 #include "GUI/Charts/ChartInterface.h"
+#include "Utilities/parse_tools.h"
+
 using namespace scope_analyzer;
 using namespace analyzer;
 ScopeAnalyzerWindow::ScopeAnalyzerWindow()
@@ -26,7 +28,7 @@ ScopeAnalyzerWindow::ScopeAnalyzerWindow()
 		ActivateWindow(static_cast<analyzer::analz_chart_type>(id));
 	});
 	fft_delayed_ = std::make_unique<utility_aqua::DelayedCaller>(500);
-	//Определяем Combobox для FFT
+	//РћРїСЂРµРґРµР»СЏРµРј Combobox РґР»СЏ FFT
 	{
 		connect(ui_.fft_order_combobox, QOverload<int>::of(&QComboBox::currentIndexChanged), [this](int index) {
 			fft_delayed_->Call([&]() {
@@ -68,7 +70,7 @@ void ScopeAnalyzerWindow::ActivateWindow(analz_chart_type passed_chart_type)
 
 
 	if (charts_.count(passed_chart_type) == 0) return;
-	//Выставляем нажатие
+	//Р’С‹СЃС‚Р°РІР»СЏРµРј РЅР°Р¶Р°С‚РёРµ
 	{
 		analz_chart_type radio_box_type = passed_chart_type;
 		if (passed_chart_type == analz_chart_type::kPhasorSpectrum || passed_chart_type == analz_chart_type::kEnvelopeSpectrum)
@@ -145,7 +147,7 @@ void scope_analyzer::ScopeAnalyzerWindow::UpdateFFtCombobox(const int max_order,
 		int target_fft = cur_fft_order;
 		int index = ui_.fft_order_combobox->findData(target_fft);
 		if (index != -1) {
-			ui_.fft_order_combobox->setCurrentIndex(index);  // вызовет emit currentIndexChanged
+			ui_.fft_order_combobox->setCurrentIndex(index);  // РІС‹Р·РѕРІРµС‚ emit currentIndexChanged
 		}
 		else
 		{

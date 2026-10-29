@@ -1,9 +1,7 @@
-#include "QWindowKitHelper.h"
+п»ї#include "QWindowKitHelper.h"
 
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QLabel>
-#include <QtWidgets/QMenuBar>
-#include <QtWidgets/QMenu>
 
 QWindowKitHelper::QWindowKitHelper(QMainWindow* window)
     : QObject(window)
@@ -15,16 +13,16 @@ QWindowKitHelper::QWindowKitHelper(QMainWindow* window)
 
 void QWindowKitHelper::setupTitleBar(QWidget* passed_bar)
 {
-    // 1. Создаем контейнер для TitleBar
+    // 1. РЎРѕР·РґР°РµРј РєРѕРЅС‚РµР№РЅРµСЂ РґР»СЏ TitleBar
     auto* titleBar = new QWidget(m_window);
     titleBar->setFixedHeight(40);
 
-    // 2. Создаем элементы управления
+    // 2. РЎРѕР·РґР°РµРј СЌР»РµРјРµРЅС‚С‹ СѓРїСЂР°РІР»РµРЅРёСЏ
     auto* iconButton = new QPushButton((""), m_window);
     QIcon top_left_logo(":/buttons/button_images/AquaWave.png");
     iconButton->setIcon(top_left_logo);
     iconButton->setIconSize(QSize(25, 25));
-    iconButton->setFixedSize(35, 35); // Фиксированный размер кнопки
+    iconButton->setFixedSize(35, 35); // Р¤РёРєСЃРёСЂРѕРІР°РЅРЅС‹Р№ СЂР°Р·РјРµСЂ РєРЅРѕРїРєРё
 
 
     auto* titleLabel = new QLabel(m_window->windowTitle(), m_window);
@@ -41,31 +39,31 @@ void QWindowKitHelper::setupTitleBar(QWidget* passed_bar)
     m_maxButton = makeBtn(QStringLiteral("O"));
     m_closeButton = makeBtn(QStringLiteral("X"));
 
-    // 3. Настраиваем layout
+    // 3. РќР°СЃС‚СЂР°РёРІР°РµРј layout
     auto* layout = new QHBoxLayout(titleBar);
     layout->setContentsMargins(8, 0, 0, 0);
     layout->setSpacing(0);
     layout->addWidget(iconButton);
     layout->addWidget(passed_bar);
-    layout->addWidget(titleLabel, 1); // 1 означает, что лейбл будет растягиваться
+    layout->addWidget(titleLabel, 1); // 1 РѕР·РЅР°С‡Р°РµС‚, С‡С‚Рѕ Р»РµР№Р±Р» Р±СѓРґРµС‚ СЂР°СЃС‚СЏРіРёРІР°С‚СЊСЃСЏ
     layout->addWidget(m_minButton);
     layout->addWidget(m_maxButton);
     layout->addWidget(m_closeButton);
 
-    // 4. Устанавливаем кастомный виджет меню в главное окно
+    // 4. РЈСЃС‚Р°РЅР°РІР»РёРІР°РµРј РєР°СЃС‚РѕРјРЅС‹Р№ РІРёРґР¶РµС‚ РјРµРЅСЋ РІ РіР»Р°РІРЅРѕРµ РѕРєРЅРѕ
     m_window->setMenuWidget(titleBar);
 
-    // 5. Настраиваем QWindowKit Agent
+    // 5. РќР°СЃС‚СЂР°РёРІР°РµРј QWindowKit Agent
     m_windowAgent->setTitleBar(titleBar);
     m_windowAgent->setSystemButton(QWK::WindowAgentBase::WindowIcon, iconButton);
     m_windowAgent->setSystemButton(QWK::WindowAgentBase::Minimize, m_minButton);
     m_windowAgent->setSystemButton(QWK::WindowAgentBase::Maximize, m_maxButton);
     m_windowAgent->setSystemButton(QWK::WindowAgentBase::Close, m_closeButton);
 
-    // Разрешаем клики и перетаскивание через менюбар
+    // Р Р°Р·СЂРµС€Р°РµРј РєР»РёРєРё Рё РїРµСЂРµС‚Р°СЃРєРёРІР°РЅРёРµ С‡РµСЂРµР· РјРµРЅСЋР±Р°СЂ
     m_windowAgent->setHitTestVisible(passed_bar, true);
 
-    // 6. Подключаем сигналы кнопок к слотам окна
+    // 6. РџРѕРґРєР»СЋС‡Р°РµРј СЃРёРіРЅР°Р»С‹ РєРЅРѕРїРѕРє Рє СЃР»РѕС‚Р°Рј РѕРєРЅР°
     connect(m_minButton, &QPushButton::clicked, m_window, &QWidget::showMinimized);
 
     connect(m_maxButton, &QPushButton::clicked, m_window, [this]() {

@@ -1,7 +1,9 @@
-#include "PeakDetection.h"
+п»ї#include "PeakDetection.h"
+
 #include <algorithm>
 #include <cmath>
 #include <limits>
+
 using namespace peak_detection;
 using namespace dpx_core;
 std::vector<size_t> peak_detection::FindPeaksToAvg(const Ipp32f * data, size_t count_of_samples, int count_of_peaks, double check_area_ratio, double min_dist_ratio, double threshold)
@@ -21,7 +23,7 @@ std::vector<size_t> peak_detection::FindPeaksToAvg(const Ipp32f * data, size_t c
 	std::vector<Peak> peaks;
 	peaks.reserve(16);
 
-	// Ищем локальные максимумы.
+	// РС‰РµРј Р»РѕРєР°Р»СЊРЅС‹Рµ РјР°РєСЃРёРјСѓРјС‹.
 	for (size_t i = 1; i + 1 < count_of_samples; ++i)
 	{
 		if (data[i] < data[i - 1] || data[i] < data[i + 1])
@@ -58,7 +60,7 @@ std::vector<size_t> peak_detection::FindPeaksToAvg(const Ipp32f * data, size_t c
 			peaks.push_back({ i, quality });
 	}
 
-	// Лучшие пики идут первыми.
+	// Р›СѓС‡С€РёРµ РїРёРєРё РёРґСѓС‚ РїРµСЂРІС‹РјРё.
 	std::sort(peaks.begin(), peaks.end(), [](const Peak& a, const Peak& b)
 	{
 		return a.quality > b.quality;
@@ -67,7 +69,7 @@ std::vector<size_t> peak_detection::FindPeaksToAvg(const Ipp32f * data, size_t c
 	std::vector<size_t> result;
 	result.reserve(std::min<size_t>(count_of_peaks, peaks.size()));
 
-	// Greedy selection с минимальным расстоянием.
+	// Greedy selection СЃ РјРёРЅРёРјР°Р»СЊРЅС‹Рј СЂР°СЃСЃС‚РѕСЏРЅРёРµРј.
 	for (const Peak& peak : peaks)
 	{
 		bool too_close = false;
@@ -163,7 +165,7 @@ void PeakDetector::Process(const Ipp32f* data, size_t count_of_samples)
 		valid_ = false;
 		return;
 	}
-	// Если изменился размер, полностью сбрасываем состояние
+	// Р•СЃР»Рё РёР·РјРµРЅРёР»СЃСЏ СЂР°Р·РјРµСЂ, РїРѕР»РЅРѕСЃС‚СЊСЋ СЃР±СЂР°СЃС‹РІР°РµРј СЃРѕСЃС‚РѕСЏРЅРёРµ
 	if (n_fft_ != 0 && n_fft_ != count_of_samples)
 	{
 		Init(data_type_, n_fft_, sample_rate_hz_, carrier_hz_);
@@ -182,7 +184,7 @@ void PeakDetector::UpdateMaxHold(const Ipp32f* data, size_t count_of_samples)
 
 	for (size_t i = 0; i < count_of_samples; ++i)
 	{
-		// Утечка в dB: вычитаем фиксированную величину
+		// РЈС‚РµС‡РєР° РІ dB: РІС‹С‡РёС‚Р°РµРј С„РёРєСЃРёСЂРѕРІР°РЅРЅСѓСЋ РІРµР»РёС‡РёРЅСѓ
 		max_hold_[i] = std::max( data[i],max_hold_[i] - static_cast<Ipp32f>(kMaxHoldDecayDb));
 	}
 }

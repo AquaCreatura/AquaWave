@@ -1,10 +1,9 @@
-#pragma once
-
-#include <fstream>
-#include <cstdint>
-#include <string>
+﻿#pragma once
 
 #include "utility_aqua.h"
+
+#include <cstdint>
+#include <string>
 
 using namespace utility_aqua;
 namespace utility_aqua {

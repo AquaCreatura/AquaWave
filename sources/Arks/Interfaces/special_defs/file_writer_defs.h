@@ -1,8 +1,8 @@
-#pragma once
-#include <ipps.h>
-#include <stdint.h>
-#include <qstring.h>
+﻿#pragma once
 #include "Arks/Interfaces/ark_interface.h"
+
+#include <stdint.h>
+
 using namespace utility_aqua;
 namespace file_writer
 {

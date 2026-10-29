@@ -1,8 +1,9 @@
-#pragma once
-#include <memory>
-#include "ResamplersImpl/ResamperInterface.h"
+п»ї#pragma once
 #include "../basic/freq_shifter.h"
 #include "ark_defs.h"
+#include "ResamplersImpl/ResamperInterface.h"
+
+#include <memory>
 
 namespace aqua_resampler
 {
@@ -24,17 +25,17 @@ namespace aqua_resampler
 		std::vector<Ipp32fc>& GetProcessedData();
 
 	private:
-		//Пераметры настройки
+		//РџРµСЂР°РјРµС‚СЂС‹ РЅР°СЃС‚СЂРѕР№РєРё
 		ResamplerSettings                   settings_;
 		double                              resample_ratio_;
 		aqua::freq_params				base_params_;
 
-		//Наши работяги
+		//РќР°С€Рё СЂР°Р±РѕС‚СЏРіРё
 		std::unique_ptr<ResamplerInterface> mr_resampler_;
 		std::unique_ptr<ResamplerInterface> precise_resampler_;
 		aqua_dsp_tools::FrequencyShifter    freq_shifter_;
 
-		//Наши буфферы
+		//РќР°С€Рё Р±СѓС„С„РµСЂС‹
 		std::vector<Ipp32fc>                processed_data_;
 		std::vector<Ipp32fc>                shifted_data_;
 		std::vector<Ipp32fc>				mr_output_;

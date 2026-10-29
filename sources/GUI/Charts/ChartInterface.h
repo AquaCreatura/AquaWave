@@ -1,15 +1,14 @@
-#pragma once
-#include <qtimer.h>
-#include <vector>
-#include <qgraphicsview.h>
-#include <qevent.h>
-#include <qcombobox.h>
-
+﻿#pragma once
 #include "GUI/Tools/Chart drawers/AxisPainter.h"
-#include "GUI/Tools/Chart drawers//ImageBackGround.h"
+#include "GUI/Tools/Chart drawers/ImageBackGround.h"
+#include "GUI/Tools/Chart drawers/SelectionDrawer.h"
 #include "GUI/Tools/PowerManager.h"
-#include "GUI/Tools/Chart drawers//SelectionDrawer.h"
+
+#include <qevent.h>
 #include <qlayout.h>
+#include <qtimer.h>
+#include <QWidget>
+
 using namespace aqua_gui;
 class ChartInterface : public QWidget
 {

@@ -1,4 +1,5 @@
-#include "PipeInterface.h"
+﻿#include "PipeInterface.h"
+
 using namespace pipes;
 
 void pipes::SimplePipeLine::AddNextPipe(PipeInterface::sptr new_pipe)

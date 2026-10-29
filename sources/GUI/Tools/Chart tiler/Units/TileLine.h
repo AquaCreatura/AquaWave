@@ -1,7 +1,5 @@
-#pragma once
+﻿#pragma once
 #include "TileInterface.h"
-
-
 
 class TileLine : public TileInterface
 {

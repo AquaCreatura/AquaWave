@@ -1,7 +1,10 @@
-#include "ChartTiler.h"
+п»ї#include "ChartTiler.h"
+
 #include "Units/TileDPX.h"
 #include "Units/TileSPG.h"
+
 #include <qdebug.h>
+
 ChartTiler::ChartTiler(const ChartScaleInfo & scale_info) : scale_info_(scale_info)
 {
 	is_spg_ = (scale_info_.val_info_.domain_type == aqua_gui::ChartDomainType::kTimeFrequency);	
@@ -28,25 +31,25 @@ void ChartTiler::UpdateTileBase()
 }
 
 /*
-	1.1) Вышли за границу вверх:
-			с определённым порогом (1.5) пересоздаём картинку выше.
-			переносим наши данные в картинку выше - relevant - копируем как relevant,
-			а всё, что осталось добиваем из base.
-	1.2) Вышли за границу вниз:
-			С определённым порогом (1.5) пересоздаём картинку ниже.
-			переносим наши данные в картинку ниже - relevant копируем соотвествующим образом. Будет прореженная картинка, но потом дозапрашиваем данные
+	1.1) Р’С‹С€Р»Рё Р·Р° РіСЂР°РЅРёС†Сѓ РІРІРµСЂС…:
+			СЃ РѕРїСЂРµРґРµР»С‘РЅРЅС‹Рј РїРѕСЂРѕРіРѕРј (1.5) РїРµСЂРµСЃРѕР·РґР°С‘Рј РєР°СЂС‚РёРЅРєСѓ РІС‹С€Рµ.
+			РїРµСЂРµРЅРѕСЃРёРј РЅР°С€Рё РґР°РЅРЅС‹Рµ РІ РєР°СЂС‚РёРЅРєСѓ РІС‹С€Рµ - relevant - РєРѕРїРёСЂСѓРµРј РєР°Рє relevant,
+			Р° РІСЃС‘, С‡С‚Рѕ РѕСЃС‚Р°Р»РѕСЃСЊ РґРѕР±РёРІР°РµРј РёР· base.
+	1.2) Р’С‹С€Р»Рё Р·Р° РіСЂР°РЅРёС†Сѓ РІРЅРёР·:
+			РЎ РѕРїСЂРµРґРµР»С‘РЅРЅС‹Рј РїРѕСЂРѕРіРѕРј (1.5) РїРµСЂРµСЃРѕР·РґР°С‘Рј РєР°СЂС‚РёРЅРєСѓ РЅРёР¶Рµ.
+			РїРµСЂРµРЅРѕСЃРёРј РЅР°С€Рё РґР°РЅРЅС‹Рµ РІ РєР°СЂС‚РёРЅРєСѓ РЅРёР¶Рµ - relevant РєРѕРїРёСЂСѓРµРј СЃРѕРѕС‚РІРµСЃС‚РІСѓСЋС‰РёРј РѕР±СЂР°Р·РѕРј. Р‘СѓРґРµС‚ РїСЂРѕСЂРµР¶РµРЅРЅР°СЏ РєР°СЂС‚РёРЅРєР°, РЅРѕ РїРѕС‚РѕРј РґРѕР·Р°РїСЂР°С€РёРІР°РµРј РґР°РЅРЅС‹Рµ
 */
 void ChartTiler::UpdateTileView()
 {
 	auto view_bounds = scale_info_.val_info_.view_bounds;
 	const auto &base_bounds = scale_info_.val_info_.min_max_bounds;
 	if (!is_spg_) view_bounds.vert = base_bounds.vert;
-	//Факт того, что диапазон попадаетв тайл
+	//Р¤Р°РєС‚ С‚РѕРіРѕ, С‡С‚Рѕ РґРёР°РїР°Р·РѕРЅ РїРѕРїР°РґР°РµС‚РІ С‚Р°Р№Р»
 	auto is_tile_appopiate = [&](TileInterface::uptr& possible_tile) {
 		const auto& cur_tile_bounds = possible_tile->GetValBounds();
 		bool is_out_of_cur_tile = (view_bounds.hor.low < cur_tile_bounds.hor.low) || (view_bounds.hor.high > cur_tile_bounds.hor.high) || 
 										(view_bounds.vert.low < cur_tile_bounds.vert.low) || (view_bounds.vert.high > cur_tile_bounds.vert.high);
-		//Если в результате зумминга мы всё ещё находимся в пределах текущего тайла
+		//Р•СЃР»Рё РІ СЂРµР·СѓР»СЊС‚Р°С‚Рµ Р·СѓРјРјРёРЅРіР° РјС‹ РІСЃС‘ РµС‰С‘ РЅР°С…РѕРґРёРјСЃСЏ РІ РїСЂРµРґРµР»Р°С… С‚РµРєСѓС‰РµРіРѕ С‚Р°Р№Р»Р°
 		if (!is_out_of_cur_tile) {
 			HV_Info<double> view_ratio = { cur_tile_bounds.hor.delta() / view_bounds.hor.delta(),
 				cur_tile_bounds.vert.delta() / view_bounds.vert.delta() };
@@ -56,36 +59,36 @@ void ChartTiler::UpdateTileView()
 		}
 		return false;
 	};
-	if (is_tile_appopiate(tiles_[tile_id_])) //Если текущий тайл подходит - выходим! (лучший вариант)
+	if (is_tile_appopiate(tiles_[tile_id_])) //Р•СЃР»Рё С‚РµРєСѓС‰РёР№ С‚Р°Р№Р» РїРѕРґС…РѕРґРёС‚ - РІС‹С…РѕРґРёРј! (Р»СѓС‡С€РёР№ РІР°СЂРёР°РЅС‚)
 		return;
 
-	//Ищем тайл среди имеющихся, в который попадает запрашиваемый дипазон
+	//РС‰РµРј С‚Р°Р№Р» СЃСЂРµРґРё РёРјРµСЋС‰РёС…СЃСЏ, РІ РєРѕС‚РѕСЂС‹Р№ РїРѕРїР°РґР°РµС‚ Р·Р°РїСЂР°С€РёРІР°РµРјС‹Р№ РґРёРїР°Р·РѕРЅ
 	int new_tile_id = -1;
 	for (int tile_counter = 0; tile_counter < count_of_tiles_; tile_counter++) {
-		//Не, ну а смысл проверять текущий тайл второй раз?)
+		//РќРµ, РЅСѓ Р° СЃРјС‹СЃР» РїСЂРѕРІРµСЂСЏС‚СЊ С‚РµРєСѓС‰РёР№ С‚Р°Р№Р» РІС‚РѕСЂРѕР№ СЂР°Р·?)
 		if ((tile_counter != tile_id_) && is_tile_appopiate(tiles_[tile_counter])) {
 			new_tile_id = tile_counter;
 			break;
 		}
 	}
 	new_tile_id = -1;
-	//Если нет подходящего тайла - создаём его...
+	//Р•СЃР»Рё РЅРµС‚ РїРѕРґС…РѕРґСЏС‰РµРіРѕ С‚Р°Р№Р»Р° - СЃРѕР·РґР°С‘Рј РµРіРѕ...
 	if (new_tile_id == -1) {
 		auto calculate_new_bounds = [&](const Limits<double>& passed, const Limits<double>& base) -> Limits<double> {
-			const double supposed_side_delta = passed.delta() * (zoom_step_sqrt_) / 2; //На сколько должно увеличиться с каждой стороны
+			const double supposed_side_delta = passed.delta() * (zoom_step_sqrt_) / 2; //РќР° СЃРєРѕР»СЊРєРѕ РґРѕР»Р¶РЅРѕ СѓРІРµР»РёС‡РёС‚СЊСЃСЏ СЃ РєР°Р¶РґРѕР№ СЃС‚РѕСЂРѕРЅС‹
 			Limits<double> new_bounds = { std::max((passed.mid() - supposed_side_delta), base.low),
 				std::min((passed.mid() + supposed_side_delta), base.high) };
 			return new_bounds;
 		};
-		//Определяем границы нового тайла
+		//РћРїСЂРµРґРµР»СЏРµРј РіСЂР°РЅРёС†С‹ РЅРѕРІРѕРіРѕ С‚Р°Р№Р»Р°
 		HorVerLim<double> new_bounds = { calculate_new_bounds(view_bounds.hor, base_bounds.hor),
 											calculate_new_bounds(view_bounds.vert, base_bounds.vert) };
 
-		if (new_bounds == base_bounds) { // Нулевой тайл у нас под базу
+		if (new_bounds == base_bounds) { // РќСѓР»РµРІРѕР№ С‚Р°Р№Р» Сѓ РЅР°СЃ РїРѕРґ Р±Р°Р·Сѓ
 			new_tile_id = 0;
 		}
 		else {
-			new_tile_id = 1 + (tile_id_) % (count_of_tiles_ - 1); //Выделяем элемент не под базу
+			new_tile_id = 1 + (tile_id_) % (count_of_tiles_ - 1); //Р’С‹РґРµР»СЏРµРј СЌР»РµРјРµРЅС‚ РЅРµ РїРѕРґ Р±Р°Р·Сѓ
 			tiles_[new_tile_id]->SetValBounds(new_bounds);
 		}
 	}
@@ -107,7 +110,7 @@ const QPixmap & ChartTiler::UpdateQPixmap()
 	if (need_update_qimage_) {
 		tbb::spin_mutex::scoped_lock data_locker(data_mutex_);
 		need_update_qimage_ = false;
-		//Приводим к размеру 1 к 1
+		//РџСЂРёРІРѕРґРёРј Рє СЂР°Р·РјРµСЂСѓ 1 Рє 1
 		if (dyn_qim_.size != used_tile->GetImageSize())
 		{
 			auto need_size = used_tile->GetImageSize();
@@ -117,14 +120,14 @@ const QPixmap & ChartTiler::UpdateQPixmap()
 			zoomer_.SetNewBase(&dyn_qim_.qimage);
 		}
 		if (used_tile->is_data_updated_) {
-			used_tile->is_data_updated_ = false; //Лучше лишний раз отобразить, чем пропустить данные
+			used_tile->is_data_updated_ = false; //Р›СѓС‡С€Рµ Р»РёС€РЅРёР№ СЂР°Р· РѕС‚РѕР±СЂР°Р·РёС‚СЊ, С‡РµРј РїСЂРѕРїСѓСЃС‚РёС‚СЊ РґР°РЅРЅС‹Рµ
 			used_tile->UpdateQimage(dyn_qim_, scale_info_.power_bounds_);
 			zoomer_.MarkForUpdate();
 		}
 	}
-	return zoomer_.GetPrecisedPart(used_tile->GetValBounds(),	//Границы тайла
-									scale_info_.val_info_.view_bounds,				//Границы отображаемые
-									scale_info_.pix_info_.chart_size_px);			//Размер графика
+	return zoomer_.GetPrecisedPart(used_tile->GetValBounds(),	//Р“СЂР°РЅРёС†С‹ С‚Р°Р№Р»Р°
+									scale_info_.val_info_.view_bounds,				//Р“СЂР°РЅРёС†С‹ РѕС‚РѕР±СЂР°Р¶Р°РµРјС‹Рµ
+									scale_info_.pix_info_.chart_size_px);			//Р Р°Р·РјРµСЂ РіСЂР°С„РёРєР°
 
 }
 
@@ -143,7 +146,7 @@ bool ChartTiler::NeedUpdateTile()
 void ChartTiler::SetData(const draw_data & data)
 {
 	tbb::spin_mutex::scoped_lock scoped_locker(data_mutex_);
-	tiles_[tile_id_]->SetData(data); return; //Пока достаточно запушить в один единственный
+	tiles_[tile_id_]->SetData(data); return; //РџРѕРєР° РґРѕСЃС‚Р°С‚РѕС‡РЅРѕ Р·Р°РїСѓС€РёС‚СЊ РІ РѕРґРёРЅ РµРґРёРЅСЃС‚РІРµРЅРЅС‹Р№
 	//for (auto &it : tiles_) {
 	//	it->SetData(data);
 	//}
@@ -158,7 +161,7 @@ void ChartTiler::Reset()
 
 const QPixmap & ChartTiler::GetRelevantPixmap(const bool is_optimized_mode)
 {
-	//Обновляем при необходимости сами тайлы
+	//РћР±РЅРѕРІР»СЏРµРј РїСЂРё РЅРµРѕР±С…РѕРґРёРјРѕСЃС‚Рё СЃР°РјРё С‚Р°Р№Р»С‹
 	const auto fps_limit = is_optimized_mode ? fps_optimization_ : fps_default_;
 	if(NeedUpdateTile() || (image_update_timer_.elapsed() > 1000 / fps_limit))
 	{
@@ -172,9 +175,9 @@ void ChartTiler::UpdateBounds()
 {
 	tbb::spin_mutex::scoped_lock scoped_locker(bounds_mutex_);
 	tbb::spin_mutex::scoped_lock data_locker(data_mutex_);
-	UpdateTileBase();//Обновляем тайлы
+	UpdateTileBase();//РћР±РЅРѕРІР»СЏРµРј С‚Р°Р№Р»С‹
 	UpdateTileView();
-	image_update_timer_.restart(); //Перезапускаем таймер 
+	image_update_timer_.restart(); //РџРµСЂРµР·Р°РїСѓСЃРєР°РµРј С‚Р°Р№РјРµСЂ 
 	need_update_qimage_ = true;
 }
 

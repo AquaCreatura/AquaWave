@@ -1,9 +1,9 @@
-#pragma once
-#include <ipps.h>
-#include <stdint.h>
-#include <qstring.h>
+﻿#pragma once
 #include "Arks/Interfaces/ark_interface.h"
-#include "GUI/Tools/Chart drawers//SelectionDrawer.h"
+#include "GUI/Tools/Chart drawers/SelectionDrawer.h"
+
+#include <stdint.h>
+
 using namespace utility_aqua;
 namespace dpx_core {
 	enum class kDpxChartType {

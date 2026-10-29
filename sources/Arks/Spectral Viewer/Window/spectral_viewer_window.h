@@ -1,9 +1,10 @@
-#pragma once
-#include "ui_spectral_viewer_window.h"
+п»ї#pragma once
+#include "Arks/Interfaces/ark_interface.h"
+
+#include <qbuttongroup.h>
 #include <qdialog.h>
 #include <qpropertyanimation.h>
-#include <qbuttongroup.h>
-#include "Arks/Interfaces/ark_interface.h"
+#include "ui_spectral_viewer_window.h"
 
 using namespace aqua;
 
@@ -51,8 +52,8 @@ namespace spectral_viewer {
         std::map<ChartType, WidgetEntry> chart_entries_;
 
         QButtonGroup* side_buttons_ = nullptr;
-        // Какая кнопка соответствует какому типу — нужно для SwitchTo() и
-        // чтобы подсветить активную вкладку.
+        // РљР°РєР°СЏ РєРЅРѕРїРєР° СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓРµС‚ РєР°РєРѕРјСѓ С‚РёРїСѓ вЂ” РЅСѓР¶РЅРѕ РґР»СЏ SwitchTo() Рё
+        // С‡С‚РѕР±С‹ РїРѕРґСЃРІРµС‚РёС‚СЊ Р°РєС‚РёРІРЅСѓСЋ РІРєР»Р°РґРєСѓ.
         std::map<ChartType, QPushButton*> buttons_;
 
         QWidget* active_down_widget_ = nullptr;

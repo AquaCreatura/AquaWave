@@ -1,9 +1,10 @@
-#pragma once
-#include <vector>
-#include <algorithm>
+п»ї#pragma once
 #include "GUI/gui_defs.h"
+
 #include <QElapsedTimer>
+
 #include <deque>
+#include <vector>
 
 namespace aqua_gui
 {
@@ -46,30 +47,30 @@ std::vector<int> GetAssimLocationsVec(const int width);
 class FpsEstimator {
 public:
     /**
-     * @param smoothingWindowSec Окно усреднения в секундах (например, 2.0)
+     * @param smoothingWindowSec РћРєРЅРѕ СѓСЃСЂРµРґРЅРµРЅРёСЏ РІ СЃРµРєСѓРЅРґР°С… (РЅР°РїСЂРёРјРµСЂ, 2.0)
      */
     explicit FpsEstimator(double smoothingWindowSec = 4.0);
 
     /**
-     * Вызывать каждый раз, когда отрисован новый кадр.
+     * Р’С‹Р·С‹РІР°С‚СЊ РєР°Р¶РґС‹Р№ СЂР°Р·, РєРѕРіРґР° РѕС‚СЂРёСЃРѕРІР°РЅ РЅРѕРІС‹Р№ РєР°РґСЂ.
      */
     void MarkNewFrame();
 
     /**
-     * Возвращает текущий FPS, рассчитанный как среднее за окно.
-     * Если данных недостаточно, возвращает 0.
+     * Р’РѕР·РІСЂР°С‰Р°РµС‚ С‚РµРєСѓС‰РёР№ FPS, СЂР°СЃСЃС‡РёС‚Р°РЅРЅС‹Р№ РєР°Рє СЃСЂРµРґРЅРµРµ Р·Р° РѕРєРЅРѕ.
+     * Р•СЃР»Рё РґР°РЅРЅС‹С… РЅРµРґРѕСЃС‚Р°С‚РѕС‡РЅРѕ, РІРѕР·РІСЂР°С‰Р°РµС‚ 0.
      */
     double GetCurrentFps() const;
 
     /**
-     * Возвращает среднее время кадра (в мс) за окно.
+     * Р’РѕР·РІСЂР°С‰Р°РµС‚ СЃСЂРµРґРЅРµРµ РІСЂРµРјСЏ РєР°РґСЂР° (РІ РјСЃ) Р·Р° РѕРєРЅРѕ.
      */
     double GetAvgFrameTimeMs() const;
 
 private:
     double m_smoothingWindowSec;
 
-    // Храним временные метки (в мс) начала каждого кадра относительно старта таймера
+    // РҐСЂР°РЅРёРј РІСЂРµРјРµРЅРЅС‹Рµ РјРµС‚РєРё (РІ РјСЃ) РЅР°С‡Р°Р»Р° РєР°Р¶РґРѕРіРѕ РєР°РґСЂР° РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ СЃС‚Р°СЂС‚Р° С‚Р°Р№РјРµСЂР°
     std::deque<qint64> m_frameTimestamps;
 
     QElapsedTimer m_timer;

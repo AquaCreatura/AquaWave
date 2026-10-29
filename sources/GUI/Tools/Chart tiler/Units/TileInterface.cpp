@@ -1,6 +1,8 @@
-#include "TileInterface.h"
+﻿#include "TileInterface.h"
+
 #include "TileDPX.h"
 #include "TileSPG.h"
+
 void TileInterface::SetValBounds(HorVerLim<double> bounds)
 {
 	val_bounds_ = bounds;

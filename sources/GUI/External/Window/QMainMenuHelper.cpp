@@ -1,4 +1,6 @@
-#include "QMainMenuHelper.h"
+﻿#include "QMainMenuHelper.h"
+
+#include <QMessageBox>
 
 QMainMenuHelper::QMainMenuHelper(QMainWindow* mainWindow)
     : QObject(mainWindow)

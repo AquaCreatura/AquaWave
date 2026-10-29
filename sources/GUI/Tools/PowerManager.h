@@ -1,8 +1,9 @@
-#pragma once
+п»ї#pragma once
 
 #include "aqua_defines.h"
-#include <vector>
+
 #include <atomic>
+#include <vector>
 
 using namespace aqua;
 
@@ -12,27 +13,27 @@ namespace aqua_gui
 class PowerLimitMan
 {
 public:
-    PowerLimitMan();  // Конструктор: инициализация пределов мощности и режима
+    PowerLimitMan();  // РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ: РёРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РїСЂРµРґРµР»РѕРІ РјРѕС‰РЅРѕСЃС‚Рё Рё СЂРµР¶РёРјР°
 
-    // Установка новых границ отображаемого диапазона
+    // РЈСЃС‚Р°РЅРѕРІРєР° РЅРѕРІС‹С… РіСЂР°РЅРёС† РѕС‚РѕР±СЂР°Р¶Р°РµРјРѕРіРѕ РґРёР°РїР°Р·РѕРЅР°
     void SetNewViewBounds(const Limits<double>& x_bounds);
 
-    // Ручная установка границ мощности
+    // Р СѓС‡РЅР°СЏ СѓСЃС‚Р°РЅРѕРІРєР° РіСЂР°РЅРёС† РјРѕС‰РЅРѕСЃС‚Рё
     void SetPowerBounds(const Limits<double>& power_bounds);
 
-    // Установка долей (margins) для расширения границ мощности
+    // РЈСЃС‚Р°РЅРѕРІРєР° РґРѕР»РµР№ (margins) РґР»СЏ СЂР°СЃС€РёСЂРµРЅРёСЏ РіСЂР°РЅРёС† РјРѕС‰РЅРѕСЃС‚Рё
     void SetPowerMargins(const Limits<double>& power_margins);
 
-    // Получение текущих границ мощности
+    // РџРѕР»СѓС‡РµРЅРёРµ С‚РµРєСѓС‰РёС… РіСЂР°РЅРёС† РјРѕС‰РЅРѕСЃС‚Рё
     Limits<double> GetPowerBounds() const;
 
-    // Обновление границ мощности на основе данных и их диапазона
+    // РћР±РЅРѕРІР»РµРЅРёРµ РіСЂР°РЅРёС† РјРѕС‰РЅРѕСЃС‚Рё РЅР° РѕСЃРЅРѕРІРµ РґР°РЅРЅС‹С… Рё РёС… РґРёР°РїР°Р·РѕРЅР°
     void Process(const std::vector<float>& data, const Limits<double>& data_bounds);
 
-    // Проверка, включён ли адаптивный режим
+    // РџСЂРѕРІРµСЂРєР°, РІРєР»СЋС‡С‘РЅ Р»Рё Р°РґР°РїС‚РёРІРЅС‹Р№ СЂРµР¶РёРј
     bool IsAdaptiveMode() const;
 
-    // Включение/отключение адаптивного режима
+    // Р’РєР»СЋС‡РµРЅРёРµ/РѕС‚РєР»СЋС‡РµРЅРёРµ Р°РґР°РїС‚РёРІРЅРѕРіРѕ СЂРµР¶РёРјР°
     void EnableAdaptiveMode(const bool is_true);
 
 	void ResetBounds();
@@ -40,14 +41,14 @@ public:
 	bool NeedRelevantBounds() const;
 
 protected:
-    Limits<double> x_bounds_;                         // Зарезервировано (не используется в реализации)
-    std::atomic_bool is_adaptive_mode_ = false;       // Флаг адаптивного режима
+    Limits<double> x_bounds_;                         // Р—Р°СЂРµР·РµСЂРІРёСЂРѕРІР°РЅРѕ (РЅРµ РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РІ СЂРµР°Р»РёР·Р°С†РёРё)
+    std::atomic_bool is_adaptive_mode_ = false;       // Р¤Р»Р°Рі Р°РґР°РїС‚РёРІРЅРѕРіРѕ СЂРµР¶РёРјР°
 	std::atomic_bool need_reset_bounds_		= false;       
 	std::atomic_bool need_external_update_max_		= false;       
 
-    std::atomic<Limits<double>> power_bounds_;        // Актуальные границы мощности
-    std::atomic<Limits<double>> view_bounds_;         // Видимые границы (используются при адаптации)
-    Limits<double> power_margins_;                    // Запасы (margins) для изменения границ мощности
+    std::atomic<Limits<double>> power_bounds_;        // РђРєС‚СѓР°Р»СЊРЅС‹Рµ РіСЂР°РЅРёС†С‹ РјРѕС‰РЅРѕСЃС‚Рё
+    std::atomic<Limits<double>> view_bounds_;         // Р’РёРґРёРјС‹Рµ РіСЂР°РЅРёС†С‹ (РёСЃРїРѕР»СЊР·СѓСЋС‚СЃСЏ РїСЂРё Р°РґР°РїС‚Р°С†РёРё)
+    Limits<double> power_margins_;                    // Р—Р°РїР°СЃС‹ (margins) РґР»СЏ РёР·РјРµРЅРµРЅРёСЏ РіСЂР°РЅРёС† РјРѕС‰РЅРѕСЃС‚Рё
 	std::vector<float> percentile_vec_;
 };
 

@@ -1,11 +1,10 @@
-#pragma once
-#include <qpointer.h>
+﻿#pragma once
 #include "Arks/Interfaces/base_impl/ark_base.h"
-#include "GUI/Charts/DPX/DpxChart.h"
-#include "DSP Tools/Pipelines/BasePipes.h"
-
-#include "special_defs/spectral_viewer_defs.h"
 #include "DSP Tools/Localiser/PeakDetection.h"
+#include "GUI/Charts/DPX/DpxChart.h"
+
+#include <qpointer.h>
+
 namespace dpx_core
 {
 class SpectrumDpx : public aqua::ArkBase

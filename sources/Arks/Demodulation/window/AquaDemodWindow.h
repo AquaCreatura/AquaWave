@@ -1,8 +1,8 @@
-#pragma once
-#include "ui_AquaDemodWindow.h"
-#include <qdialog.h>
+﻿#pragma once
 #include "Utilities/utility_aqua.h"
 
+#include <qdialog.h>
+#include "ui_AquaDemodWindow.h"
 
 //using namespace fluctus;
 using namespace utility_aqua;

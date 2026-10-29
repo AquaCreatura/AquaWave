@@ -1,17 +1,12 @@
-#pragma once
+п»ї#pragma once
 
-#include <fstream>
 #include <cstdint>
-
-#include <string>
-#include <ctime>
 #include <cstdio>
-
-#include <sstream>
+#include <ctime>
 #include <iomanip>
 #include <regex>
-
-#include "utility_aqua.h"
+#include <sstream>
+#include <string>
 
 namespace aqua_parse_tools
 {
@@ -20,7 +15,7 @@ namespace aqua_parse_tools
 //CarrierID_synth_224kBd_host_oqpsk_896kBd_offs_0KHz_non_inv 3584,000kHz.pcm
     inline bool get_samplerate_from_filename(const std::string& filename, int64_t& samplerate_hz)
     {
-        // Ищем ВСЕ вхождения числа перед kHz
+        // РС‰РµРј Р’РЎР• РІС…РѕР¶РґРµРЅРёСЏ С‡РёСЃР»Р° РїРµСЂРµРґ kHz
         static const std::regex symbol_rate_regex(
             R"((\d+[.,]?\d*)\s*kHz)",
             std::regex_constants::icase
@@ -33,7 +28,7 @@ namespace aqua_parse_tools
             return false;
         }
 
-        // Берём ПОСЛЕДНЕЕ совпадение (символьная скорость всегда в конце перед расширением)
+        // Р‘РµСЂС‘Рј РџРћРЎР›Р•Р”РќР•Р• СЃРѕРІРїР°РґРµРЅРёРµ (СЃРёРјРІРѕР»СЊРЅР°СЏ СЃРєРѕСЂРѕСЃС‚СЊ РІСЃРµРіРґР° РІ РєРѕРЅС†Рµ РїРµСЂРµРґ СЂР°СЃС€РёСЂРµРЅРёРµРј)
         std::smatch last_match;
         for (auto it = begin; it != end; ++it) {
             last_match = *it;
@@ -41,7 +36,7 @@ namespace aqua_parse_tools
 
         if (last_match.size() > 1) {
             std::string number_str = last_match[1].str();
-            // Заменяем запятую на точку для корректного парсинга
+            // Р—Р°РјРµРЅСЏРµРј Р·Р°РїСЏС‚СѓСЋ РЅР° С‚РѕС‡РєСѓ РґР»СЏ РєРѕСЂСЂРµРєС‚РЅРѕРіРѕ РїР°СЂСЃРёРЅРіР°
             std::replace(number_str.begin(), number_str.end(), ',', '.');
 
             double khz = std::stod(number_str);
@@ -95,24 +90,24 @@ inline std::string generate_filename(const int64_t carrier_hz,
 
 
 
-// Функция генерирует имя файла с датой, временем и комментариями
-// Формат: "dd.mm.yyyy hh_mm_ss comment"
+// Р¤СѓРЅРєС†РёСЏ РіРµРЅРµСЂРёСЂСѓРµС‚ РёРјСЏ С„Р°Р№Р»Р° СЃ РґР°С‚РѕР№, РІСЂРµРјРµРЅРµРј Рё РєРѕРјРјРµРЅС‚Р°СЂРёСЏРјРё
+// Р¤РѕСЂРјР°С‚: "dd.mm.yyyy hh_mm_ss comment"
 inline std::string gen_time_string(const std::string& comment = "") {
-    // Получаем текущее время
+    // РџРѕР»СѓС‡Р°РµРј С‚РµРєСѓС‰РµРµ РІСЂРµРјСЏ
     std::time_t t = std::time(nullptr);
 
-    // Преобразуем время в локальное представление
+    // РџСЂРµРѕР±СЂР°Р·СѓРµРј РІСЂРµРјСЏ РІ Р»РѕРєР°Р»СЊРЅРѕРµ РїСЂРµРґСЃС‚Р°РІР»РµРЅРёРµ
     struct tm local_tm;
 #if defined(_WIN32) || defined(_WIN64)
-    localtime_s(&local_tm, &t);  // Безопасная версия для Windows
+    localtime_s(&local_tm, &t);  // Р‘РµР·РѕРїР°СЃРЅР°СЏ РІРµСЂСЃРёСЏ РґР»СЏ Windows
 #else
-    localtime_r(&t, &local_tm);  // Потокобезопасная версия для POSIX-систем
+    localtime_r(&t, &local_tm);  // РџРѕС‚РѕРєРѕР±РµР·РѕРїР°СЃРЅР°СЏ РІРµСЂСЃРёСЏ РґР»СЏ POSIX-СЃРёСЃС‚РµРј
 #endif
 
-    // Буфер для формирования строки имени файла
+    // Р‘СѓС„РµСЂ РґР»СЏ С„РѕСЂРјРёСЂРѕРІР°РЅРёСЏ СЃС‚СЂРѕРєРё РёРјРµРЅРё С„Р°Р№Р»Р°
     char buffer[64] = {0};
-    // Форматирование: dd.mm.yyyy hh_mm_ss comment
-    // Обратите внимание: local_tm.tm_mon хранит месяц от 0 до 11, tm_year – количество лет с 1900
+    // Р¤РѕСЂРјР°С‚РёСЂРѕРІР°РЅРёРµ: dd.mm.yyyy hh_mm_ss comment
+    // РћР±СЂР°С‚РёС‚Рµ РІРЅРёРјР°РЅРёРµ: local_tm.tm_mon С…СЂР°РЅРёС‚ РјРµСЃСЏС† РѕС‚ 0 РґРѕ 11, tm_year вЂ“ РєРѕР»РёС‡РµСЃС‚РІРѕ Р»РµС‚ СЃ 1900
     std::snprintf(buffer, sizeof(buffer), "%02d.%02d.%04d %02d_%02d_%02d %s",
                   local_tm.tm_mday, local_tm.tm_mon + 1, local_tm.tm_year + 1900,
                   local_tm.tm_hour, local_tm.tm_min, local_tm.tm_sec,
@@ -130,21 +125,21 @@ inline std::string ValueToString(double v, int precision, const char* divider = 
 	bool neg = v < 0;
 	if (neg) v = -v;
 
-	// Округление до заданной точности (умножение, прибавление 0.5, приведение к целому)
+	// РћРєСЂСѓРіР»РµРЅРёРµ РґРѕ Р·Р°РґР°РЅРЅРѕР№ С‚РѕС‡РЅРѕСЃС‚Рё (СѓРјРЅРѕР¶РµРЅРёРµ, РїСЂРёР±Р°РІР»РµРЅРёРµ 0.5, РїСЂРёРІРµРґРµРЅРёРµ Рє С†РµР»РѕРјСѓ)
 	double scale = std::pow(10.0, precision);
 	long long scaled = static_cast<long long>(v * scale + 0.5);
 
-	// Разделение на целую и дробную части
+	// Р Р°Р·РґРµР»РµРЅРёРµ РЅР° С†РµР»СѓСЋ Рё РґСЂРѕР±РЅСѓСЋ С‡Р°СЃС‚Рё
 	long long int_part = scaled / static_cast<long long>(scale);
 	long long frac_part = scaled % static_cast<long long>(scale);
 
-	// Форматирование целой части с разделителями тысяч
+	// Р¤РѕСЂРјР°С‚РёСЂРѕРІР°РЅРёРµ С†РµР»РѕР№ С‡Р°СЃС‚Рё СЃ СЂР°Р·РґРµР»РёС‚РµР»СЏРјРё С‚С‹СЃСЏС‡
 	std::string s = std::to_string(int_part);
 	int n = static_cast<int>(s.size());
 	for (int i = n - 3; i > 0; i -= 3)
 		s.insert(i, divider);
 
-	// Добавление дробной части (если точность > 0)
+	// Р”РѕР±Р°РІР»РµРЅРёРµ РґСЂРѕР±РЅРѕР№ С‡Р°СЃС‚Рё (РµСЃР»Рё С‚РѕС‡РЅРѕСЃС‚СЊ > 0)
 	if (precision > 0) {
 		s += '.';
 		std::string frac_str = std::to_string(frac_part);

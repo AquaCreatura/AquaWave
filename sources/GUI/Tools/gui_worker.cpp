@@ -1,6 +1,8 @@
 ﻿#include "gui_worker.h"
-#include <math.h>
+
 #include <algorithm>
+#include <math.h>
+
 using namespace aqua_gui;
 bool aqua_gui::ZoomFromWheelDelta(ChartScaleInfo & scale_info, const int wheel_delta, const QPoint scale_point)
 {

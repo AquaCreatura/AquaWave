@@ -1,4 +1,5 @@
-#include "ConstelChart.h"
+п»ї#include "ConstelChart.h"
+
 using namespace aqua_gui;
 using namespace constel;
 ChartConstel::ChartConstel(QWidget * parrent): 
@@ -43,23 +44,23 @@ void ChartConstel::paintEvent(QPaintEvent* paint_event)
     QPainter new_frame_painter(this);
     new_frame_painter.setRenderHint(QPainter::Antialiasing, true);
 
-    // Вычисляем смещение и размер квадрата
+    // Р’С‹С‡РёСЃР»СЏРµРј СЃРјРµС‰РµРЅРёРµ Рё СЂР°Р·РјРµСЂ РєРІР°РґСЂР°С‚Р°
     auto chart_size = scale_info_.pix_info_.chart_size_px;
     int offset_x = (this->width() - chart_size.hor) / 2;
     int offset_y = (this->height() - chart_size.vert) / 2;
 
-    // Сохраняем состояние и применяем трансформацию
+    // РЎРѕС…СЂР°РЅСЏРµРј СЃРѕСЃС‚РѕСЏРЅРёРµ Рё РїСЂРёРјРµРЅСЏРµРј С‚СЂР°РЅСЃС„РѕСЂРјР°С†РёСЋ
     new_frame_painter.save();
     new_frame_painter.translate(offset_x, offset_y);
 
-    // Закруглённые края для квадратной области
+    // Р—Р°РєСЂСѓРіР»С‘РЅРЅС‹Рµ РєСЂР°СЏ РґР»СЏ РєРІР°РґСЂР°С‚РЅРѕР№ РѕР±Р»Р°СЃС‚Рё
     {
         QPainterPath path;
         path.addRoundedRect(0, 0, chart_size.hor, chart_size.vert, 10, 10);
         new_frame_painter.setClipPath(path);
     }
 
-    // Рисуем фон (относительно смещённой системы координат)
+    // Р РёСЃСѓРµРј С„РѕРЅ (РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ СЃРјРµС‰С‘РЅРЅРѕР№ СЃРёСЃС‚РµРјС‹ РєРѕРѕСЂРґРёРЅР°С‚)
     bg_image_.DrawImage(new_frame_painter);
 
     {
@@ -77,10 +78,10 @@ void ChartConstel::resizeEvent(QResizeEvent* event)
 
     if (pix_info.widget_size_px == cur_size) return;
 
-    // Сохраняем реальный размер виджета
+    // РЎРѕС…СЂР°РЅСЏРµРј СЂРµР°Р»СЊРЅС‹Р№ СЂР°Р·РјРµСЂ РІРёРґР¶РµС‚Р°
     pix_info.widget_size_px = cur_size;
 
-    // chart_size_px — квадрат минимального размера
+    // chart_size_px вЂ” РєРІР°РґСЂР°С‚ РјРёРЅРёРјР°Р»СЊРЅРѕРіРѕ СЂР°Р·РјРµСЂР°
     auto min_size = std::min(cur_size.hor, cur_size.vert);
     pix_info.chart_size_px = HV_Info<int>({ min_size, min_size }) - pix_info.margin_px;
 }

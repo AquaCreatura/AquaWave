@@ -1,53 +1,57 @@
-#include "PowerManager.h"
-#include <ipp.h>
-#include <algorithm>
+п»ї#include "PowerManager.h"
+
 #include "Utilities/calc_tools.h"
+
+#include <ipp.h>
+
+#include <algorithm>
+
 using namespace aqua_gui;
 
 PowerLimitMan::PowerLimitMan()
 {
 	need_reset_bounds_ = true;
-    is_adaptive_mode_ = true;              // Адаптивный режим включён по умолчанию
+    is_adaptive_mode_ = true;              // РђРґР°РїС‚РёРІРЅС‹Р№ СЂРµР¶РёРј РІРєР»СЋС‡С‘РЅ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
 	power_bounds_ = { 0., 1. };
-	power_margins_ = {0.0,0.1};//Запас (margin) на расширение пределов мощности
+	power_margins_ = {0.0,0.1};//Р—Р°РїР°СЃ (margin) РЅР° СЂР°СЃС€РёСЂРµРЅРёРµ РїСЂРµРґРµР»РѕРІ РјРѕС‰РЅРѕСЃС‚Рё
 }
 
 void PowerLimitMan::SetNewViewBounds(const Limits<double>& x_bounds) {
-    view_bounds_ = x_bounds;               // Установка новых границ видимой области
+    view_bounds_ = x_bounds;               // РЈСЃС‚Р°РЅРѕРІРєР° РЅРѕРІС‹С… РіСЂР°РЅРёС† РІРёРґРёРјРѕР№ РѕР±Р»Р°СЃС‚Рё
 }
 
 void PowerLimitMan::SetPowerBounds(const Limits<double>& power_bounds) {
 	need_reset_bounds_ = false;
-    power_bounds_ = power_bounds;          // Установка границ мощности вручную
+    power_bounds_ = power_bounds;          // РЈСЃС‚Р°РЅРѕРІРєР° РіСЂР°РЅРёС† РјРѕС‰РЅРѕСЃС‚Рё РІСЂСѓС‡РЅСѓСЋ
 }
 
 void aqua_gui::PowerLimitMan::SetPowerMargins(const Limits<double>& power_margins)
 {
-    power_margins_ = power_margins;        // Установка долей для расширения границ мощности
+    power_margins_ = power_margins;        // РЈСЃС‚Р°РЅРѕРІРєР° РґРѕР»РµР№ РґР»СЏ СЂР°СЃС€РёСЂРµРЅРёСЏ РіСЂР°РЅРёС† РјРѕС‰РЅРѕСЃС‚Рё
 }
 
 Limits<double> PowerLimitMan::GetPowerBounds() const {
-    return power_bounds_.load();           // Получение текущих границ мощности
+    return power_bounds_.load();           // РџРѕР»СѓС‡РµРЅРёРµ С‚РµРєСѓС‰РёС… РіСЂР°РЅРёС† РјРѕС‰РЅРѕСЃС‚Рё
 }
 
 void PowerLimitMan::Process(const std::vector<float>& data, const Limits<double>& data_bounds) {
     if (!IsAdaptiveMode() || data.empty()) {
-        return;                            // Выход, если режим не адаптивный или данные пусты
+        return;                            // Р’С‹С…РѕРґ, РµСЃР»Рё СЂРµР¶РёРј РЅРµ Р°РґР°РїС‚РёРІРЅС‹Р№ РёР»Рё РґР°РЅРЅС‹Рµ РїСѓСЃС‚С‹
     }
 
-    // Пересечение видимых границ и границ данных
+    // РџРµСЂРµСЃРµС‡РµРЅРёРµ РІРёРґРёРјС‹С… РіСЂР°РЅРёС† Рё РіСЂР°РЅРёС† РґР°РЅРЅС‹С…
     Limits<double> view = view_bounds_.load();
     double intersect_low	= std::max(data_bounds.low, view.low);
     double intersect_high	= std::min(data_bounds.high, view.high);
     
     if (intersect_low >= intersect_high) {
-        return;                            // Нет пересечения
+        return;                            // РќРµС‚ РїРµСЂРµСЃРµС‡РµРЅРёСЏ
     }
 
-    // Вычисление индексов вектора данных, соответствующих границам пересечения
+    // Р’С‹С‡РёСЃР»РµРЅРёРµ РёРЅРґРµРєСЃРѕРІ РІРµРєС‚РѕСЂР° РґР°РЅРЅС‹С…, СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓСЋС‰РёС… РіСЂР°РЅРёС†Р°Рј РїРµСЂРµСЃРµС‡РµРЅРёСЏ
     double data_range = data_bounds.delta();
     if (data_range <= 0.0) {
-        return;                            // Некорректный диапазон данных
+        return;                            // РќРµРєРѕСЂСЂРµРєС‚РЅС‹Р№ РґРёР°РїР°Р·РѕРЅ РґР°РЅРЅС‹С…
     }
 
     size_t data_size = data.size();
@@ -55,39 +59,39 @@ void PowerLimitMan::Process(const std::vector<float>& data, const Limits<double>
     size_t end_idx = static_cast<size_t>((intersect_high - data_bounds.low) * (data_size - 1) / data_range);
     
     if (start_idx >= end_idx || end_idx >= data_size) {
-        return;                            // Некорректные индексы
+        return;                            // РќРµРєРѕСЂСЂРµРєС‚РЅС‹Рµ РёРЅРґРµРєСЃС‹
     }
 
-    // Применение 5% отступа от краёв диапазона
+    // РџСЂРёРјРµРЅРµРЅРёРµ 5% РѕС‚СЃС‚СѓРїР° РѕС‚ РєСЂР°С‘РІ РґРёР°РїР°Р·РѕРЅР°
     size_t margin = static_cast<size_t>((end_idx - start_idx) * 0.05);
     start_idx = std::min(start_idx + margin, end_idx - 1);
     end_idx = std::max(start_idx + 1, end_idx - margin);
 
-    // Поиск минимального и максимального значения с использованием IPP
+    // РџРѕРёСЃРє РјРёРЅРёРјР°Р»СЊРЅРѕРіРѕ Рё РјР°РєСЃРёРјР°Р»СЊРЅРѕРіРѕ Р·РЅР°С‡РµРЅРёСЏ СЃ РёСЃРїРѕР»СЊР·РѕРІР°РЅРёРµРј IPP
     float mean_val, max_val;
 	mean_val = utility_aqua::GetPercentile(&data[start_idx], static_cast<int>(end_idx - start_idx), 0.1, percentile_vec_);
     
 	IppStatus status = ippsMax_32f(&data[start_idx], static_cast<int>(end_idx - start_idx), &max_val);
     if (status != ippStsNoErr) {
-        return;                            // Ошибка при расчёте максимума
+        return;                            // РћС€РёР±РєР° РїСЂРё СЂР°СЃС‡С‘С‚Рµ РјР°РєСЃРёРјСѓРјР°
     }
 
 
 
 
-    // Формирование новых границ с учётом запасов
+    // Р¤РѕСЂРјРёСЂРѕРІР°РЅРёРµ РЅРѕРІС‹С… РіСЂР°РЅРёС† СЃ СѓС‡С‘С‚РѕРј Р·Р°РїР°СЃРѕРІ
     Limits<double> new_bounds{static_cast<double>(mean_val), static_cast<double>(max_val)};
     double delta = new_bounds.delta();
-    new_bounds.low  -= delta * power_margins_.low;   // Снижение нижней границы
-    new_bounds.high += delta * power_margins_.high; // Повышение верхней границы
+    new_bounds.low  -= delta * power_margins_.low;   // РЎРЅРёР¶РµРЅРёРµ РЅРёР¶РЅРµР№ РіСЂР°РЅРёС†С‹
+    new_bounds.high += delta * power_margins_.high; // РџРѕРІС‹С€РµРЅРёРµ РІРµСЂС…РЅРµР№ РіСЂР°РЅРёС†С‹
 
-    // Объединение с текущими границами: расширение только наружу
+    // РћР±СЉРµРґРёРЅРµРЅРёРµ СЃ С‚РµРєСѓС‰РёРјРё РіСЂР°РЅРёС†Р°РјРё: СЂР°СЃС€РёСЂРµРЅРёРµ С‚РѕР»СЊРєРѕ РЅР°СЂСѓР¶Сѓ
     Limits<double> current_bounds = power_bounds_.load();
 	if (!need_reset_bounds_) {
 		new_bounds.low	= std::max(current_bounds.low, new_bounds.low);
 		new_bounds.high = std::max(new_bounds.high, current_bounds.high);
 	}	
-    // Превышение границ мощности
+    // РџСЂРµРІС‹С€РµРЅРёРµ РіСЂР°РЅРёС† РјРѕС‰РЅРѕСЃС‚Рё
 	if (max_val > current_bounds.high) 
 		need_external_update_max_ = true;
 	else 
@@ -99,12 +103,12 @@ void PowerLimitMan::Process(const std::vector<float>& data, const Limits<double>
 }
 
 bool PowerLimitMan::IsAdaptiveMode() const {
-    return is_adaptive_mode_.load();       // Проверка режима адаптивности
+    return is_adaptive_mode_.load();       // РџСЂРѕРІРµСЂРєР° СЂРµР¶РёРјР° Р°РґР°РїС‚РёРІРЅРѕСЃС‚Рё
 }
 
 void PowerLimitMan::EnableAdaptiveMode(const bool is_true)
 {
-    is_adaptive_mode_ = is_true;           // Включение/отключение адаптивного режима
+    is_adaptive_mode_ = is_true;           // Р’РєР»СЋС‡РµРЅРёРµ/РѕС‚РєР»СЋС‡РµРЅРёРµ Р°РґР°РїС‚РёРІРЅРѕРіРѕ СЂРµР¶РёРјР°
 }
 
 void aqua_gui::PowerLimitMan::ResetBounds()

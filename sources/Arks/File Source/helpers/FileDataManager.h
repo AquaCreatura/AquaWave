@@ -1,14 +1,11 @@
-#include <future>       // Для std::future и асинхронных операций
-#include <functional>   // Для std::bind и функторов
-#include <thread>       // Для работы с потоками
-#include <tbb/spin_mutex.h>
-#include <unordered_map> // Для хранения слушателей
-
-#include "DSP Tools/Resampler/ResamplerMan.h" // Менеджер ресемплера
+п»ї#include "DSP Tools/Resampler/ResamplerMan.h"
 #include "FileReadCore.h"
-#include "ark_interface.h"
-#include "special_defs/file_souce_defs.h"
-#include "ark_defs.h"
+
+#include <tbb/spin_mutex.h>
+
+#include <future>
+#include <unordered_map>
+
 using namespace aqua;
 
 namespace file_source
@@ -16,99 +13,99 @@ namespace file_source
     class FileDataListener
     {
     public:
-        // Состояния слушателя (битовая маска)
+        // РЎРѕСЃС‚РѕСЏРЅРёСЏ СЃР»СѓС€Р°С‚РµР»СЏ (Р±РёС‚РѕРІР°СЏ РјР°СЃРєР°)
         enum ListenerState
         {
-            kNoProcess      = 0,          // Без обработки
-            kProcessStopped = 1 << 0,     // Процесс остановлен
-            kReadAround     = 1 << 1,     // Режим чтения вокруг позиции 
-            kReadCyclic     = 1 << 2,     // Циклическое чтение 
-			kSingleReadInRange = 1 << 3,  // Чтение блоков в указанном диапазоне
-			kLoopReadInRange   = 1 << 4,  // Циклическое чтение блоков в указанном диапазоне
-			kNeedStop		   = 1 << 20,  //Запрос на остановку чтения
+            kNoProcess      = 0,          // Р‘РµР· РѕР±СЂР°Р±РѕС‚РєРё
+            kProcessStopped = 1 << 0,     // РџСЂРѕС†РµСЃСЃ РѕСЃС‚Р°РЅРѕРІР»РµРЅ
+            kReadAround     = 1 << 1,     // Р РµР¶РёРј С‡С‚РµРЅРёСЏ РІРѕРєСЂСѓРі РїРѕР·РёС†РёРё 
+            kReadCyclic     = 1 << 2,     // Р¦РёРєР»РёС‡РµСЃРєРѕРµ С‡С‚РµРЅРёРµ 
+			kSingleReadInRange = 1 << 3,  // Р§С‚РµРЅРёРµ Р±Р»РѕРєРѕРІ РІ СѓРєР°Р·Р°РЅРЅРѕРј РґРёР°РїР°Р·РѕРЅРµ
+			kLoopReadInRange   = 1 << 4,  // Р¦РёРєР»РёС‡РµСЃРєРѕРµ С‡С‚РµРЅРёРµ Р±Р»РѕРєРѕРІ РІ СѓРєР°Р·Р°РЅРЅРѕРј РґРёР°РїР°Р·РѕРЅРµ
+			kNeedStop		   = 1 << 20,  //Р—Р°РїСЂРѕСЃ РЅР° РѕСЃС‚Р°РЅРѕРІРєСѓ С‡С‚РµРЅРёСЏ
         };
 
     public:
-        // Конструктор: принимает weak_ptr на ARK и параметры файла
+        // РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ: РїСЂРёРЅРёРјР°РµС‚ weak_ptr РЅР° ARK Рё РїР°СЂР°РјРµС‚СЂС‹ С„Р°Р№Р»Р°
         FileDataListener(const aqua::ArkWptr& weak_ptr, const aqua::SourceDescription& params);
         
-        // Установка базовых параметров (частота, размер блока и т. д.)
+        // РЈСЃС‚Р°РЅРѕРІРєР° Р±Р°Р·РѕРІС‹С… РїР°СЂР°РјРµС‚СЂРѕРІ (С‡Р°СЃС‚РѕС‚Р°, СЂР°Р·РјРµСЂ Р±Р»РѕРєР° Рё С‚. Рґ.)
         void SetBaseParams(InitParams &setup);
 		void SetChunkSize(const int chunk_size);
-        // Остановка процесса чтения
+        // РћСЃС‚Р°РЅРѕРІРєР° РїСЂРѕС†РµСЃСЃР° С‡С‚РµРЅРёСЏ
         void WaitProcess();
 		void WaitProcessLocked();
         
-        // Асинхронный запуск чтения вокруг позиции (pos_ratio — относительная позиция в файле)
+        // РђСЃРёРЅС…СЂРѕРЅРЅС‹Р№ Р·Р°РїСѓСЃРє С‡С‚РµРЅРёСЏ РІРѕРєСЂСѓРі РїРѕР·РёС†РёРё (pos_ratio вЂ” РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅР°СЏ РїРѕР·РёС†РёСЏ РІ С„Р°Р№Р»Рµ)
         bool StartSingleAround(double pos_ratio);
-		// Асинхронный запуск чтения чанками в указанных пределах (start_pos, end_pos - относительная позиция в файле)
+		// РђСЃРёРЅС…СЂРѕРЅРЅС‹Р№ Р·Р°РїСѓСЃРє С‡С‚РµРЅРёСЏ С‡Р°РЅРєР°РјРё РІ СѓРєР°Р·Р°РЅРЅС‹С… РїСЂРµРґРµР»Р°С… (start_pos, end_pos - РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅР°СЏ РїРѕР·РёС†РёСЏ РІ С„Р°Р№Р»Рµ)
 		bool StartSingleInRange(const Limits<double>& time_bounds);
 
-		// Асинхронный запуск циклического чтения чанками в указанных пределах (start_pos, end_pos - относительная позиция в файле)
+		// РђСЃРёРЅС…СЂРѕРЅРЅС‹Р№ Р·Р°РїСѓСЃРє С†РёРєР»РёС‡РµСЃРєРѕРіРѕ С‡С‚РµРЅРёСЏ С‡Р°РЅРєР°РјРё РІ СѓРєР°Р·Р°РЅРЅС‹С… РїСЂРµРґРµР»Р°С… (start_pos, end_pos - РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅР°СЏ РїРѕР·РёС†РёСЏ РІ С„Р°Р№Р»Рµ)
 		bool StartLoopInRange(const Limits<double>& time_bounds);
 
-        // Получение текущего состояния слушателя
+        // РџРѕР»СѓС‡РµРЅРёРµ С‚РµРєСѓС‰РµРіРѕ СЃРѕСЃС‚РѕСЏРЅРёСЏ СЃР»СѓС€Р°С‚РµР»СЏ
         const ListenerState GetState() const;
 
     private:
 		/*
-		* Чтение данных в 
-		* - pos_ratio — относительная позиция (0.0–1.0)
-		* - out_data_size — требуемый размер данных после ресемплера
+		* Р§С‚РµРЅРёРµ РґР°РЅРЅС‹С… РІ 
+		* - pos_ratio вЂ” РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅР°СЏ РїРѕР·РёС†РёСЏ (0.0вЂ“1.0)
+		* - out_data_size вЂ” С‚СЂРµР±СѓРµРјС‹Р№ СЂР°Р·РјРµСЂ РґР°РЅРЅС‹С… РїРѕСЃР»Рµ СЂРµСЃРµРјРїР»РµСЂР°
 		*/
 		void ReadChunksInRangeProcess(const Limits<double>& time_bounds);
 
 		/*
-		* Чтение данных в
-		* - pos_ratio — относительная позиция (0.0–1.0)
-		* - out_data_size — требуемый размер данных после ресемплера
+		* Р§С‚РµРЅРёРµ РґР°РЅРЅС‹С… РІ
+		* - pos_ratio вЂ” РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅР°СЏ РїРѕР·РёС†РёСЏ (0.0вЂ“1.0)
+		* - out_data_size вЂ” С‚СЂРµР±СѓРµРјС‹Р№ СЂР°Р·РјРµСЂ РґР°РЅРЅС‹С… РїРѕСЃР»Рµ СЂРµСЃРµРјРїР»РµСЂР°
 		*/
 		void LoopReadInRangeProcess(const Limits<double>& time_bounds);
 		
         /*
-         * Чтение данных вокруг указанной позиции:
-         * - pos_ratio — относительная позиция (0.0–1.0)
-         * - out_data_size — требуемый размер данных после ресемплера
+         * Р§С‚РµРЅРёРµ РґР°РЅРЅС‹С… РІРѕРєСЂСѓРі СѓРєР°Р·Р°РЅРЅРѕР№ РїРѕР·РёС†РёРё:
+         * - pos_ratio вЂ” РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅР°СЏ РїРѕР·РёС†РёСЏ (0.0вЂ“1.0)
+         * - out_data_size вЂ” С‚СЂРµР±СѓРµРјС‹Р№ СЂР°Р·РјРµСЂ РґР°РЅРЅС‹С… РїРѕСЃР»Рµ СЂРµСЃРµРјРїР»РµСЂР°
          */
         void ReadAroundProcess(double pos_ratio, int64_t out_data_size);
 		void LoopReadPointsProcess();
-        // Отправка подготовленных данных (вероятно, в ARK)
+        // РћС‚РїСЂР°РІРєР° РїРѕРґРіРѕС‚РѕРІР»РµРЅРЅС‹С… РґР°РЅРЅС‹С… (РІРµСЂРѕСЏС‚РЅРѕ, РІ ARK)
         void SendPreparedData();
 
     private:
-        std::future<void> process_anchor_;   // "Якорь" — управляет асинхронной задачей
-        aqua::DataInfo data_info_;        // Информация о данных (переиспользуется для оптимизации)
-        ListenerState state_{kNoProcess};    // Текущее состояние слушателя
-        aqua_resampler::ResamplerManager resampler_; // Ресемплер
-        const aqua::ArkWptr target_ark_;       // Ссылка на weak_ptr целевого ARK
-        int64_t send_block_size_;                 // Размер блока данных
-		int64_t read_block_size_;					// Размер блока данных при чтении
+        std::future<void> process_anchor_;   // "РЇРєРѕСЂСЊ" вЂ” СѓРїСЂР°РІР»СЏРµС‚ Р°СЃРёРЅС…СЂРѕРЅРЅРѕР№ Р·Р°РґР°С‡РµР№
+        aqua::DataInfo data_info_;        // РРЅС„РѕСЂРјР°С†РёСЏ Рѕ РґР°РЅРЅС‹С… (РїРµСЂРµРёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РґР»СЏ РѕРїС‚РёРјРёР·Р°С†РёРё)
+        ListenerState state_{kNoProcess};    // РўРµРєСѓС‰РµРµ СЃРѕСЃС‚РѕСЏРЅРёРµ СЃР»СѓС€Р°С‚РµР»СЏ
+        aqua_resampler::ResamplerManager resampler_; // Р РµСЃРµРјРїР»РµСЂ
+        const aqua::ArkWptr target_ark_;       // РЎСЃС‹Р»РєР° РЅР° weak_ptr С†РµР»РµРІРѕРіРѕ ARK
+        int64_t send_block_size_;                 // Р Р°Р·РјРµСЂ Р±Р»РѕРєР° РґР°РЅРЅС‹С…
+		int64_t read_block_size_;					// Р Р°Р·РјРµСЂ Р±Р»РѕРєР° РґР°РЅРЅС‹С… РїСЂРё С‡С‚РµРЅРёРё
 		double resample_ratio_;
-        const SourceDescription& file_params_;          // Параметры файла (константная ссылка)
+        const SourceDescription& file_params_;          // РџР°СЂР°РјРµС‚СЂС‹ С„Р°Р№Р»Р° (РєРѕРЅСЃС‚Р°РЅС‚РЅР°СЏ СЃСЃС‹Р»РєР°)
 		tbb::spin_mutex init_mutex_;
 		FileReader		file_reader_;
     };
 
-    // Менеджер слушателей файловых данных
+    // РњРµРЅРµРґР¶РµСЂ СЃР»СѓС€Р°С‚РµР»РµР№ С„Р°Р№Р»РѕРІС‹С… РґР°РЅРЅС‹С…
     class FileDataManager
     {
     public:
-        // Конструктор: принимает параметры файла
+        // РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ: РїСЂРёРЅРёРјР°РµС‚ РїР°СЂР°РјРµС‚СЂС‹ С„Р°Р№Р»Р°
         FileDataManager(const aqua::SourceDescription& params);
         
-        // Инициализация слушателя для ARK (если его ещё нет)
+        // РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ СЃР»СѓС€Р°С‚РµР»СЏ РґР»СЏ ARK (РµСЃР»Рё РµРіРѕ РµС‰С‘ РЅРµС‚)
         void InitReader(const aqua::ArkWptr& reader, InitParams &setup);
 		void UpdateChunkSize(const aqua::ArkWptr& reader, const int chunk_size);
         
-        // Запуск чтения вокруг позиции для указанного ARK
+        // Р—Р°РїСѓСЃРє С‡С‚РµРЅРёСЏ РІРѕРєСЂСѓРі РїРѕР·РёС†РёРё РґР»СЏ СѓРєР°Р·Р°РЅРЅРѕРіРѕ ARK
         void StartReading(const aqua::ArkWptr& reader, Limits<double> time_bounds, const FileSrcDove::SpecThought read_type);
 
-        // Удаление слушателя для указанного ARK
+        // РЈРґР°Р»РµРЅРёРµ СЃР»СѓС€Р°С‚РµР»СЏ РґР»СЏ СѓРєР°Р·Р°РЅРЅРѕРіРѕ ARK
         void DeleteReader(const aqua::ArkWptr& reader);
 		void StopAllReaders();
     private:
         std::unordered_map<std::weak_ptr<aqua::ArkInterface>, FileDataListener, 
-            aqua::WeakPtrHash<aqua::ArkInterface>, aqua::WeakPtrEqual<aqua::ArkInterface>> listeners_; //Это инструкция для обращения с хэшом weak pointer
-        const SourceDescription& params_; // Параметры файла
+            aqua::WeakPtrHash<aqua::ArkInterface>, aqua::WeakPtrEqual<aqua::ArkInterface>> listeners_; //Р­С‚Рѕ РёРЅСЃС‚СЂСѓРєС†РёСЏ РґР»СЏ РѕР±СЂР°С‰РµРЅРёСЏ СЃ С…СЌС€РѕРј weak pointer
+        const SourceDescription& params_; // РџР°СЂР°РјРµС‚СЂС‹ С„Р°Р№Р»Р°
     };
 };

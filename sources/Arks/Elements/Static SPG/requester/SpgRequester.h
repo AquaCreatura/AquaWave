@@ -1,9 +1,8 @@
-#pragma once
+﻿#pragma once
 #include "Arks/Interfaces/ark_interface.h"
 #include "GUI/Tools/Chart tiler/ChartTiler.h"
 
 #include <future>
-#include <qtimer.h>
 
 using namespace aqua;
 namespace spg_core

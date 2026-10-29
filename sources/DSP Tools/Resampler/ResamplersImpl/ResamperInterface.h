@@ -1,8 +1,10 @@
-#pragma once
-#include <stdint.h>
-//#include <ipps.h>
-#include <vector>
+﻿#pragma once
 #include <ippdefs.h>
+
+#include <stdint.h>
+#include <vector>
+
+//#include <ipps.h>
 namespace aqua_resampler
 {
 struct ResamplerSettings

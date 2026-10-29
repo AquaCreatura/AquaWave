@@ -1,4 +1,4 @@
-#include "EqaliserAqua.h"
+п»ї#include "EqaliserAqua.h"
 
 #include <algorithm>
 #include <cmath>
@@ -91,7 +91,7 @@ void EqaliserAqua::UpdateDd(const Ipp32fc& pivot)
 	}
 }
 
-// ---------- Реализация класса ----------
+// ---------- Р РµР°Р»РёР·Р°С†РёСЏ РєР»Р°СЃСЃР° ----------
 
 EqaliserAqua::EqaliserAqua(int tap_count)
 	: taps_(std::max(1, tap_count)),
@@ -107,7 +107,7 @@ void EqaliserAqua::Reset()
 	std::fill(history_.begin(), history_.end(), Ipp32fc{ 0.0f, 0.0f });
 	std::fill(update_.begin(), update_.end(), Ipp32fc{ 0.0f, 0.0f });
 
-	// Центральный отвод = 1 (фильтр пропускает сигнал без искажений)
+	// Р¦РµРЅС‚СЂР°Р»СЊРЅС‹Р№ РѕС‚РІРѕРґ = 1 (С„РёР»СЊС‚СЂ РїСЂРѕРїСѓСЃРєР°РµС‚ СЃРёРіРЅР°Р» Р±РµР· РёСЃРєР°Р¶РµРЅРёР№)
 	taps_[taps_.size() / 2] = { 1.0f, 0.0f };
 	last_output_ = { 0.0f, 0.0f };
 }
@@ -125,12 +125,12 @@ bool EqaliserAqua::IsValid() const
 
 void EqaliserAqua::Process(Ipp32fc& sample)
 {
-	// Сдвиг истории (новый отсчёт на первое место)
+	// РЎРґРІРёРі РёСЃС‚РѕСЂРёРё (РЅРѕРІС‹Р№ РѕС‚СЃС‡С‘С‚ РЅР° РїРµСЂРІРѕРµ РјРµСЃС‚Рѕ)
 	for (size_t i = history_.size() - 1; i > 0; --i)
 		history_[i] = history_[i - 1];
 	history_[0] = sample;
 
-	// Вычисление выходного сигнала (фильтрация)
+	// Р’С‹С‡РёСЃР»РµРЅРёРµ РІС‹С…РѕРґРЅРѕРіРѕ СЃРёРіРЅР°Р»Р° (С„РёР»СЊС‚СЂР°С†РёСЏ)
 	Ipp32fc output = { 0.0f, 0.0f };
 	for (size_t i = 0; i < taps_.size(); ++i)
 	{
@@ -142,7 +142,7 @@ void EqaliserAqua::Process(Ipp32fc& sample)
 	sample = output;
 }
 
-// ---- Обновление ----
+// ---- РћР±РЅРѕРІР»РµРЅРёРµ ----
 
 void EqaliserAqua::Update(const Ipp32fc& pivot)
 {
@@ -155,7 +155,7 @@ void EqaliserAqua::Update(const Ipp32fc& pivot)
 
 
 
-// ---- Инициализация параметров по созвездию ----
+// ---- РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РїР°СЂР°РјРµС‚СЂРѕРІ РїРѕ СЃРѕР·РІРµР·РґРёСЋ ----
 
 void EqaliserAqua::InitFromPivots(const std::vector<Ipp32fc>& pivots)
 {
@@ -173,7 +173,7 @@ void EqaliserAqua::InitFromPivots(const std::vector<Ipp32fc>& pivots)
 	std::vector<Ipp32f> real_4(size);
 	std::vector<Ipp32f> imag_4(size);
 
-	// Мощность и её квадрат для CMA
+	// РњРѕС‰РЅРѕСЃС‚СЊ Рё РµС‘ РєРІР°РґСЂР°С‚ РґР»СЏ CMA
 	ippsPowerSpectr_32fc(pivots.data(), power.data(), size);
 	ippsMul_32f(power.data(), power.data(), power_sq.data(), size);
 
@@ -185,7 +185,7 @@ void EqaliserAqua::InitFromPivots(const std::vector<Ipp32fc>& pivots)
 	if (mean_power > 1e-12f)
 		cma_modulus_ = double(mean_power_sq) / mean_power;
 
-	// Действительная и мнимая части для MMA
+	// Р”РµР№СЃС‚РІРёС‚РµР»СЊРЅР°СЏ Рё РјРЅРёРјР°СЏ С‡Р°СЃС‚Рё РґР»СЏ MMA
 	ippsReal_32fc(pivots.data(), real.data(), size);
 	ippsImag_32fc(pivots.data(), imag.data(), size);
 
@@ -208,7 +208,7 @@ void EqaliserAqua::InitFromPivots(const std::vector<Ipp32fc>& pivots)
 		mma_imag_modulus_ = double(mean_imag_4) / mean_imag_sq;
 }
 
-// ---- Настройка параметров ----
+// ---- РќР°СЃС‚СЂРѕР№РєР° РїР°СЂР°РјРµС‚СЂРѕРІ ----
 
 void EqaliserAqua::EnableDirectDecision(bool enabled)
 {
@@ -233,6 +233,6 @@ void EqaliserAqua::SetBlindStep(double step)
 void EqaliserAqua::SetDdStep(double step)
 {
 	dd_step_ = std::clamp(step, kDdStepMin, kDdStepMax);
-	// Для NLMS используем отдельный коэффициент (можно изменить по необходимости)
+	// Р”Р»СЏ NLMS РёСЃРїРѕР»СЊР·СѓРµРј РѕС‚РґРµР»СЊРЅС‹Р№ РєРѕСЌС„С„РёС†РёРµРЅС‚ (РјРѕР¶РЅРѕ РёР·РјРµРЅРёС‚СЊ РїРѕ РЅРµРѕР±С…РѕРґРёРјРѕСЃС‚Рё)
 	dd_nlms_step_ = std::clamp(step * taps_.size(), 0.1, 1.0);
 }

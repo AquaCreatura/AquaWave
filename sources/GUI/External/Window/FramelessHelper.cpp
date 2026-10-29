@@ -1,10 +1,10 @@
 ﻿#include "FramelessHelper.h"
 
 #include <QEvent>
-#include <QMouseEvent>
 #include <QHBoxLayout>
-#include <QPushButton>
 #include <QMainWindow>
+#include <QMouseEvent>
+#include <QPushButton>
 
 // ─── Конструктор ────────────────────────────────────────
 FramelessHelper::FramelessHelper(QMainWindow* window)

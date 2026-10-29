@@ -1,6 +1,7 @@
-#pragma once
+﻿#pragma once
 #include "GUI/Charts/ChartInterface.h"
 #include "GUI/Tools/Chart tiler/ChartTiler.h"
+
 namespace spg_core
 {
 class ChartSPG : public ChartInterface

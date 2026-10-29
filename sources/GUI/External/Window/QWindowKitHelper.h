@@ -1,10 +1,8 @@
-#pragma once
+п»ї#pragma once
 
-#include <QObject>
-#include <QMenuBar>
 #include <QMainWindow>
+#include <QObject>
 #include <QPushButton>
-
 #include <QWKWidgets/widgetwindowagent.h>
 
 class QWindowKitHelper : public QObject
@@ -13,14 +11,14 @@ class QWindowKitHelper : public QObject
 public:
     explicit QWindowKitHelper(QMainWindow* window);
 
-    // Убираем параметр QMenuBar*, так как теперь создаем весь TitleBar внутри
+    // РЈР±РёСЂР°РµРј РїР°СЂР°РјРµС‚СЂ QMenuBar*, С‚Р°Рє РєР°Рє С‚РµРїРµСЂСЊ СЃРѕР·РґР°РµРј РІРµСЃСЊ TitleBar РІРЅСѓС‚СЂРё
     void setupTitleBar(QWidget* passed_bar);
 
 private:
     QMainWindow* m_window;
     QWK::WidgetWindowAgent* m_windowAgent;
 
-    // Сохраняем указатели на кнопки, если потребуется доступ к ним извне
+    // РЎРѕС…СЂР°РЅСЏРµРј СѓРєР°Р·Р°С‚РµР»Рё РЅР° РєРЅРѕРїРєРё, РµСЃР»Рё РїРѕС‚СЂРµР±СѓРµС‚СЃСЏ РґРѕСЃС‚СѓРї Рє РЅРёРј РёР·РІРЅРµ
     QPushButton* m_minButton = nullptr;
     QPushButton* m_maxButton = nullptr;
     QPushButton* m_closeButton = nullptr;

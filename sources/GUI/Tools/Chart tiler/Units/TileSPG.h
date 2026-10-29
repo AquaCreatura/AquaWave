@@ -1,5 +1,6 @@
-#pragma once
+п»ї#pragma once
 #include "TileInterface.h"
+
 class TileSPG : public TileInterface
 {
 public:
@@ -13,8 +14,8 @@ protected:
 	void					Reset() override;
 
 private:
-	std::vector<double> pos_vec_; // Вектор реальных позиций колонок
-	std::vector<float>	data_;			//наша карта плотностей
+	std::vector<double> pos_vec_; // Р’РµРєС‚РѕСЂ СЂРµР°Р»СЊРЅС‹С… РїРѕР·РёС†РёР№ РєРѕР»РѕРЅРѕРє
+	std::vector<float>	data_;			//РЅР°С€Р° РєР°СЂС‚Р° РїР»РѕС‚РЅРѕСЃС‚РµР№
 	
 
 };

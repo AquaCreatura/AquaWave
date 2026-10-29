@@ -1,9 +1,11 @@
-#ifndef PipeInterface_DEFINE
+﻿#ifndef PipeInterface_DEFINE
 #define PipeInterface_DEFINE
 #pragma once
+#include <ipps.h>
+
 #include <memory>
 #include <vector>
-#include <ipps.h>
+
 namespace pipes {
 
 struct PipeHolder {

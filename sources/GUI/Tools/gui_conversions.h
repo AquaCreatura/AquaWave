@@ -1,7 +1,8 @@
-#pragma once
-#include <ipps.h>
-#include <stdint.h>
+п»ї#pragma once
 #include "GUI/gui_defs.h"
+
+#include <ipps.h>
+
 namespace aqua_gui
 {
 constexpr int hsv_table_size_c = 512;
@@ -20,7 +21,7 @@ class LUT_HSV_Core
 public:
     LUT_HSV_Core();
         
-    // Функция конвертации HSV в RGB (H: 0-360, S/H: 0.0-1.0)
+    // Р¤СѓРЅРєС†РёСЏ РєРѕРЅРІРµСЂС‚Р°С†РёРё HSV РІ RGB (H: 0-360, S/H: 0.0-1.0)
     static void     HSV_2_RGB       (float h, float s, float v, Ipp8u & r, Ipp8u & g, Ipp8u & b);
 
     argb_t arr[hsv_table_size_c];

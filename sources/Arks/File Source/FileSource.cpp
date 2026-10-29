@@ -1,15 +1,17 @@
-#include "FileSource.h"
+п»ї#include "FileSource.h"
+
 #include <qdebug.h>
+
 using namespace file_source;
 using namespace aqua;
 // ========================================== FileSourceArk =================================
 constexpr double bw_filter_koeff_c_expr = 0.9;
 
 file_source::FileSourceArk::FileSourceArk(QWidget * main_window) :
-	listener_man_(descr_),  // Инициализация менеджера с параметрами файла
+	listener_man_(descr_),  // РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РјРµРЅРµРґР¶РµСЂР° СЃ РїР°СЂР°РјРµС‚СЂР°РјРё С„Р°Р№Р»Р°
 	qmain_window_(main_window)
 {
-	dialog_ = new FileSourceDialog;  // Создание диалогового окна
+	dialog_ = new FileSourceDialog;  // РЎРѕР·РґР°РЅРёРµ РґРёР°Р»РѕРіРѕРІРѕРіРѕ РѕРєРЅР°
 	connect(dialog_, &FileSourceDialog::UpdateSourceNeed, this, &FileSourceArk::UpdateSource);
 	UpdateSource();
 }
@@ -20,7 +22,7 @@ file_source::FileSourceArk::~FileSourceArk()
     qDebug() << "File source destroyed! \n";
 }
 
-// Обработчик сообщений (Dove - "голубь" как сообщение)
+// РћР±СЂР°Р±РѕС‚С‡РёРє СЃРѕРѕР±С‰РµРЅРёР№ (Dove - "РіРѕР»СѓР±СЊ" РєР°Рє СЃРѕРѕР±С‰РµРЅРёРµ)
 bool file_source::FileSourceArk::PostDove(aqua::DoveSptr const& sent_dove)
 {
     if (!sent_dove)
@@ -28,7 +30,7 @@ bool file_source::FileSourceArk::PostDove(aqua::DoveSptr const& sent_dove)
     const auto &target_ark = sent_dove->target_ark ? sent_dove->target_ark: sent_dove->sender;
     const auto parrent_type = sent_dove->base_thought;
     
-    // Обработка базовых команд
+    // РћР±СЂР°Р±РѕС‚РєР° Р±Р°Р·РѕРІС‹С… РєРѕРјР°РЅРґ
     if (parrent_type & aqua::DoveParrent::kAddSink)
     {
         aqua::DoveSptr message   = std::make_shared<aqua::DoveParrent>();
@@ -49,10 +51,10 @@ bool file_source::FileSourceArk::PostDove(aqua::DoveSptr const& sent_dove)
         return ArkBase::PostDove(sent_dove);
     }
 
-    // Запрос диалогового окна
+    // Р—Р°РїСЂРѕСЃ РґРёР°Р»РѕРіРѕРІРѕРіРѕ РѕРєРЅР°
     if (parrent_type & aqua::DoveParrent::kGetWindow)
     {
-        sent_dove->show_widget = dialog_;  // Возвращаем указатель на диалог
+        sent_dove->show_widget = dialog_;  // Р’РѕР·РІСЂР°С‰Р°РµРј СѓРєР°Р·Р°С‚РµР»СЊ РЅР° РґРёР°Р»РѕРі
     }
     
 	if (parrent_type & FileSrcDove::kGetDescription)
@@ -61,7 +63,7 @@ bool file_source::FileSourceArk::PostDove(aqua::DoveSptr const& sent_dove)
 		sent_dove->description = this->descr_;
 		//Do smth
 	}
-    // Обработка специализированных команд для файлового источника
+    // РћР±СЂР°Р±РѕС‚РєР° СЃРїРµС†РёР°Р»РёР·РёСЂРѕРІР°РЅРЅС‹С… РєРѕРјР°РЅРґ РґР»СЏ С„Р°Р№Р»РѕРІРѕРіРѕ РёСЃС‚РѕС‡РЅРёРєР°
     if (parrent_type & aqua::DoveParrent::kSpecialThought)
     {
         auto file_src_dove = std::dynamic_pointer_cast<FileSrcDove>(sent_dove);
@@ -70,7 +72,7 @@ bool file_source::FileSourceArk::PostDove(aqua::DoveSptr const& sent_dove)
             
         const auto file_src_thought = file_src_dove->special_thought;
         
-        // Инициализация читателя
+        // РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ С‡РёС‚Р°С‚РµР»СЏ
 		if (file_src_thought & FileSrcDove::SpecThought::kInitiate)
 		{
 			listener_man_.InitReader(target_ark, *file_src_dove->setup);
@@ -120,7 +122,7 @@ void file_source::FileSourceArk::UpdateSource()
     }
 }
 
-// Отправка данных (не реализована)
+// РћС‚РїСЂР°РІРєР° РґР°РЅРЅС‹С… (РЅРµ СЂРµР°Р»РёР·РѕРІР°РЅР°)
 bool file_source::FileSourceArk::SendData(aqua::DataInfo const& data_info)
 {
     return false;

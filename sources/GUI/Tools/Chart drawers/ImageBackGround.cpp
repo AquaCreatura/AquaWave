@@ -1,5 +1,4 @@
-#include "ImageBackGround.h"
-#include <QDebug> // Для отладочных сообщений, можно удалить в релизе
+п»ї#include "ImageBackGround.h"
 
 namespace aqua_gui
 {
@@ -112,20 +111,20 @@ constexpr const T& clamp(const T& val, const T& low, const T& high) {
  */
 HorVerLim<double> ImageBG::CalculateTargetDisplayValueBounds() const
 {
-    // 1. Определяем центр текущего отображения
+    // 1. РћРїСЂРµРґРµР»СЏРµРј С†РµРЅС‚СЂ С‚РµРєСѓС‰РµРіРѕ РѕС‚РѕР±СЂР°Р¶РµРЅРёСЏ
     const auto& current_h_bounds = scale_info_.val_info_.view_bounds.hor;
     const auto& current_v_bounds = scale_info_.val_info_.view_bounds.vert;
-    double center_x = current_h_bounds.mid(); // Предполагаем наличие метода mid()
-    double center_y = current_v_bounds.mid(); // Предполагаем наличие метода mid()
+    double center_x = current_h_bounds.mid(); // РџСЂРµРґРїРѕР»Р°РіР°РµРј РЅР°Р»РёС‡РёРµ РјРµС‚РѕРґР° mid()
+    double center_y = current_v_bounds.mid(); // РџСЂРµРґРїРѕР»Р°РіР°РµРј РЅР°Р»РёС‡РёРµ РјРµС‚РѕРґР° mid()
 
-    // Полные размеры изображения, предотвращая деление на ноль
+    // РџРѕР»РЅС‹Рµ СЂР°Р·РјРµСЂС‹ РёР·РѕР±СЂР°Р¶РµРЅРёСЏ, РїСЂРµРґРѕС‚РІСЂР°С‰Р°СЏ РґРµР»РµРЅРёРµ РЅР° РЅРѕР»СЊ
     const auto& full_h_bounds = scale_info_.val_info_.min_max_bounds.hor;
     const auto& full_v_bounds = scale_info_.val_info_.min_max_bounds.vert;
     double full_image_span_x = std::max(full_h_bounds.delta(), 1e-9);
     double full_image_span_y = std::max(full_v_bounds.delta(), 1e-9);
 
-    // 2. Текущие размеры отображения.
-    // Предотвращаем деление на ноль, если текущий диапазон равен нулю.
+    // 2. РўРµРєСѓС‰РёРµ СЂР°Р·РјРµСЂС‹ РѕС‚РѕР±СЂР°Р¶РµРЅРёСЏ.
+    // РџСЂРµРґРѕС‚РІСЂР°С‰Р°РµРј РґРµР»РµРЅРёРµ РЅР° РЅРѕР»СЊ, РµСЃР»Рё С‚РµРєСѓС‰РёР№ РґРёР°РїР°Р·РѕРЅ СЂР°РІРµРЅ РЅСѓР»СЋ.
     double current_span_x = current_h_bounds.delta();
     if (std::abs(current_span_x) < 1e-9) {
         current_span_x = full_image_span_x;
@@ -135,24 +134,24 @@ HorVerLim<double> ImageBG::CalculateTargetDisplayValueBounds() const
         current_span_y = full_image_span_y;
     }
 
-    // Рабочий коэффициент зума с учетом весов
+    // Р Р°Р±РѕС‡РёР№ РєРѕСЌС„С„РёС†РёРµРЅС‚ Р·СѓРјР° СЃ СѓС‡РµС‚РѕРј РІРµСЃРѕРІ
     double zoom_koeff_h = full_image_span_x / current_span_x - 1;
     double zoom_koeff_v = full_image_span_y / current_span_y - 1;
     double working_zoom_koeff = std::max(1 + (zoom_koeff_h * 0.05 + zoom_koeff_v * 0.05) / 10.0, 1.0);
 	working_zoom_koeff = std::min(working_zoom_koeff, 2.);
-    // 3. Новые размеры
+    // 3. РќРѕРІС‹Рµ СЂР°Р·РјРµСЂС‹
     double new_span_x = full_image_span_x / working_zoom_koeff;
     double new_span_y = full_image_span_y / working_zoom_koeff;
 
-    // 4. и 5. Корректировка центра, чтобы прямоугольник оставался в full_image_span
-    // Если новый диапазон больше полного, центрируем его относительно полного.
+    // 4. Рё 5. РљРѕСЂСЂРµРєС‚РёСЂРѕРІРєР° С†РµРЅС‚СЂР°, С‡С‚РѕР±С‹ РїСЂСЏРјРѕСѓРіРѕР»СЊРЅРёРє РѕСЃС‚Р°РІР°Р»СЃСЏ РІ full_image_span
+    // Р•СЃР»Рё РЅРѕРІС‹Р№ РґРёР°РїР°Р·РѕРЅ Р±РѕР»СЊС€Рµ РїРѕР»РЅРѕРіРѕ, С†РµРЅС‚СЂРёСЂСѓРµРј РµРіРѕ РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ РїРѕР»РЅРѕРіРѕ.
     if (new_span_x > full_image_span_x) {
         center_x = full_h_bounds.mid();
     } else {
-        // Вычисляем min/max для центра, чтобы границы не выходили за full_h_bounds
+        // Р’С‹С‡РёСЃР»СЏРµРј min/max РґР»СЏ С†РµРЅС‚СЂР°, С‡С‚РѕР±С‹ РіСЂР°РЅРёС†С‹ РЅРµ РІС‹С…РѕРґРёР»Рё Р·Р° full_h_bounds
         double min_center_x = full_h_bounds.low + new_span_x / 2.0;
         double max_center_x = full_h_bounds.high - new_span_x / 2.0;
-        center_x = clamp(center_x, min_center_x, max_center_x); // Используем нашу clamp
+        center_x = clamp(center_x, min_center_x, max_center_x); // РСЃРїРѕР»СЊР·СѓРµРј РЅР°С€Сѓ clamp
     }
 
     if (new_span_y > full_image_span_y) {
@@ -160,10 +159,10 @@ HorVerLim<double> ImageBG::CalculateTargetDisplayValueBounds() const
     } else {
         double min_center_y = full_v_bounds.low + new_span_y / 2.0;
         double max_center_y = full_v_bounds.high - new_span_y / 2.0;
-        center_y = clamp(center_y, min_center_y, max_center_y); // Используем нашу clamp
+        center_y = clamp(center_y, min_center_y, max_center_y); // РСЃРїРѕР»СЊР·СѓРµРј РЅР°С€Сѓ clamp
     }
 
-    // Пересчитываем конечные границы с скорректированным центром
+    // РџРµСЂРµСЃС‡РёС‚С‹РІР°РµРј РєРѕРЅРµС‡РЅС‹Рµ РіСЂР°РЅРёС†С‹ СЃ СЃРєРѕСЂСЂРµРєС‚РёСЂРѕРІР°РЅРЅС‹Рј С†РµРЅС‚СЂРѕРј
     Limits<double> target_h_bounds = {center_x - new_span_x / 2.0, center_x + new_span_x / 2.0};
     Limits<double> target_v_bounds = {center_y - new_span_y / 2.0, center_y + new_span_y / 2.0};
 

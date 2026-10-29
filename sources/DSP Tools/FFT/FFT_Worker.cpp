@@ -1,8 +1,9 @@
-#include "FFT_Worker.h"
-#include <cmath>     // Для std::log2
-#include <stdexcept> // Для обработки ошибок
+п»ї#include "FFT_Worker.h"
 
-// Реализация вспомогательных функций SwapHalfes
+#include <cmath>
+#include <stdexcept>
+
+// Р РµР°Р»РёР·Р°С†РёСЏ РІСЃРїРѕРјРѕРіР°С‚РµР»СЊРЅС‹С… С„СѓРЅРєС†РёР№ SwapHalfes
 // ---------------------------------------------
 
 void SwapHalfes(const Ipp32fc* input_data, Ipp32fc* output_data, int data_size) {
@@ -10,9 +11,9 @@ void SwapHalfes(const Ipp32fc* input_data, Ipp32fc* output_data, int data_size) 
         throw std::invalid_argument("SwapHalfes: Invalid input parameters (null pointers or data_size <= 0).");
     }
     int half_size = data_size / 2;
-    // Копируем вторую половину в начало выходного буфера
+    // РљРѕРїРёСЂСѓРµРј РІС‚РѕСЂСѓСЋ РїРѕР»РѕРІРёРЅСѓ РІ РЅР°С‡Р°Р»Рѕ РІС‹С…РѕРґРЅРѕРіРѕ Р±СѓС„РµСЂР°
     ippsCopy_32fc(input_data + half_size, output_data, half_size);
-    // Копируем первую половину во вторую половину выходного буфера
+    // РљРѕРїРёСЂСѓРµРј РїРµСЂРІСѓСЋ РїРѕР»РѕРІРёРЅСѓ РІРѕ РІС‚РѕСЂСѓСЋ РїРѕР»РѕРІРёРЅСѓ РІС‹С…РѕРґРЅРѕРіРѕ Р±СѓС„РµСЂР°
     ippsCopy_32fc(input_data, output_data + half_size, half_size);
 }
 
@@ -29,7 +30,7 @@ void SwapHalfes_I(std::vector<Ipp32fc>& input_data) {
     }
     int data_size = static_cast<int>(input_data.size());
     int half_size = data_size / 2;
-    // Используем временный буфер для безопасного обмена на месте
+    // РСЃРїРѕР»СЊР·СѓРµРј РІСЂРµРјРµРЅРЅС‹Р№ Р±СѓС„РµСЂ РґР»СЏ Р±РµР·РѕРїР°СЃРЅРѕРіРѕ РѕР±РјРµРЅР° РЅР° РјРµСЃС‚Рµ
     std::vector<Ipp32fc> temp_buffer(half_size); 
     
     ippsCopy_32fc(input_data.data() + half_size, temp_buffer.data(), half_size);
@@ -37,7 +38,7 @@ void SwapHalfes_I(std::vector<Ipp32fc>& input_data) {
     ippsCopy_32fc(temp_buffer.data(), input_data.data(), half_size);
 }
 
-// Реализация методов класса FFT_Worker
+// Р РµР°Р»РёР·Р°С†РёСЏ РјРµС‚РѕРґРѕРІ РєР»Р°СЃСЃР° FFT_Worker
 // ------------------------------------
 
 FFT_Worker::FFT_Worker() 
@@ -45,13 +46,13 @@ FFT_Worker::FFT_Worker()
       fft_order_(0), 
       swap_output_on_forward_(false),
       pFFTSpec_(nullptr) {
-    // Векторы инициализируются по умолчанию пустыми
+    // Р’РµРєС‚РѕСЂС‹ РёРЅРёС†РёР°Р»РёР·РёСЂСѓСЋС‚СЃСЏ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ РїСѓСЃС‚С‹РјРё
 }
 
 FFT_Worker::~FFT_Worker() {
-    // Векторы (std::vector<Ipp8u> и std::vector<Ipp32fc>) автоматически 
-    // освобождают свою память при уничтожении объекта FFT_Worker.
-    // Нет необходимости в явных вызовах ippsFree или delete.
+    // Р’РµРєС‚РѕСЂС‹ (std::vector<Ipp8u> Рё std::vector<Ipp32fc>) Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё 
+    // РѕСЃРІРѕР±РѕР¶РґР°СЋС‚ СЃРІРѕСЋ РїР°РјСЏС‚СЊ РїСЂРё СѓРЅРёС‡С‚РѕР¶РµРЅРёРё РѕР±СЉРµРєС‚Р° FFT_Worker.
+    // РќРµС‚ РЅРµРѕР±С…РѕРґРёРјРѕСЃС‚Рё РІ СЏРІРЅС‹С… РІС‹Р·РѕРІР°С… ippsFree РёР»Рё delete.
 }
 
 bool FFT_Worker::Init(int initial_data_size, const bool swap_output_on_forward) {
@@ -62,7 +63,7 @@ bool FFT_Worker::Init(int initial_data_size, const bool swap_output_on_forward) 
     const int new_fft_size = GetPow2Closest(initial_data_size);
     const int new_fft_order = static_cast<int>(std::log2(new_fft_size));
 
-    // Если размер БПФ и флаг обмена не изменились, нет необходимости в повторной инициализации
+    // Р•СЃР»Рё СЂР°Р·РјРµСЂ Р‘РџР¤ Рё С„Р»Р°Рі РѕР±РјРµРЅР° РЅРµ РёР·РјРµРЅРёР»РёСЃСЊ, РЅРµС‚ РЅРµРѕР±С…РѕРґРёРјРѕСЃС‚Рё РІ РїРѕРІС‚РѕСЂРЅРѕР№ РёРЅРёС†РёР°Р»РёР·Р°С†РёРё
     if (new_fft_size == fft_size_ && swap_output_on_forward == swap_output_on_forward_) {
         return true;
     }
@@ -70,20 +71,20 @@ bool FFT_Worker::Init(int initial_data_size, const bool swap_output_on_forward) 
     fft_size_ = new_fft_size;
     fft_order_ = new_fft_order;
 
-    // Режим деления для обратного БПФ.
-    // IPP_FFT_DIV_INV_BY_N означает, что ippsFFTInv_CToC_32fc будет делить результат на N.
-    // Если вам требуется ручное деление (как в вашем примере), используйте ippAlgHintNone
-    // и выполните деление самостоятельно после InverseFFT.
+    // Р РµР¶РёРј РґРµР»РµРЅРёСЏ РґР»СЏ РѕР±СЂР°С‚РЅРѕРіРѕ Р‘РџР¤.
+    // IPP_FFT_DIV_INV_BY_N РѕР·РЅР°С‡Р°РµС‚, С‡С‚Рѕ ippsFFTInv_CToC_32fc Р±СѓРґРµС‚ РґРµР»РёС‚СЊ СЂРµР·СѓР»СЊС‚Р°С‚ РЅР° N.
+    // Р•СЃР»Рё РІР°Рј С‚СЂРµР±СѓРµС‚СЃСЏ СЂСѓС‡РЅРѕРµ РґРµР»РµРЅРёРµ (РєР°Рє РІ РІР°С€РµРј РїСЂРёРјРµСЂРµ), РёСЃРїРѕР»СЊР·СѓР№С‚Рµ ippAlgHintNone
+    // Рё РІС‹РїРѕР»РЅРёС‚Рµ РґРµР»РµРЅРёРµ СЃР°РјРѕСЃС‚РѕСЏС‚РµР»СЊРЅРѕ РїРѕСЃР»Рµ InverseFFT.
     auto fft_div_mode = IPP_FFT_DIV_BY_SQRTN; 
-    IppHintAlgorithm alg_hint = ippAlgHintFast; // Используем hintFast для производительности
+    IppHintAlgorithm alg_hint = ippAlgHintFast; // РСЃРїРѕР»СЊР·СѓРµРј hintFast РґР»СЏ РїСЂРѕРёР·РІРѕРґРёС‚РµР»СЊРЅРѕСЃС‚Рё
 
     int p_fft_spec_size = 0;
     int p_fft_spec_buf_size = 0;
     int fft_external_buf_size = 0;
 
-    // Получаем размеры буферов, необходимых для IPP FFT
+    // РџРѕР»СѓС‡Р°РµРј СЂР°Р·РјРµСЂС‹ Р±СѓС„РµСЂРѕРІ, РЅРµРѕР±С…РѕРґРёРјС‹С… РґР»СЏ IPP FFT
     IppStatus status = ippsFFTGetSize_C_32fc(
-        fft_order_,         // Порядок БПФ (log2(N))
+        fft_order_,         // РџРѕСЂСЏРґРѕРє Р‘РџР¤ (log2(N))
         fft_div_mode,
         alg_hint,
         &p_fft_spec_size,
@@ -96,8 +97,8 @@ bool FFT_Worker::Init(int initial_data_size, const bool swap_output_on_forward) 
         return false;
     }
 
-    // Изменяем размер внутренних буферов std::vector, если они меньше требуемого.
-    // resize() гарантирует, что ёмкость будет достаточной.
+    // РР·РјРµРЅСЏРµРј СЂР°Р·РјРµСЂ РІРЅСѓС‚СЂРµРЅРЅРёС… Р±СѓС„РµСЂРѕРІ std::vector, РµСЃР»Рё РѕРЅРё РјРµРЅСЊС€Рµ С‚СЂРµР±СѓРµРјРѕРіРѕ.
+    // resize() РіР°СЂР°РЅС‚РёСЂСѓРµС‚, С‡С‚Рѕ С‘РјРєРѕСЃС‚СЊ Р±СѓРґРµС‚ РґРѕСЃС‚Р°С‚РѕС‡РЅРѕР№.
     if (fft_work_buf_.size() < static_cast<size_t>(fft_external_buf_size)) {
         fft_work_buf_.resize(fft_external_buf_size);
     }
@@ -108,21 +109,21 @@ bool FFT_Worker::Init(int initial_data_size, const bool swap_output_on_forward) 
         temp_init_buffer_.resize(p_fft_spec_buf_size);
     }
 
-    // Инициализируем структуру спецификации FFT.
-    // pFFTSpec_ будет указывать на начало p_fft_spec_mem_.
+    // РРЅРёС†РёР°Р»РёР·РёСЂСѓРµРј СЃС‚СЂСѓРєС‚СѓСЂСѓ СЃРїРµС†РёС„РёРєР°С†РёРё FFT.
+    // pFFTSpec_ Р±СѓРґРµС‚ СѓРєР°Р·С‹РІР°С‚СЊ РЅР° РЅР°С‡Р°Р»Рѕ p_fft_spec_mem_.
     pFFTSpec_ = reinterpret_cast<IppsFFTSpec_C_32fc*>(p_fft_spec_mem_.data());
 
     status = ippsFFTInit_C_32fc(
-        &pFFTSpec_,          // Адрес указателя на спецификацию
-        fft_order_,          // Порядок БПФ (log2(N))
+        &pFFTSpec_,          // РђРґСЂРµСЃ СѓРєР°Р·Р°С‚РµР»СЏ РЅР° СЃРїРµС†РёС„РёРєР°С†РёСЋ
+        fft_order_,          // РџРѕСЂСЏРґРѕРє Р‘РџР¤ (log2(N))
         fft_div_mode,
         alg_hint,
-        p_fft_spec_mem_.data(), // Буфер для спецификации
-        temp_init_buffer_.data() // Временный буфер для инициализации
+        p_fft_spec_mem_.data(), // Р‘СѓС„РµСЂ РґР»СЏ СЃРїРµС†РёС„РёРєР°С†РёРё
+        temp_init_buffer_.data() // Р’СЂРµРјРµРЅРЅС‹Р№ Р±СѓС„РµСЂ РґР»СЏ РёРЅРёС†РёР°Р»РёР·Р°С†РёРё
     );
 
     if (status != ippStsNoErr) {
-        pFFTSpec_ = nullptr; // Сбрасываем указатель, если инициализация не удалась
+        pFFTSpec_ = nullptr; // РЎР±СЂР°СЃС‹РІР°РµРј СѓРєР°Р·Р°С‚РµР»СЊ, РµСЃР»Рё РёРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РЅРµ СѓРґР°Р»Р°СЃСЊ
 		fft_size_ = -1;
         return false;
     }
@@ -136,11 +137,11 @@ bool FFT_Worker::Init(int initial_data_size, const bool swap_output_on_forward) 
 bool FFT_Worker::EnableSwapOnForward(const bool do_enable)
 {
     swap_output_on_forward_ = do_enable;
-    // Резервируем память для временного буфера обмена только если он требуется.
+    // Р РµР·РµСЂРІРёСЂСѓРµРј РїР°РјСЏС‚СЊ РґР»СЏ РІСЂРµРјРµРЅРЅРѕРіРѕ Р±СѓС„РµСЂР° РѕР±РјРµРЅР° С‚РѕР»СЊРєРѕ РµСЃР»Рё РѕРЅ С‚СЂРµР±СѓРµС‚СЃСЏ.
     if (swap_output_on_forward_) {
         temp_swap_buffer_.resize(fft_size_);
     } else {
-        // Если обмен не нужен, освобождаем память буфера
+        // Р•СЃР»Рё РѕР±РјРµРЅ РЅРµ РЅСѓР¶РµРЅ, РѕСЃРІРѕР±РѕР¶РґР°РµРј РїР°РјСЏС‚СЊ Р±СѓС„РµСЂР°
         temp_swap_buffer_.clear();
         temp_swap_buffer_.shrink_to_fit();
     }
@@ -148,7 +149,7 @@ bool FFT_Worker::EnableSwapOnForward(const bool do_enable)
 }
 
 void FFT_Worker::Reset() {
-    // Очистка векторов и освобождение их памяти
+    // РћС‡РёСЃС‚РєР° РІРµРєС‚РѕСЂРѕРІ Рё РѕСЃРІРѕР±РѕР¶РґРµРЅРёРµ РёС… РїР°РјСЏС‚Рё
     p_fft_spec_mem_.clear();
     p_fft_spec_mem_.shrink_to_fit(); 
 
@@ -164,16 +165,16 @@ void FFT_Worker::Reset() {
     fft_size_ = 0;
     fft_order_ = 0;
     swap_output_on_forward_ = false;
-    pFFTSpec_ = nullptr; // Указатель теперь недействителен
+    pFFTSpec_ = nullptr; // РЈРєР°Р·Р°С‚РµР»СЊ С‚РµРїРµСЂСЊ РЅРµРґРµР№СЃС‚РІРёС‚РµР»РµРЅ
 }
 
 bool FFT_Worker::ForwardFFT(const std::vector<Ipp32fc>& input_data, std::vector<Ipp32fc>& output_data) {
-    // Попытка инициализации/переинициализации, если размеры или режим обмена изменились
+    // РџРѕРїС‹С‚РєР° РёРЅРёС†РёР°Р»РёР·Р°С†РёРё/РїРµСЂРµРёРЅРёС†РёР°Р»РёР·Р°С†РёРё, РµСЃР»Рё СЂР°Р·РјРµСЂС‹ РёР»Рё СЂРµР¶РёРј РѕР±РјРµРЅР° РёР·РјРµРЅРёР»РёСЃСЊ
     if (!Init(static_cast<int>(input_data.size()), swap_output_on_forward_)) {
         return false; 
     }
 
-    // Убедимся, что выходной буфер имеет правильный размер
+    // РЈР±РµРґРёРјСЃСЏ, С‡С‚Рѕ РІС‹С…РѕРґРЅРѕР№ Р±СѓС„РµСЂ РёРјРµРµС‚ РїСЂР°РІРёР»СЊРЅС‹Р№ СЂР°Р·РјРµСЂ
     if (output_data.size() < static_cast<size_t>(fft_size_)) {
         output_data.resize(fft_size_);
     }
@@ -182,9 +183,9 @@ bool FFT_Worker::ForwardFFT(const std::vector<Ipp32fc>& input_data, std::vector<
 }
 
 bool FFT_Worker::ForwardFFT(const Ipp32fc* input_data, int input_data_size, Ipp32fc* output_data, int output_data_size) {
-    // Проверки на корректность состояния и размеров
+    // РџСЂРѕРІРµСЂРєРё РЅР° РєРѕСЂСЂРµРєС‚РЅРѕСЃС‚СЊ СЃРѕСЃС‚РѕСЏРЅРёСЏ Рё СЂР°Р·РјРµСЂРѕРІ
     if (!pFFTSpec_ || input_data_size < fft_size_ || output_data_size < fft_size_) {
-        // FFT не инициализирован или размеры буферов недостаточны
+        // FFT РЅРµ РёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°РЅ РёР»Рё СЂР°Р·РјРµСЂС‹ Р±СѓС„РµСЂРѕРІ РЅРµРґРѕСЃС‚Р°С‚РѕС‡РЅС‹
         return false;
     }
     if (!input_data || !output_data) {
@@ -193,15 +194,15 @@ bool FFT_Worker::ForwardFFT(const Ipp32fc* input_data, int input_data_size, Ipp3
 
     IppStatus status;
     if (swap_output_on_forward_) {
-        // Выполняем прямое БПФ во временный буфер
+        // Р’С‹РїРѕР»РЅСЏРµРј РїСЂСЏРјРѕРµ Р‘РџР¤ РІРѕ РІСЂРµРјРµРЅРЅС‹Р№ Р±СѓС„РµСЂ
         status = ippsFFTFwd_CToC_32fc(input_data, temp_swap_buffer_.data(), pFFTSpec_, fft_work_buf_.data());
         if (status != ippStsNoErr) {
             return false;
         }
-        // После БПФ обмениваем половины из временного буфера в выходной
+        // РџРѕСЃР»Рµ Р‘РџР¤ РѕР±РјРµРЅРёРІР°РµРј РїРѕР»РѕРІРёРЅС‹ РёР· РІСЂРµРјРµРЅРЅРѕРіРѕ Р±СѓС„РµСЂР° РІ РІС‹С…РѕРґРЅРѕР№
         SwapHalfes(temp_swap_buffer_.data(), output_data, fft_size_);
     } else {
-        // Если обмен не требуется, выполняем БПФ напрямую
+        // Р•СЃР»Рё РѕР±РјРµРЅ РЅРµ С‚СЂРµР±СѓРµС‚СЃСЏ, РІС‹РїРѕР»РЅСЏРµРј Р‘РџР¤ РЅР°РїСЂСЏРјСѓСЋ
         status = ippsFFTFwd_CToC_32fc(input_data, output_data, pFFTSpec_, fft_work_buf_.data());
     }
     
@@ -209,12 +210,12 @@ bool FFT_Worker::ForwardFFT(const Ipp32fc* input_data, int input_data_size, Ipp3
 }
 
 bool FFT_Worker::InverseFFT(const std::vector<Ipp32fc>& input_data, std::vector<Ipp32fc>& output_data) {
-    // Попытка инициализации/переинициализации, если размеры или режим обмена изменились
+    // РџРѕРїС‹С‚РєР° РёРЅРёС†РёР°Р»РёР·Р°С†РёРё/РїРµСЂРµРёРЅРёС†РёР°Р»РёР·Р°С†РёРё, РµСЃР»Рё СЂР°Р·РјРµСЂС‹ РёР»Рё СЂРµР¶РёРј РѕР±РјРµРЅР° РёР·РјРµРЅРёР»РёСЃСЊ
     if (!Init(static_cast<int>(input_data.size()), swap_output_on_forward_)) {
         return false; 
     }
 
-    // Убедимся, что выходной буфер имеет правильный размер
+    // РЈР±РµРґРёРјСЃСЏ, С‡С‚Рѕ РІС‹С…РѕРґРЅРѕР№ Р±СѓС„РµСЂ РёРјРµРµС‚ РїСЂР°РІРёР»СЊРЅС‹Р№ СЂР°Р·РјРµСЂ
     if (output_data.size() < static_cast<size_t>(fft_size_)) {
         output_data.resize(fft_size_);
     }
@@ -223,17 +224,17 @@ bool FFT_Worker::InverseFFT(const std::vector<Ipp32fc>& input_data, std::vector<
 }
 
 bool FFT_Worker::InverseFFT(const Ipp32fc* input_data, int input_data_size, Ipp32fc* output_data, int output_data_size) {
-    // Проверки на корректность состояния и размеров
+    // РџСЂРѕРІРµСЂРєРё РЅР° РєРѕСЂСЂРµРєС‚РЅРѕСЃС‚СЊ СЃРѕСЃС‚РѕСЏРЅРёСЏ Рё СЂР°Р·РјРµСЂРѕРІ
     if (!pFFTSpec_ || input_data_size < fft_size_ || output_data_size < fft_size_) {
-        // FFT не инициализирован или размеры буферов недостаточны
+        // FFT РЅРµ РёРЅРёС†РёР°Р»РёР·РёСЂРѕРІР°РЅ РёР»Рё СЂР°Р·РјРµСЂС‹ Р±СѓС„РµСЂРѕРІ РЅРµРґРѕСЃС‚Р°С‚РѕС‡РЅС‹
         return false;
     }
     if (!input_data || !output_data) {
         throw std::invalid_argument("FFT_Worker::InverseFFT: Input/output data pointers are null.");
     }
 
-    // Для обратного БПФ обмен половинами не требуется (согласно новому требованию).
-    // IPP_FFT_DIV_INV_BY_N, указанный в Init, автоматически масштабирует результат.
+    // Р”Р»СЏ РѕР±СЂР°С‚РЅРѕРіРѕ Р‘РџР¤ РѕР±РјРµРЅ РїРѕР»РѕРІРёРЅР°РјРё РЅРµ С‚СЂРµР±СѓРµС‚СЃСЏ (СЃРѕРіР»Р°СЃРЅРѕ РЅРѕРІРѕРјСѓ С‚СЂРµР±РѕРІР°РЅРёСЋ).
+    // IPP_FFT_DIV_INV_BY_N, СѓРєР°Р·Р°РЅРЅС‹Р№ РІ Init, Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё РјР°СЃС€С‚Р°Р±РёСЂСѓРµС‚ СЂРµР·СѓР»СЊС‚Р°С‚.
     IppStatus status = ippsFFTInv_CToC_32fc(input_data, output_data, pFFTSpec_, fft_work_buf_.data());
     
     return status == ippStsNoErr;

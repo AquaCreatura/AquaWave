@@ -1,7 +1,9 @@
-#pragma once
-#include <vector>
-#include "aqua_defines.h"
+п»ї#pragma once
 #include "GUI/gui_defs.h"
+
+#include <tbb/spin_mutex.h>
+
+#include <vector>
 
 using namespace aqua;
 using namespace aqua_gui;
@@ -11,10 +13,10 @@ namespace constel {
 struct constellation_data
 {
 	typedef int DataType;
-	int side_amplitude; //Амплитуда в одну из сторону 2A + 1 = width = height
-	int side_size; //Длина одной стороны = 2 * side_amplitude + 1
-	std::vector<DataType>   data;            // (Плотность) Хранилище данных (size = высота * ширина) (values can not be negative)
-	// Доступ к строкам данных
+	int side_amplitude; //РђРјРїР»РёС‚СѓРґР° РІ РѕРґРЅСѓ РёР· СЃС‚РѕСЂРѕРЅСѓ 2A + 1 = width = height
+	int side_size; //Р”Р»РёРЅР° РѕРґРЅРѕР№ СЃС‚РѕСЂРѕРЅС‹ = 2 * side_amplitude + 1
+	std::vector<DataType>   data;            // (РџР»РѕС‚РЅРѕСЃС‚СЊ) РҐСЂР°РЅРёР»РёС‰Рµ РґР°РЅРЅС‹С… (size = РІС‹СЃРѕС‚Р° * С€РёСЂРёРЅР°) (values can not be negative)
+	// Р”РѕСЃС‚СѓРї Рє СЃС‚СЂРѕРєР°Рј РґР°РЅРЅС‹С…
 	DataType* operator[](size_t row) {
 		const int mid_row = side_amplitude + row;
 		const int mid_column = side_amplitude;
@@ -22,7 +24,7 @@ struct constellation_data
 	}
 	int64_t count_of_points{0i64};
 	tbb::spin_mutex redraw_mutex;
-	float max_power {0.f}; //Реальная амплитуды, соответствущее амплитуде стороны.
+	float max_power {0.f}; //Р РµР°Р»СЊРЅР°СЏ Р°РјРїР»РёС‚СѓРґС‹, СЃРѕРѕС‚РІРµС‚СЃС‚РІСѓС‰РµРµ Р°РјРїР»РёС‚СѓРґРµ СЃС‚РѕСЂРѕРЅС‹.
 	float averaged_amplitude{ 1.1f };
 };
 

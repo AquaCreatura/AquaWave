@@ -1,4 +1,6 @@
-#include "wav_tools.h"
+п»ї#include "wav_tools.h"
+
+#include <fstream>
 
 using namespace utility_aqua;
 bool utility_aqua::get_wav_info(const std::string & filename, WavInfo & out)
@@ -28,7 +30,7 @@ bool utility_aqua::get_wav_info(const std::string & filename, WavInfo & out)
 	if (std::memcmp(riff, "RIFF", 4) != 0 || std::memcmp(riff + 8, "WAVE", 4) != 0)
 		return false;
 
-	// Размер файла (для проверок)
+	// Р Р°Р·РјРµСЂ С„Р°Р№Р»Р° (РґР»СЏ РїСЂРѕРІРµСЂРѕРє)
 	file.seekg(0, std::ios::end);
 	uint64_t file_size = static_cast<uint64_t>(file.tellg());
 	file.seekg(12, std::ios::beg);
@@ -48,7 +50,7 @@ bool utility_aqua::get_wav_info(const std::string & filename, WavInfo & out)
 
 		uint64_t chunk_data_pos = tell();
 
-		// Защита от выхода за пределы файла
+		// Р—Р°С‰РёС‚Р° РѕС‚ РІС‹С…РѕРґР° Р·Р° РїСЂРµРґРµР»С‹ С„Р°Р№Р»Р°
 		if (chunk_data_pos > file_size || chunk_size > file_size - chunk_data_pos)
 			return false;
 
@@ -83,7 +85,7 @@ bool utility_aqua::get_wav_info(const std::string & filename, WavInfo & out)
 		}
 		else if (std::memcmp(chunk_id, "data", 4) == 0)
 		{
-			out.data_offset = static_cast<uint32_t>(chunk_data_pos);  // или сохранить uint64_t, если нужно
+			out.data_offset = static_cast<uint32_t>(chunk_data_pos);  // РёР»Рё СЃРѕС…СЂР°РЅРёС‚СЊ uint64_t, РµСЃР»Рё РЅСѓР¶РЅРѕ
 			out.data_size = chunk_size;
 			data_found = true;
 			seek(chunk_data_pos + chunk_size);
@@ -93,7 +95,7 @@ bool utility_aqua::get_wav_info(const std::string & filename, WavInfo & out)
 			seek(chunk_data_pos + chunk_size);
 		}
 
-		// RIFF padding (чётное выравнивание)
+		// RIFF padding (С‡С‘С‚РЅРѕРµ РІС‹СЂР°РІРЅРёРІР°РЅРёРµ)
 		if (chunk_size & 1)
 		{
 			if (!seek(tell() + 1))
@@ -104,7 +106,7 @@ bool utility_aqua::get_wav_info(const std::string & filename, WavInfo & out)
 			break;
 	}
 
-	return fmt_found && data_found;  // только если есть и частота, и данные
+	return fmt_found && data_found;  // С‚РѕР»СЊРєРѕ РµСЃР»Рё РµСЃС‚СЊ Рё С‡Р°СЃС‚РѕС‚Р°, Рё РґР°РЅРЅС‹Рµ
 }
 
 std::string utility_aqua::MakeWavPrefix(const WavInfo & info)
@@ -133,8 +135,8 @@ std::string utility_aqua::MakeWavPrefix(const WavInfo & info)
 	std::memcpy(p, "RIFF", 4);
 	p += 4;
 
-	// ИСПРАВЛЕНО: Теперь размер RIFF-чанка динамический и корректный
-	// Если размер файлов неизвестен (стрим), лучше передавать info.data_size = 0xFFFFFFFF
+	// РРЎРџР РђР’Р›Р•РќРћ: РўРµРїРµСЂСЊ СЂР°Р·РјРµСЂ RIFF-С‡Р°РЅРєР° РґРёРЅР°РјРёС‡РµСЃРєРёР№ Рё РєРѕСЂСЂРµРєС‚РЅС‹Р№
+	// Р•СЃР»Рё СЂР°Р·РјРµСЂ С„Р°Р№Р»РѕРІ РЅРµРёР·РІРµСЃС‚РµРЅ (СЃС‚СЂРёРј), Р»СѓС‡С€Рµ РїРµСЂРµРґР°РІР°С‚СЊ info.data_size = 0xFFFFFFFF
 	if (info.data_size.value() == 0xFFFFFFFF) {
 		write_u32(0xFFFFFFFF);
 	}
@@ -181,33 +183,33 @@ WavInfo utility_aqua::DefaultWav(const int64_t SampleRate)
 	info.byte_rate = info.sample_rate * info.block_align;
 
 	info.data_offset = 44;
-	info.data_size = 0; // Для пустого шаблона это нормально, RIFF запишет 36
+	info.data_size = 0; // Р”Р»СЏ РїСѓСЃС‚РѕРіРѕ С€Р°Р±Р»РѕРЅР° СЌС‚Рѕ РЅРѕСЂРјР°Р»СЊРЅРѕ, RIFF Р·Р°РїРёС€РµС‚ 36
 	return info;
 }
 
 bool utility_aqua::UpdateWavDataSize(const std::string & file_path)
 
 {
-	// Открываем файл в режиме чтение+запись БЕЗ усечения (ios::ate или ios::trunc НЕ используем)
+	// РћС‚РєСЂС‹РІР°РµРј С„Р°Р№Р» РІ СЂРµР¶РёРјРµ С‡С‚РµРЅРёРµ+Р·Р°РїРёСЃСЊ Р‘Р•Р— СѓСЃРµС‡РµРЅРёСЏ (ios::ate РёР»Рё ios::trunc РќР• РёСЃРїРѕР»СЊР·СѓРµРј)
 	std::fstream file(file_path, std::ios::in | std::ios::out | std::ios::binary);
 
 	if (!file.is_open()) {
-		return false; // Файл не нашелся или занят другим процессом
+		return false; // Р¤Р°Р№Р» РЅРµ РЅР°С€РµР»СЃСЏ РёР»Рё Р·Р°РЅСЏС‚ РґСЂСѓРіРёРј РїСЂРѕС†РµСЃСЃРѕРј
 	}
 
-	// 1. Узнаем реальный размер получившегося файла на диске
+	// 1. РЈР·РЅР°РµРј СЂРµР°Р»СЊРЅС‹Р№ СЂР°Р·РјРµСЂ РїРѕР»СѓС‡РёРІС€РµРіРѕСЃСЏ С„Р°Р№Р»Р° РЅР° РґРёСЃРєРµ
 	file.seekg(0, std::ios::end);
 	std::streamoff file_size = static_cast<std::streamoff>(file.tellg());
-	// Если файл почему-то меньше заголовка, значит произошла ошибка при записи звука
+	// Р•СЃР»Рё С„Р°Р№Р» РїРѕС‡РµРјСѓ-С‚Рѕ РјРµРЅСЊС€Рµ Р·Р°РіРѕР»РѕРІРєР°, Р·РЅР°С‡РёС‚ РїСЂРѕРёР·РѕС€Р»Р° РѕС€РёР±РєР° РїСЂРё Р·Р°РїРёСЃРё Р·РІСѓРєР°
 	if (file_size < 44) {
 		return false;
 	}
 
-	// Размер чистых аудиоданных — это весь файл минус 44 байта заголовка
+	// Р Р°Р·РјРµСЂ С‡РёСЃС‚С‹С… Р°СѓРґРёРѕРґР°РЅРЅС‹С… вЂ” СЌС‚Рѕ РІРµСЃСЊ С„Р°Р№Р» РјРёРЅСѓСЃ 44 Р±Р°Р№С‚Р° Р·Р°РіРѕР»РѕРІРєР°
 	uint32_t data_size = static_cast<uint32_t>(file_size - 44);
 	uint32_t riff_size = 36 + data_size;
 
-	// Лямбда для точечной записи u32 без сдвига окружающих байт
+	// Р›СЏРјР±РґР° РґР»СЏ С‚РѕС‡РµС‡РЅРѕР№ Р·Р°РїРёСЃРё u32 Р±РµР· СЃРґРІРёРіР° РѕРєСЂСѓР¶Р°СЋС‰РёС… Р±Р°Р№С‚
 	auto write_u32_at = [&](std::streamoff offset, uint32_t v)
 	{
 		char buf[4];
@@ -216,16 +218,16 @@ bool utility_aqua::UpdateWavDataSize(const std::string & file_path)
 		buf[2] = static_cast<char>((v >> 16) & 0xFF);
 		buf[3] = static_cast<char>((v >> 24) & 0xFF);
 
-		file.seekp(offset); // Встаем строго на нужную позицию
-		file.write(buf, 4);  // Заменяем 4 байта старых данных на новые
+		file.seekp(offset); // Р’СЃС‚Р°РµРј СЃС‚СЂРѕРіРѕ РЅР° РЅСѓР¶РЅСѓСЋ РїРѕР·РёС†РёСЋ
+		file.write(buf, 4);  // Р—Р°РјРµРЅСЏРµРј 4 Р±Р°Р№С‚Р° СЃС‚Р°СЂС‹С… РґР°РЅРЅС‹С… РЅР° РЅРѕРІС‹Рµ
 	};
 
-	// 2. Обновляем размер RIFF-чанка (смещение 4)
+	// 2. РћР±РЅРѕРІР»СЏРµРј СЂР°Р·РјРµСЂ RIFF-С‡Р°РЅРєР° (СЃРјРµС‰РµРЅРёРµ 4)
 	write_u32_at(4, riff_size);
 
-	// 3. Обновляем размер DATA-чанка (смещение 40)
+	// 3. РћР±РЅРѕРІР»СЏРµРј СЂР°Р·РјРµСЂ DATA-С‡Р°РЅРєР° (СЃРјРµС‰РµРЅРёРµ 40)
 	write_u32_at(40, data_size);
 
-	// Файл закрывается автоматически, данные сохранены in-place!
+	// Р¤Р°Р№Р» Р·Р°РєСЂС‹РІР°РµС‚СЃСЏ Р°РІС‚РѕРјР°С‚РёС‡РµСЃРєРё, РґР°РЅРЅС‹Рµ СЃРѕС…СЂР°РЅРµРЅС‹ in-place!
 	return true;
 }

@@ -1,6 +1,7 @@
-#pragma once
+﻿#pragma once
 #include "BasePipes.h"
 #include "DSP Tools/Modem/ContinuousDemodulator.h"
+
 namespace pipes {
 
 class CcmSyncer : public PipeInterface

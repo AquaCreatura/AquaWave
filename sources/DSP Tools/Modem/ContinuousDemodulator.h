@@ -1,12 +1,14 @@
-#pragma once
+п»ї#pragma once
+
+#include "EqaliserAqua.h"
+#include "ModulationPoints.h"
+#include "TimePeakerDemod.h"
 
 #include <ipps.h>
-#include <vector>
-#include <cmath>
 
-#include "TimePeakerDemod.h"
-#include "ModulationPoints.h"
-#include "EqaliserAqua.h"
+#include <cmath>
+#include <vector>
+
 #ifndef  MPI
 	#define M_PI 3.14159265358979323846
 #endif // ! MPI
@@ -59,7 +61,7 @@ namespace aq_demod
 
 		// GNU Radio uses ~2*pi/100 as the default Costas-loop bandwidth.
 		// The range is typically between 2*pi/200 and 2*pi/100.
-		double current_alpha_ = 0.005; // Значение по умолчанию для alpha
+		double current_alpha_ = 0.005; // Р—РЅР°С‡РµРЅРёРµ РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ РґР»СЏ alpha
 		double damping_ = 1.0 / std::sqrt(2.0);
 
 		// Gains for the second-order loop (alpha and beta in GNU Radio).

@@ -1,9 +1,10 @@
-#include "ShipBuilder.h"
-#include "Arks/Spectral Viewer/SpectralViewer.h"
-#include "Arks/File Source/FileSource.h"
-#include "Arks/Scope Analyzer/ScopeAnalyzer.h"
-#include "Arks/SelectionWriter/SelectionWriter.h"
+﻿#include "ShipBuilder.h"
+
 #include "Arks/Demodulation/AquaDemod.h"
+#include "Arks/File Source/FileSource.h"
+#include "Arks/SelectionWriter/SelectionWriter.h"
+#include "Arks/Spectral Viewer/SpectralViewer.h"
+
 aqua::ArkSptr ShipBuilder::BuildNewShip(aqua::ArkType ship_type, QWidget* main)
 {
 	aqua::ArkSptr ark;

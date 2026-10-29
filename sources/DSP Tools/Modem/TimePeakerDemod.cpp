@@ -1,4 +1,4 @@
-#include "TimePeakerDemod.h"
+п»ї#include "TimePeakerDemod.h"
 
 #include <algorithm>
 #include <cmath>
@@ -57,7 +57,7 @@ namespace aq_demod
 		const int index = static_cast<int>(std::floor(pos));
 		const double mu = pos - index;
 
-		// Кубическая интерполяция уменьшает ошибку от дробной позиции.
+		// РљСѓР±РёС‡РµСЃРєР°СЏ РёРЅС‚РµСЂРїРѕР»СЏС†РёСЏ СѓРјРµРЅСЊС€Р°РµС‚ РѕС€РёР±РєСѓ РѕС‚ РґСЂРѕР±РЅРѕР№ РїРѕР·РёС†РёРё.
 		const double c0 = -mu * (mu - 1.0) * (mu - 2.0) / 6.0;
 		const double c1 = (mu + 1.0) * (mu - 1.0) * (mu - 2.0) / 2.0;
 		const double c2 = -(mu + 1.0) * mu * (mu - 2.0) / 2.0;
@@ -76,7 +76,7 @@ namespace aq_demod
 
 	double GardnerTED::GetError(const Ipp32fc& prev, const Ipp32fc& mid, const Ipp32fc& cur)
 	{
-		// Gardner использует середину символа и разность соседних символов.
+		// Gardner РёСЃРїРѕР»СЊР·СѓРµС‚ СЃРµСЂРµРґРёРЅСѓ СЃРёРјРІРѕР»Р° Рё СЂР°Р·РЅРѕСЃС‚СЊ СЃРѕСЃРµРґРЅРёС… СЃРёРјРІРѕР»РѕРІ.
 		const double dr = static_cast<double>(prev.re) - cur.re;
 		const double di = static_cast<double>(prev.im) - cur.im;
 
@@ -99,7 +99,7 @@ namespace aq_demod
 
 	void GardnerTED::UpdateLoop(double error)
 	{
-		// mu корректирует timing phase, omega отслеживает clock drift.
+		// mu РєРѕСЂСЂРµРєС‚РёСЂСѓРµС‚ timing phase, omega РѕС‚СЃР»РµР¶РёРІР°РµС‚ clock drift.
 		w_ += gain_omega_ * error;
 		w_ = std::max(omega_min_, std::min(w_, omega_max_));
 		pos_ += w_ + gain_mu_ * error;

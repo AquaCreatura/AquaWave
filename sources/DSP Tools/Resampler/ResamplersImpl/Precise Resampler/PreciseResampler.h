@@ -1,7 +1,8 @@
-#pragma once
-#include "..\ResamperInterface.h"
-#include "..\..\tools\resampler_tools.h"
+п»ї#pragma once
+#include "../../tools/resampler_tools.h"
+#include "../ResamperInterface.h"
 #include "Interpolator/FarrowInterpolator.h"
+
 namespace aqua_resampler
 {
 
@@ -19,16 +20,16 @@ public:
 protected:
 	const	bool NeedFir		();
 private:
-    ResamplerSettings settings_;       // Настройки ресемплера
-    int64_t input_rate_;               // Исходная частота дискретизации
-    int64_t output_rate_;              // Требуемая частота дискретизации
-    double resample_ratio_;            // Коэффициент ресемплинга
-    IppsFIRSpec_32fc* fir_spec_ = nullptr;       // Спецификация FIR-фильтра
-    Ipp8u* fir_buf_ = nullptr;                   // Временный буфер для фильтрации
-    std::vector<Ipp32fc> delay_line_;  // Буфер задержки для сохранения состояния фильтра
-    bool initialized_;                 // Флаг инициализации
-    FarrowInterpolator interpolator_;  // Интерполятор для изменения частоты дискретизации
-    std::vector<Ipp32fc> filtered_vec_;// Вектор для хранения отфильтрованных данных
+    ResamplerSettings settings_;       // РќР°СЃС‚СЂРѕР№РєРё СЂРµСЃРµРјРїР»РµСЂР°
+    int64_t input_rate_;               // РСЃС…РѕРґРЅР°СЏ С‡Р°СЃС‚РѕС‚Р° РґРёСЃРєСЂРµС‚РёР·Р°С†РёРё
+    int64_t output_rate_;              // РўСЂРµР±СѓРµРјР°СЏ С‡Р°СЃС‚РѕС‚Р° РґРёСЃРєСЂРµС‚РёР·Р°С†РёРё
+    double resample_ratio_;            // РљРѕСЌС„С„РёС†РёРµРЅС‚ СЂРµСЃРµРјРїР»РёРЅРіР°
+    IppsFIRSpec_32fc* fir_spec_ = nullptr;       // РЎРїРµС†РёС„РёРєР°С†РёСЏ FIR-С„РёР»СЊС‚СЂР°
+    Ipp8u* fir_buf_ = nullptr;                   // Р’СЂРµРјРµРЅРЅС‹Р№ Р±СѓС„РµСЂ РґР»СЏ С„РёР»СЊС‚СЂР°С†РёРё
+    std::vector<Ipp32fc> delay_line_;  // Р‘СѓС„РµСЂ Р·Р°РґРµСЂР¶РєРё РґР»СЏ СЃРѕС…СЂР°РЅРµРЅРёСЏ СЃРѕСЃС‚РѕСЏРЅРёСЏ С„РёР»СЊС‚СЂР°
+    bool initialized_;                 // Р¤Р»Р°Рі РёРЅРёС†РёР°Р»РёР·Р°С†РёРё
+    FarrowInterpolator interpolator_;  // РРЅС‚РµСЂРїРѕР»СЏС‚РѕСЂ РґР»СЏ РёР·РјРµРЅРµРЅРёСЏ С‡Р°СЃС‚РѕС‚С‹ РґРёСЃРєСЂРµС‚РёР·Р°С†РёРё
+    std::vector<Ipp32fc> filtered_vec_;// Р’РµРєС‚РѕСЂ РґР»СЏ С…СЂР°РЅРµРЅРёСЏ РѕС‚С„РёР»СЊС‚СЂРѕРІР°РЅРЅС‹С… РґР°РЅРЅС‹С…
 };
 
 }

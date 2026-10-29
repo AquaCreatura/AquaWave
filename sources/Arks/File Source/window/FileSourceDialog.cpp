@@ -1,29 +1,30 @@
-#include "FileSourceDialog.h"
-#include <qmessagebox.h>
-#include <qfiledialog.h>
-#include <QTextStream>
-#include "Utilities/parse_tools.h"
-#include <QtConcurrent/qtconcurrent_global.h>
-#include <qfuture.h>
-#include "Utilities/wav_tools.h"
+п»ї#include "FileSourceDialog.h"
+
 #include "Utilities/file_helpers.h"
+#include "Utilities/parse_tools.h"
+#include "Utilities/wav_tools.h"
+
+#include <qfiledialog.h>
+#include <qmessagebox.h>
+#include <QTextStream>
+
 using namespace file_source;
 
 // ============================== FileSourceDialog ===================================
 
-// Конструктор диалогового окна
+// РљРѕРЅСЃС‚СЂСѓРєС‚РѕСЂ РґРёР°Р»РѕРіРѕРІРѕРіРѕ РѕРєРЅР°
 file_source::FileSourceDialog::FileSourceDialog()
 {
     ui_.setupUi(this);
     
-    // Настройка обработчиков для типа данных
+    // РќР°СЃС‚СЂРѕР№РєР° РѕР±СЂР°Р±РѕС‚С‡РёРєРѕРІ РґР»СЏ С‚РёРїР° РґР°РЅРЅС‹С…
     {
         connect(ui_.is_data_complex_checkbox, &QCheckBox::clicked, this, &FileSourceDialog::UpdateDataTypes);
         connect(ui_.data_types_radio_group, static_cast<void(QButtonGroup::*)(int)>(&QButtonGroup::buttonClicked), 
                 this, &FileSourceDialog::OnDataTypeChanged);
     }
     
-    // Настройка обработчиков для пути к файлу
+    // РќР°СЃС‚СЂРѕР№РєР° РѕР±СЂР°Р±РѕС‚С‡РёРєРѕРІ РґР»СЏ РїСѓС‚Рё Рє С„Р°Р№Р»Сѓ
     {
         {
             QString current_file_name;
@@ -32,7 +33,7 @@ file_source::FileSourceDialog::FileSourceDialog()
             QFile file(last_path_file_name);
             if (file.open(QIODevice::ReadOnly | QIODevice::Text)) {
                 QTextStream in(&file);
-                current_file_name = in.readLine(); // читаем первую строку
+                current_file_name = in.readLine(); // С‡РёС‚Р°РµРј РїРµСЂРІСѓСЋ СЃС‚СЂРѕРєСѓ
                 file.close();
 				SetFileName(current_file_name);
             }
@@ -45,7 +46,7 @@ file_source::FileSourceDialog::FileSourceDialog()
         });  
     }
     
-    // Настройка обработчиков параметров сигнала
+    // РќР°СЃС‚СЂРѕР№РєР° РѕР±СЂР°Р±РѕС‚С‡РёРєРѕРІ РїР°СЂР°РјРµС‚СЂРѕРІ СЃРёРіРЅР°Р»Р°
     {
         connect(ui_.signal_settings_groupbox, &QGroupBox::clicked, [this]()
         {
@@ -63,7 +64,7 @@ file_source::FileSourceDialog::FileSourceDialog()
         });
     }
     
-    // Обработчик кнопки OK
+    // РћР±СЂР°Р±РѕС‚С‡РёРє РєРЅРѕРїРєРё OK
     {
         connect(ui_.ok_push_button, &QPushButton::clicked, this, &FileSourceDialog::OnOkButton);
     }
@@ -74,7 +75,7 @@ file_source::FileSourceDialog::~FileSourceDialog()
 	RememberFilePath();
 }
 
-// Получение текущих параметров файла
+// РџРѕР»СѓС‡РµРЅРёРµ С‚РµРєСѓС‰РёС… РїР°СЂР°РјРµС‚СЂРѕРІ С„Р°Р№Р»Р°
 const SourceDescription& file_source::FileSourceDialog::GetFileInfo() const
 {
     return edit_file_info_;
@@ -91,19 +92,19 @@ const bool file_source::FileSourceDialog::SetFileName(const QString & file_name)
     return true;
 }
 
-// Обработчик выбора файла
+// РћР±СЂР°Р±РѕС‚С‡РёРє РІС‹Р±РѕСЂР° С„Р°Р№Р»Р°
 void file_source::FileSourceDialog::OnChooseFilePath()
 {
 	QString current_file_name = ui_.choose_path_line_edit->text();
 
-	// Диалог выбора файла
+	// Р”РёР°Р»РѕРі РІС‹Р±РѕСЂР° С„Р°Р№Р»Р°
 	{
-		// Изменён фильтр: теперь включает и .pcm, и .wav
+		// РР·РјРµРЅС‘РЅ С„РёР»СЊС‚СЂ: С‚РµРїРµСЂСЊ РІРєР»СЋС‡Р°РµС‚ Рё .pcm, Рё .wav
 		QString signal_filter = tr("Signals (*.pcm *.wav)");
 		QString no_filter = tr("All files (*.*)");
 		const QString set_of_filters = QString("%1;;%2").arg(signal_filter).arg(no_filter);
 
-		// Проверка, является ли текущее имя файла сигнальным (pcm или wav)
+		// РџСЂРѕРІРµСЂРєР°, СЏРІР»СЏРµС‚СЃСЏ Р»Рё С‚РµРєСѓС‰РµРµ РёРјСЏ С„Р°Р№Р»Р° СЃРёРіРЅР°Р»СЊРЅС‹Рј (pcm РёР»Рё wav)
 		const bool is_signal_file = (current_file_name.size() > 5) &&
 			(current_file_name.endsWith(".pcm", Qt::CaseInsensitive) ||
 				current_file_name.endsWith(".wav", Qt::CaseInsensitive));
@@ -127,7 +128,7 @@ void file_source::FileSourceDialog::ParseWavHeader(const QString & file_name)
 			edit_file_info_.samplerate_hz = info.sample_rate.value();
 			edit_file_info_.first_sample_offset = info.data_offset.value();
 			edit_file_info_.count_of_samples = (QFile(edit_file_info_.file_name_).size() - edit_file_info_.first_sample_offset) / GetSampleSize(edit_file_info_.data_type_);
-			// Несущая частота не меняется (берётся из имени файла)
+			// РќРµСЃСѓС‰Р°СЏ С‡Р°СЃС‚РѕС‚Р° РЅРµ РјРµРЅСЏРµС‚СЃСЏ (Р±РµСЂС‘С‚СЃСЏ РёР· РёРјРµРЅРё С„Р°Р№Р»Р°)
 
 			ui_.samplerate_khz_spinbox->setValue(edit_file_info_.samplerate_hz / 1e3);
 			ui_.carrier_mhz_spinbox->setValue(edit_file_info_.carrier_hz / 1e6);
@@ -138,13 +139,13 @@ void file_source::FileSourceDialog::ParseWavHeader(const QString & file_name)
 
 bool file_source::FileSourceDialog::ParseFileName(const QString& file_name)
 {
-    // Обновление пути в интерфейсе
+    // РћР±РЅРѕРІР»РµРЅРёРµ РїСѓС‚Рё РІ РёРЅС‚РµСЂС„РµР№СЃРµ
     {
         ui_.choose_path_line_edit->setText(file_name);
 
         edit_file_info_.file_name_ = file_name;
     }
-    // Парсинг параметров из имени файла (формат: "... 869.977996MHz 219.999KHz.pcm")
+    // РџР°СЂСЃРёРЅРі РїР°СЂР°РјРµС‚СЂРѕРІ РёР· РёРјРµРЅРё С„Р°Р№Р»Р° (С„РѕСЂРјР°С‚: "... 869.977996MHz 219.999KHz.pcm")
     bool is_succesfully_parsed = false;
     int64_t samplerate_hz = 0, carrier_hz = 1.e6;
     if(aqua_parse_tools::get_samplerate_from_filename(file_name.toLocal8Bit().constData(),edit_file_info_.samplerate_hz))
@@ -152,7 +153,7 @@ bool file_source::FileSourceDialog::ParseFileName(const QString& file_name)
         is_succesfully_parsed = true;
         aqua_parse_tools::get_carrier_from_filename(file_name.toLocal8Bit().constData(), edit_file_info_.carrier_hz);
     }
-    ui_.signal_settings_groupbox->setChecked(is_succesfully_parsed); //Факт того, что успешно достали ЧД, нас более чем удовлетворяет
+    ui_.signal_settings_groupbox->setChecked(is_succesfully_parsed); //Р¤Р°РєС‚ С‚РѕРіРѕ, С‡С‚Рѕ СѓСЃРїРµС€РЅРѕ РґРѕСЃС‚Р°Р»Рё Р§Р”, РЅР°СЃ Р±РѕР»РµРµ С‡РµРј СѓРґРѕРІР»РµС‚РІРѕСЂСЏРµС‚
     ui_.carrier_mhz_spinbox     ->setValue(edit_file_info_.carrier_hz   / 1.e6);
     ui_.samplerate_khz_spinbox  ->setValue(edit_file_info_.samplerate_hz/ 1.e3);
 
@@ -188,7 +189,7 @@ void file_source::FileSourceDialog::RememberFilePath()
 	
 }
 
-// Обновление текста типов данных (real/complex)
+// РћР±РЅРѕРІР»РµРЅРёРµ С‚РµРєСЃС‚Р° С‚РёРїРѕРІ РґР°РЅРЅС‹С… (real/complex)
 void file_source::FileSourceDialog::UpdateDataTypes()
 {
     bool is_complex_type = ui_.is_data_complex_checkbox->isChecked();
@@ -200,7 +201,7 @@ void file_source::FileSourceDialog::UpdateDataTypes()
     OnDataTypeChanged();
 }
 
-// Обработчик изменения типа данных
+// РћР±СЂР°Р±РѕС‚С‡РёРє РёР·РјРµРЅРµРЅРёСЏ С‚РёРїР° РґР°РЅРЅС‹С…
 void file_source::FileSourceDialog::OnDataTypeChanged()
 {
     bool is_complex = ui_.is_data_complex_checkbox->isChecked();
@@ -214,7 +215,7 @@ void file_source::FileSourceDialog::OnDataTypeChanged()
     }
 } 
 
-// Обработчик кнопки OK
+// РћР±СЂР°Р±РѕС‚С‡РёРє РєРЅРѕРїРєРё OK
 void file_source::FileSourceDialog::OnOkButton()
 {
 	if (!QFileInfo::exists(edit_file_info_.file_name_))

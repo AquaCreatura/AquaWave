@@ -1,23 +1,23 @@
-#ifndef M_PI
+п»ї#ifndef M_PI
 #define M_PI 3.14159265358979323846
 #endif
 #include "ModulationPoints.h"
+
+#include <ipp.h>
+
+#include <cmath>
 #include <string>
+#include <vector>
+
 #pragma once
-#include <vector>
-#include <cmath>
-#include <ipp.h>
 
 
-#include <vector>
-#include <cmath>
-#include <ipp.h>
 
 std::vector<Ipp32fc> AddQAMConst(int M)
 {
 	int k = static_cast<int>(std::log2(M));
 
-	// Отсекаем невалидные M и 8-QAM (k=3), так как для него нет cross-геометрии
+	// РћС‚СЃРµРєР°РµРј РЅРµРІР°Р»РёРґРЅС‹Рµ M Рё 8-QAM (k=3), С‚Р°Рє РєР°Рє РґР»СЏ РЅРµРіРѕ РЅРµС‚ cross-РіРµРѕРјРµС‚СЂРёРё
 	if (k < 2 || (1 << k) != M || k == 3)
 		return {};
 
@@ -27,26 +27,26 @@ std::vector<Ipp32fc> AddQAMConst(int M)
 	int side, threshold;
 	if (k % 2 == 0)
 	{
-		// Квадратные QAM (4, 16, 64, 256...)
+		// РљРІР°РґСЂР°С‚РЅС‹Рµ QAM (4, 16, 64, 256...)
 		side = 1 << (k / 2);
-		threshold = side; // Порог равен стороне. Условие abs(x) > side всегда ложно -> углы не режем
+		threshold = side; // РџРѕСЂРѕРі СЂР°РІРµРЅ СЃС‚РѕСЂРѕРЅРµ. РЈСЃР»РѕРІРёРµ abs(x) > side РІСЃРµРіРґР° Р»РѕР¶РЅРѕ -> СѓРіР»С‹ РЅРµ СЂРµР¶РµРј
 	}
 	else
 	{
 		// Cross QAM (32, 128, 512...)
-		side = 3 * (1 << ((k - 3) / 2));       // Общая сторона сетки (6, 12, 24...)
-		threshold = 1 << ((k - 1) / 2);        // Порог для отрезания углов (4, 8, 16...)
+		side = 3 * (1 << ((k - 3) / 2));       // РћР±С‰Р°СЏ СЃС‚РѕСЂРѕРЅР° СЃРµС‚РєРё (6, 12, 24...)
+		threshold = 1 << ((k - 1) / 2);        // РџРѕСЂРѕРі РґР»СЏ РѕС‚СЂРµР·Р°РЅРёСЏ СѓРіР»РѕРІ (4, 8, 16...)
 	}
 
 	int max_coord = side - 1;
 
-	// Единый цикл для всех типов. Никаких лишних условий внутри.
+	// Р•РґРёРЅС‹Р№ С†РёРєР» РґР»СЏ РІСЃРµС… С‚РёРїРѕРІ. РќРёРєР°РєРёС… Р»РёС€РЅРёС… СѓСЃР»РѕРІРёР№ РІРЅСѓС‚СЂРё.
 	for (int y = -max_coord; y <= max_coord; y += 2)
 	{
 		for (int x = -max_coord; x <= max_coord; x += 2)
 		{
-			// Для квадратов это условие никогда не выполнится. 
-			// Для Cross QAM оно отсечет ровно 4 уголка.
+			// Р”Р»СЏ РєРІР°РґСЂР°С‚РѕРІ СЌС‚Рѕ СѓСЃР»РѕРІРёРµ РЅРёРєРѕРіРґР° РЅРµ РІС‹РїРѕР»РЅРёС‚СЃСЏ. 
+			// Р”Р»СЏ Cross QAM РѕРЅРѕ РѕС‚СЃРµС‡РµС‚ СЂРѕРІРЅРѕ 4 СѓРіРѕР»РєР°.
 			if (std::abs(x) > threshold && std::abs(y) > threshold)
 				continue;
 
@@ -54,7 +54,7 @@ std::vector<Ipp32fc> AddQAMConst(int M)
 		}
 	}
 
-	// Нормировка на единичную среднюю мощность
+	// РќРѕСЂРјРёСЂРѕРІРєР° РЅР° РµРґРёРЅРёС‡РЅСѓСЋ СЃСЂРµРґРЅСЋСЋ РјРѕС‰РЅРѕСЃС‚СЊ
 	double power = 0.0;
 	for (const auto& p : points)
 		power += static_cast<double>(p.re) * p.re + static_cast<double>(p.im) * p.im;

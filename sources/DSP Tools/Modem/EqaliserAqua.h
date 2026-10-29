@@ -1,6 +1,7 @@
-#pragma once
+п»ї#pragma once
 
 #include <ipps.h>
+
 #include <vector>
 
 class EqaliserAqua
@@ -27,22 +28,22 @@ public:
 
 	void Reset();
 	bool IsValid() const;
-	// Обрабатывает входной отсчёт (с коррекцией фазы),
-	// возвращает выровненный сигнал и сохраняет историю для обновления.
+	// РћР±СЂР°Р±Р°С‚С‹РІР°РµС‚ РІС…РѕРґРЅРѕР№ РѕС‚СЃС‡С‘С‚ (СЃ РєРѕСЂСЂРµРєС†РёРµР№ С„Р°Р·С‹),
+	// РІРѕР·РІСЂР°С‰Р°РµС‚ РІС‹СЂРѕРІРЅРµРЅРЅС‹Р№ СЃРёРіРЅР°Р» Рё СЃРѕС…СЂР°РЅСЏРµС‚ РёСЃС‚РѕСЂРёСЋ РґР»СЏ РѕР±РЅРѕРІР»РµРЅРёСЏ.
 	void Process(Ipp32fc& sample);
 
-	// Обновление коэффициентов по решению (символу созвездия).
-	// Вызывается после получения решения по выходу эквалайзера.
+	// РћР±РЅРѕРІР»РµРЅРёРµ РєРѕСЌС„С„РёС†РёРµРЅС‚РѕРІ РїРѕ СЂРµС€РµРЅРёСЋ (СЃРёРјРІРѕР»Сѓ СЃРѕР·РІРµР·РґРёСЏ).
+	// Р’С‹Р·С‹РІР°РµС‚СЃСЏ РїРѕСЃР»Рµ РїРѕР»СѓС‡РµРЅРёСЏ СЂРµС€РµРЅРёСЏ РїРѕ РІС‹С…РѕРґСѓ СЌРєРІР°Р»Р°Р№Р·РµСЂР°.
 	void Update(const Ipp32fc& pivot);
 
-	// Инициализация параметров слепых алгоритмов по точкам созвездия.
+	// РРЅРёС†РёР°Р»РёР·Р°С†РёСЏ РїР°СЂР°РјРµС‚СЂРѕРІ СЃР»РµРїС‹С… Р°Р»РіРѕСЂРёС‚РјРѕРІ РїРѕ С‚РѕС‡РєР°Рј СЃРѕР·РІРµР·РґРёСЏ.
 	void InitFromPivots(const std::vector<Ipp32fc>& pivots);
 
 	void EnableDirectDecision(bool enabled);
 	void SetBlindAlgorithm(BlindAlgorithm algorithm);
 	void SetDdAlgorithm(DdAlgorithm algorithm);
 	void SetBlindStep(double step); // 1e-4 ... 5e-3
-	void SetDdStep(double step);    // 0.001 ... 0.01 (для NLMS используется отдельный коэффициент)
+	void SetDdStep(double step);    // 0.001 ... 0.01 (РґР»СЏ NLMS РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ РѕС‚РґРµР»СЊРЅС‹Р№ РєРѕСЌС„С„РёС†РёРµРЅС‚)
 
 private:
 	void UpdateBlind();
@@ -66,7 +67,7 @@ private:
 
 	double blind_step_ = 0.01;
 	double dd_step_ = 0.01;
-	double dd_nlms_step_ = 0.8;   // используется только для NLMS
+	double dd_nlms_step_ = 0.8;   // РёСЃРїРѕР»СЊР·СѓРµС‚СЃСЏ С‚РѕР»СЊРєРѕ РґР»СЏ NLMS
 
 	double cma_modulus_ = 1.0;
 	double mma_real_modulus_ = 1.0;

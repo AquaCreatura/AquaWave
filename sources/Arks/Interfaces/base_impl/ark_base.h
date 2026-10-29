@@ -1,7 +1,7 @@
-#pragma once
-#include <mutex>
-#include <QWidget>
+﻿#pragma once
 #include "../ark_interface.h"
+
+#include <tbb/spin_mutex.h>
 
 namespace aqua
 {

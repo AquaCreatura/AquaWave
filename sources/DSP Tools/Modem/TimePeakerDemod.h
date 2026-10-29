@@ -1,8 +1,8 @@
-#pragma once
-
-#include <vector>
+п»ї#pragma once
 
 #include <ipps.h>
+
+#include <vector>
 
 namespace aq_demod
 {
@@ -26,28 +26,28 @@ namespace aq_demod
 	private:
 		int upsample_koeff_;
 
-		// Оценка периода символа в отсчётах.
+		// РћС†РµРЅРєР° РїРµСЂРёРѕРґР° СЃРёРјРІРѕР»Р° РІ РѕС‚СЃС‡С‘С‚Р°С….
 		double w_;
 
-		// Положение текущего symbol instant относительно блока.
+		// РџРѕР»РѕР¶РµРЅРёРµ С‚РµРєСѓС‰РµРіРѕ symbol instant РѕС‚РЅРѕСЃРёС‚РµР»СЊРЅРѕ Р±Р»РѕРєР°.
 		double pos_;
 
 		// PI timing loop.
 		double gain_mu_;
 		double gain_omega_;
 
-		// Не даём оценке SPS слишком далеко уйти.
+		// РќРµ РґР°С‘Рј РѕС†РµРЅРєРµ SPS СЃР»РёС€РєРѕРј РґР°Р»РµРєРѕ СѓР№С‚Рё.
 		double omega_min_;
 		double omega_max_;
 
-		// Медленная оценка средней мощности сигнала.
+		// РњРµРґР»РµРЅРЅР°СЏ РѕС†РµРЅРєР° СЃСЂРµРґРЅРµР№ РјРѕС‰РЅРѕСЃС‚Рё СЃРёРіРЅР°Р»Р°.
 		double power_;
 
-		// Предыдущий symbol-timed sample.
+		// РџСЂРµРґС‹РґСѓС‰РёР№ symbol-timed sample.
 		Ipp32fc prev_symb_;
 		bool have_prev_symb_;
 
-		// Последние 6 входных отсчёта нужны при переходе между блоками.
+		// РџРѕСЃР»РµРґРЅРёРµ 6 РІС…РѕРґРЅС‹С… РѕС‚СЃС‡С‘С‚Р° РЅСѓР¶РЅС‹ РїСЂРё РїРµСЂРµС…РѕРґРµ РјРµР¶РґСѓ Р±Р»РѕРєР°РјРё.
 		std::vector<Ipp32fc> history_;
 	};
 

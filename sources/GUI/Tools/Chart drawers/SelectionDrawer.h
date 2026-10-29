@@ -1,12 +1,10 @@
-#pragma once
-#include <qstring.h>
-#include <qgraphicsview.h>
-#include <qgraphicsitem.h>
-#include <qpainter.h>
-#include <qelapsedtimer.h>
-#include "Utilities\parse_tools.h"
-#include "GUI/gui_defs.h"
+﻿#pragma once
 #include "ChartColorScheme.h"
+#include "GUI/gui_defs.h"
+
+#include <qelapsedtimer.h>
+#include <qpainter.h>
+
 namespace aqua_gui
 {
 

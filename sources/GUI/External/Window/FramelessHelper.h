@@ -1,11 +1,11 @@
-#pragma once
+п»ї#pragma once
 
-#include <QObject>
 #include <QMainWindow>
-#include <QWidget>
+#include <QObject>
 #include <QPoint>
 #include <QRect>
 #include <Qt>
+#include <QWidget>
 
 class QHBoxLayout;
 class QPushButton;
@@ -29,7 +29,7 @@ private:
 	void setupButtons();
 	void applyButtonStyle();
 
-	// Хелперы event'ов 
+	// РҐРµР»РїРµСЂС‹ event'РѕРІ 
 	bool handleTitleBarEvent(QEvent* ev);
 	bool handleWindowEvent(QObject* obj, QEvent* ev);
 
@@ -43,7 +43,7 @@ private:
 	bool handleResizeMove(QObject* obj, QMouseEvent* me);
 	void handleResizeRelease();
 
-	// Edges / курсор 
+	// Edges / РєСѓСЂСЃРѕСЂ 
 	QPoint          mapToWindow(QObject* obj, const QPoint& pos) const;
 	Qt::Edges       edgesAt(const QPoint& pos) const;
 	Qt::CursorShape cursorForEdges(Qt::Edges edges) const;

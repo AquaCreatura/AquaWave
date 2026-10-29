@@ -1,9 +1,10 @@
-#include "spectral_viewer_window.h"
-#include "Utilities/parse_tools.h"
-#include <qshortcut.h>
-#include <qabstractanimation.h>
-#include <qtimer.h>
+п»ї#include "spectral_viewer_window.h"
+
 #include "GUI/Charts/ChartInterface.h"
+#include "Utilities/parse_tools.h"
+
+#include <qshortcut.h>
+#include <qtimer.h>
 
 using namespace spectral_viewer;
 
@@ -18,7 +19,7 @@ SpectralViewerWindow::SpectralViewerWindow()
             emit FftChangeNeed(ui_.fft_order_combobox->itemData(index).toInt());
         });
 
-    // Смена активной нижней вкладки — рассылаем PostDove.
+    // РЎРјРµРЅР° Р°РєС‚РёРІРЅРѕР№ РЅРёР¶РЅРµР№ РІРєР»Р°РґРєРё вЂ” СЂР°СЃСЃС‹Р»Р°РµРј PostDove.
     connect(ui_.main_down_part, &QStackedWidget::currentChanged, this, [this](int) {
         QWidget* curr = ui_.main_down_part->currentWidget();
         if (curr == active_down_widget_)
@@ -50,7 +51,7 @@ SpectralViewerWindow::SpectralViewerWindow()
 }
 
 // ---------------------------------------------------------------------------
-//  Кнопки нижней панели
+//  РљРЅРѕРїРєРё РЅРёР¶РЅРµР№ РїР°РЅРµР»Рё
 // ---------------------------------------------------------------------------
 
 void SpectralViewerWindow::SetupButtons()
@@ -68,7 +69,7 @@ void SpectralViewerWindow::SetupButtons()
             SwitchTo(static_cast<ChartType>(id));
     });
 
-    // id в группе = значение ChartType — так проще связать клик с типом.
+    // id РІ РіСЂСѓРїРїРµ = Р·РЅР°С‡РµРЅРёРµ ChartType вЂ” С‚Р°Рє РїСЂРѕС‰Рµ СЃРІСЏР·Р°С‚СЊ РєР»РёРє СЃ С‚РёРїРѕРј.
     for (auto& [type, button] : buttons_)
         side_buttons_->setId(button, static_cast<int>(type));
 
@@ -88,7 +89,7 @@ void SpectralViewerWindow::SwitchTo(ChartType type)
 }
 
 // ---------------------------------------------------------------------------
-//  Боковое меню
+//  Р‘РѕРєРѕРІРѕРµ РјРµРЅСЋ
 // ---------------------------------------------------------------------------
 
 void SpectralViewerWindow::SetupSideMenu()
@@ -119,7 +120,7 @@ void SpectralViewerWindow::SetupSideMenu()
         SetMenuExpanded(ui_.extend_frame_button->isChecked());
         });
 
-    // Стартуем свёрнутыми без анимации.
+    // РЎС‚Р°СЂС‚СѓРµРј СЃРІС‘СЂРЅСѓС‚С‹РјРё Р±РµР· Р°РЅРёРјР°С†РёРё.
     ui_.verticalFrame->setMinimumWidth(kCollapsedWidth);
     ui_.verticalFrame->setMaximumWidth(kCollapsedWidth);
     ui_.spectrgoram_side_pushbutton->setText(QString());
@@ -179,7 +180,7 @@ bool SpectralViewerWindow::eventFilter(QObject* obj, QEvent* event)
 }
 
 // ---------------------------------------------------------------------------
-//  Добавление окон
+//  Р”РѕР±Р°РІР»РµРЅРёРµ РѕРєРѕРЅ
 // ---------------------------------------------------------------------------
 
 void SpectralViewerWindow::AddWindow(ChartType window_type, QWidget* widget_ptr, ArkInterface* ark_ptr)
@@ -222,8 +223,8 @@ void SpectralViewerWindow::ActivateCur(bool do_activate)
         if (!entry.ark || !entry.widget)
             continue;
 
-        // верхняя панель (kDpxSpectrum) активна всегда,
-        // нижняя — только если это текущий виджет стека
+        // РІРµСЂС…РЅСЏСЏ РїР°РЅРµР»СЊ (kDpxSpectrum) Р°РєС‚РёРІРЅР° РІСЃРµРіРґР°,
+        // РЅРёР¶РЅСЏСЏ вЂ” С‚РѕР»СЊРєРѕ РµСЃР»Рё СЌС‚Рѕ С‚РµРєСѓС‰РёР№ РІРёРґР¶РµС‚ СЃС‚РµРєР°
         const bool is_visible = (type == kDpxSpectrum) || (entry.widget == cur_down);
         if (is_visible)
             entry.ark->PostDove(std::make_shared<aqua::DoveParrent>(action));

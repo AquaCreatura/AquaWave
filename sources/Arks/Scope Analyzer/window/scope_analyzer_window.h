@@ -1,9 +1,12 @@
-#pragma once
-#include "ui_scope_analyzer_window.h"
-#include "Utilities/qt_utility.h"
-#include <qdialog.h>
-#include <map>
+﻿#pragma once
 #include <Arks/Interfaces/special_defs/analyzer_defs.h>
+#include "Utilities/qt_utility.h"
+
+#include <qdialog.h>
+#include "ui_scope_analyzer_window.h"
+
+#include <map>
+
 using namespace analyzer;
 namespace scope_analyzer {
 

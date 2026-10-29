@@ -1,8 +1,7 @@
-#pragma once
-#include "ui_selection_writer_window.h"
-#include "ui_file_saved_dialog.h"
+﻿#pragma once
 #include <qdialog.h>
-
+#include "ui_file_saved_dialog.h"
+#include "ui_selection_writer_window.h"
 
 class SelectionWriterWindow: public QDialog
 {

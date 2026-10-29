@@ -1,11 +1,9 @@
-#pragma once
+п»ї#pragma once
 #ifndef AQUA_DEFINES_GUARD
 #define AQUA_DEFINES_GUARD
 
-#include <tbb/spin_mutex.h>
-#include <vector>
 #include <stdint.h>
-#include <memory>
+
 namespace aqua
 {
     struct freq_params
@@ -19,7 +17,7 @@ namespace aqua
      * @brief Represents a numerical range with low and high values.
      * @tparam W Type of range values.
      */
-    // Структура для хранения границ диапазона
+    // РЎС‚СЂСѓРєС‚СѓСЂР° РґР»СЏ С…СЂР°РЅРµРЅРёСЏ РіСЂР°РЅРёС† РґРёР°РїР°Р·РѕРЅР°
     template<typename W = double>
     struct Limits {
         const bool operator==(const Limits<W>& right) const
@@ -56,7 +54,7 @@ namespace aqua
 			return { low * value, high * value };
 		}
 
-		// Оператор деления на скаляр
+		// РћРїРµСЂР°С‚РѕСЂ РґРµР»РµРЅРёСЏ РЅР° СЃРєР°Р»СЏСЂ
 		Limits<W> operator/(const W& value) const
 		{
 			return { low / value, high / value };

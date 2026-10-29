@@ -1,5 +1,6 @@
-#pragma once
+﻿#pragma once
 #include <ipps.h>
+
 #include <vector>
 
 namespace aq_demod

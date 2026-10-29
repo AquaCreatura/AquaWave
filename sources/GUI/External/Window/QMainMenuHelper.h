@@ -1,11 +1,10 @@
-#pragma once
+﻿#pragma once
 
-#include <QObject>
-#include <QMenuBar>
-#include <QMenu>
 #include <QAction>
-#include <QMessageBox>
 #include <QMainWindow>
+#include <QMenu>
+#include <QMenuBar>
+#include <QObject>
 
 class QMainMenuHelper : public QObject
 {

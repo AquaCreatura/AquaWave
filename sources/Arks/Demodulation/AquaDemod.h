@@ -1,7 +1,9 @@
-#pragma once
-#include <qpointer.h>
+﻿#pragma once
 #include "Arks/Interfaces/base_impl/ark_base.h"
 #include "window/AquaDemodWindow.h"
+
+#include <qpointer.h>
+
 using namespace aqua;
 namespace demodulator{
 	class AquaDemod : public aqua::ArkBase

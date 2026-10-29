@@ -1,11 +1,12 @@
-#pragma once
-#include <qpointer.h>
-#include "ark_defs.h"
+﻿#pragma once
 #include "Arks/Interfaces/base_impl/ark_base.h"
-#include "window/scope_analyzer_window.h"
-#include "Utilities/file_helpers.h"
-#include "DSP Tools/Resampler/ResamplersImpl/MR Resampler/MultiRateResampler.h"
 #include "DSP Tools/Localiser/HarmonicEstimator.h"
+#include "DSP Tools/Resampler/ResamplersImpl/MR Resampler/MultiRateResampler.h"
+#include "Utilities/file_helpers.h"
+#include "window/scope_analyzer_window.h"
+
+#include <qpointer.h>
+
 using namespace aqua;
 using namespace analyzer;
 namespace scope_analyzer

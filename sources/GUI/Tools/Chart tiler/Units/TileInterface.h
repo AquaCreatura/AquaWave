@@ -1,5 +1,6 @@
-#pragma once
+п»ї#pragma once
 #include "GUI/gui_defs.h"
+
 using namespace aqua_gui;
 
 
@@ -24,7 +25,7 @@ public:
 	double last_average_density_{ 0.0 };
 	double max_density_{ 0.0 };
 
-	std::vector<bool>	relevant_vec_;	// Актуальна ли колонка
+	std::vector<bool>	relevant_vec_;	// РђРєС‚СѓР°Р»СЊРЅР° Р»Рё РєРѕР»РѕРЅРєР°
 protected:
 	HV_Info<size_t>		data_size_;
 	bool				is_rotated_{ false };

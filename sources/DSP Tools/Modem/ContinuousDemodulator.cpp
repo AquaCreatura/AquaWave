@@ -83,6 +83,20 @@ void ContinuousDemodulator::SetPllSpeed(double speed)
 	UpdateLoopCoefficients();
 }
 
+void ContinuousDemodulator::SetTimingSpeed(double speed)
+{
+	speed = std::max(0.0, std::min(1.0, speed));
+	const double gain_mu = GardnerTED::kGainMuMin + speed * (GardnerTED::kGainMuMax - GardnerTED::kGainMuMin);
+	ted_man_.SetLoopGains(gain_mu, 0.25 * gain_mu * gain_mu);
+}
+
+void ContinuousDemodulator::SetEqualiserSpeed(double speed)
+{
+	speed = std::max(0.0, std::min(1.0, speed));
+	equal_.SetBlindStep(EqaliserAqua::kBlindStepMin + speed * (EqaliserAqua::kBlindStepMax - EqaliserAqua::kBlindStepMin));
+	equal_.SetDdStep(EqaliserAqua::kDdStepMin + speed * (EqaliserAqua::kDdStepMax - EqaliserAqua::kDdStepMin));
+}
+
 void ContinuousDemodulator::UpdateLoopCoefficients()
 {
 	// alpha Ч это pll_phase_, beta Ч это pll_freq_

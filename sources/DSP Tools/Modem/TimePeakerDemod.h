@@ -10,12 +10,18 @@ namespace aq_demod
 	class GardnerTED
 	{
 	public:
+		// Диапазон пропорционального усиления timing-петли (gain_mu).
+		// Интегральное усиление (gain_omega) выводится из него как mu^2 / 4.
+		static constexpr double kGainMuMin = 0.01;
+		static constexpr double kGainMuMax = 0.05;
+
 		explicit GardnerTED(int upsample_koeff = 4);
 		~GardnerTED();
 
 		bool Process(const std::vector<Ipp32fc>& passed, std::vector<Ipp32fc>& out_samples);
 		void Reset();
-		double GetTimeError();
+		void SetLoopGains(double gain_mu, double gain_omega);
+		double GetTimeError() const;
 	private:
 		Ipp32fc Interpolate(const std::vector<Ipp32fc>& signal, double pos) const;
 		Ipp32fc GetSample(const std::vector<Ipp32fc>& signal, int index) const;

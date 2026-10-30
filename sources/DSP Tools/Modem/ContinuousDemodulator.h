@@ -31,9 +31,13 @@ namespace aq_demod
 			std::vector<Ipp32fc>& synced_iq);
 
 		void SetPllSpeed(double speed);
+		void SetTimingSpeed(double speed);
+		void SetEqualiserSpeed(double speed);
 
 		double GetFreqOffset() const { return freq_offset_; }
 		double GetLastSNR() const { return snr_db_; }
+		// Отношение текущей оценки периода символа к номинальной (1.0 — точно в номинале).
+		double GetSymbolRateRatio() const { return ted_man_.GetTimeError(); }
 
 	private:
 		void UpdateLoopCoefficients();

@@ -39,9 +39,15 @@ namespace aq_demod
 		history_.clear();
 	}
 
-	double GardnerTED::GetTimeError()
+	double GardnerTED::GetTimeError() const
 	{
 		return w_ / upsample_koeff_;
+	}
+
+	void GardnerTED::SetLoopGains(double gain_mu, double gain_omega)
+	{
+		gain_mu_ = gain_mu;
+		gain_omega_ = gain_omega;
 	}
 
 	Ipp32fc GardnerTED::GetSample(const std::vector<Ipp32fc>& signal, int index) const

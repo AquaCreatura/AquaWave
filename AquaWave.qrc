@@ -10,6 +10,5 @@
         <file>sources/GUI/External/background/sym_sky.jpg</file>
         <file>sources/GUI/External/background/cutted_clouds.jpg</file>
         <file>sources/GUI/External/background/water.jpg</file>
-        <file>sources/GUI/External/background/storm_way.jpg</file>
     </qresource>
 </RCC>

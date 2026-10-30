@@ -9,6 +9,7 @@ ChartTiler::ChartTiler(const ChartScaleInfo & scale_info) : scale_info_(scale_in
 {
 	is_spg_ = (scale_info_.val_info_.domain_type == aqua_gui::ChartDomainType::kTimeFrequency);	
 	bool need_decay = scale_info_.val_info_.domain_type != aqua_gui::ChartDomainType::kAnalyzeDomain;
+	zoomer_.EnableMaxPoolingMode(scale_info_.val_info_.domain_type == aqua_gui::ChartDomainType::kAnalyzeDomain);
 	for (int i = 0; i < count_of_tiles_; i++) {
 		if (is_spg_) {
 			tiles_.push_back(std::make_unique<TileSPG>());

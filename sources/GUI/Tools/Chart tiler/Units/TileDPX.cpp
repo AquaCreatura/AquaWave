@@ -8,7 +8,7 @@ TileDPX::TileDPX(const bool need_decay)
 {
 	is_spg_ = false;
 	trans_decrease_counter_ = 0;
-	need_decay_ = need_decay;
+	need_decay_ = false; need_decay;
 	UpdateDecayInfo();
 }
 
@@ -37,8 +37,7 @@ void TileDPX::SetData(const draw_data& passed_info)
 	else
 		DrawOnlyPoints(passed_info.data, passed_info.freq_bounds);
 
-	last_samples_per_pixel_ = samples_per_pixel;
-	periodical_block_counter_++;
+	drawn_samples_per_column_ += std::max(1.0, samples_per_pixel);
 }
 
 // ------------------------------------------------------------------
@@ -57,13 +56,13 @@ void TileDPX::UpdateFromTile(const TileInterface* passed_data)
 
 
 	
-	size_t max_col_size = 0;
+	double max_col_size = 0;
 	for (auto it : column_weight_vec_) 
 		max_col_size = std::max(it, max_col_size);
 	for (auto it : casted_past->column_weight_vec_)
 		max_col_size = std::max(it, max_col_size);
 
-	const size_t trans_column_size = std::min<size_t>(max_col_size, 200'000); // 
+	const double trans_column_size = std::min<size_t>(max_col_size, 1'000); // 
 
 	int64_t new_max_trans_density = 0;
 
@@ -74,7 +73,7 @@ void TileDPX::UpdateFromTile(const TileInterface* passed_data)
 			double norm_koeff = double(trans_column_size) / column_weight_vec_[x_idx_base]; 
 			if (norm_koeff > 0.85 && norm_koeff < 1.0)
 				continue;
-			size_t new_summ = 0;
+			double new_summ = 0;
 			for (size_t y = 0; y < data_size_.vert; ++y) {
 				data_[y * data_size_.hor + x_idx_base] *= norm_koeff;
 				new_summ += data_[y * data_size_.hor + x_idx_base];
@@ -96,7 +95,7 @@ void TileDPX::UpdateFromTile(const TileInterface* passed_data)
 		// Коэффициент для приведения плотностей к стандартной плотности
 		double norm_koeff = double(trans_column_size) / casted_past->column_weight_vec_[x_idx_passed];
 
-		size_t sum = 0;
+		double sum = 0;
 		for (size_t base_y_idx = 0; base_y_idx < data_size_.vert; ++base_y_idx) {
 			double world_y = val_bounds_.vert.lerp((base_y_idx + 0.5) / data_size_.vert);
 			if (!casted_past->val_bounds_.vert.has_inside(world_y)) continue;
@@ -105,7 +104,7 @@ void TileDPX::UpdateFromTile(const TileInterface* passed_data)
 			passed_y_idx = std::min(passed_y_idx, casted_past->data_size_.vert - 1);
 
 			auto cur_val = casted_past->data_[passed_y_idx * casted_past->data_size_.hor + x_idx_passed];
-			cur_val = int64_t(std::ceil(cur_val * norm_koeff));
+			cur_val = (cur_val * norm_koeff);
 			new_max_trans_density = std::max<int64_t>(new_max_trans_density, cur_val);
 
 			data_[base_y_idx * data_size_.hor + x_idx_base] = cur_val;
@@ -117,12 +116,13 @@ void TileDPX::UpdateFromTile(const TileInterface* passed_data)
 	// Если мы что-то скопировали – ускоряем затухание (переходный режим)
 	if (new_max_trans_density > 0) {
 		trans_decrease_counter_ = std::max(trans_decrease_counter_, new_max_trans_density);
+		drawn_samples_per_column_ = 0.;
 	}
-
 	is_data_updated_ = true;
 	if ((hor_ratio <= 1.0) || (last_average_density_ == 0.0f)) {
 		last_average_density_ = passed_data->last_average_density_;
 	}
+	timer_after_start_decaying_.restart();
 }
 
 // ------------------------------------------------------------------
@@ -142,16 +142,18 @@ void TileDPX::UpdateQimage(dynamic_qimage& dyn_qimage, const Limits<double>& pow
 
 	for (int vert_number = 0; vert_number < grid_height; ++vert_number)
 	{
-		const size_t* column_weight_iter = &column_weight_vec_[0];
+		const auto* column_weight_iter = &column_weight_vec_[0];
 		const auto matrix_idx_y = grid_height - vert_number - 1; // инверсия Y
-		const int64_t* dpx_iter = &data_[matrix_idx_y * grid_width];
+		const auto* dpx_iter = &data_[matrix_idx_y * grid_width];
 
 		for (int hor_number = 0; hor_number < grid_width; ++hor_number)
 		{
 			const double column_weight = *(column_weight_iter++);
-			const double density = column_weight ? (*dpx_iter / column_weight) : 0.0;
+			const double density = column_weight ? (*dpx_iter/* / column_weight*/) : 0.0;
+			if (*dpx_iter > 10)
+				int a = 1;
 			++dpx_iter;
-
+			
 			*rgb_iter++ = GetNormColor(density);
 		}
 	}
@@ -175,34 +177,39 @@ void TileDPX::UpdateDecayInfo()
 {
 	//Здесь надо учитывать frame_time - если очень большое, то давать накопить хоть немного
 	const double update_time_sec = update_elapsed_timer_.restart() / 1000.;
-	const double elapsed_samples_per_column = std::max<int64_t>(1, periodical_block_counter_) * std::max<double>(1.0, last_samples_per_pixel_);
 
-	const double min_time_for_good_image_sec = 1000 * (update_time_sec / elapsed_samples_per_column);
+	const double min_time_for_good_image_sec = 1000 * (update_time_sec / drawn_samples_per_column_);
 	//Определяем время затухания при зумминге
 	{
 		double merged_data_decay_time = std::max<double>(min_time_for_good_image_sec, 1.);
 		trans_decay_rate_ = std::exp(-1.0 * update_time_sec / merged_data_decay_time);
 	}
 
-	if (trans_decrease_counter_ > 1000)
-		trans_decay_rate_ = 0.6;
-	if (trans_decrease_counter_ < 1000 && trans_decrease_counter_ > 100) 
-		trans_decay_rate_ = 0.9;
-	if (trans_decay_rate_ > 0 && trans_decay_rate_ < 100) {
-		size_t max_val = 0;
-		for (auto it : column_weight_vec_) max_val = std::max(max_val, it);
-		if (max_val < 100)
-			trans_decay_rate_ = 1;
+	//Если есть старые данные, которые надо свести в ноль
+	if (trans_decrease_counter_ > 0) {
+		if (drawn_samples_per_column_ > 10'000)
+			trans_decay_rate_ = 0.5;
+		if (drawn_samples_per_column_ > 1000 && timer_after_start_decaying_.elapsed() > 1'000)
+			trans_decay_rate_ = 0.7;
+		else if (drawn_samples_per_column_ > 100 && timer_after_start_decaying_.elapsed() > 2'000)
+			trans_decay_rate_ = 0.8;
+		else if (drawn_samples_per_column_ > 30 && timer_after_start_decaying_.elapsed() > 4'000) {
+			trans_decay_rate_ = 0.9;
+		}
+		else {
+			trans_decay_rate_ = 1.;
+		}
+		drawn_samples_per_column_ *= trans_decay_rate_;
 	}
 
 	if (!need_decay_) {
 		base_decay_rate_ = 1.0;
-		periodical_block_counter_ = 0;
 		return;
 	}
-	periodical_block_counter_ = 0;
 	auto time_hold_sec = std::max<double>(min_time_for_good_image_sec, 1.);
 	base_decay_rate_ = std::max(0.9, std::exp(-update_time_sec / time_hold_sec));
+
+	
 }
 // ------------------------------------------------------------------
 // Вспомогательные методы рисования (без изменений, но с уточнениями)
@@ -214,7 +221,7 @@ void TileDPX::DrawOnlyPoints(const std::vector<float>& data, const Limits<double
 	const auto& xb = val_bounds_.hor;
 	const auto& yb = val_bounds_.vert;
 	const double freq_step = src_freq.delta() / static_cast<double>(data.size() - 1);
-
+	int additional_step = trans_decrease_counter_ > 0 ? 10 : 1;
 	for (size_t i = 0; i < data.size(); ++i)
 	{
 		const double x = src_freq.low + i * freq_step;
@@ -225,8 +232,8 @@ void TileDPX::DrawOnlyPoints(const std::vector<float>& data, const Limits<double
 		size_t yi = static_cast<size_t>(yb.pos(y) * height);
 		if (xi == width)  --xi;
 		if (yi == height) --yi;
-		data_[yi * width + xi] += 100;
-		column_weight_vec_[xi] += 100;
+		data_[yi * width + xi] += additional_step;
+		column_weight_vec_[xi] += additional_step;
 	}
 }
 
@@ -238,7 +245,7 @@ void TileDPX::DrawInterpolated(const std::vector<float>& values, const Limits<do
 	const auto& yb = val_bounds_.vert;
 	const int64_t width = data_size_.hor, height = data_size_.vert;
 	const double step = x_range.delta() / (values.size() - 1);
-
+	int additional_step = trans_decrease_counter_ > 0 ? 10 : 1;
 	for (size_t i = 0; i + 1 < values.size(); ++i) {
 		const double x0 = x_range.low + i * step;
 		const double x1 = x0 + step;
@@ -267,8 +274,8 @@ void TileDPX::DrawInterpolated(const std::vector<float>& values, const Limits<do
 			size_t py = static_cast<size_t>(std::round(yb.pos(y_interp) * height));
 			if (py >= height) py = height - 1;
 
-			data_[py * width + px] += 100;
-			column_weight_vec_[px] += 100;
+			data_[py * width + px] += additional_step;
+			column_weight_vec_[px] += additional_step;
 		}
 	}
 }
@@ -278,7 +285,7 @@ void TileDPX::DrawInterpolated(const std::vector<float>& values, const Limits<do
 // ------------------------------------------------------------------
 argb_t TileDPX::GetNormColor(double relative_density) const
 {
-	const double normalized_density = qBound(0.0, relative_density / max_density_, 1.0);
+	const double normalized_density = qBound(0.0, (relative_density / max_density_) * 0.3, 1.0);
 	return LUT_HSV_Instance::DensityToRGB(normalized_density);
 }
 
@@ -294,20 +301,8 @@ void TileDPX::ApplyDecay()
 	double decay_factor = base_decay_rate_;
 
 	if (trans_decrease_counter_ > 0) {
-		const double counter = static_cast<double>(trans_decrease_counter_);
-
-		// До 100 transition затухает пропорционально мягко.
-		// От 100 и выше используется максимальное transition decay.
-		const double factor = std::min(1.0, counter / 2000.0);
-
-		const double trans_factor = trans_decay_rate_;
-			//1.0 + factor * (trans_decay_rate_ - 1.0);
-
-		decay_factor *= trans_factor;
+		decay_factor *= trans_decay_rate_;
 	}
-
-	decay_factor = std::clamp(decay_factor, 0.001, 1.0);
-
 	// Один и тот же итоговый коэффициент применяется ко всему состоянию.
 	for (auto& val : data_)
 		val = static_cast<int64_t>(val * decay_factor);
@@ -315,9 +310,7 @@ void TileDPX::ApplyDecay()
 	for (auto& w : column_weight_vec_)
 		w = static_cast<size_t>(w * decay_factor);
 
-	trans_decrease_counter_ = static_cast<int64_t>(
-		trans_decrease_counter_ * decay_factor
-		);
+	trans_decrease_counter_ = int64_t(trans_decrease_counter_ * decay_factor);
 
 	decay_factor_ = decay_factor;
 	is_data_updated_ = true;
@@ -327,13 +320,6 @@ void TileDPX::ApplyDecay()
 // ------------------------------------------------------------------
 void TileDPX::UpdateDensityPivot()
 {
-	// Здесь можно вычислить реальный максимум по данным, но для простоты оставим эмпирику
-	// или вычислим на основе текущего состояния.
-	// Важно, чтобы max_density_ и last_average_density_ отражали текущее состояние.
-	// Предлагается простой способ: 
-	//   max_density_ = 3.0 / data_size_.vert  (как в оригинале) 
-	//   last_average_density_ – можно вычислить как среднее по всем ненулевым колонкам,
-	//   но для упрощения оставим константу.
-	last_average_density_ = 0.05;
-	max_density_ = 1.0 / data_size_.vert * 3.0;
+	last_average_density_ = 0.05;	
+	ippsMean_32f(data_.data(), data_.size(), &max_density_, IppHintAlgorithm::ippAlgHintFast);
 }

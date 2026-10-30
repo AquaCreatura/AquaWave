@@ -69,7 +69,7 @@ struct AxisColorScheme
 	{
 		AxisColorScheme scheme;
 		scheme.text_color = QColor(180, 180, 180, 255);
-		scheme.grid_color = QColor(0, 40, 25, 255);
+		scheme.grid_color = QColor(125, 125, 125, 125);
 		scheme.frame_color = scheme.grid_color;
 		scheme.margin_gradient_start = QColor(35, 35, 35, 210);
 		scheme.margin_gradient_end = QColor(15, 15, 15, 210);
@@ -80,7 +80,7 @@ struct AxisColorScheme
 	{
 		AxisColorScheme scheme;
 		scheme.text_color = QColor(0, 0, 0, 255);
-		scheme.grid_color = QColor(220, 220, 220, 255);
+		scheme.grid_color = QColor(125, 125, 125, 125);
 		scheme.frame_color = QColor(180, 180, 180, 255);
 		scheme.margin_gradient_start = QColor(240, 240, 240, 210);
 		scheme.margin_gradient_end = QColor(220, 220, 220, 210);

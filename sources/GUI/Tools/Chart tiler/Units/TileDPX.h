@@ -28,8 +28,8 @@ private:
 	void UpdateDensityPivot();
 
 	// Основные буферы
-	std::vector<size_t>   column_weight_vec_;   // вес каждой колонки (сумма значений по вертикали)
-	std::vector<int64_t>  data_;                // карта плотностей (height * width)
+	std::vector<double>   column_weight_vec_;   // вес каждой колонки (сумма значений по вертикали)
+	std::vector<float>	  data_;                // карта плотностей (height * width)
 
 												// Параметры времени жизни (используются для расчёта скорости затухания)
 
@@ -41,8 +41,8 @@ private:
 	double			base_decay_rate_ = 1.0;   // базовая скорость затухания (1.0 – без затухания)
 	double			trans_decay_rate_ = 1.0;   // переходная скорость затухания (1.0 – без затухания)
 	QElapsedTimer	update_elapsed_timer_;
-
-	double				last_samples_per_pixel_{ 1. };
-	int64_t				periodical_block_counter_{ 0 };
+	QElapsedTimer	timer_after_start_decaying_;
+	double				after_trans_counter_{ 1. };
+	double				drawn_samples_per_column_{ 1. };
 	
 };

@@ -13,13 +13,14 @@ ChartInterface::ChartInterface(QWidget* parent, std::shared_ptr<SelectionHolder>
     // Set min max values for our chart
     SetHorizontalMinMaxBounds({0, 1});
     SetHorizontalSuffix("counts");
-
-SetVerticalSuffix("power");
+	SetVerticalSuffix("power");
     connect(&redraw_timer_, &QTimer::timeout, this, QOverload<>::of(&ChartInterface::update));
+
     SetBackgroundImages(
         ":/AquaWave/sources/GUI/External/background/black_mountain.jpg",
-        ":/AquaWave/sources/GUI/External/background/cutted_sky.png"
+        ":/AquaWave/sources/GUI/External/background/cutted_clouds.jpg"
     );
+	//cutted_sky.png"
 	EnableDarkMode(false);
 	layout_ = new QVBoxLayout(this);
 }

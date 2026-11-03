@@ -17,6 +17,15 @@ demodulator::AquaDemod::AquaDemod()
 {
 	window_ = new AquaDemodWindow;
 
+	window_->SetSpeedRanges(
+		demodulator_.GetPllSpeedLimits(),
+		demodulator_.GetTimingSpeedLimits(),
+		demodulator_.GetEqualiserSpeedLimits(),
+		demodulator_.GetPllSpeedDefault(),
+		demodulator_.GetTimingSpeedDefault(),
+		demodulator_.GetEqualiserSpeedDefault());
+	window_->SetRunningState(false);
+
 	connect(window_, &AquaDemodWindow::DemodSettingsChanged, this, &AquaDemod::ApplyDemodSettings);
 	connect(window_, &AquaDemodWindow::PllSpeedChanged, this, [this](double speed) {
 		tbb::spin_mutex::scoped_lock scoped_locker(pipe_mutex_);
@@ -29,6 +38,11 @@ demodulator::AquaDemod::AquaDemod()
 	connect(window_, &AquaDemodWindow::EqSpeedChanged, this, [this](double speed) {
 		tbb::spin_mutex::scoped_lock scoped_locker(pipe_mutex_);
 		demodulator_.SetEqualiserSpeed(speed);
+	});
+	connect(window_, &AquaDemodWindow::RunToggled, this, [this](bool running) {
+		is_active_ = running;
+		if (running) info_timer_.start();
+		else info_timer_.stop();
 	});
 
 	info_timer_.setInterval(200);
@@ -81,16 +95,18 @@ bool demodulator::AquaDemod::PostDove(aqua::DoveSptr const & sent_dove)
 	{
 		return Reload();
 	}
-	if (base_thought & aqua::DoveParrent::DoveThought::kActivate)
-	{
-		is_active_ = true;
-		info_timer_.start();
-	}
-	if (base_thought & aqua::DoveParrent::DoveThought::kDeactivate)
-	{
-		is_active_ = false;
-		info_timer_.stop();
-	}
+		if (base_thought & aqua::DoveParrent::DoveThought::kActivate)
+		{
+			is_active_ = true;
+			info_timer_.start();
+			window_->SetRunningState(true);
+		}
+		if (base_thought & aqua::DoveParrent::DoveThought::kDeactivate)
+		{
+			is_active_ = false;
+			info_timer_.stop();
+			window_->SetRunningState(false);
+		}
 	if (base_thought & aqua::DoveParrent::DoveThought::kSpecialThought) {
 		const auto special_thought = sent_dove->special_thought;
 		if (auto demod_dove = std::dynamic_pointer_cast<demodulator::DemodulatorDove>(sent_dove)) {
@@ -138,7 +154,8 @@ void demodulator::AquaDemod::RebuildPipeline()
 	if (!window_) return;
 
 
-	//modulation_ = window_->GetModulation().toStdString();
+	auto qstr_mod = window_->GetModulation().toUtf8();;
+	modulation_ = std::string(qstr_mod.constData(), qstr_mod.size());
 	carrier_hz_ = window_->GetCarrierHz();
 	symbol_rate_hz_ = window_->GetSymbolRateHz();
 

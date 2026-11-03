@@ -39,15 +39,14 @@ bool ContinuousDemodulator::Init(const char* modulation, int upsample_passed)
 	target_power_ = 0.0;
 	for (const Ipp32fc& pivot : pivots_)
 		target_power_ += pivot.re * pivot.re + pivot.im * pivot.im;
-	target_power_ /= pivots_.size();
+		target_power_ /= pivots_.size();
 
-	signal_power_ = 0.0;
+		signal_power_ = 0.0;
 
-	// Set a conservative default speed.
-	SetPllSpeed(0.5);
-	Reset();
+		SetPllSpeed(kPllSpeedDefault);
+		Reset();
 
-	return true;
+		return true;
 }
 
 void ContinuousDemodulator::Reset()
@@ -64,44 +63,38 @@ void ContinuousDemodulator::Reset()
 	ted_man_.Reset();
 }
 
-void ContinuousDemodulator::SetPllSpeed(double speed)
+void ContinuousDemodulator::SetPllSpeed(double alpha)
 {
-	speed = std::max(0.0, std::min(1.0, speed));
-	// Отображение speed в alpha
-	// speed = 0.0 -> alpha = 0.001
-	// speed = 0.5 -> alpha = 0.005
-	// speed = 1.0 -> alpha = 0.05
-	if (speed <= 0.5) {
-		// Линейно от 0.001 до 0.005
-		current_alpha_ = 0.001 + (speed / 0.5) * (0.005 - 0.001);
-	}
-	else {
-		// Линейно от 0.005 до 0.05
-		current_alpha_ = 0.005 + ((speed - 0.5) / 0.5) * (0.05 - 0.005);
-	}
-	current_alpha_ *= 0.1;
+	const aqua::Limits<double>& limits = kPllSpeedLimits;
+	alpha = std::clamp(alpha, limits.low, limits.high);
+	current_alpha_ = alpha;
+	current_pll_speed_ = alpha;
 	UpdateLoopCoefficients();
 }
 
-void ContinuousDemodulator::SetTimingSpeed(double speed)
+void ContinuousDemodulator::SetTimingSpeed(double gain_mu)
 {
-	speed = std::max(0.0, std::min(1.0, speed));
-	const double gain_mu = GardnerTED::kGainMuMin + speed * (GardnerTED::kGainMuMax - GardnerTED::kGainMuMin);
+	const aqua::Limits<double>& limits = kTimingSpeedLimits;
+	gain_mu = std::clamp(gain_mu, limits.low, limits.high);
+	current_timing_speed_ = gain_mu;
 	ted_man_.SetLoopGains(gain_mu, 0.25 * gain_mu * gain_mu);
 }
 
-void ContinuousDemodulator::SetEqualiserSpeed(double speed)
+void ContinuousDemodulator::SetEqualiserSpeed(double step)
 {
-	speed = std::max(0.0, std::min(1.0, speed));
-	equal_.SetBlindStep(EqaliserAqua::kBlindStepMin + speed * (EqaliserAqua::kBlindStepMax - EqaliserAqua::kBlindStepMin));
-	equal_.SetDdStep(EqaliserAqua::kDdStepMin + speed * (EqaliserAqua::kDdStepMax - EqaliserAqua::kDdStepMin));
+	const aqua::Limits<double>& limits = kEqualiserSpeedLimits;
+	step = std::clamp(step, limits.low, limits.high);
+	current_eq_speed_ = step;
+	equal_.SetBlindStep(step);
+	const double dd_t = limits.pos(step);
+	equal_.SetDdStep(EqaliserAqua::kDdStepMin + dd_t * (EqaliserAqua::kDdStepMax - EqaliserAqua::kDdStepMin));
 }
 
 void ContinuousDemodulator::UpdateLoopCoefficients()
 {
-	// alpha — это pll_phase_, beta — это pll_freq_
+	// alpha пїЅ пїЅпїЅпїЅ pll_phase_, beta пїЅ пїЅпїЅпїЅ pll_freq_
 	pll_phase_ = current_alpha_;
-	// beta = 0.25 * alpha^2, как рекомендовано в литературе
+	// beta = 0.25 * alpha^2, пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 	pll_freq_ = 0.25 * current_alpha_ * current_alpha_ ;
 }
 
@@ -210,7 +203,7 @@ Ipp32fc ContinuousDemodulator::GetDecision(
 		}
 	}
 
-	// Вычисляем ошибку с помощью atan2
+	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ atan2
 	const double real = sample.re * decision.re + sample.im * decision.im;
 	const double imag = sample.im * decision.re - sample.re * decision.im;
 	phase_error =  -std::atan2(imag, real);
@@ -238,7 +231,7 @@ void aq_demod::ContinuousDemodulator::UpdateSNR(const Ipp32fc corrected, const I
 {
 
 	// 5. Update statistics for SNR calculation.
-	//Отношнение СИГНАЛ / ШУМ
+	//пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ / пїЅпїЅпїЅ
 	const double error_re = corrected.re - decision.re;
 	const double error_im = corrected.im - decision.im;
 	error_power_ += error_re * error_re + error_im * error_im;

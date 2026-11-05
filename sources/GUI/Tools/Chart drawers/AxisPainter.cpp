@@ -249,7 +249,7 @@ bool AxisManager::LinesInfo::FillLineVectors(const int distance_px_, const Limit
 	const double low = is_inverted ? val_bounds.high : val_bounds.low;
 	const double high = is_inverted ? val_bounds.low : val_bounds.high;
 	const double delta_val = high - low;
-    if (delta_val <= 0.0 || distance_px_ <= 0 || !std::isfinite(delta_val)) {
+    if (delta_val <= 0.0 || distance_px_ <= 0 || !std::isfinite(delta_val) || delta_val < 1.e-20) {
         qDebug() << "FillLineVectors error passed values\n";
         return false;                       // некорректные данные
     }

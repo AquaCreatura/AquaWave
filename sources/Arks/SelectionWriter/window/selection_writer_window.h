@@ -8,7 +8,10 @@ class SelectionWriterWindow: public QDialog
 	Q_OBJECT
 public:
 	SelectionWriterWindow();
-	void SetFreqparams(int64_t carrier_hz, int64_t samplerate_hz);
+	void SetFreqparams(int64_t carrier_hz, int64_t samplerate_hz, int64_t bandwidth_hz, double bw_ratio);
+	int64_t GetSamplerateHz() const;
+	int64_t GetBandwidthHz () const;
+	int64_t GetCarrierHz   () const;
 	void Stop();
 	void UpdateProgressRatio(const double status_ratio);
 	void UpdateBytesWritten	(size_t bytes_written);
@@ -20,7 +23,10 @@ protected:
 	void OnChoosePathButton();
 	void OnStartButtonClicked();
 protected:
+	void UpdateBandwidthLimit(double samplerate_khz);
+protected:
 	Ui::SelectionWriterWindow ui_;
+	double bw_ratio_{ 0.9 };
 };
 
 

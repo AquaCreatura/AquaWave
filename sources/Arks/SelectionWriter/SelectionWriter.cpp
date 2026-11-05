@@ -8,7 +8,7 @@
 #include <qfile.h>
 #include <qmessagebox.h>
 
-constexpr int c_expr_read_chunk_size_ = 128;
+constexpr int c_expr_read_chunk_size_ = 32;
 file_writer::SelectionWriter::SelectionWriter()
 {
 	connect(&window_, &SelectionWriterWindow::StartNeed, this, &SelectionWriter::StartRecording);
@@ -106,7 +106,10 @@ bool file_writer::SelectionWriter::InitSelectionRecord(aqua::Limits<double> freq
 {
 	time_bounds_ = time_bounds;
 	selection_bound_hz_ = freq_bounds_hz;
-	window_.SetFreqparams(freq_bounds_hz.mid(), freq_bounds_hz.delta());
+
+	const int64_t bandwidth_hz = static_cast<int64_t>(freq_bounds_hz.delta());
+	const int64_t samplerate_hz = static_cast<int64_t>(bandwidth_hz / src_info_.descr.bw_ratio_);
+	window_.SetFreqparams(freq_bounds_hz.mid(), samplerate_hz, bandwidth_hz, src_info_.descr.bw_ratio_);
 	window_.UpdateProgressRatio(0.);
 	window_.UpdateBytesWritten(0);
 
@@ -132,10 +135,10 @@ bool file_writer::SelectionWriter::StartRecording(const std::string folder_path)
 
 		req_dove->setup.emplace();
 		auto &setup = req_dove->setup;
-		setup->carrier_hz = selection_bound_hz_.mid();
 		setup->chunk_size = c_expr_read_chunk_size_;
-		setup->banwidth_hz = selection_bound_hz_.delta();
-		setup->samplerate_hz = setup->banwidth_hz / src_info_.descr.bw_ratio_;
+		setup->carrier_hz = window_.GetCarrierHz();
+		setup->samplerate_hz = window_.GetSamplerateHz();
+		setup->banwidth_hz = window_.GetBandwidthHz();
 		if (!file_src->PostDove(req_dove))
 		{
 			QMessageBox::warning(nullptr, "Error", "Can not start recording");
@@ -178,7 +181,7 @@ bool file_writer::SelectionWriter::CaptureFile(const std::string folder_path)
 	// 2. Generate base filename
 	auto time_string = aqua_parse_tools::gen_time_string();
 	std::string file_name = aqua_parse_tools::generate_filename(
-		selection_bound_hz_.mid(),
+		window_.GetCarrierHz(),
 		work_samplerate_hz_,
 		time_string,
 		"pcm"

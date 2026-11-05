@@ -4,12 +4,17 @@
 #include <QFileDialog>
 #include <QTextStream>
 
+#include <cmath>
+
 const char* txt_name = "out_folder_path.txt";
 SelectionWriterWindow::SelectionWriterWindow()
 {
 	ui_.setupUi(this);
 	connect(ui_.start_record_button, &QPushButton::clicked, this, &SelectionWriterWindow::OnStartButtonClicked);
 	connect(ui_.file_path_choose_button, &QPushButton::clicked, this, &SelectionWriterWindow::OnChoosePathButton);
+	connect(ui_.samplerate_spinbox_kHz, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, [this](double samplerate_khz) {
+		UpdateBandwidthLimit(samplerate_khz);
+	});
 
 	{
 		QFile file(QCoreApplication::applicationDirPath() + "/" + txt_name);
@@ -18,11 +23,43 @@ SelectionWriterWindow::SelectionWriterWindow()
 	}
 }
 
-void SelectionWriterWindow::SetFreqparams(int64_t carrier_hz, int64_t samplerate_hz)
+void SelectionWriterWindow::SetFreqparams(int64_t carrier_hz, int64_t samplerate_hz, int64_t bandwidth_hz, double bw_ratio)
 {
+	bw_ratio_ = bw_ratio;
 	ui_.carrier_spinbox_MHz->setValue(carrier_hz / 1.e6);
+
+	ui_.samplerate_spinbox_kHz->blockSignals(true);
 	ui_.samplerate_spinbox_kHz->setValue(samplerate_hz / 1.e3);
+	ui_.samplerate_spinbox_kHz->blockSignals(false);
+
+	UpdateBandwidthLimit(samplerate_hz / 1.e3);
+	ui_.bandwidth_spinbox_kHz->setValue(bandwidth_hz / 1.e3);
 }
+
+int64_t SelectionWriterWindow::GetSamplerateHz() const
+{
+	return static_cast<int64_t>(std::llround(ui_.samplerate_spinbox_kHz->value() * 1.e3));
+}
+
+int64_t SelectionWriterWindow::GetBandwidthHz() const
+{
+	return static_cast<int64_t>(std::llround(ui_.bandwidth_spinbox_kHz->value() * 1.e3));
+}
+
+int64_t SelectionWriterWindow::GetCarrierHz() const
+{
+	return static_cast<int64_t>(std::llround(ui_.carrier_spinbox_MHz->value() * 1.e6));
+}
+
+void SelectionWriterWindow::UpdateBandwidthLimit(double samplerate_khz)
+{
+	if (bw_ratio_ <= 0.) return;
+	const double bandwidth_max_khz = samplerate_khz * bw_ratio_;
+	ui_.bandwidth_spinbox_kHz->setMaximum(bandwidth_max_khz);
+	ui_.bandwidth_spinbox_kHz->setValue(bandwidth_max_khz);
+}
+
+
 
 void SelectionWriterWindow::Stop()
 {

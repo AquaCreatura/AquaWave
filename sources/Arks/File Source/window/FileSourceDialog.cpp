@@ -2,6 +2,7 @@
 
 #include "Utilities/file_helpers.h"
 #include "Utilities/parse_tools.h"
+#include "Utilities/qt_utility.h"
 #include "Utilities/wav_tools.h"
 
 #include <qfiledialog.h>
@@ -64,10 +65,20 @@ file_source::FileSourceDialog::FileSourceDialog()
         });
     }
     
-    // Обработчик кнопки OK
-    {
-        connect(ui_.ok_push_button, &QPushButton::clicked, this, &FileSourceDialog::OnOkButton);
-    }
+        // Обработчик кнопки OK
+        {
+            connect(ui_.ok_push_button, &QPushButton::clicked, this, &FileSourceDialog::OnOkButton);
+        }
+
+    const QString img_base = ":/buttons/button_images/";
+    ui_.ok_push_button->setText("");
+    ui_.ok_push_button->setStyleSheet(buildButtonStyleSheet(
+        50,
+        img_base + "ok_water_button.png",
+        img_base + "ok_water_button.png",
+        img_base + "ok_water_button.png",
+        img_base + "ok_water_button.png",
+        img_base + "ok_water_button.png"));
 }
 
 file_source::FileSourceDialog::~FileSourceDialog()

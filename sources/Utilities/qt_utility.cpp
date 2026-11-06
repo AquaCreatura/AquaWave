@@ -52,33 +52,35 @@ QString buildButtonStyleSheet(
             border: none;
             padding: 0px;
             margin: 0px;
-            border-image: url(%2) 0 0 0 0 stretch stretch;
-        }
-
-        QPushButton:hover {
-            border-image: url(%3) 0 0 0 0 stretch stretch;
-        }
-
-        QPushButton:checked {
+            background: transparent;
             border-image: url(%4) 0 0 0 0 stretch stretch;
         }
 
-        QPushButton:checked:hover {
+        QPushButton:hover {
             border-image: url(%5) 0 0 0 0 stretch stretch;
+        }
+
+        QPushButton:checked {
+            background-color: transparent !important;
+            border-image: url(%2) 0 0 0 0 stretch stretch;
+        }
+
+        QPushButton:checked:hover {
+            background-color: transparent !important;
+            border-image: url(%3) 0 0 0 0 stretch stretch;
         }
 
         QPushButton:disabled {
             border-image: url(%6) 0 0 0 0 stretch stretch;
         }
     )")
-		.arg(size)
-		.arg(imgUnchecked)
-		.arg(imgUncheckedHover)
-		.arg(imgChecked)
-		.arg(imgCheckedHover)
-		.arg(imgDisabled);
+		.arg(size)              // %1
+		.arg(imgChecked)        // %2
+		.arg(imgCheckedHover)   // %3
+		.arg(imgUnchecked)      // %4
+		.arg(imgUncheckedHover) // %5
+		.arg(imgDisabled);      // %6
 }
-
 
 QIcon buildButtonIcon(
 	const QString& imgChecked,

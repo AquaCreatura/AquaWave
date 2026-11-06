@@ -1,11 +1,11 @@
 /* ============================================================
    BLUE BASE THEME — ORANGE ACCENTS — BLACK DEFAULT TEXT
-   Base #5AA7E8, input surfaces #EAF3FB, orange accents
+   Base #BAC5E3, input surfaces #EAF3FB, orange accents
    Text: black by default; disabled/muted — приглушённый
    ============================================================ */
 
 /* Палитра:
-   base:            #5AA7E8
+   base:            #BAC5E3
    base hover:      #4A96D8
    base pressed:    #3B84C4
    base border:     #2470B0
@@ -34,7 +34,7 @@
 
 QMainWindow,
 QWidget {
-    background-color: #5AA7E8;
+    background-color: #BAC5E3;
     color: #000000;
     font-family: "Segoe UI", "SF Pro Text", "Helvetica Neue", Arial, sans-serif;
     font-size: 13px;
@@ -377,7 +377,7 @@ QScrollBar::sub-page:horizontal {
 /* ========================  TAB WIDGET  ======================== */
 
 QTabWidget::pane {
-    background-color: #5AA7E8;
+    background-color: #BAC5E3;
     border: 1px solid #4A96D8;
     border-radius: 10px;
     top: -1px;
@@ -421,7 +421,7 @@ QTabBar::tab:selected:disabled {
 /* ========================  MENU  ======================== */
 
 QMenuBar {
-    background-color: #5AA7E8;
+    background-color: #BAC5E3;
     border: none;
     color: #000000;
     padding: 2px;
@@ -442,7 +442,7 @@ QMenuBar::item:disabled {
 }
 
 QMenu {
-    background-color: #5AA7E8;
+    background-color: #BAC5E3;
     border: 1px solid #4A96D8;
     border-radius: 10px;
     padding: 6px;
@@ -542,11 +542,10 @@ QHeaderView::section:disabled {
     color: #7A8FA5;
 }
 
-
 /* ========================  GROUP BOX  ======================== */
 
 QGroupBox {
-    background-color: #5AA7E8;
+    background-color: #BAC5E3;
     border: 2px solid #2470B0;
     border-radius: 10px;
     margin-top: 14px;
@@ -565,17 +564,23 @@ QGroupBox::title {
     font-size: 11px;
 }
 
-QGroupBox QLabel,
+QGroupBox QLabel {
+    background-color: transparent;
+    color: #000000;
+    border: none;
+}
+
 QGroupBox QCheckBox,
 QGroupBox QRadioButton {
     background-color: transparent;
     color: #000000;
 }
 
+QGroupBox QLabel:disabled,
 QGroupBox QCheckBox:disabled,
-QGroupBox QRadioButton:disabled,
-QGroupBox QLabel:disabled {
+QGroupBox QRadioButton:disabled {
     color: #5A7A94;
+    border: none;
 }
 
 QGroupBox::indicator {
@@ -596,6 +601,11 @@ QGroupBox::indicator:disabled {
     border-color: #A0BAD0;
 }
 
+/* <-- ДОБАВИТЬ ЭТОТ БЛОК В КОНЕЦ СЕКЦИИ GROUP BOX */
+QGroupBox QFrame {
+    border: none;
+    background: transparent;
+}
 
 /* ========================  SLIDER  ======================== */
 
@@ -699,7 +709,7 @@ QToolTip {
 /* ========================  TOOL BAR  ======================== */
 
 QToolBar {
-    background-color: #5AA7E8;
+    background-color: #BAC5E3;
     border: none;
     spacing: 4px;
     padding: 4px;
@@ -745,7 +755,7 @@ QToolButton:checked:disabled {
 /* ========================  STATUS BAR  ======================== */
 
 QStatusBar {
-    background-color: #5AA7E8;
+    background-color: #BAC5E3;
     border: none;
     color: #000000;
     font-size: 12px;
@@ -767,7 +777,7 @@ QDockWidget {
 }
 
 QDockWidget::title {
-    background-color: #5AA7E8;
+    background-color: #BAC5E3;
     border: none;
     padding: 8px 12px;
     text-align: left;
@@ -819,10 +829,14 @@ QFrame[frameShape="5"] {
 }
 
 
+QLabel {
+    border: none;
+}
+
 /* ========================  DIALOG  ======================== */
 
 QDialog {
-    background-color: #5AA7E8;
+    background-color: #BAC5E3;
 }
 
 

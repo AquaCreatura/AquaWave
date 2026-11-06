@@ -7,5 +7,8 @@
         <file>button_images/AquaWave.png</file>
         <file>button_images/horizontal_extended.png</file>
         <file>button_images/ccm_demod.png</file>
+        <file>button_images/start_water_button.png</file>
+        <file>button_images/stop_water_button.png</file>
+        <file>button_images/ok_water_button.png</file>
     </qresource>
 </RCC>

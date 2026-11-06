@@ -97,15 +97,12 @@ bool demodulator::AquaDemod::PostDove(aqua::DoveSptr const & sent_dove)
 	}
 		if (base_thought & aqua::DoveParrent::DoveThought::kActivate)
 		{
-			is_active_ = true;
+			
 			info_timer_.start();
-			window_->SetRunningState(true);
 		}
 		if (base_thought & aqua::DoveParrent::DoveThought::kDeactivate)
 		{
-			is_active_ = false;
 			info_timer_.stop();
-			window_->SetRunningState(false);
 		}
 	if (base_thought & aqua::DoveParrent::DoveThought::kSpecialThought) {
 		const auto special_thought = sent_dove->special_thought;

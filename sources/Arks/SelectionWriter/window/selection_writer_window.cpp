@@ -1,5 +1,7 @@
 ﻿#include "selection_writer_window.h"
 
+#include "Utilities/qt_utility.h"
+
 #include <QFile>
 #include <QFileDialog>
 #include <QTextStream>
@@ -21,6 +23,16 @@ SelectionWriterWindow::SelectionWriterWindow()
 		if (file.open(QIODevice::ReadOnly | QIODevice::Text))
 			ui_.file_path_line_edit->setText(QTextStream(&file).readAll().trimmed());
 	}
+
+	const QString img_base = ":/buttons/button_images/";
+	ui_.start_record_button->setText("");
+	ui_.start_record_button->setStyleSheet(buildButtonStyleSheet(
+		50,
+		img_base + "stop_water_button.png",
+		img_base + "stop_water_button.png",
+		img_base + "start_water_button.png",
+		img_base + "start_water_button.png",
+		img_base + "start_water_button.png"));
 }
 
 void SelectionWriterWindow::SetFreqparams(int64_t carrier_hz, int64_t samplerate_hz, int64_t bandwidth_hz, double bw_ratio)
@@ -114,8 +126,6 @@ void SelectionWriterWindow::OnStartButtonClicked()
 	}
 	const bool is_started = IsStarted();
 	ui_.start_record_button->setChecked(is_started);
-	ui_.start_record_button->setText(is_started ? "Stop" : "Start");
-
 }
 //=========================================== FileSavedDialog ======================================
 FileSavedDialog::FileSavedDialog(const std::string& file_path,

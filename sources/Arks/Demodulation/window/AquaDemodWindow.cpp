@@ -27,6 +27,17 @@ AquaDemodWindow::AquaDemodWindow()
 		UpdateRunUI();
 		emit RunToggled(is_running_);
 	});
+
+	const QString img_base = ":/buttons/button_images/";
+	ui_.start_stop_button->setText("");
+	ui_.start_stop_button->setCheckable(true);
+	ui_.start_stop_button->setStyleSheet(buildButtonStyleSheet(
+		50,
+		img_base + "stop_water_button.png",
+		img_base + "stop_water_button.png",
+		img_base + "start_water_button.png",
+		img_base + "start_water_button.png",
+		img_base + "start_water_button.png"));
 }
 
 AquaDemodWindow::~AquaDemodWindow() = default;
@@ -199,9 +210,10 @@ QString AquaDemodWindow::FormatRangeEnd(double value)
 
 void AquaDemodWindow::UpdateRunUI()
 {
-	ui_.start_stop_button->setText(is_running_ ? "Stop" : "Start");
+	ui_.start_stop_button->setChecked(is_running_);
 	ui_.fc_mhz_spinbox->setEnabled(!is_running_);
 	ui_.bd_khz_spinbox->setEnabled(!is_running_);
+	ui_.modulation_combobox->setEnabled(!is_running_);
 }
 
 void AquaDemodWindow::SetRunningState(bool running)

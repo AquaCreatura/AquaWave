@@ -10,5 +10,8 @@
         <file>sources/GUI/External/background/sym_sky.jpg</file>
         <file>sources/GUI/External/background/cutted_clouds.jpg</file>
         <file>sources/GUI/External/background/water.jpg</file>
+        <file>sources/GUI/External/BaseImages/real_cool_fox.png</file>
+        <file>sources/GUI/External/BaseImages/cute_fox_base.png</file>
+        <file>sources/GUI/External/BaseImages/girl_fox_base.png</file>
     </qresource>
 </RCC>

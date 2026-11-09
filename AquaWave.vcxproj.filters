@@ -326,6 +326,9 @@
     <ClCompile Include="sources\GUI\External\Window\QMainMenuHelper.cpp">
       <Filter>GUI\External\Window</Filter>
     </ClCompile>
+    <ClCompile Include="sources\GUI\External\Window\image_shower.cpp">
+      <Filter>GUI\External\Window</Filter>
+    </ClCompile>
     <ClCompile Include="sources\Scheme\ShipBuilder.cpp">
       <Filter>Scheme</Filter>
     </ClCompile>
@@ -562,6 +565,9 @@
       <Filter>GUI\External\Window</Filter>
     </QtMoc>
     <QtMoc Include="sources\GUI\External\Window\QMainMenuHelper.h">
+      <Filter>GUI\External\Window</Filter>
+    </QtMoc>
+    <QtMoc Include="sources\GUI\External\Window\image_shower.h">
       <Filter>GUI\External\Window</Filter>
     </QtMoc>
   </ItemGroup>

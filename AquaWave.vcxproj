@@ -163,6 +163,7 @@
     <ClCompile Include="sources\GUI\External\Window\FramelessHelper.cpp" />
     <ClCompile Include="sources\GUI\External\Window\QWindowKitHelper.cpp" />
     <ClCompile Include="sources\GUI\External\Window\QMainMenuHelper.cpp" />
+    <ClCompile Include="sources\GUI\External\Window\image_shower.cpp" />
     <ClCompile Include="sources\GUI\Tools\Chart drawers\AxisPainter.cpp" />
     <ClCompile Include="sources\GUI\Tools\Chart drawers\ImageBackGround.cpp" />
     <ClCompile Include="sources\GUI\Tools\Chart drawers\QimageZoomer.cpp" />
@@ -199,6 +200,7 @@
     <QtMoc Include="sources\GUI\External\Window\FramelessHelper.h" />
     <QtMoc Include="sources\GUI\External\Window\QWindowKitHelper.h" />
     <QtMoc Include="sources\GUI\External\Window\QMainMenuHelper.h" />
+    <QtMoc Include="sources\GUI\External\Window\image_shower.h" />
     <ClInclude Include="sources\GUI\Tools\Chart tiler\Units\TileLine.h" />
     <ClInclude Include="sources\Scheme\ShipBuilder.h" />
     <ClInclude Include="sources\Utilities\aqua_array_queue.h" />

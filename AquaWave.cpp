@@ -5,11 +5,22 @@
 #include "Utilities/qt_utility.h"
 #include "GUI/External/Window/QMainMenuHelper.h"
 #include "GUI/External/Window/QWindowKitHelper.h"
+#include "GUI/External/Window/image_shower.h"
+#include <qsplashscreen.h>
 #include <qtabbar.h>
+#include <chrono>
 AquaWave::AquaWave(QWidget *parent, const QString& file_path)
     : QMainWindow(parent)
 {
     ui.setupUi(this);
+
+    auto* m_splash_ = new ImageShower(this,
+        ":/AquaWave/sources/GUI/External/BaseImages/cute_fox_base.png",
+        3'000, 1'000);
+
+    // 2. Показываем его. Так как у него нет родителя, он отрисуется НЕМЕДЛЕННО.
+    m_splash_->show();
+    QApplication::processEvents();
 
     setWindowIcon(QIcon(":/AquaWave/sources/GUI/External/icons/AquaWave.ico"));
 
@@ -44,7 +55,6 @@ AquaWave::AquaWave(QWidget *parent, const QString& file_path)
         file_dove->description->file_name_ = file_path;
         file_src_->PostDove(file_dove);
     }
-
     pages_ = {
         {
             ShipBuilder::GetWindow(spectral_viewer_),
@@ -81,9 +91,14 @@ AquaWave::AquaWave(QWidget *parent, const QString& file_path)
     if (!pages_.empty() && ui.main_tab_widget->currentWidget() != nullptr) {
         applyTabState();
     }
+    this->show();
+    // Конструктор завершён — запускаем отсчёт на выход сплэш (минимум 1 сек)
+    m_splash_->hideWhenReady();
 }
 
-AquaWave::~AquaWave() = default;
+AquaWave::~AquaWave()
+{
+}
 
 void AquaWave::resizeEvent(QResizeEvent * event)
 {

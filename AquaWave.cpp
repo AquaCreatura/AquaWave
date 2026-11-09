@@ -35,10 +35,10 @@ AquaWave::AquaWave(QWidget *parent, const QString& file_path)
         setStyleSheet(style);
     }
 
-    file_src_ = ship_builder_.BuildNewShip(aqua::kFileSource, this);
-    spectral_viewer_ = ship_builder_.BuildNewShip(aqua::kSpectralViewer);
-    selection_writer_ = ship_builder_.BuildNewShip(aqua::kSelectionWriter);
-    demodulator_ = ship_builder_.BuildNewShip(aqua::kCcmDemodulator);
+    file_src_           = ship_builder_.BuildNewShip(aqua::kFileSource, this);
+    spectral_viewer_    = ship_builder_.BuildNewShip(aqua::kSpectralViewer);
+    selection_writer_   = ship_builder_.BuildNewShip(aqua::kSelectionWriter);
+    demodulator_        = ship_builder_.BuildNewShip(aqua::kCcmDemodulator);
 
     ShipBuilder::Bind_SrcSink(file_src_, spectral_viewer_);
     ShipBuilder::Bind_SrcSink(file_src_, selection_writer_);

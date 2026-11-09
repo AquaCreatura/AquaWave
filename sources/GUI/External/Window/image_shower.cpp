@@ -5,6 +5,15 @@
 #include <QParallelAnimationGroup>
 #include <qguiapplication.h>
 #include <qscreen.h>
+#include <QGuiApplication>
+#include <QScreen>
+
+#include <QGuiApplication>
+#include <QScreen>
+#include <QGuiApplication>
+#include <QScreen>
+#include <QCursor>
+
 ImageShower::ImageShower(QWidget* geometry_ref,
     const QString& resource_path,
     int min_show_ms,
@@ -19,34 +28,49 @@ ImageShower::ImageShower(QWidget* geometry_ref,
     setAttribute(Qt::WA_TranslucentBackground);
     setAttribute(Qt::WA_NoSystemBackground);
 
-    // 1. Определяем стартовый размер
+    // 1. Определяем размер сплэша
     QRect startRect;
     if (m_geometry_ref_) {
         startRect = m_geometry_ref_->rect();
-        // Если окно еще не инициализировано и имеет микроскопический размер:
+        // Если окно еще "схлопнулось" до минимума
         if (startRect.width() < 200 || startRect.height() < 200) {
-            startRect.setSize(QSize(1'000, 800)); // Твой дефолтный размер окна AquaWave
+            startRect.setSize(QSize(1'000, 800));
         }
     }
     else {
-        startRect = QRect(0, 0, 800, 600);
+        startRect = QRect(0, 0, 1'000, 800);
     }
 
-    // 2. Центрируем этот прямоугольник относительно ЭКРАНА
-    QRect screenGeom = QGuiApplication::primaryScreen()->availableGeometry();
-    QPoint centerPos = screenGeom.center() - startRect.center();
+    // 2. 🔥 Находим экран под курсором мыши
+    QScreen* targetScreen = nullptr;
 
-    setGeometry(centerPos.x(), centerPos.y(), startRect.width(), startRect.height());
+    // Пытаемся найти экран, где сейчас находится курсор
+    for (QScreen* screen : QGuiApplication::screens()) {
+        if (screen->geometry().contains(QCursor::pos())) {
+            targetScreen = screen;
+            break;
+        }
+    }
+
+    // Если вдруг курсор не попал ни на один экран (редкий баг ОС), берем первичный
+    if (!targetScreen) {
+        targetScreen = QGuiApplication::primaryScreen();
+    }
+
+    // 3. Центрируем сплэш на найденном экране
+    if (targetScreen) {
+        QRect screenGeom = targetScreen->availableGeometry();
+        QPoint centerPos = screenGeom.center() - startRect.center();
+        setGeometry(centerPos.x(), centerPos.y(), startRect.width(), startRect.height());
+    }
 
     if (m_geometry_ref_) {
         m_geometry_ref_->installEventFilter(this);
     }
 
-
     m_opacity_effect_ = new QGraphicsOpacityEffect(this);
     m_opacity_effect_->setOpacity(1.0);
     setGraphicsEffect(m_opacity_effect_);
-
 
     m_elapsed_.start();
 }

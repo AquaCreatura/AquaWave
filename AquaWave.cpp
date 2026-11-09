@@ -16,7 +16,7 @@ AquaWave::AquaWave(QWidget *parent, const QString& file_path)
 
     auto* m_splash_ = new ImageShower(this,
         ":/AquaWave/sources/GUI/External/BaseImages/cute_fox_base.png",
-        3'000, 1'000);
+        100, 3000);
 
     // 2. Показываем его. Так как у него нет родителя, он отрисуется НЕМЕДЛЕННО.
     m_splash_->show();

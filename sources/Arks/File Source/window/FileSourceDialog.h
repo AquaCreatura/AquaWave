@@ -16,14 +16,15 @@ namespace file_source
         // Returns selected file parameters
         const SourceDescription& GetFileInfo() const;
         const bool         SetFileName(const QString& file_name);
+
+        void StartProcessingParams();        // Slot for OK button logic
     signals:
         // Signal to update the source when parameters change
         void UpdateSourceNeed();
-
     protected:
         // Slot to handle file path selection
         void OnChooseFilePath();
-		void ParseWavHeader(const QString& file_name);
+		bool ParseWavHeader(const QString& file_name);
         bool ParseFileName(const QString& file_name);
 		void RememberFilePath();
         // Slot to update data type options in UI
@@ -31,9 +32,6 @@ namespace file_source
 
         // Slot triggered when data type selection changes
         void OnDataTypeChanged();
-
-        // Slot for OK button logic
-        void OnOkButton();
 
     protected:
         Ui::FileSettingsDialog  ui_;			// UI components from .ui file

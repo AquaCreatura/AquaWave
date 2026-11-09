@@ -12,6 +12,7 @@ file_source::FileSourceArk::FileSourceArk(QWidget * main_window) :
 	qmain_window_(main_window)
 {
 	dialog_ = new FileSourceDialog;  // Создание диалогового окна
+    dialog_->setStyleSheet(qmain_window_->styleSheet());
 	connect(dialog_, &FileSourceDialog::UpdateSourceNeed, this, &FileSourceArk::UpdateSource);
 	UpdateSource();
 }
@@ -92,11 +93,12 @@ bool file_source::FileSourceArk::PostDove(aqua::DoveSptr const& sent_dove)
         if (file_src_thought & FileSrcDove::SpecThought::kSetFileName)
         {
             const QString file_name = file_src_dove->description->file_name_;
-			UpdateSource();
-            dialog_->SetFileName(file_name);
-			dialog_->setStyleSheet(qmain_window_->styleSheet());
-			
-			dialog_->exec();
+            if (!dialog_->SetFileName(file_name)) {
+                dialog_->exec();
+            }
+            else {
+                dialog_->StartProcessingParams();
+            }
         }//kSetFile
     }
     return ArkBase::PostDove(sent_dove);

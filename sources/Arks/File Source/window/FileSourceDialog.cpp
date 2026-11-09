@@ -67,7 +67,7 @@ file_source::FileSourceDialog::FileSourceDialog()
     
         // Обработчик кнопки OK
         {
-            connect(ui_.ok_push_button, &QPushButton::clicked, this, &FileSourceDialog::OnOkButton);
+            connect(ui_.ok_push_button, &QPushButton::clicked, this, &FileSourceDialog::StartProcessingParams);
         }
 
     const QString img_base = ":/buttons/button_images/";
@@ -94,13 +94,16 @@ const SourceDescription& file_source::FileSourceDialog::GetFileInfo() const
 
 const bool file_source::FileSourceDialog::SetFileName(const QString & file_name)
 {
+
+
 	edit_file_info_ = SourceDescription();
-    ParseFileName(file_name);
+
+    bool is_success = ParseFileName(file_name);
 	if (file_name.endsWith(".wav", Qt::CaseInsensitive))
 	{
-		ParseWavHeader(file_name);
+        is_success |= ParseWavHeader(file_name);
 	}
-    return true;
+    return is_success && (edit_file_info_.count_of_samples > 0);
 }
 
 // Обработчик выбора файла
@@ -129,7 +132,7 @@ void file_source::FileSourceDialog::OnChooseFilePath()
 	}
 }
 
-void file_source::FileSourceDialog::ParseWavHeader(const QString & file_name)
+bool file_source::FileSourceDialog::ParseWavHeader(const QString & file_name)
 {
 	utility_aqua::WavInfo info;
 	if (get_wav_info(file_name.toLocal8Bit().constData(), info))
@@ -144,8 +147,10 @@ void file_source::FileSourceDialog::ParseWavHeader(const QString & file_name)
 			ui_.samplerate_khz_spinbox->setValue(edit_file_info_.samplerate_hz / 1e3);
 			ui_.carrier_mhz_spinbox->setValue(edit_file_info_.carrier_hz / 1e6);
 			ui_.signal_settings_groupbox->setChecked(true);
+            return true;
 		}
 	}
+    return false;
 }
 
 bool file_source::FileSourceDialog::ParseFileName(const QString& file_name)
@@ -227,7 +232,7 @@ void file_source::FileSourceDialog::OnDataTypeChanged()
 } 
 
 // Обработчик кнопки OK
-void file_source::FileSourceDialog::OnOkButton()
+void file_source::FileSourceDialog::StartProcessingParams()
 {
 	if (!QFileInfo::exists(edit_file_info_.file_name_))
 	{

@@ -16,8 +16,8 @@ dpx_core::SpectrumDpx::SpectrumDpx(kDpxChartType chart_type)
 	
 	{
 		const bool is_analyze_chart = (chart_type != kDpxChartType::kFFT);
-		const auto chart_type = is_analyze_chart ? aqua_gui::ChartDomainType::kAnalyzeDomain : aqua_gui::ChartDomainType::kFreqDomain;
-		dpx_drawer_ = new ChartDPX(nullptr, chart_type); // Создаём указатель на объект DpxChart для отрисовки.
+		const auto chart_domain = is_analyze_chart ? aqua_gui::ChartDomainType::kAnalyzeDomain : aqua_gui::ChartDomainType::kFreqDomain;
+		dpx_drawer_ = new ChartDPX(nullptr, chart_domain); // Создаём указатель на объект DpxChart для отрисовки.
 	}
 	switch (chart_type)
 	{

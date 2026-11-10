@@ -32,6 +32,8 @@ protected:
 										  // Timer for periodic redraws
 	QTimer redraw_timer_;
 	aqua_gui::ImageBG bg_image_; // Background image for chart
+
+	QElapsedTimer time_after_image_;
 };
 
 

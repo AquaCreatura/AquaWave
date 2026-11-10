@@ -102,9 +102,9 @@ bool constel::ChartConstel::CheckChartValidation(QPainter& painter)
 
     if (!val_bounds_valid || !is_core_valid || !is_data_valid) {
         QPixmap pix(":/AquaWave/sources/GUI/External/BaseImages/month_sky.png");
-
+        if (time_after_image_.elapsed() < 500)
+            return true;
         auto chart_size = scale_info_.pix_info_.chart_size_px;
-
         // Масштабируем относительно размера области чарта
         QSize scaledSize = pix.size().scaled(chart_size.hor, chart_size.vert, Qt::KeepAspectRatio);
 
@@ -117,6 +117,7 @@ bool constel::ChartConstel::CheckChartValidation(QPainter& painter)
             pix);
         return false;
     }
+    time_after_image_.restart();
     return true;
 }
 

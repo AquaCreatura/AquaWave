@@ -102,7 +102,7 @@ void scope_analyzer::ScopeAnalyzerWindow::SetMaxFFtOrder(int max_fft_order)
 }
 void scope_analyzer::ScopeAnalyzerWindow::UpdateHarmonicResult(analz_chart_type type_of_chart, double value, QString modulation)
 {
-	QLabel* label = nullptr;
+	QRadioButton* radio_button = nullptr;
 	double divider = 1.0;
 	QString suffix;
 	int precision = 0;
@@ -110,16 +110,16 @@ void scope_analyzer::ScopeAnalyzerWindow::UpdateHarmonicResult(analz_chart_type 
 	switch (type_of_chart)
 	{
 	case analz_chart_type::kPowerSpectrum:
-		label = ui_.carrier_value_label; divider = 1e6; suffix = " MHz"; precision = 6; break;
+		radio_button = ui_.carrier_radio_button; divider = 1e6; suffix = " MHz"; precision = 6; break;
 
 	case analz_chart_type::kEnvelopeSpectrum:
-		label = ui_.symbol_rate_label; divider = 1e3; suffix = " kHz"; precision = 3; break;
+		radio_button = ui_.symbol_rate_radio_button; divider = 1e3; suffix = " kHz"; precision = 3; break;
 
 	case analz_chart_type::kPhasorSpectrum:
-		label = ui_.symbol_rate_label; divider = 1e3; suffix = " kHz"; precision = 3; break;
+		radio_button = ui_.symbol_rate_radio_button; divider = 1e3; suffix = " kHz"; precision = 3; break;
 
 	case analz_chart_type::kAcf:
-		ui_.acf_radio_button->setText(tr("ACF: %1ms").arg(value,0, 'f',3));
+		ui_.acf_radio_button->setText(tr("%1ms").arg(value,0, 'f',3));
 		return;
 	case analz_chart_type::kConstellation:
 		ui_.modulation_radio_button->setText(modulation);
@@ -129,7 +129,7 @@ void scope_analyzer::ScopeAnalyzerWindow::UpdateHarmonicResult(analz_chart_type 
 		return;
 	}
 
-	label->setText(QString::number(value / divider, 'f', precision) + suffix);
+	radio_button->setText(QString::number(value / divider, 'f', precision) + suffix);
 }
 
 void scope_analyzer::ScopeAnalyzerWindow::UpdateFFtCombobox(const int max_order, const int cur_fft_order)

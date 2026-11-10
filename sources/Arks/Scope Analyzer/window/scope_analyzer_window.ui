@@ -174,7 +174,33 @@
               <property name="horizontalSpacing">
                <number>0</number>
               </property>
-              <item row="1" column="2">
+              <item row="1" column="0">
+               <widget class="QRadioButton" name="symbol_rate_radio_button">
+                <property name="text">
+                 <string>200.324 kHz</string>
+                </property>
+                <attribute name="buttonGroup">
+                 <string notr="true">radio_group_chart_type</string>
+                </attribute>
+               </widget>
+              </item>
+              <item row="0" column="0">
+               <widget class="QRadioButton" name="carrier_radio_button">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="text">
+                 <string>15.567'123 MHz</string>
+                </property>
+                <attribute name="buttonGroup">
+                 <string notr="true">radio_group_chart_type</string>
+                </attribute>
+               </widget>
+              </item>
+              <item row="1" column="1">
                <widget class="QComboBox" name="symbol_rate_combobox">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
@@ -187,70 +213,6 @@
                   <width>63</width>
                   <height>65536</height>
                  </size>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="0">
-               <widget class="QRadioButton" name="symbol_rate_radio_button">
-                <property name="text">
-                 <string>Bd: </string>
-                </property>
-                <attribute name="buttonGroup">
-                 <string notr="true">radio_group_chart_type</string>
-                </attribute>
-               </widget>
-              </item>
-              <item row="0" column="1">
-               <widget class="QLabel" name="carrier_value_label">
-                <property name="cursor">
-                 <cursorShape>ArrowCursor</cursorShape>
-                </property>
-                <property name="frameShape">
-                 <enum>QFrame::WinPanel</enum>
-                </property>
-                <property name="frameShadow">
-                 <enum>QFrame::Raised</enum>
-                </property>
-                <property name="lineWidth">
-                 <number>3</number>
-                </property>
-                <property name="midLineWidth">
-                 <number>2</number>
-                </property>
-                <property name="text">
-                 <string>15.567'123 MHz</string>
-                </property>
-               </widget>
-              </item>
-              <item row="0" column="0">
-               <widget class="QRadioButton" name="carrier_radio_button">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="text">
-                 <string>Fc: </string>
-                </property>
-                <attribute name="buttonGroup">
-                 <string notr="true">radio_group_chart_type</string>
-                </attribute>
-               </widget>
-              </item>
-              <item row="1" column="1">
-               <widget class="QLabel" name="symbol_rate_label">
-                <property name="cursor">
-                 <cursorShape>ArrowCursor</cursorShape>
-                </property>
-                <property name="frameShape">
-                 <enum>QFrame::WinPanel</enum>
-                </property>
-                <property name="frameShadow">
-                 <enum>QFrame::Raised</enum>
-                </property>
-                <property name="text">
-                 <string>200.324 kHz</string>
                 </property>
                </widget>
               </item>

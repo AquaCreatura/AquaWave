@@ -23,6 +23,7 @@ public: //Override
 	virtual void paintEvent(QPaintEvent* paint_event) override;
 	void resizeEvent(QResizeEvent* event);
 protected:
+	bool CheckChartValidation(QPainter& painter);
 	bool ShouldRedraw();
 protected:
 	QPixmap             cached_pixmap_;

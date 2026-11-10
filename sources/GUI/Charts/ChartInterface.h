@@ -96,7 +96,7 @@ protected slots:
 protected:
     // Update widget size information
     void UpdateWidgetSizeInfo();
-
+    bool CheckChartValidation(QPainter& painter);
     // Redraw widget on timer timeout
     virtual void OnTimeoutRedraw();
     

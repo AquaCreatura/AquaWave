@@ -59,6 +59,10 @@ void ChartConstel::paintEvent(QPaintEvent* paint_event)
         path.addRoundedRect(0, 0, chart_size.hor, chart_size.vert, 10, 10);
         new_frame_painter.setClipPath(path);
     }
+	if (!CheckChartValidation(new_frame_painter))
+		return;
+
+
 
     // Рисуем фон (относительно смещённой системы координат)
     bg_image_.DrawImage(new_frame_painter);
@@ -84,6 +88,36 @@ void ChartConstel::resizeEvent(QResizeEvent* event)
     // chart_size_px — квадрат минимального размера
     auto min_size = std::min(cur_size.hor, cur_size.vert);
     pix_info.chart_size_px = HV_Info<int>({ min_size, min_size }) - pix_info.margin_px;
+}
+
+bool constel::ChartConstel::CheckChartValidation(QPainter& painter)
+{
+    auto& view_bounds = scale_info_.val_info_.view_bounds;
+    auto& constel_data = core_.GetConstelData();
+
+    bool val_bounds_valid = (view_bounds.hor.delta() > 1.e-6) && (view_bounds.vert.delta() > 1.e-6) &&
+        std::isfinite(view_bounds.hor.delta()) && std::isfinite(view_bounds.vert.delta());
+    bool is_core_valid = constel_data.side_size > 0 && constel_data.side_amplitude > 0;
+    bool is_data_valid = constel_data.count_of_points > 0;
+
+    if (!val_bounds_valid || !is_core_valid || !is_data_valid) {
+        QPixmap pix(":/AquaWave/sources/GUI/External/BaseImages/month_sky.png");
+
+        auto chart_size = scale_info_.pix_info_.chart_size_px;
+
+        // Масштабируем относительно размера области чарта
+        QSize scaledSize = pix.size().scaled(chart_size.hor, chart_size.vert, Qt::KeepAspectRatio);
+
+        // Центрируем внутри локальной системы координат (уже смещённой через translate)
+        QPoint pos((chart_size.hor - scaledSize.width()) / 2,
+            (chart_size.vert - scaledSize.height()) / 2);
+
+        painter.drawPixmap(pos.x(), pos.y(),
+            scaledSize.width(), scaledSize.height(),
+            pix);
+        return false;
+    }
+    return true;
 }
 
 bool ChartConstel::ShouldRedraw()

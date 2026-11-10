@@ -183,12 +183,9 @@ void ChartInterface::resizeEvent(QResizeEvent * resize_event)
 
 void ChartInterface::paintEvent(QPaintEvent * paint_event)
 {
+	
+
     UpdateWidgetSizeInfo();     //if widget size was changed
-
-	//Для ЛЧМ не используем
-    if(scale_info_.val_info_.domain_type != ChartDomainType::kTimeFrequency) 
-		aqua_gui::AdaptVertPowerBounds(scale_info_);
-
     
     QPainter new_frame_painter(this);
 	//Выставляем закруглённые края
@@ -198,6 +195,15 @@ void ChartInterface::paintEvent(QPaintEvent * paint_event)
 		path.addRoundedRect(rect(), 10, 10);
 		new_frame_painter.setClipPath(path);
 	}
+	if (!CheckChartValidation(new_frame_painter))
+		return;
+
+
+
+	//Для ЛЧМ не используем
+	if (scale_info_.val_info_.domain_type != ChartDomainType::kTimeFrequency)
+		aqua_gui::AdaptVertPowerBounds(scale_info_);
+
     //Background Image
     {
         //Draw our background
@@ -289,6 +295,27 @@ void ChartInterface::UpdateWidgetSizeInfo()
 
     pix_info.widget_size_px = cur_size;
     pix_info.chart_size_px  = pix_info.widget_size_px  - pix_info.margin_px;    
+}
+
+bool ChartInterface::CheckChartValidation(QPainter& painter)
+{
+	auto &view_bounds = scale_info_.val_info_.view_bounds;
+	bool val_bounds_valid = (view_bounds.hor.delta() > 1.e-6) && (view_bounds.vert.delta() > 1.e-6) &&
+									std::isfinite(view_bounds.hor.delta()) && std::isfinite(view_bounds.vert.delta());
+	if (!val_bounds_valid) {
+		QPixmap pix(":/AquaWave/sources/GUI/External/BaseImages/girl_fox_base.png");
+
+		// Центрируем pixmap в widget
+		QSize scaledSize = pix.size().scaled(size(), Qt::KeepAspectRatioByExpanding);
+		QPoint pos((width() - scaledSize.width()) / 2,
+			(height() - scaledSize.height()) / 2);
+
+		painter.drawPixmap(pos.x(), pos.y(),
+			scaledSize.width(), scaledSize.height(),
+			pix);
+		return false;
+	}
+	return true;
 }
 
 void ChartInterface::OnTimeoutRedraw()

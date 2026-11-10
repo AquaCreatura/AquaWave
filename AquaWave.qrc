@@ -13,5 +13,6 @@
         <file>sources/GUI/External/BaseImages/real_cool_fox.png</file>
         <file>sources/GUI/External/BaseImages/cute_fox_base.png</file>
         <file>sources/GUI/External/BaseImages/girl_fox_base.png</file>
+        <file>sources/GUI/External/BaseImages/month_sky.png</file>
     </qresource>
 </RCC>

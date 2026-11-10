@@ -13,8 +13,8 @@ namespace constel {
 struct constellation_data
 {
 	typedef int DataType;
-	int side_amplitude; //Амплитуда в одну из сторону 2A + 1 = width = height
-	int side_size; //Длина одной стороны = 2 * side_amplitude + 1
+	int side_amplitude = 0; //Амплитуда в одну из сторону 2A + 1 = width = height
+	int side_size = 0; //Длина одной стороны = 2 * side_amplitude + 1
 	std::vector<DataType>   data;            // (Плотность) Хранилище данных (size = высота * ширина) (values can not be negative)
 	// Доступ к строкам данных
 	DataType* operator[](size_t row) {

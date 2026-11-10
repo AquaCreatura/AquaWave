@@ -147,6 +147,10 @@ bool SpectralViewer::Reload()
 	if (!file_src->PostDove(parrent_dove) || !parrent_dove->description) {
 		return false;
 	}
+	if (parrent_dove->description->count_of_samples < 32) {
+		qDebug() << "Spectral Viewer: Can not write samples! \n";
+		return false;
+	}
 	src_info_.descr = *parrent_dove->description;
 	const int max_order = std::min(log2(parrent_dove->description->count_of_samples), 21.);
 	window_->SetMaxFFtOrder(max_order);

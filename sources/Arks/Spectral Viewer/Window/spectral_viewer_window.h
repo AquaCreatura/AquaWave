@@ -33,7 +33,7 @@ namespace spectral_viewer {
         void UpdateFFtCombobox(int max_order, int cur_fft_order);
         void SetupSideMenu();
         void AnimateWidth(int target_width);
-
+        void resizeEvent(QResizeEvent* event) override;
     private:
         struct WidgetEntry {
             QWidget* widget = nullptr;

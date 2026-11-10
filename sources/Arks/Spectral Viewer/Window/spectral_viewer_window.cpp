@@ -41,12 +41,6 @@ SpectralViewerWindow::SpectralViewerWindow()
     auto* saveShortcut = new QShortcut(QKeySequence(Qt::CTRL + Qt::Key_S), this);
     connect(saveShortcut, &QShortcut::activated, this, &SpectralViewerWindow::RecordSelectionNeed);
 
-    QTimer::singleShot(0, this, [this]() {
-        const int totalHeight = ui_.main_splitter->height();
-        if (totalHeight > 0)
-            ui_.main_splitter->setSizes({ totalHeight / 2, totalHeight / 2 });
-        });
-
     UpdateFFtCombobox(21, 10);
 }
 
@@ -155,6 +149,18 @@ void SpectralViewerWindow::AnimateWidth(int target_width)
 
     restart(max_width_anim_, ui_.verticalFrame->maximumWidth(), target_width);
     restart(min_width_anim_, ui_.verticalFrame->minimumWidth(), target_width);
+}
+
+void spectral_viewer::SpectralViewerWindow::resizeEvent(QResizeEvent* event)
+{
+    QDialog::resizeEvent(event);
+
+    static bool firstResize = true;
+    if (firstResize && ui_.main_splitter->height() > 50) {
+        firstResize = false;
+        const int totalHeight = ui_.main_splitter->height();
+        ui_.main_splitter->setSizes({ totalHeight / 2, totalHeight / 2 });
+    }
 }
 
 bool SpectralViewerWindow::eventFilter(QObject* obj, QEvent* event)

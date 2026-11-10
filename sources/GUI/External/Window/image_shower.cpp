@@ -24,7 +24,7 @@ ImageShower::ImageShower(QWidget* geometry_ref,
     , m_min_show_ms_(min_show_ms)
     , m_fade_ms_(fade_ms)
 {
-    setWindowFlags(Qt::FramelessWindowHint | Qt::WindowStaysOnTopHint);
+    setWindowFlags(Qt::FramelessWindowHint /*| Qt::WindowStaysOnTopHint*/);
     setAttribute(Qt::WA_TranslucentBackground);
     setAttribute(Qt::WA_NoSystemBackground);
 

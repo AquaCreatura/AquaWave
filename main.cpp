@@ -22,6 +22,7 @@ int main(int argc, char *argv[])
 			file_path = tcDir.isEmpty() ? QFileInfo(file_path).absoluteFilePath() : QDir(tcDir).absoluteFilePath(file_path);
 		}
 	}
+	file_path = "C:/Users/User/Desktop/Waver/QWKWidgets.dll";
 	//file_path = "D:/signals/star_signals/iDirect and HUBs 11081.434200MHz 7000.000KHz.pcm";
     AquaWave w(nullptr, file_path);
     w.show();

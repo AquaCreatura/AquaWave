@@ -60,7 +60,7 @@ bool file_source::FileSourceArk::PostDove(aqua::DoveSptr const& sent_dove)
     
 	if (parrent_type & FileSrcDove::kGetDescription)
 	{
-		if (descr_.file_name_.isEmpty()) return false;
+		if (descr_.file_name_.isEmpty() || descr_.count_of_samples == 0) return false;
 		sent_dove->description = this->descr_;
 		//Do smth
 	}
@@ -94,7 +94,6 @@ bool file_source::FileSourceArk::PostDove(aqua::DoveSptr const& sent_dove)
         {
             const QString file_name = file_src_dove->description->file_name_;
             if (!dialog_->SetFileName(file_name)) {
-                dialog_->setWindowFlags(dialog_->windowFlags() | Qt::WindowStaysOnTopHint);
                 dialog_->exec();
             }
             else {

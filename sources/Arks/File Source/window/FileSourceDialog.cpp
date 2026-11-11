@@ -8,7 +8,7 @@
 #include <qfiledialog.h>
 #include <qmessagebox.h>
 #include <QTextStream>
-
+#include "GUI/External/Window/QWindowKitHelper.h"
 using namespace file_source;
 
 // ============================== FileSourceDialog ===================================
@@ -17,7 +17,6 @@ using namespace file_source;
 file_source::FileSourceDialog::FileSourceDialog()
 {
     ui_.setupUi(this);
-    
     // Настройка обработчиков для типа данных
     {
         connect(ui_.is_data_complex_checkbox, &QCheckBox::clicked, this, &FileSourceDialog::UpdateDataTypes);
@@ -36,15 +35,18 @@ file_source::FileSourceDialog::FileSourceDialog()
                 QTextStream in(&file);
                 current_file_name = in.readLine(); // читаем первую строку
                 file.close();
-				SetFileName(current_file_name);
+				InitFromFileName(current_file_name);
             }
         }
 		
 		connect(ui_.choose_path_tool_button, &QPushButton::clicked, this, &FileSourceDialog::OnChooseFilePath);
         connect(ui_.choose_path_line_edit, &QLineEdit::textChanged, [this](const QString& new_file_path)
         {   
-            edit_file_info_.file_name_ = new_file_path;
-            SetFileName(new_file_path);
+            path_edit_debouncer_.Call([this, new_file_path]()
+            {
+                edit_file_info_.file_name_ = new_file_path;
+                InitFromFileName(new_file_path);
+            });
         });  
     }
     
@@ -93,20 +95,26 @@ const SourceDescription& file_source::FileSourceDialog::GetFileInfo() const
     return edit_file_info_;
 }
 
-const bool file_source::FileSourceDialog::SetFileName(const QString & file_name)
+const bool file_source::FileSourceDialog::InitFromFileName(const QString & file_name)
 {
-
 
 	edit_file_info_ = SourceDescription();
 
-    bool is_success = ParseFileName(file_name);
+    // Обновление пути в GUI
+    {
+        if (ui_.choose_path_line_edit->text() != file_name)
+            ui_.choose_path_line_edit->setText(file_name);
+        edit_file_info_.file_name_ = file_name;
+    }
+
+
+    bool is_good_parse = ParseFileName(file_name);
 	if (file_name.endsWith(".wav", Qt::CaseInsensitive))
 	{
-        is_success |= ParseWavHeader(file_name);
+        is_good_parse |= ParseWavHeader(file_name);
 	}
-    bool is_file_exist = (edit_file_info_.count_of_samples > 0);
-    ui_.ok_push_button->setVisible(is_file_exist);
-    return is_success && is_file_exist;
+    bool is_file_exist = UpdateDataInfo(file_name);
+    return is_good_parse && is_file_exist;
 }
 
 // Обработчик выбора файла
@@ -146,7 +154,7 @@ void file_source::FileSourceDialog::OnChooseFilePath()
         return; // Пользователь нажал "Отмена"
     }
 
-    SetFileName(current_file_name);
+    InitFromFileName(current_file_name);
 }
 
 bool file_source::FileSourceDialog::ParseWavHeader(const QString & file_name)
@@ -172,13 +180,6 @@ bool file_source::FileSourceDialog::ParseWavHeader(const QString & file_name)
 
 bool file_source::FileSourceDialog::ParseFileName(const QString& file_name)
 {
-    // Обновление пути в интерфейсе
-    {
-        if(ui_.choose_path_line_edit->text() != file_name)
-            ui_.choose_path_line_edit->setText(file_name);
-
-        edit_file_info_.file_name_ = file_name;
-    }
     // Парсинг параметров из имени файла (формат: "... 869.977996MHz 219.999KHz.pcm")
     bool is_succesfully_parsed = false;
     int64_t samplerate_hz = 0, carrier_hz = 1.e6;
@@ -190,27 +191,28 @@ bool file_source::FileSourceDialog::ParseFileName(const QString& file_name)
     ui_.signal_settings_groupbox->setChecked(is_succesfully_parsed); //Факт того, что успешно достали ЧД, нас более чем удовлетворяет
     ui_.carrier_mhz_spinbox     ->setValue(edit_file_info_.carrier_hz   / 1.e6);
     ui_.samplerate_khz_spinbox  ->setValue(edit_file_info_.samplerate_hz/ 1.e3);
-
-	if (QFileInfo::exists(edit_file_info_.file_name_) && (edit_file_info_.count_of_samples <= 0))
-	{
-		edit_file_info_.count_of_samples = QFile(edit_file_info_.file_name_).size() / GetSampleSize(edit_file_info_.data_type_);
-	}
-
-	if (FsHelper::IsFile32Float(file_name.toLocal8Bit().constData()))
-		ui_.float32_radio_button->setChecked(true);
-	else
-		ui_.int16_radio_button->setChecked(true);
-	OnDataTypeChanged();
-	
 	return is_succesfully_parsed;
-	
+}
 
+bool file_source::FileSourceDialog::UpdateDataInfo(const QString& file_name)
+{
+    bool is_file_exist = CheckFileConnection(file_name, 100);
+    if (is_file_exist) {
+        if (FsHelper::IsFile32Float(file_name.toLocal8Bit().constData()))
+            ui_.float32_radio_button->setChecked(true);
+        else
+            ui_.int16_radio_button->setChecked(true);
+        OnDataTypeChanged();
+
+        edit_file_info_.count_of_samples = (QFile(edit_file_info_.file_name_).size() - edit_file_info_.first_sample_offset) / GetSampleSize(edit_file_info_.data_type_);
+    }    
+    ui_.ok_push_button->setVisible(is_file_exist);
+    return is_file_exist;
 }
 
 void file_source::FileSourceDialog::RememberFilePath()
 {
 	//File read path
-	
 	QString last_path_file_name = QFileInfo(QCoreApplication::applicationFilePath())
 		.dir().absoluteFilePath("file_read_path.txt");
 	QFile file(last_path_file_name);
@@ -252,14 +254,12 @@ void file_source::FileSourceDialog::OnDataTypeChanged()
 // Обработчик кнопки OK
 void file_source::FileSourceDialog::StartProcessingParams()
 {
-	if (!QFileInfo::exists(edit_file_info_.file_name_))
+    InitFromFileName(ui_.choose_path_line_edit->text());
+	if (edit_file_info_.count_of_samples <= 0)
 	{
-		QMessageBox::critical(this, tr("No file error"),
-			tr("Can not find specified file!\n\"%1\"").arg(edit_file_info_.file_name_));
+		QMessageBox::critical(this, tr("No file error"), tr("Can not find specified file!\n\"%1\"").arg(edit_file_info_.file_name_));
 		return;
-	}
-	edit_file_info_.count_of_samples = (QFile(edit_file_info_.file_name_).size() - edit_file_info_.first_sample_offset) / GetSampleSize(edit_file_info_.data_type_);
-
+	}	
 	RememberFilePath();
     UpdateSourceNeed();
     this->close();

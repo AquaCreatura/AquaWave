@@ -93,7 +93,7 @@ bool file_source::FileSourceArk::PostDove(aqua::DoveSptr const& sent_dove)
         if (file_src_thought & FileSrcDove::SpecThought::kSetFileName)
         {
             const QString file_name = file_src_dove->description->file_name_;
-            if (!dialog_->SetFileName(file_name)) {
+            if (!dialog_->InitFromFileName(file_name)) {
                 dialog_->exec();
             }
             else {

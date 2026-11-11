@@ -34,3 +34,9 @@ private:
 	std::ofstream file_stream_;
 	size_t		 bytes_written_{ 0 };
 };
+
+#pragma once
+
+#include <QString>
+bool CheckFileConnection(const QString& file_path = QString(), int timeout_ms = 100);
+

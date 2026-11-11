@@ -14,5 +14,6 @@
         <file>sources/GUI/External/BaseImages/cute_fox_base.png</file>
         <file>sources/GUI/External/BaseImages/girl_fox_base.png</file>
         <file>sources/GUI/External/BaseImages/month_sky.png</file>
+        <file>sources/GUI/External/BaseImages/video_fox_aquawave.mp4</file>
     </qresource>
 </RCC>

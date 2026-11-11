@@ -2,6 +2,7 @@
 
 #include <qdialog.h>
 #include "ui_file_settings_dialog.h"
+#include "Utilities/qt_utility.h"
 
 using namespace aqua;
 namespace file_source
@@ -15,7 +16,7 @@ namespace file_source
         ~FileSourceDialog();
         // Returns selected file parameters
         const SourceDescription& GetFileInfo() const;
-        const bool         SetFileName(const QString& file_name);
+        const bool         InitFromFileName(const QString& file_name);
 
         void StartProcessingParams();        // Slot for OK button logic
     signals:
@@ -26,6 +27,7 @@ namespace file_source
         void OnChooseFilePath();
 		bool ParseWavHeader(const QString& file_name);
         bool ParseFileName(const QString& file_name);
+        bool UpdateDataInfo(const QString& file_name);
 		void RememberFilePath();
         // Slot to update data type options in UI
         void UpdateDataTypes();
@@ -37,5 +39,6 @@ namespace file_source
         Ui::FileSettingsDialog  ui_;			// UI components from .ui file
         SourceDescription               edit_file_info_;		// Current file parameters
 		SourceDescription				actual_file_info_;	//
+        utility_aqua::DelayedCaller     path_edit_debouncer_{ 500, true, this }; // задержка обновления пути
     };
 };

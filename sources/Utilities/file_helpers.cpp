@@ -2,11 +2,16 @@
 
 #include <ipps.h>
 #include <qdir.h>
+#include <QFile>
+#include <QProcess>
 #include <Windows.h>
+#include <winnetwk.h>
 
 #include <algorithm>
 #include <string>
 #include <vector>
+
+#pragma comment(lib, "mpr.lib")
 
 static const char* TEMP_PREFIX = "tmp";
 
@@ -219,3 +224,70 @@ bool FileWriter::DeleteCurrentFile()
 	file_path_.clear();
 	return success;
 }
+
+//============================= CheckFileConnection ================================
+
+namespace
+{
+	// Имя сервера для сетевого пути, иначе пустая строка.
+	// is_network сообщает, является ли путь сетевым (отображённый диск или UNC).
+	QString RemoteHost(const QString& file_path, bool& is_network)
+	{
+		is_network = false;
+		const QString native = QDir::toNativeSeparators(file_path);
+		QString remote;
+
+		if (native.size() >= 2 && native.at(1) == QLatin1Char(':'))
+		{
+			const QString drive = native.left(2);
+			if (::GetDriveTypeW(reinterpret_cast<const wchar_t*>(drive.utf16())) == DRIVE_REMOTE)
+			{
+				is_network = true;
+				WCHAR buf[MAX_PATH];
+				DWORD size = MAX_PATH;
+				if (::WNetGetConnectionW(reinterpret_cast<const wchar_t*>(drive.utf16()), buf, &size) == NO_ERROR)
+					remote = QString::fromWCharArray(buf); // \\server\share\...
+			}
+		}
+		else if (native.startsWith(QLatin1String("\\\\")))
+		{
+			is_network = true;
+			remote = native;
+		}
+
+		const int end = remote.indexOf(QLatin1Char('\\'), 2);
+		return remote.mid(2, end < 0 ? -1 : end - 2);
+	}
+}
+#include <qelapsedtimer.h>
+bool CheckFileConnection(const QString& file_path, int timeout_ms)
+{
+	if (file_path.isEmpty())
+		return false;
+
+	bool is_network = false;
+	const QString host = RemoteHost(file_path, is_network);
+
+	// Сетевой диск: без быстрого пинга (<= timeout_ms) файл считаем недоступным.
+	if (is_network)
+	{
+		if (host.isEmpty())
+			return false;
+
+		QProcess ping;
+		
+		ping.start("ping", { "-n", "1", "-w", QString::number(timeout_ms), host });
+		QElapsedTimer timer; timer.restart();
+		if (!ping.waitForFinished(timeout_ms + 200) || ping.exitCode() != 0)
+		{
+			int spent = timer.elapsed();
+			ping.kill();
+			return false;
+		}
+		int spent = timer.elapsed();
+		spent = 0;
+	}
+
+	return QFile::exists(file_path);
+}
+

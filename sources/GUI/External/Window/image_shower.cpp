@@ -24,7 +24,7 @@ PreviewLogoShower::PreviewLogoShower(QWidget* geometry_ref,
     , m_min_show_ms_(min_show_ms)
     , m_fade_ms_(fade_ms)
 {
-    setWindowFlags(Qt::FramelessWindowHint /*| Qt::WindowStaysOnTopHint*/);
+    setWindowFlags(Qt::SplashScreen | Qt::FramelessWindowHint /*| Qt::WindowStaysOnTopHint*/);
     setAttribute(Qt::WA_TranslucentBackground);
     setAttribute(Qt::WA_NoSystemBackground);
 
@@ -123,33 +123,6 @@ void PreviewLogoShower::hideWhenReady()
     QTimer::singleShot(remaining, this, &PreviewLogoShower::startHide);
 }
 
-//void ImageShower::startHide()
-//{
-//    if (m_is_hiding_) return;
-//    m_is_hiding_ = true;
-//
-//    // Анимируем свойство "pos" (позицию окна на экране)
-//    m_fade_anim_ = new QPropertyAnimation(this, "pos");
-//
-//    m_fade_anim_->setDuration(m_fade_ms_);
-//
-//    // Стартуем с текущей позиции
-//    m_fade_anim_->setStartValue(pos());
-//
-//    // Финишируем, сдвинувшись вниз на полную высоту окна
-//    QPoint endPos = pos();
-//    endPos.setY(endPos.y() + height());
-//    m_fade_anim_->setEndValue(endPos);
-//
-//    // InCubic дает приятное ускорение в начале падения
-//    m_fade_anim_->setEasingCurve(QEasingCurve::InCubic);
-//
-//    connect(m_fade_anim_, &QPropertyAnimation::finished, this, [this]() {
-//        close();
-//        });
-//
-//    m_fade_anim_->start();
-//}
 
 void PreviewLogoShower::startHide()
 {

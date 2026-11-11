@@ -7,18 +7,18 @@
 #include <QGraphicsBlurEffect>
 #include <QGraphicsOpacityEffect>
 
-class ImageShower : public QWidget
+class PreviewLogoShower : public QWidget
 {
     Q_OBJECT
 
 public:
     // geometry_ref нужен только чтобы узнать начальный размер и позицию окна
-    explicit ImageShower(QWidget* geometry_ref,
+    explicit PreviewLogoShower(QWidget* geometry_ref,
         const QString& resource_path,
         int min_show_ms = 1000,
         int fade_ms = 800);
 
-    ~ImageShower() override;
+    ~PreviewLogoShower() override;
 
     void hideWhenReady();
 

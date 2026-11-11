@@ -14,7 +14,7 @@ AquaWave::AquaWave(QWidget *parent, const QString& file_path)
 {
     ui.setupUi(this);
 
-    auto* m_splash_ = new ImageShower(this,
+    auto* m_splash_ = new PreviewLogoShower(this,
         ":/AquaWave/sources/GUI/External/BaseImages/cute_fox_base.png",
         0, 3000);
 

@@ -44,6 +44,7 @@ file_source::FileSourceDialog::FileSourceDialog()
         connect(ui_.choose_path_line_edit, &QLineEdit::textChanged, [this](const QString& new_file_path)
         {   
             edit_file_info_.file_name_ = new_file_path;
+            SetFileName(new_file_path);
         });  
     }
     
@@ -103,33 +104,49 @@ const bool file_source::FileSourceDialog::SetFileName(const QString & file_name)
 	{
         is_success |= ParseWavHeader(file_name);
 	}
-    return is_success && (edit_file_info_.count_of_samples > 0);
+    bool is_file_exist = (edit_file_info_.count_of_samples > 0);
+    ui_.ok_push_button->setVisible(is_file_exist);
+    return is_success && is_file_exist;
 }
 
 // Обработчик выбора файла
 void file_source::FileSourceDialog::OnChooseFilePath()
 {
-	QString current_file_name = ui_.choose_path_line_edit->text();
+    QString current_file_name = ui_.choose_path_line_edit->text();
 
-	// Диалог выбора файла
-	{
-		// Изменён фильтр: теперь включает и .pcm, и .wav
-		QString signal_filter = tr("Signals (*.pcm *.wav)");
-		QString no_filter = tr("All files (*.*)");
-		const QString set_of_filters = QString("%1;;%2").arg(signal_filter).arg(no_filter);
+    // 1. Настройка фильтров
+    const QString signal_filter = tr("Signals (*.pcm *.wav)");
+    const QString no_filter = tr("All files (*.*)");
+    const QString set_of_filters = QString("%1;;%2").arg(signal_filter).arg(no_filter);
 
-		// Проверка, является ли текущее имя файла сигнальным (pcm или wav)
-		const bool is_signal_file = (current_file_name.size() > 5) &&
-			(current_file_name.endsWith(".pcm", Qt::CaseInsensitive) ||
-				current_file_name.endsWith(".wav", Qt::CaseInsensitive));
-		QString& cur_filter = (is_signal_file || current_file_name.isEmpty()) ? signal_filter : no_filter;
+    // 2. Определение текущего фильтра
+    const bool is_signal_file = current_file_name.size() > 5 &&
+        (current_file_name.endsWith(".pcm", Qt::CaseInsensitive) ||
+            current_file_name.endsWith(".wav", Qt::CaseInsensitive));
 
-		current_file_name = QFileDialog::getOpenFileName(this, tr("Choose file"),
-			QFileInfo(current_file_name).absolutePath(), set_of_filters, &cur_filter);
-		if (current_file_name.isEmpty()) return;
-		
-		SetFileName(current_file_name);
-	}
+    QString cur_filter = (is_signal_file || current_file_name.isEmpty()) ? signal_filter : no_filter;
+
+    // 3. ГЛАВНОЕ ИЗМЕНЕНИЕ: 
+    // Передаём полный путь к файлу (absoluteFilePath), чтобы Qt выделил его в диалоге.
+    // Если имя пустое, передаём пустую строку (Qt откроет последнюю использованную или домашнюю папку).
+    const QString start_path = current_file_name.isEmpty()
+        ? QString()
+        : QFileInfo(current_file_name).absoluteFilePath();
+
+    // 4. Вызов диалога
+    current_file_name = QFileDialog::getOpenFileName(
+        this,
+        tr("Choose file"),
+        start_path,
+        set_of_filters,
+        &cur_filter
+    );
+
+    if (current_file_name.isEmpty()) {
+        return; // Пользователь нажал "Отмена"
+    }
+
+    SetFileName(current_file_name);
 }
 
 bool file_source::FileSourceDialog::ParseWavHeader(const QString & file_name)
@@ -157,7 +174,8 @@ bool file_source::FileSourceDialog::ParseFileName(const QString& file_name)
 {
     // Обновление пути в интерфейсе
     {
-        ui_.choose_path_line_edit->setText(file_name);
+        if(ui_.choose_path_line_edit->text() != file_name)
+            ui_.choose_path_line_edit->setText(file_name);
 
         edit_file_info_.file_name_ = file_name;
     }

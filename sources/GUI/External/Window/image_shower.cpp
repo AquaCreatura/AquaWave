@@ -14,7 +14,7 @@
 #include <QScreen>
 #include <QCursor>
 
-ImageShower::ImageShower(QWidget* geometry_ref,
+PreviewLogoShower::PreviewLogoShower(QWidget* geometry_ref,
     const QString& resource_path,
     int min_show_ms,
     int fade_ms)
@@ -74,21 +74,21 @@ ImageShower::ImageShower(QWidget* geometry_ref,
 
     m_elapsed_.start();
 }
-ImageShower::~ImageShower()
+PreviewLogoShower::~PreviewLogoShower()
 {
     if (m_geometry_ref_) m_geometry_ref_->removeEventFilter(this);
     if (m_blur_anim_) m_blur_anim_->stop();
     if (m_fade_anim_) m_fade_anim_->stop();
 }
 
-void ImageShower::updateGeometry()
+void PreviewLogoShower::updateGeometry()
 {
     if (m_geometry_ref_) {
         setGeometry(m_geometry_ref_->geometry());
     }
 }
 
-bool ImageShower::eventFilter(QObject* obj, QEvent* event)
+bool PreviewLogoShower::eventFilter(QObject* obj, QEvent* event)
 {
     if (obj == m_geometry_ref_) {
         if (event->type() == QEvent::Resize || event->type() == QEvent::Move) {
@@ -98,7 +98,7 @@ bool ImageShower::eventFilter(QObject* obj, QEvent* event)
     return QWidget::eventFilter(obj, event);
 }
 
-void ImageShower::paintEvent(QPaintEvent* event)
+void PreviewLogoShower::paintEvent(QPaintEvent* event)
 {
     QPainter painter(this);
     painter.setRenderHint(QPainter::Antialiasing);
@@ -113,14 +113,14 @@ void ImageShower::paintEvent(QPaintEvent* event)
     QWidget::paintEvent(event);
 }
 
-void ImageShower::hideWhenReady()
+void PreviewLogoShower::hideWhenReady()
 {
     if (m_is_hiding_) return;
 
     int elapsed = static_cast<int>(m_elapsed_.elapsed());
     int remaining = qMax(0, m_min_show_ms_ - elapsed);
 
-    QTimer::singleShot(remaining, this, &ImageShower::startHide);
+    QTimer::singleShot(remaining, this, &PreviewLogoShower::startHide);
 }
 
 //void ImageShower::startHide()
@@ -151,7 +151,7 @@ void ImageShower::hideWhenReady()
 //    m_fade_anim_->start();
 //}
 
-void ImageShower::startHide()
+void PreviewLogoShower::startHide()
 {
     if (m_is_hiding_) return;
     m_is_hiding_ = true;

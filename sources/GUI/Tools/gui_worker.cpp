@@ -119,7 +119,7 @@ bool aqua_gui::PanFromMouse(ChartScaleInfo& scale_info,
 		const double delta = cur_limits.delta(); // длина интервала не меняется
 
 												 // Вычисляем положение курсора в долях от ширины (от 0 до 1)
-		double t_x = std::clamp(double(end_mouse_point.x()) / width, 0.0, 1.0);
+		double t_x = double(end_mouse_point.x()) / width;
 
 		// Новая нижняя граница: чтобы world_pos.hor соответствовало пикселю t_x
 		double new_low = world_pos.hor - t_x * delta;
@@ -164,7 +164,7 @@ bool aqua_gui::PanFromMouse(ChartScaleInfo& scale_info,
 		const double delta = cur_limits.delta();
 
 		// Положение курсора по Y: y=0 соответствует high, y=height соответствует low
-		double t_y = std::clamp(double(end_mouse_point.y()) / height, 0.0, 1.0);
+		double t_y = double(end_mouse_point.y()) / height;
 		// Доля от low до high: (1 - t_y) – при t_y=0 (верх) это 1 (high), при t_y=1 (низ) это 0 (low)
 		double fraction_from_low = 1.0 - t_y;
 

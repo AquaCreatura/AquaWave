@@ -88,7 +88,7 @@ void PowerLimitMan::Process(const std::vector<float>& data, const Limits<double>
     // Объединение с текущими границами: расширение только наружу
     Limits<double> current_bounds = power_bounds_.load();
 	if (!need_reset_bounds_) {
-		new_bounds.low	= std::max(current_bounds.low, new_bounds.low);
+		new_bounds.low	= std::min(current_bounds.low, new_bounds.low);
 		new_bounds.high = std::max(new_bounds.high, current_bounds.high);
 	}	
     // Превышение границ мощности

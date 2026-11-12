@@ -303,6 +303,8 @@ void TileDPX::ApplyDecay()
 	if (trans_decrease_counter_ > 0) {
 		decay_factor *= trans_decay_rate_;
 	}
+	if (decay_factor == 1.0)
+		return;
 	// Один и тот же итоговый коэффициент применяется ко всему состоянию.
 	for (auto& val : data_)
 		val = static_cast<int64_t>(val * decay_factor);

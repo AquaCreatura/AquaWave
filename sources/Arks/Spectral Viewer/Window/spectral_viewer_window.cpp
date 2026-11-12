@@ -42,6 +42,10 @@ SpectralViewerWindow::SpectralViewerWindow()
     connect(saveShortcut, &QShortcut::activated, this, &SpectralViewerWindow::RecordSelectionNeed);
 
     UpdateFFtCombobox(21, 10);
+    {
+        const int totalHeight = ui_.main_splitter->height();
+        ui_.main_splitter->setSizes({ totalHeight / 2, totalHeight / 2 });
+    }
 }
 
 // ---------------------------------------------------------------------------

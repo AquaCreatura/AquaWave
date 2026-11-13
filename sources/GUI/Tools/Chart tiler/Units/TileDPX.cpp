@@ -2,7 +2,7 @@
 
 #include "GUI/Tools/gui_conversions.h"
 #include "GUI/Tools/gui_worker.h"
-
+constexpr int c_expr_trans_new_data_weight_ = 10; //Вес новых данных
 // Конструктор
 TileDPX::TileDPX(const bool need_decay)
 {
@@ -62,7 +62,7 @@ void TileDPX::UpdateFromTile(const TileInterface* passed_data)
 	for (auto it : casted_past->column_weight_vec_)
 		max_col_size = std::max(it, max_col_size);
 
-	const double trans_column_size = std::min<size_t>(max_col_size, 1'000); // 
+	const double trans_column_size = std::min<size_t>(max_col_size, 1'000 * c_expr_trans_new_data_weight_); // 
 
 	int64_t new_max_trans_density = 0;
 
@@ -189,7 +189,7 @@ void TileDPX::UpdateDecayInfo()
 	if (trans_decrease_counter_ > 0) {
 		if (drawn_samples_per_column_ > 10'000)
 			trans_decay_rate_ = 0.5;
-		if (drawn_samples_per_column_ > 1000 && timer_after_start_decaying_.elapsed() > 1'000)
+		else if (drawn_samples_per_column_ > 1000 && timer_after_start_decaying_.elapsed() > 1'000)
 			trans_decay_rate_ = 0.7;
 		else if (drawn_samples_per_column_ > 100 && timer_after_start_decaying_.elapsed() > 2'000)
 			trans_decay_rate_ = 0.8;
@@ -221,7 +221,7 @@ void TileDPX::DrawOnlyPoints(const std::vector<float>& data, const Limits<double
 	const auto& xb = val_bounds_.hor;
 	const auto& yb = val_bounds_.vert;
 	const double freq_step = src_freq.delta() / static_cast<double>(data.size() - 1);
-	int additional_step = trans_decrease_counter_ > 0 ? 10 : 1;
+	int additional_step = trans_decrease_counter_ > 0 ? c_expr_trans_new_data_weight_ : 1;
 	for (size_t i = 0; i < data.size(); ++i)
 	{
 		const double x = src_freq.low + i * freq_step;
@@ -245,7 +245,7 @@ void TileDPX::DrawInterpolated(const std::vector<float>& values, const Limits<do
 	const auto& yb = val_bounds_.vert;
 	const int64_t width = data_size_.hor, height = data_size_.vert;
 	const double step = x_range.delta() / (values.size() - 1);
-	int additional_step = trans_decrease_counter_ > 0 ? 10 : 1;
+	int additional_step = trans_decrease_counter_ > 0 ? c_expr_trans_new_data_weight_ : 1;
 	for (size_t i = 0; i + 1 < values.size(); ++i) {
 		const double x0 = x_range.low + i * step;
 		const double x1 = x0 + step;

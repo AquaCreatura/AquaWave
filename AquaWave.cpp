@@ -116,6 +116,7 @@ void AquaWave::resizeEvent(QResizeEvent * event)
 void AquaWave::setupWindowAgent()
 {
     QMenuBar* menuBar = m_mainMenuHelper->createMenuBar(this);
+    setWindowTitle(tr("AquaWave v.3.0.1"));
 
     connect(m_mainMenuHelper, &QMainMenuHelper::openFileRequested, this, [this]() {
         auto file_window = ShipBuilder::GetWindow(file_src_);

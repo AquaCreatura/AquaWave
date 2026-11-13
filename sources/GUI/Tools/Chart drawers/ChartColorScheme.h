@@ -53,6 +53,10 @@ struct ChartColorScheme
 
 		scheme.mouse_label_bg_color = QColor(255, 227, 199, 255); // #FFE3C7
 
+
+		//scheme.selection_border_color = QColor(255, 255, 255, 255);
+		scheme.selection_fill_color = QColor(0, 00, 255, 50);
+
 		return scheme;
 	}
 };

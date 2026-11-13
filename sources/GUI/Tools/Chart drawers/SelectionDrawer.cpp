@@ -179,12 +179,16 @@ bool aqua_gui::SelectionDrawer::DrawRectangles(QPainter & painter, const HorVerL
 	const QRect pixel_rect = { int(user_rect.hor.low), int(user_rect.vert.low),
 		int(user_rect.hor.delta() + 1), int(user_rect.vert.delta() + 1) };
 	{
-		QPen sel_pen;
-		sel_pen.setColor((is_vert_valid && is_hor_valid) ? colors_.axis_color : colors_.text_color);
+		
 
-		QColor fillColor(0, 255, 255, 60);
+		QColor fillColor(200, 255, 200, 255);
+		
+		QPen sel_pen;
+		sel_pen.setColor(fillColor);
 		sel_pen.setWidth(1);
 		painter.setPen(sel_pen);
+
+		fillColor.setAlpha(50);
 
 		if (is_hor_valid) {
 			painter.drawLine(pixel_rect.left(), 0, pixel_rect.left(), chart_size_px.vert); //Вертикальные линии

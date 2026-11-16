@@ -1,6 +1,9 @@
 ﻿#include "AquaDemod.h"
 
 #include "Interfaces/special_defs/demodulator_defs.h"
+#include "Interfaces/special_defs/file_souce_defs.h"
+
+#include <qmessagebox.h>
 
 #include <algorithm>
 #include <cmath>
@@ -10,6 +13,8 @@ using namespace aqua;
 namespace
 {
 	constexpr double kTwoPi = 2.0 * M_PI;
+	// Размер блока, который источник отдаёт демодулятору за раз.
+	constexpr int kDemodChunkSize = 4096;
 }
 
 
@@ -40,9 +45,13 @@ demodulator::AquaDemod::AquaDemod()
 		demodulator_.SetEqualiserSpeed(speed);
 	});
 	connect(window_, &AquaDemodWindow::RunToggled, this, [this](bool running) {
-		is_active_ = running;
-		if (running) info_timer_.start();
-		else info_timer_.stop();
+		if (running) {
+			// Старт демодуляции: просим источник отдать выделенный диапазон.
+			if (!StartDemodulation()) window_->SetRunningState(false);
+		}
+		else {
+			StopDemodulation();
+		}
 	});
 
 	info_timer_.setInterval(200);
@@ -52,6 +61,7 @@ demodulator::AquaDemod::AquaDemod()
 demodulator::AquaDemod::~AquaDemod()
 {
 	info_timer_.stop();
+	StopDemodulation();
 }
 
 bool demodulator::AquaDemod::SendData(aqua::DataInfo const & data_info)
@@ -95,21 +105,18 @@ bool demodulator::AquaDemod::PostDove(aqua::DoveSptr const & sent_dove)
 	{
 		return Reload();
 	}
-		if (base_thought & aqua::DoveParrent::DoveThought::kActivate)
-		{
-			
-			info_timer_.start();
-		}
-		if (base_thought & aqua::DoveParrent::DoveThought::kDeactivate)
-		{
-			info_timer_.stop();
-		}
+	// Демодуляция управляется кнопкой Start/Stop, а не активацией вкладки:
+	// kActivate/kDeactivate только показывают/скрывают окно и не трогают поток.
 	if (base_thought & aqua::DoveParrent::DoveThought::kSpecialThought) {
 		const auto special_thought = sent_dove->special_thought;
 		if (auto demod_dove = std::dynamic_pointer_cast<demodulator::DemodulatorDove>(sent_dove)) {
 			if (special_thought & demodulator::DemodulatorDove::kInitialise && demod_dove->carrier_hz && demod_dove->symbol_rate_hz) {
-				window_->SetFreqParams(demod_dove->carrier_hz, demod_dove->symbol_rate_hz);
-				ApplyDemodSettings();
+				// Параметры из гармонического анализатора применяются только
+				// до запуска: во время демодуляции управляет кнопка Start/Stop.
+				if (!is_active_) {
+					window_->SetFreqParams(demod_dove->carrier_hz, demod_dove->symbol_rate_hz);
+					ApplyDemodSettings();
+				}
 			}
 		};
 	}
@@ -151,30 +158,92 @@ void demodulator::AquaDemod::RebuildPipeline()
 	if (!window_) return;
 
 
-	auto qstr_mod = window_->GetModulation().toUtf8();;
+	auto qstr_mod = window_->GetModulation().toUtf8();
 	modulation_ = std::string(qstr_mod.constData(), qstr_mod.size());
 	carrier_hz_ = window_->GetCarrierHz();
 	symbol_rate_hz_ = window_->GetSymbolRateHz();
 
-
-	if (symbol_rate_hz_ <= 0.0 || src_info_.descr.samplerate_hz <= 0) return;
+	if (symbol_rate_hz_ <= 0.0) return;
 
 	if (!demodulator_.Init(modulation_.c_str(), upsample_koeff_)) return;
 	demodulator_.SetPllSpeed(window_->GetPllSpeed());
 	demodulator_.SetTimingSpeed(window_->GetTllSpeed());
 	demodulator_.SetEqualiserSpeed(window_->GetEqSpeed());
 
-	// Демодулятор работает на 4 отсчётах на символ, поэтому вход приводится
-	// к (symbol_rate * upsample) с переносом на выбранную несущую.
+	// Источник по запросу StartDemodulation отдаёт выделенную полосу, уже
+	// приведённую к нулевой несущей, с ЧД symbol_rate * upsample. Поэтому
+	// тракту достаточно убрать постоянную составляющую перед демодулятором.
 	pipe_line_.AddNextPipe(std::make_shared<pipes::DcRemovePipe>());
-	pipe_line_.AddNextPipe(std::make_shared<pipes::ResamplerPipe>(
-		src_info_.descr.carrier_hz,
-		src_info_.descr.samplerate_hz,
-		static_cast<int64_t>(std::llround(carrier_hz_)),
-		static_cast<int64_t>(std::llround(symbol_rate_hz_ * upsample_koeff_)),
-		static_cast<int64_t>(std::llround(symbol_rate_hz_))));
 
 	is_ready_ = true;
+}
+
+bool demodulator::AquaDemod::StartDemodulation()
+{
+	auto source_ark = src_info_.ark.lock();
+	if (!source_ark) return false;
+
+	// Пересобираем тракт под текущие параметры окна и убеждаемся,
+	// что демодулятор инициализирован (нужны несущая и символьная скорость).
+	ApplyDemodSettings();
+	bool ready = false;
+	{
+		tbb::spin_mutex::scoped_lock scoped_locker(pipe_mutex_);
+		ready = is_ready_;
+		if (ready) synced_buffer_.clear();
+	}
+	if (!ready) {
+		QMessageBox::warning(nullptr, "Cannot Start Demodulation",
+			"Set the carrier, symbol rate and modulation first.");
+		return false;
+	}
+	if (window_) window_->ClearConstelData();
+
+	// Аналогично ScopeAnalyser: просим источник начать циклическую отдачу
+	// выделенного диапазона. Полоса берётся по символьной скорости, а ЧД —
+	// так, чтобы демодулятор получал upsample отсчётов на символ.
+	self_wptr_ = shared_from_this();
+	auto req_dove = std::make_shared<file_source::FileSrcDove>(
+		file_source::FileSrcDove::kInitiate | file_source::FileSrcDove::kAskLoopInRange);
+	req_dove->target_ark = self_wptr_.lock();
+	req_dove->time_bounds = { 0., 1. };
+	req_dove->setup.emplace();
+	auto& setup = req_dove->setup;
+	setup->carrier_hz    = static_cast<int64_t>(std::llround(carrier_hz_));
+	setup->samplerate_hz = static_cast<int64_t>(std::llround(symbol_rate_hz_ * upsample_koeff_));
+	setup->banwidth_hz   = static_cast<int64_t>(std::llround(symbol_rate_hz_));
+	setup->chunk_size    = kDemodChunkSize;
+
+	// Включаем приём до старта читателя, чтобы не потерять первые блоки.
+	is_active_ = true;
+	info_timer_.start();
+	if (!source_ark->PostDove(req_dove)) {
+		is_active_ = false;
+		info_timer_.stop();
+		QMessageBox::warning(nullptr, "Cannot Start Demodulation",
+			"Check the source and demodulation parameters (carrier, symbol rate).");
+		return false;
+	}
+	return true;
+}
+
+void demodulator::AquaDemod::StopDemodulation()
+{
+	is_active_ = false;
+	info_timer_.stop();
+
+	// Останавливаем только свой читатель у источника. Во время разрушения
+	// объекта self_wptr_ уже истёк, поэтому обращение к shared_from_this()
+	// здесь не используется.
+	if (auto self = self_wptr_.lock()) {
+		if (auto source_ark = src_info_.ark.lock()) {
+			auto req_dove = std::make_shared<aqua::DoveParrent>(aqua::DoveParrent::kStop);
+			req_dove->target_ark = self;
+			source_ark->PostDove(req_dove);
+		}
+	}
+
+	if (window_) window_->ClearConstelData();
 }
 
 void demodulator::AquaDemod::UpdateEstimates()

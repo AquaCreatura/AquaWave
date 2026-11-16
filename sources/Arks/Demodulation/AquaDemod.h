@@ -8,6 +8,7 @@
 #include <qtimer.h>
 #include <tbb/spin_mutex.h>
 
+#include <memory>
 #include <string>
 
 using namespace aqua;
@@ -29,6 +30,11 @@ namespace demodulator{
 		// Периодическое обновление оценочных значений в окне (GUI-поток).
 		void UpdateEstimates();
 
+		// Запуск/остановка демодуляции: запрос к источнику выделенного
+		// диапазона (аналогично ScopeAnalyser) и приём потока данных.
+		bool StartDemodulation();
+		void StopDemodulation();
+
 	protected:
 		SourceArk							src_info_;
 		QPointer<AquaDemodWindow>			window_;
@@ -39,6 +45,9 @@ namespace demodulator{
 		QTimer								info_timer_;
 
 		std::vector<Ipp32fc>				synced_buffer_;
+		// Слабая ссылка на себя: нужна, чтобы останавливать читатель источника
+		// в том числе из деструктора (shared_from_this() там уже недопустим).
+		std::weak_ptr<aqua::ArkInterface>	self_wptr_;
 
 		std::string							modulation_{ "QPSK" };
 		double								carrier_hz_{ 0.0 };

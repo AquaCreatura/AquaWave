@@ -5,6 +5,9 @@
     <Filter Include="Application">
       <UniqueIdentifier>{4fc737f1-c7a5-4376-a066-2a32d752a2ff}</UniqueIdentifier>
     </Filter>
+    <Filter Include="ConsoleProcessing">
+      <UniqueIdentifier>{2b6f0a41-9d3e-4b1c-8f27-5c9a1e7d4b30}</UniqueIdentifier>
+    </Filter>
     <Filter Include="GUI">
       <UniqueIdentifier>{3462638b-1003-4b82-9a88-c0dea3bcef09}</UniqueIdentifier>
     </Filter>
@@ -154,6 +157,9 @@
     </ClCompile>
     <ClCompile Include="main.cpp">
       <Filter>Application</Filter>
+    </ClCompile>
+    <ClCompile Include="ConsoleProcessing\DmdTester.cpp">
+      <Filter>ConsoleProcessing</Filter>
     </ClCompile>
     <ClCompile Include="sources\DSP Tools\basic\freq_shifter.cpp">
       <Filter>DSP Tools\basic</Filter>
@@ -369,6 +375,12 @@
       <Filter>GUI</Filter>
     </ClInclude>
     <ClInclude Include="sources\aqua_defines.h" />
+    <ClInclude Include="ConsoleProcessing\ConsoleHelper.h">
+      <Filter>ConsoleProcessing</Filter>
+    </ClInclude>
+    <ClInclude Include="ConsoleProcessing\DmdTester.h">
+      <Filter>ConsoleProcessing</Filter>
+    </ClInclude>
     <ClInclude Include="sources\Arks\File Source\FileSource.h">
       <Filter>ARKS\File Source</Filter>
     </ClInclude>

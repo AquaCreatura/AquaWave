@@ -1,10 +1,26 @@
 #include "AquaWave.h"
 #include <QtWidgets/QApplication>
+#include <QCoreApplication>
+
+#include "ConsoleProcessing/ConsoleHelper.h"
+#include "ConsoleProcessing/DmdTester.h"
 
 #include <qdir.h>
 #include <Windows.h>
 int main(int argc, char *argv[])
 {
+	// Full argument list (the first element is the application name, as expected
+	// by QCommandLineParser).
+	QStringList arguments;
+	for (int i = 0; i < argc; ++i)
+		arguments << QString::fromLocal8Bit(argv[i]);
+
+	// Console modes (-dmd / --help): the main project is not started, no windows.
+	if (console::ConsoleHelper::IsConsoleInvocation(arguments)) {
+		QCoreApplication core_app(argc, argv);
+		return console::DmdTester::RunConsole(arguments);
+	}
+
     QApplication a(argc, argv);
 	QCoreApplication::setAttribute(Qt::AA_DontCreateNativeWidgetSiblings);
     const auto cur_icon = QIcon(":/AquaWave/wave.png");

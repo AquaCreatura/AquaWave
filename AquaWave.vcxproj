@@ -121,6 +121,7 @@
   <ItemGroup>
     <ClCompile Include="AquaWave.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="ConsoleProcessing\DmdTester.cpp" />
     <ClCompile Include="sources\Arks\Demodulation\AquaDemod.cpp" />
     <ClCompile Include="sources\Arks\Demodulation\window\AquaDemodWindow.cpp" />
     <ClCompile Include="sources\Arks\Elements\Constellation\Constellation.cpp" />
@@ -184,6 +185,8 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="sources\aqua_defines.h" />
+    <ClInclude Include="ConsoleProcessing\ConsoleHelper.h" />
+    <ClInclude Include="ConsoleProcessing\DmdTester.h" />
     <QtMoc Include="sources\Arks\Demodulation\AquaDemod.h" />
     <QtMoc Include="sources\Arks\Demodulation\window\AquaDemodWindow.h" />
     <ClInclude Include="sources\Arks\Interfaces\special_defs\demodulator_defs.h" />

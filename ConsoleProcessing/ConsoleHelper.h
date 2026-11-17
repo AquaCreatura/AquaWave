@@ -28,6 +28,7 @@ namespace console
 		inline constexpr auto kTll = "tll";
 		inline constexpr auto kEq = "eq";
 		inline constexpr auto kEqAlg = "eq_alg";
+		inline constexpr auto kEqTaps = "eq_taps";
 	}
 
 	// Алгоритмы эквалайзера, доступные из командной строки (--eq_alg).
@@ -61,6 +62,7 @@ namespace console
 		utility_aqua::aqua_opt<double> eq_speed;
 
 		QString eq_alg;                                  // Optional equaliser algorithm (MMA/CMA/LMS)
+		int eq_taps{ 0 };                                // Optional equaliser length (0 = default)
 	};
 
 	// Loop limits and defaults, used to describe pll/tll/eq in the help.
@@ -72,6 +74,7 @@ namespace console
 		double pll_default{ 0.0 };
 		double tll_default{ 0.0 };
 		double eq_default{ 0.0 };
+		int eq_taps_default{ 21 };
 	};
 
 	// Command line parsing and the console help text.
@@ -132,7 +135,10 @@ namespace console
 					QStringLiteral("Equaliser speed. Range %1, default %2.")
 						.arg(FormatLimits(loops.eq), FormatNumber(loops.eq_default)), false },
 				{ options::kEqAlg, "name",
-					QStringLiteral("Equaliser algorithm: MMA or CMA (blind), LMS (decision-directed). Default MMA."), false },
+					QStringLiteral("Equaliser algorithm: MMA or CMA (blind), LMS (decision-directed). Default LMS."), false },
+				{ options::kEqTaps, "n",
+					QStringLiteral("Equaliser length in taps (odd recommended). Default %1.")
+						.arg(loops.eq_taps_default), false },
 			};
 		}
 
@@ -222,6 +228,16 @@ namespace console
 			if (!ExtractLoop(parser, options::kPll, loops.pll, params.pll_speed, error)) return std::nullopt;
 			if (!ExtractLoop(parser, options::kTll, loops.tll, params.tll_speed, error)) return std::nullopt;
 			if (!ExtractLoop(parser, options::kEq, loops.eq, params.eq_speed, error)) return std::nullopt;
+
+			if (parser.isSet(options::kEqTaps)) {
+				bool ok = false;
+				const int taps = parser.value(options::kEqTaps).trimmed().toInt(&ok);
+				if (!ok || taps < 1 || taps > 101) {
+					error = BadValue(options::kEqTaps, parser.value(options::kEqTaps));
+					return std::nullopt;
+				}
+				params.eq_taps = taps;
+			}
 
 			params.eq_alg = parser.value(options::kEqAlg).toUpper();
 			if (!params.eq_alg.isEmpty() &&

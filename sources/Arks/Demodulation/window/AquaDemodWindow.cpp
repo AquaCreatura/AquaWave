@@ -61,12 +61,13 @@ void AquaDemodWindow::SetupModulations()
 void AquaDemodWindow::SetupEqAlgorithms()
 {
 	// Список согласован с ContinuousDemodulator::SetEqualiserAlgorithm.
+	// Дефолт совпадает с дефолтом демодулятора (по решению, LMS).
 	const QStringList algorithms = { "MMA", "CMA", "LMS" };
 	{
 		QSignalBlocker blocker(ui_.eq_algorighm_combobox);
 		for (const QString& algorithm : algorithms)
 			ui_.eq_algorighm_combobox->addItem(algorithm, algorithm);
-		ui_.eq_algorighm_combobox->setCurrentText("MMA");
+		ui_.eq_algorighm_combobox->setCurrentText("LMS");
 	}
 
 	// Смена алгоритма применяется на лету, пересборка тракта не нужна.

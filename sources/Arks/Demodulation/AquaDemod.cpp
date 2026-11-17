@@ -75,14 +75,13 @@ bool demodulator::AquaDemod::SendData(aqua::DataInfo const & data_info)
 	if (data_info.data_vec.empty()) return true;
 
 	tbb::spin_mutex::scoped_lock scoped_locker(pipe_mutex_);
-	if (!is_ready_ || pipe_line_.pipes.empty()) return false;
+	if (!is_ready_) return false;
 
+	// Источник отдаёт полосу уже приведённой к нужной несущей и с ЧД
+	// symbol_rate * upsample, поэтому дополнительных преобразований не нужно:
+	// DC убирает сам демодулятор (ContinuousDemodulator::RemoveDc).
 	auto& passed_iq = (std::vector<Ipp32fc>&)data_info.data_vec;
-	pipe_line_.Process(passed_iq);
-	auto& resampled_iq = pipe_line_.meta->complex_float_data;
-	if (resampled_iq.empty()) return true;
-
-	demodulator_.SynchroniseIQ(resampled_iq, synced_buffer_);
+	demodulator_.SynchroniseIQ(passed_iq, synced_buffer_);
 	if (synced_buffer_.empty()) return true;
 
 	if (window_) window_->PushConstelData(synced_buffer_);
@@ -158,7 +157,6 @@ void demodulator::AquaDemod::ApplyDemodSettings()
 void demodulator::AquaDemod::RebuildPipeline()
 {
 	is_ready_ = false;
-	pipe_line_.pipes.clear();
 	if (window_) window_->ClearConstelData();
 	if (!window_) return;
 
@@ -173,19 +171,19 @@ void demodulator::AquaDemod::RebuildPipeline()
 	if (!demodulator_.Init(modulation_.c_str(), upsample_koeff_)) return;
 	// Пивоты созвездия: по ним масштабируется график и рисуются маркеры,
 	// вместо пересчёта максимума по каждой порции данных.
-	window_->SetConstelPivots(aq_demod::CalculateModulationPivots(modulation_.c_str()));
-	demodulator_.SetPllSpeed(window_->GetPllSpeed());
-	demodulator_.SetTimingSpeed(window_->GetTllSpeed());
-	demodulator_.SetEqualiserSpeed(window_->GetEqSpeed());
+	window_->SetConstelPivots		(aq_demod::CalculateModulationPivots(modulation_.c_str()));
+	demodulator_.SetPllSpeed		(window_->GetPllSpeed());
+	demodulator_.SetTimingSpeed		(window_->GetTllSpeed());
+	demodulator_.SetEqualiserSpeed	(window_->GetEqSpeed());
 	{
 		const QByteArray eq_alg = window_->GetEqAlgorithm().toUtf8();
 		demodulator_.SetEqualiserAlgorithm(eq_alg.constData());
 	}
 
-	// Источник по запросу StartDemodulation отдаёт выделенную полосу, уже
-	// приведённую к нулевой несущей, с ЧД symbol_rate * upsample. Поэтому
-	// тракту достаточно убрать постоянную составляющую перед демодулятором.
-	pipe_line_.AddNextPipe(std::make_shared<pipes::DcRemovePipe>());
+	// Постоянную составляющую убирает сам демодулятор сглаженной оценкой DC
+	// (ContinuousDemodulator::RemoveDc): вычитание среднего по короткому блоку
+	// (pipes::DcRemovePipe) давало блочный артефакт и теряло ~1.5 дБ SNR.
+	// Отдельные преобразования в тракте демодуляции не нужны.
 
 	is_ready_ = true;
 }

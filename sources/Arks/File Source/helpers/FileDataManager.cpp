@@ -84,7 +84,6 @@ void file_source::FileDataListener::SetBaseParams(InitParams &setup)
 	resampler_.SetTargetParams(setup.carrier_hz, setup.samplerate_hz, setup.banwidth_hz);
 	resample_ratio_ = setup.samplerate_hz / double(file_params_.samplerate_hz);
 	SetChunkSize(setup.chunk_size);
-	
 }
 
 void file_source::FileDataListener::SetChunkSize(const int chunk_size)
@@ -282,8 +281,11 @@ void file_source::FileDataListener::LoopReadInRangeProcess(const Limits<double>&
 			}
 		}
 
-		// Преобразование int16 -> float (комплексные отсчёты)
-		casted_vec.resize(read_data.size() / sizeof(Ipp32fc));
+		// Преобразование входных отсчётов в комплексные float.
+		// Размер считаем по размеру ВХОДНОГО отсчёта (для ipp16sc это 4 байта),
+		// иначе sizeof(Ipp32fc)=8 занижал бы размер вдвое и половина блока терялась.
+		const size_t input_sample_size = GetSampleSize(file_params_.data_type_);
+		casted_vec.resize(input_sample_size ? (read_data.size() / input_sample_size) : 0);
 		switch (file_params_.data_type_)
 		{
 		case IppDataType::ipp16sc: {

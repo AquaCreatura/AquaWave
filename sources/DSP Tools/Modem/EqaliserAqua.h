@@ -26,6 +26,10 @@ public:
 
 	explicit EqaliserAqua(int tap_count = 7);
 
+	// Длина фильтра (число отводов). Меняет размер истории и сбрасывает состояние.
+	void SetTapCount(int tap_count);
+	int  GetTapCount() const { return static_cast<int>(taps_.size()); }
+
 	void Reset();
 	bool IsValid() const;
 	// Обрабатывает входной отсчёт (с коррекцией фазы),

@@ -1,7 +1,6 @@
 ﻿#pragma once
 #include "Arks/Interfaces/base_impl/ark_base.h"
 #include "DSP Tools/Modem/ContinuousDemodulator.h"
-#include "DSP Tools/Pipelines/BasePipes.h"
 #include "window/AquaDemodWindow.h"
 
 #include <qpointer.h>
@@ -40,7 +39,6 @@ namespace demodulator{
 		QPointer<AquaDemodWindow>			window_;
 
 		aq_demod::ContinuousDemodulator		demodulator_;
-		pipes::SimplePipeLine				pipe_line_;
 		tbb::spin_mutex						pipe_mutex_;
 		QTimer								info_timer_;
 

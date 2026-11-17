@@ -31,10 +31,13 @@ bool ContinuousDemodulator::Init(const char* modulation, int upsample_passed)
 		return false;
 
 	upsample_passed_ = upsample_passed;
+	equal_.SetTapCount(eq_taps_);
 	equal_.Reset();
 	equal_.SetBlindAlgorithm(EqaliserAqua::BlindAlgorithm::MMA);
-	equal_.SetDdAlgorithm(EqaliserAqua::DdAlgorithm::NLMS);
-	equal_.EnableDirectDecision(false);
+	equal_.SetDdAlgorithm(EqaliserAqua::DdAlgorithm::LMS);
+	// По умолчанию эквалайзер работает по решению: для QAM это даёт заметно
+	// лучший SNR, чем слепые MMA/CMA (у которых остаётся ошибка модуля).
+	equal_.EnableDirectDecision(true);
 	equal_.InitFromPivots(pivots_);
 	// Re-initialize the Gardner TED with the correct oversampling factor.
 	ted_man_ = GardnerTED(upsample_passed);
@@ -46,10 +49,23 @@ bool ContinuousDemodulator::Init(const char* modulation, int upsample_passed)
 
 		signal_power_ = 0.0;
 
+		// Применяем дефолты всех петель, иначе эквалайзер остаётся со своим
+		// внутренним шагом (0.01), который выходит за документированные границы
+		// и сильно портит SNR.
 		SetPllSpeed(kPllSpeedDefault);
+		SetTimingSpeed(GetTimingSpeedDefault());
+		SetEqualiserSpeed(kEqualiserSpeedDefault);
 		Reset();
 
 		return true;
+}
+
+void ContinuousDemodulator::SetEqualiserTaps(int tap_count)
+{
+	eq_taps_ = std::max(1, tap_count);
+	equal_.SetTapCount(eq_taps_);
+	// Шаг NLMS зависит от числа отводов, поэтому пересчитываем его.
+	SetEqualiserSpeed(current_eq_speed_);
 }
 
 void ContinuousDemodulator::Reset()
@@ -62,6 +78,7 @@ void ContinuousDemodulator::Reset()
 	signal_power_ = 0.0;
 	error_power_ = 0.0;
 	snr_db_ = 0.0;
+	dc_estimate_ = { 0.0f, 0.0f };
 	equal_.Reset();
 	ted_man_.Reset();
 }
@@ -101,14 +118,14 @@ void ContinuousDemodulator::SetEqualiserAlgorithm(const char* algorithm)
 		equal_.SetBlindAlgorithm(EqaliserAqua::BlindAlgorithm::CMA);
 		equal_.EnableDirectDecision(false);
 	}
-	else if (alg == "LMS") {
-		equal_.SetDdAlgorithm(EqaliserAqua::DdAlgorithm::LMS);
-		equal_.EnableDirectDecision(true);
-	}
-	else {
-		// MMA используется по умолчанию.
+	else if (alg == "MMA") {
 		equal_.SetBlindAlgorithm(EqaliserAqua::BlindAlgorithm::MMA);
 		equal_.EnableDirectDecision(false);
+	}
+	else {
+		// По умолчанию (в т.ч. пустая строка) и для "LMS" — по решению.
+		equal_.SetDdAlgorithm(EqaliserAqua::DdAlgorithm::LMS);
+		equal_.EnableDirectDecision(true);
 	}
 }
 
@@ -131,6 +148,9 @@ bool ContinuousDemodulator::SynchroniseIQ(
 
 	if (synced_iq.empty())
 		return true;
+	// --- DC removal (постоянная составляющая) ---
+	RemoveDc(synced_iq);
+
 	// --- Automatic Gain Control ---
 
 	ApplyAGC(synced_iq);
@@ -174,6 +194,17 @@ bool ContinuousDemodulator::SynchroniseIQ(
 	}
 
 	return true;
+}
+
+void ContinuousDemodulator::RemoveDc(std::vector<Ipp32fc>& signal)
+{
+	const Ipp32f alpha = 1.0f / static_cast<Ipp32f>(kDcSmoothSymbols);
+	for (Ipp32fc& sample : signal) {
+		dc_estimate_.re += alpha * (sample.re - dc_estimate_.re);
+		dc_estimate_.im += alpha * (sample.im - dc_estimate_.im);
+		sample.re -= dc_estimate_.re;
+		sample.im -= dc_estimate_.im;
+	}
 }
 
 void ContinuousDemodulator::ApplyAGC(std::vector<Ipp32fc>& signal)

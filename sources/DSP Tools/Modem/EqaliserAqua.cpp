@@ -101,6 +101,18 @@ EqaliserAqua::EqaliserAqua(int tap_count)
 	Reset();
 }
 
+void EqaliserAqua::SetTapCount(int tap_count)
+{
+	tap_count = std::max(1, tap_count);
+	if (static_cast<int>(taps_.size()) == tap_count)
+		return;
+
+	taps_.assign(tap_count, Ipp32fc{ 0.0f, 0.0f });
+	history_.assign(tap_count, Ipp32fc{ 0.0f, 0.0f });
+	update_.assign(tap_count, Ipp32fc{ 0.0f, 0.0f });
+	Reset();
+}
+
 void EqaliserAqua::Reset()
 {
 	std::fill(taps_.begin(), taps_.end(), Ipp32fc{ 0.0f, 0.0f });

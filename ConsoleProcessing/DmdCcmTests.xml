@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  AquaWave: regression checks for console demodulation (DmdTester, -dmd mode).
+
+  How to use:
+    1. Copy a <command> line into cmd/PowerShell and run it.
+    2. Compare the printed "SNR (settled, average): <value> dB" line with <expected_snr_db>.
+  The build is x64 Debug: D:\PetWave\AquaWave\x64\Debug\AquaWave.exe
+  All loop coefficients are written explicitly so the result does not depend on defaults.
+
+  Note: the GUI (Demodulator tab) with the standard values (PLL 5e-4, TLL 0.03, EQ 1e-4,
+  algorithm LMS, 21 taps) gives the same result for test #1 (~29.6 dB).
+-->
+<DmdCcmTests>
+
+  <!-- QAM32, RRC x4, 30 dB, baseband file (carrier 0 MHz, sample rate 100 MHz).
+       Demodulation carrier 0.100302 MHz, symbol rate 24996.456 kHz. -->
+  <test name="QAM32 rrc x4 30dB (100MHz file, offs 0.001)">
+    <file>D:\signals\modulation\qam32_rrc_x4_30dB_offs_0_001 100000.000KHz.pcm</file>
+    <modulation>QAM32</modulation>
+    <command>"D:\PetWave\AquaWave\x64\Debug\AquaWave.exe" -dmd --type QAM32 --file_path "D:\signals\modulation\qam32_rrc_x4_30dB_offs_0_001 100000.000KHz.pcm" --file_fc 0 --file_sr 100000000 --dmd_fc 100302 --dmd_sr 24996456 --pll 0.0005 --tll 0.03 --eq 0.0001 --eq_alg LMS --eq_taps 21</command>
+    <expected_snr_db>29.6</expected_snr_db>
+  </test>
+
+  <!-- Reference signal from ReadMe.txt: iDirect/HUBs QPSK capture.
+       The command is exactly the one from ReadMe.txt (only the exe path is absolute). -->
+  <test name="iDirect and HUBs QPSK (ReadMe example)">
+    <file>D:\signals\star_signals\iDirect and HUBs 11081.434200MHz 7000.000KHz.pcm</file>
+    <modulation>QPSK</modulation>
+    <command>"D:\PetWave\AquaWave\x64\Debug\AquaWave.exe" -dmd --type QPSK --file_path "D:\signals\star_signals\iDirect and HUBs 11081.434200MHz 7000.000KHz.pcm" --dmd_fc 11081405991 --dmd_sr 297454</command>
+    <expected_snr_db>17.3</expected_snr_db>
+  </test>
+
+</DmdCcmTests>

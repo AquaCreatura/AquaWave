@@ -34,8 +34,11 @@ namespace aq_demod
 		void SetPllSpeed(double alpha);
 		void SetTimingSpeed(double gain_mu);
 		void SetEqualiserSpeed(double step);
+		// Длина эквалайзера (число отводов). Применяется в Init().
+		void SetEqualiserTaps(int tap_count);
+		int  GetEqualiserTaps() const { return eq_taps_; }
 		// Алгоритм эквалайзера: "MMA"/"CMA" (слепые) или "LMS" (по решению).
-		// Любое другое значение (в т.ч. nullptr) выбирает MMA.
+		// Любое другое значение (в т.ч. nullptr) выбирает LMS по умолчанию.
 		void SetEqualiserAlgorithm(const char* algorithm);
 
 		double GetPllSpeed() const { return current_pll_speed_; }
@@ -48,7 +51,8 @@ namespace aq_demod
 
 		double GetPllSpeedDefault() const { return kPllSpeedDefault; }
 		double GetTimingSpeedDefault() const { return GetTimingSpeedLimits().mid(); }
-		double GetEqualiserSpeedDefault() const { return GetEqualiserSpeedLimits().mid(); }
+		double GetEqualiserSpeedDefault() const { return kEqualiserSpeedDefault; }
+		int GetEqualiserTapsDefault() const { return kEqualiserTapsDefault; }
 
 		double GetFreqOffset() const { return freq_offset_; }
 		double GetLastSNR() const { return snr_db_; }
@@ -58,6 +62,10 @@ namespace aq_demod
 	private:
 		void UpdateLoopCoefficients();
 		void ApplyAGC(std::vector<Ipp32fc>& signal);
+		// Медленная (экспоненциально сглаженная) оценка постоянной составляющей.
+		// Вычитание среднего по блоку на коротких блоках даёт блочный артефакт
+		// и заметно портит SNR, поэтому оценка сглаживается по отсчётам.
+		void RemoveDc(std::vector<Ipp32fc>& signal);
 
 		Ipp32fc CorrectPhase(const Ipp32fc& sample) const;
 		Ipp32fc GetDecision(const Ipp32fc& sample, double& phase_error) const;
@@ -89,6 +97,9 @@ namespace aq_demod
 		double current_timing_speed_ = 0.03;
 		double current_eq_speed_ = 2.55e-3;
 
+		// Длина эквалайзера по умолчанию.
+		int eq_taps_ = kEqualiserTapsDefault;
+
 		// Gains for the second-order loop (alpha and beta in GNU Radio).
 		double pll_phase_ = 0.0; // Proportional gain (alpha)
 		double pll_freq_ = 0.0;  // Integral gain (beta)
@@ -102,10 +113,21 @@ namespace aq_demod
 		static constexpr aqua::Limits<double> kTimingSpeedLimits{ GardnerTED::kGainMuMin, GardnerTED::kGainMuMax };
 		static constexpr aqua::Limits<double> kEqualiserSpeedLimits{ EqaliserAqua::kBlindStepMin, EqaliserAqua::kBlindStepMax };
 		static constexpr double kPllSpeedDefault{ 5e-4 };
+		// Малая скорость эквалайзера: слепые алгоритмы (MMA/CMA) для некруглых
+		// созвездий (QAM) имеют остаточную ошибку усиления, поэтому большой шаг
+		// ухудшает SNR. Маленький шаг держит фильтр около согласованного состояния.
+		static constexpr double kEqualiserSpeedDefault{ 1e-4 };
+		// 21 отводов достаточно, чтобы подавить ISI от RRC-формирования
+		// (7 отводов не хватало: SNR упирался в ~28.5 dB вместо ~29.7 dB).
+		static constexpr int kEqualiserTapsDefault{ 21 };
 
 		// Normalized frequency range of the fine loop.
 		// Standard values from GNU Radio examples.
 		static constexpr double max_freq_offset_ = 0.05;
+
+		// Оценка DC на уровне символов; окно в символах (~243 Гц при 25 МГц).
+		Ipp32fc dc_estimate_{ 0.0f, 0.0f };
+		static constexpr int kDcSmoothSymbols{ 1 << 14 };
 
 		double signal_power_ = 0.0;
 		double error_power_ = 0.0;

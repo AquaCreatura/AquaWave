@@ -88,6 +88,7 @@ namespace
 		loops.pll_default = probe.GetPllSpeedDefault();
 		loops.tll_default = probe.GetTimingSpeedDefault();
 		loops.eq_default = probe.GetEqualiserSpeedDefault();
+		loops.eq_taps_default = probe.GetEqualiserTapsDefault();
 		return loops;
 	}
 
@@ -116,18 +117,22 @@ namespace
 	{
 		// File carrier and sample rate: use the given values, otherwise parse them
 		// from the file name (e.g. "... 11081.434200MHz 7000.000KHz.pcm").
+		// The carrier may legitimately be 0 (baseband file), so an explicitly
+		// provided --file_fc 0 must not be treated as "missing".
 		const QByteArray file_path_bytes = params.file_path.toLocal8Bit();
-		int64_t file_carrier_hz = params.file_carrier_hz ? params.file_carrier_hz.value() : 0;
-		int64_t file_samplerate_hz = params.file_samplerate_hz ? params.file_samplerate_hz.value() : 0;
-		if (file_carrier_hz <= 0 || file_samplerate_hz <= 0) {
+		const bool have_file_fc = static_cast<bool>(params.file_carrier_hz);
+		const bool have_file_sr = static_cast<bool>(params.file_samplerate_hz);
+		int64_t file_carrier_hz = params.file_carrier_hz.value_or(0);
+		int64_t file_samplerate_hz = params.file_samplerate_hz.value_or(0);
+		if (!have_file_fc || !have_file_sr) {
 			int64_t parsed_carrier_hz = 0, parsed_samplerate_hz = 0;
 			aqua_parse_tools::parse_filename(file_path_bytes.constData(), parsed_carrier_hz, parsed_samplerate_hz);
-			if (file_carrier_hz <= 0) file_carrier_hz = parsed_carrier_hz;
-			if (file_samplerate_hz <= 0) file_samplerate_hz = parsed_samplerate_hz;
+			if (!have_file_fc) file_carrier_hz = parsed_carrier_hz;
+			if (!have_file_sr) file_samplerate_hz = parsed_samplerate_hz;
 		}
-		if (file_carrier_hz <= 0 || file_samplerate_hz <= 0) {
-			out << "Error: cannot determine the file carrier and/or sample rate. "
-				"Specify --file_fc and --file_sr explicitly.\n";
+		if (file_samplerate_hz <= 0) {
+			out << "Error: cannot determine the file sample rate. "
+				"Specify --file_sr explicitly.\n";
 			out.flush();
 			return 1;
 		}
@@ -186,6 +191,8 @@ namespace
 			out.flush();
 			return 1;
 		}
+		// Длину эквалайзера задаём до его скорости: шаг NLMS зависит от числа отводов.
+		if (params.eq_taps > 0) demodulator.SetEqualiserTaps(params.eq_taps);
 		if (params.pll_speed) demodulator.SetPllSpeed(params.pll_speed.value());
 		if (params.tll_speed) demodulator.SetTimingSpeed(params.tll_speed.value());
 		if (params.eq_speed) demodulator.SetEqualiserSpeed(params.eq_speed.value());
@@ -200,7 +207,8 @@ namespace
 		out << "Fs file:     " << file_samplerate_hz << " Hz\n";
 		out << "Fc demod:    " << params.demod_carrier_hz << " Hz\n";
 		out << "Bd demod:    " << params.demod_symbol_rate_hz << " Hz\n";
-		out << "Eq alg:      " << (params.eq_alg.isEmpty() ? QStringLiteral("MMA") : params.eq_alg) << "\n";
+		out << "Eq alg:      " << (params.eq_alg.isEmpty() ? QStringLiteral("LMS") : params.eq_alg) << "\n";
+		out << "Eq taps:     " << demodulator.GetEqualiserTaps() << "\n";
 		out << "Demod Fs:    " << demod_samplerate_hz << " Hz (" << kUpsample << " samples/symbol)\n";
 		out << "Samples:     " << file_descr.count_of_samples << "\n";
 		out << "-------------------------------------------------------------------------------\n";

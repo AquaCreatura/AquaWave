@@ -16,6 +16,10 @@ public:
 	~ChartConstel();
 	void PushData(std::vector<Ipp32fc>& draw_data);
 	void ClearData();
+	// Опорные точки созвездия: при их наличии масштаб берётся по ним
+	// (данные не пересчитываются) и они рисуются поверх данных.
+	void SetPivots(const std::vector<Ipp32fc>& pivots);
+	void ClearPivots();
 	bool hasHeightForWidth() const override { return true; }
 	int heightForWidth(int w) const override { return w; }
 public: //Override

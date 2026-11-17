@@ -44,6 +44,11 @@ demodulator::AquaDemod::AquaDemod()
 		tbb::spin_mutex::scoped_lock scoped_locker(pipe_mutex_);
 		demodulator_.SetEqualiserSpeed(speed);
 	});
+	connect(window_, &AquaDemodWindow::EqAlgorithmChanged, this, [this](const QString& algorithm) {
+		const QByteArray eq_alg = algorithm.toUtf8();
+		tbb::spin_mutex::scoped_lock scoped_locker(pipe_mutex_);
+		demodulator_.SetEqualiserAlgorithm(eq_alg.constData());
+	});
 	connect(window_, &AquaDemodWindow::RunToggled, this, [this](bool running) {
 		if (running) {
 			// Старт демодуляции: просим источник отдать выделенный диапазон.
@@ -166,9 +171,16 @@ void demodulator::AquaDemod::RebuildPipeline()
 	if (symbol_rate_hz_ <= 0.0) return;
 
 	if (!demodulator_.Init(modulation_.c_str(), upsample_koeff_)) return;
+	// Пивоты созвездия: по ним масштабируется график и рисуются маркеры,
+	// вместо пересчёта максимума по каждой порции данных.
+	window_->SetConstelPivots(aq_demod::CalculateModulationPivots(modulation_.c_str()));
 	demodulator_.SetPllSpeed(window_->GetPllSpeed());
 	demodulator_.SetTimingSpeed(window_->GetTllSpeed());
 	demodulator_.SetEqualiserSpeed(window_->GetEqSpeed());
+	{
+		const QByteArray eq_alg = window_->GetEqAlgorithm().toUtf8();
+		demodulator_.SetEqualiserAlgorithm(eq_alg.constData());
+	}
 
 	// Источник по запросу StartDemodulation отдаёт выделенную полосу, уже
 	// приведённую к нулевой несущей, с ЧД symbol_rate * upsample. Поэтому

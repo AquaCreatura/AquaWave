@@ -13,6 +13,10 @@ public:
 	void				AddData(const std::vector<Ipp32fc> &passed_data);
 	constellation_data& GetConstelData();
 	void				Emplace(const int bins_amplitude = 128);
+	// Опорные точки созвездия: при их наличии масштаб берётся по ним,
+	// входящие данные больше не пересчитывают максимум.
+	void				SetPivots(const std::vector<Ipp32fc>& pivots);
+	void				ClearPivots();
 	QPixmap&			GetRelevantPixmap(const int chart_size_px);
 	void				InitDecay(double fps, double time_hold_sec);
 protected:

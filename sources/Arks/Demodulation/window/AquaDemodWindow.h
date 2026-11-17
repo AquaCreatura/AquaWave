@@ -35,6 +35,7 @@ public:
 	void SetRunningState(bool running);
 
 	QString	GetModulation() const;
+	QString	GetEqAlgorithm() const;
 	double	GetCarrierHz() const;
 	double	GetSymbolRateHz() const;
 	double	GetPllSpeed() const;
@@ -44,6 +45,9 @@ public:
 	// Отрисовка созвездия и обновление оценочных значений.
 	void PushConstelData(std::vector<Ipp32fc>& constel_data);
 	void ClearConstelData();
+	// Опорные точки созвездия для графика: масштаб и маркеры поверх данных.
+	void SetConstelPivots(const std::vector<Ipp32fc>& pivots);
+	void ClearConstelPivots();
 	void UpdateEstimates(double snr_db, double carrier_offset_hz, double symbol_rate_hz);
 
 signals:
@@ -53,10 +57,13 @@ signals:
 	void PllSpeedChanged(double speed);
 	void TllSpeedChanged(double speed);
 	void EqSpeedChanged(double speed);
+	// Сменился алгоритм эквалайзера (MMA/CMA/LMS), применяется на лету.
+	void EqAlgorithmChanged(const QString& algorithm);
 	void RunToggled(bool running);
 
 protected:
 	void SetupModulations();
+	void SetupEqAlgorithms();
 	void SetupSliders();
 	void SetupRanges();
 

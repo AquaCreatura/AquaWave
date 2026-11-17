@@ -27,13 +27,24 @@ namespace console
 		inline constexpr auto kPll = "pll";
 		inline constexpr auto kTll = "tll";
 		inline constexpr auto kEq = "eq";
+		inline constexpr auto kEqAlg = "eq_alg";
+	}
+
+	// Алгоритмы эквалайзера, доступные из командной строки (--eq_alg).
+	// MMA/CMA - слепые (без решения), LMS - по решению.
+	namespace eq_algorithms
+	{
+		inline constexpr auto kMma = "MMA";
+		inline constexpr auto kCma = "CMA";
+		inline constexpr auto kLms = "LMS";
 	}
 
 	// Parameters of the console demodulation mode:
 	//   -dmd --type <Type> --file_path <File> --dmd_fc <Hz> --dmd_sr <Hz>
 	//        [--file_fc <Hz>] [--file_sr <Hz>] [--pll <v>] [--tll <v>] [--eq <v>]
+	//        [--eq_alg <MMA|CMA|LMS>]
 	// file_fc/file_sr are optional (taken from the file name if omitted);
-	// pll/tll/eq are optional loop speeds.
+	// pll/tll/eq are optional loop speeds; eq_alg is the equaliser algorithm.
 	struct DmdParams
 	{
 		QString modulation;                              // Demodulation type, e.g. "QPSK"
@@ -48,6 +59,8 @@ namespace console
 		utility_aqua::aqua_opt<double> pll_speed;        // Optional loop speeds
 		utility_aqua::aqua_opt<double> tll_speed;
 		utility_aqua::aqua_opt<double> eq_speed;
+
+		QString eq_alg;                                  // Optional equaliser algorithm (MMA/CMA/LMS)
 	};
 
 	// Loop limits and defaults, used to describe pll/tll/eq in the help.
@@ -81,6 +94,48 @@ namespace console
 			return false;
 		}
 
+		// One command line option with its help text: a single source of truth
+		// for both the parser and the structured help output.
+		struct OptionInfo
+		{
+			const char* name;
+			const char* value_name; // пусто для флагов
+			QString description;
+			bool is_command;
+		};
+
+		// All options of the application. Commands are listed separately in the help.
+		static QList<OptionInfo> BuildOptions(const LoopRanges& loops)
+		{
+			return QList<OptionInfo>{
+				{ options::kDmd, "",
+					QStringLiteral("Run console demodulation (no windows are opened)."), true },
+				{ options::kType, "type",
+					QStringLiteral("Modulation type: BPSK, QPSK, 8PSK, 16QAM, 32QAM, 64QAM, 128QAM, 256QAM."), false },
+				{ options::kFilePath, "path",
+					QStringLiteral("Path to the signal file (.pcm, complex int16 or float32)."), false },
+				{ options::kFileFc, "Hz",
+					QStringLiteral("File carrier frequency, Hz. Taken from the file name if omitted."), false },
+				{ options::kFileSr, "Hz",
+					QStringLiteral("File sample rate, Hz. Taken from the file name if omitted."), false },
+				{ options::kDmdFc, "Hz",
+					QStringLiteral("Carrier frequency for demodulation, Hz (required)."), false },
+				{ options::kDmdSr, "Hz",
+					QStringLiteral("Symbol rate for demodulation, Hz (required)."), false },
+				{ options::kPll, "value",
+					QStringLiteral("PLL loop speed. Range %1, default %2.")
+						.arg(FormatLimits(loops.pll), FormatNumber(loops.pll_default)), false },
+				{ options::kTll, "value",
+					QStringLiteral("Timing loop speed. Range %1, default %2.")
+						.arg(FormatLimits(loops.tll), FormatNumber(loops.tll_default)), false },
+				{ options::kEq, "value",
+					QStringLiteral("Equaliser speed. Range %1, default %2.")
+						.arg(FormatLimits(loops.eq), FormatNumber(loops.eq_default)), false },
+				{ options::kEqAlg, "name",
+					QStringLiteral("Equaliser algorithm: MMA or CMA (blind), LMS (decision-directed). Default MMA."), false },
+			};
+		}
+
 		// Fills the parser with all options of the application.
 		static void ConfigureParser(QCommandLineParser& parser, const LoopRanges& loops)
 		{
@@ -91,47 +146,13 @@ namespace console
 			// Single dash words are whole option names: "-dmd" == "--dmd".
 			parser.setSingleDashWordOptionMode(QCommandLineParser::ParseAsLongOptions);
 
-			parser.addOption(QCommandLineOption(QStringList{ options::kDmd },
-				QStringLiteral("Run console demodulation (no windows are opened).")));
-
-			parser.addOption(QCommandLineOption(QStringList{ options::kType },
-				QStringLiteral("Modulation type: BPSK, QPSK, 8PSK, 16QAM, 32QAM, 64QAM, 128QAM, 256QAM."),
-				QStringLiteral("type")));
-
-			parser.addOption(QCommandLineOption(QStringList{ options::kFilePath },
-				QStringLiteral("Path to the signal file (.pcm, complex int16 or float32)."),
-				QStringLiteral("path")));
-
-			parser.addOption(QCommandLineOption(QStringList{ options::kFileFc },
-				QStringLiteral("File carrier frequency, Hz. Taken from the file name if omitted."),
-				QStringLiteral("Hz")));
-
-			parser.addOption(QCommandLineOption(QStringList{ options::kFileSr },
-				QStringLiteral("File sample rate, Hz. Taken from the file name if omitted."),
-				QStringLiteral("Hz")));
-
-			parser.addOption(QCommandLineOption(QStringList{ options::kDmdFc },
-				QStringLiteral("Carrier frequency for demodulation, Hz (required)."),
-				QStringLiteral("Hz")));
-
-			parser.addOption(QCommandLineOption(QStringList{ options::kDmdSr },
-				QStringLiteral("Symbol rate for demodulation, Hz (required)."),
-				QStringLiteral("Hz")));
-
-			parser.addOption(QCommandLineOption(QStringList{ options::kPll },
-				QStringLiteral("PLL loop speed. Range %1, default %2.")
-					.arg(FormatLimits(loops.pll), FormatNumber(loops.pll_default)),
-				QStringLiteral("value")));
-
-			parser.addOption(QCommandLineOption(QStringList{ options::kTll },
-				QStringLiteral("Timing loop speed. Range %1, default %2.")
-					.arg(FormatLimits(loops.tll), FormatNumber(loops.tll_default)),
-				QStringLiteral("value")));
-
-			parser.addOption(QCommandLineOption(QStringList{ options::kEq },
-				QStringLiteral("Equaliser speed. Range %1, default %2.")
-					.arg(FormatLimits(loops.eq), FormatNumber(loops.eq_default)),
-				QStringLiteral("value")));
+			for (const OptionInfo& info : BuildOptions(loops)) {
+				const QStringList names{ QString::fromLatin1(info.name) };
+				const QString value_name = info.value_name ? QString::fromLatin1(info.value_name) : QString();
+				parser.addOption(value_name.isEmpty()
+					? QCommandLineOption(names, info.description)
+					: QCommandLineOption(names, info.description, value_name));
+			}
 
 			parser.addPositionalArgument(QStringLiteral("file"),
 				QStringLiteral("Signal file to open in the graphical interface."),
@@ -202,13 +223,48 @@ namespace console
 			if (!ExtractLoop(parser, options::kTll, loops.tll, params.tll_speed, error)) return std::nullopt;
 			if (!ExtractLoop(parser, options::kEq, loops.eq, params.eq_speed, error)) return std::nullopt;
 
+			params.eq_alg = parser.value(options::kEqAlg).toUpper();
+			if (!params.eq_alg.isEmpty() &&
+				params.eq_alg != QLatin1String(eq_algorithms::kMma) &&
+				params.eq_alg != QLatin1String(eq_algorithms::kCma) &&
+				params.eq_alg != QLatin1String(eq_algorithms::kLms)) {
+				error = QStringLiteral("Unknown --%1 value: \"%2\" (expected MMA, CMA or LMS).")
+					.arg(QString::fromLatin1(options::kEqAlg), parser.value(options::kEqAlg));
+				return std::nullopt;
+			}
+
 			return params;
 		}
 
-		// Full help: the generated option list plus the extra notes.
-		static QString FullHelp(QCommandLineParser& parser)
+		// Full help: grouped by command/option sections instead of a flat list,
+		// so new console commands can be added without the help looking -dmd-centric.
+		static QString FullHelp(QCommandLineParser& parser, const LoopRanges& loops)
 		{
-			return parser.helpText() + QLatin1Char('\n') + Notes();
+			const QList<OptionInfo> options_list = BuildOptions(loops);
+
+			QString help;
+			help += parser.applicationDescription() + QStringLiteral("\n\n");
+
+			help += QStringLiteral(
+				"Usage:\n"
+				"  AquaWave.exe [file]                Start the graphical interface.\n"
+				"  AquaWave.exe <command> [options]   Run a console command.\n"
+				"\n"
+				"Commands:\n");
+			for (const OptionInfo& info : options_list)
+				if (info.is_command)
+					help += OptionLine(info);
+
+			help += QStringLiteral("\nDemodulation options (-dmd):\n");
+			for (const OptionInfo& info : options_list)
+				if (!info.is_command)
+					help += OptionLine(info);
+
+			help += QStringLiteral("\nCommon options:\n");
+			help += QStringLiteral("  -h, --help                          Show this help.\n");
+
+			help += QLatin1Char('\n') + Notes();
+			return help;
 		}
 
 		static QString Notes()
@@ -219,16 +275,29 @@ namespace console
 				"  Frequency values accept the suffixes Hz/kHz/MHz/GHz.\n"
 				"  If --file_fc/--file_sr are omitted they are taken from the file name,\n"
 				"  e.g. \"... 11081.434200MHz 7000.000KHz.pcm\".\n"
+				"  --eq_alg selects the equaliser: MMA/CMA (blind) or LMS (decision-directed).\n"
 				"\n"
 				"Example:\n"
 				"  AquaWave.exe -dmd --type QPSK --file_path \"iDirect 11081.434200MHz 7000.000KHz.pcm\" ^\n"
-				"      --dmd_fc 11081405991 --dmd_sr 297454\n"
+				"      --dmd_fc 11081405991 --dmd_sr 297454 --eq_alg MMA\n"
 				"\n"
 				"During demodulation the progress is printed: percent processed, current SNR (dB),\n"
 				"current frequency offset (Hz) and current symbol rate estimate (Hz).\n");
 		}
 
 	private:
+		// One help entry: "  --name <value>   description".
+		static QString OptionLine(const OptionInfo& info)
+		{
+			const QString name = QString::fromLatin1(info.name);
+			QString left = info.is_command
+				? QStringLiteral("  -%1").arg(name)
+				: QStringLiteral("  --%1").arg(name);
+			if (info.value_name && *info.value_name)
+				left += QStringLiteral(" <%1>").arg(QString::fromLatin1(info.value_name));
+			return left.leftJustified(36, QLatin1Char(' ')) + info.description + QLatin1Char('\n');
+		}
+
 		static bool ExtractLoop(const QCommandLineParser& parser, const char* name,
 			const aqua::Limits<double>& limits, utility_aqua::aqua_opt<double>& out_speed, QString& error)
 		{

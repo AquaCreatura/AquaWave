@@ -1,6 +1,7 @@
 ﻿#pragma once
 #include "GUI/gui_defs.h"
 
+#include <ipps.h>
 #include <tbb/spin_mutex.h>
 
 #include <vector>
@@ -26,6 +27,12 @@ struct constellation_data
 	tbb::spin_mutex redraw_mutex;
 	float max_power {0.f}; //Реальная амплитуды, соответствущее амплитуде стороны.
 	float averaged_amplitude{ 1.1f };
+
+	// Опорные точки созвездия. Если заданы, масштаб берётся по ним (а не по
+	// входящим данным) и они дорисовываются поверх данных.
+	std::vector<Ipp32fc> pivots;
+	bool has_pivots{ false };
+	int  pivots_revision{ 0 }; // Меняется при SetPivots/ClearPivots (для кэша отрисовки).
 };
 
 }

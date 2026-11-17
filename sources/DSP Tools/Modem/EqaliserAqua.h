@@ -24,7 +24,7 @@ public:
 	static constexpr double kDdStepMin = 1e-3;
 	static constexpr double kDdStepMax = 1e-2;
 
-	explicit EqaliserAqua(int tap_count = 17);
+	explicit EqaliserAqua(int tap_count = 7);
 
 	void Reset();
 	bool IsValid() const;

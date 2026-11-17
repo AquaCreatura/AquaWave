@@ -19,6 +19,7 @@ protected:
 		int		side_size_px;
 		QPixmap pixmap;
 		int64_t last_dots_count;
+		int		last_pivots_revision{ -1 };
 	};
 	dynamic_qimage          dyn_qimage_; // Структура для работы с QImage в качестве обёркти
 	cache_pixmap_structure	cache_;

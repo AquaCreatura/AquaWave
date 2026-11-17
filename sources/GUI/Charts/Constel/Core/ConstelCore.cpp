@@ -2,7 +2,25 @@
 
 #include <tbb/parallel_for.h>
 
+#include <algorithm>
+#include <cmath>
+
 using namespace constel;
+
+namespace
+{
+	// Минимальный зазор вокруг опорных точек при масштабировании по ним.
+	constexpr float kPivotScaleShift = 1.2f;
+
+	float PivotsMaxAmplitude(const std::vector<Ipp32fc>& pivots)
+	{
+		float max_amp = 0.f;
+		for (const Ipp32fc& pivot : pivots)
+			max_amp = std::max(max_amp, std::max(std::abs(pivot.re), std::abs(pivot.im)));
+		return max_amp;
+	}
+}
+
 constel::ConstelCore::ConstelCore():
 	renderer_(constel_)
 {
@@ -11,7 +29,10 @@ void constel::ConstelCore::AddData(const std::vector<Ipp32fc> &passed_data)
 {
 	//Emplace();
 	if (constel_.data.empty()) Emplace();
-	CheckPassedMaximum(passed_data);
+	// Если заданы пивоты, масштаб берётся по ним и максимум по входящим
+	// данным не пересчитывается (экономия на каждой порции данных).
+	if (!constel_.has_pivots)
+		CheckPassedMaximum(passed_data);
 	StoreData(passed_data);
 	is_updated_ = true;
 }
@@ -29,6 +50,49 @@ void constel::ConstelCore::Emplace(const int bins_amplitude)
 	constel_.max_power = 1.f;
 	constel_.data.clear();
 	constel_.data.resize(constel_.side_size * constel_.side_size, 0);
+
+	// Данные только что очищены, поэтому масштаб по пивотам можно
+	// выставить напрямую, без пересчёта содержимого.
+	if (constel_.has_pivots) {
+		const float amp = PivotsMaxAmplitude(constel_.pivots);
+		if (amp > 0.f) {
+			constel_.max_power = amp * kPivotScaleShift;
+			constel_.averaged_amplitude = amp;
+		}
+	}
+}
+
+void constel::ConstelCore::SetPivots(const std::vector<Ipp32fc>& pivots)
+{
+	if (pivots.empty()) {
+		ClearPivots();
+		return;
+	}
+
+	const float amp = PivotsMaxAmplitude(pivots);
+	if (amp <= 0.f)
+		return;
+
+	{
+		tbb::spin_mutex::scoped_lock lock(constel_.redraw_mutex);
+		constel_.pivots = pivots;
+		constel_.has_pivots = true;
+		constel_.pivots_revision++;
+	}
+
+	// Приводим текущий масштаб к пивотам (пересчёт уже накопленных данных).
+	constel_.averaged_amplitude = amp;
+	SetNewMaximum(amp * kPivotScaleShift);
+}
+
+void constel::ConstelCore::ClearPivots()
+{
+	tbb::spin_mutex::scoped_lock lock(constel_.redraw_mutex);
+	if (!constel_.has_pivots)
+		return;
+	constel_.pivots.clear();
+	constel_.has_pivots = false;
+	constel_.pivots_revision++;
 }
 
 QPixmap & constel::ConstelCore::GetRelevantPixmap(const int chart_size_px)

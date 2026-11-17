@@ -34,6 +34,9 @@ namespace aq_demod
 		void SetPllSpeed(double alpha);
 		void SetTimingSpeed(double gain_mu);
 		void SetEqualiserSpeed(double step);
+		// Алгоритм эквалайзера: "MMA"/"CMA" (слепые) или "LMS" (по решению).
+		// Любое другое значение (в т.ч. nullptr) выбирает MMA.
+		void SetEqualiserAlgorithm(const char* algorithm);
 
 		double GetPllSpeed() const { return current_pll_speed_; }
 		double GetTimingSpeed() const { return current_timing_speed_; }

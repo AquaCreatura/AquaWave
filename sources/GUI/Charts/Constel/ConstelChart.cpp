@@ -39,6 +39,16 @@ void ChartConstel::ClearData()
 	core_.Emplace();
 }
 
+void ChartConstel::SetPivots(const std::vector<Ipp32fc>& pivots)
+{
+	core_.SetPivots(pivots);
+}
+
+void ChartConstel::ClearPivots()
+{
+	core_.ClearPivots();
+}
+
 void ChartConstel::paintEvent(QPaintEvent* paint_event)
 {
     QPainter new_frame_painter(this);

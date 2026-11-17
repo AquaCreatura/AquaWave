@@ -19,6 +19,7 @@ AquaDemodWindow::AquaDemodWindow()
 	settings_delayed_ = std::make_unique<utility_aqua::DelayedCaller>(300);
 
 	SetupModulations();
+	SetupEqAlgorithms();
 	SetupSliders();
 	SetupRanges();
 
@@ -57,6 +58,22 @@ void AquaDemodWindow::SetupModulations()
 		this, [this](int) { emit DemodSettingsChanged(); });
 }
 
+void AquaDemodWindow::SetupEqAlgorithms()
+{
+	// Список согласован с ContinuousDemodulator::SetEqualiserAlgorithm.
+	const QStringList algorithms = { "MMA", "CMA", "LMS" };
+	{
+		QSignalBlocker blocker(ui_.eq_algorighm_combobox);
+		for (const QString& algorithm : algorithms)
+			ui_.eq_algorighm_combobox->addItem(algorithm, algorithm);
+		ui_.eq_algorighm_combobox->setCurrentText("MMA");
+	}
+
+	// Смена алгоритма применяется на лету, пересборка тракта не нужна.
+	connect(ui_.eq_algorighm_combobox, QOverload<int>::of(&QComboBox::currentIndexChanged),
+		this, [this](int) { emit EqAlgorithmChanged(GetEqAlgorithm()); });
+}
+
 void AquaDemodWindow::SetupSliders()
 {
 	// Группы петель (label, слайдер, спинабокс); границы и подключение
@@ -93,6 +110,11 @@ void AquaDemodWindow::SetFreqParams(aqua_opt<double> carrier_hz, aqua_opt<double
 QString AquaDemodWindow::GetModulation() const
 {
 	return ui_.modulation_combobox->currentData().toString();
+}
+
+QString AquaDemodWindow::GetEqAlgorithm() const
+{
+	return ui_.eq_algorighm_combobox->currentData().toString();
 }
 
 double AquaDemodWindow::GetCarrierHz() const
@@ -234,6 +256,18 @@ void AquaDemodWindow::ClearConstelData()
 {
 	if (constel_chart_)
 		constel_chart_->ClearData();
+}
+
+void AquaDemodWindow::SetConstelPivots(const std::vector<Ipp32fc>& pivots)
+{
+	if (constel_chart_)
+		constel_chart_->SetPivots(pivots);
+}
+
+void AquaDemodWindow::ClearConstelPivots()
+{
+	if (constel_chart_)
+		constel_chart_->ClearPivots();
 }
 
 void AquaDemodWindow::UpdateEstimates(double snr_db, double carrier_offset_hz, double symbol_rate_hz)

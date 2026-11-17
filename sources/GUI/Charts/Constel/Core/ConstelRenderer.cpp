@@ -2,7 +2,18 @@
 
 #include "GUI/Tools/gui_conversions.h"
 
+#include <qpainter.h>
+
+#include <cmath>
+
 using namespace constel;
+
+namespace
+{
+	// Размер маркера опорной точки созвездия, в пикселях итогового изображения.
+	constexpr int kPivotMarkerSizePx = 2;
+}
+
 constel::ConstellRenderer::ConstellRenderer(constellation_data & constel_struct) : 
 	constel_(constel_struct)
 {
@@ -10,7 +21,9 @@ constel::ConstellRenderer::ConstellRenderer(constellation_data & constel_struct)
 
 QPixmap & constel::ConstellRenderer::DrawData(const int side_size_px)
 {
-	if (cache_.last_dots_count != constel_.count_of_points || cache_.side_size_px != side_size_px)
+	if (cache_.last_dots_count != constel_.count_of_points ||
+		cache_.side_size_px != side_size_px ||
+		cache_.last_pivots_revision != constel_.pivots_revision)
 		UpdatePixmap(side_size_px);
 	return cache_.pixmap;
 }
@@ -32,6 +45,23 @@ void constel::ConstellRenderer::UpdatePixmap(const int side_size_px)
 
 	auto scaled = dyn_qimage_.qimage.scaled(side_size_px, side_size_px, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
 	cache_.pixmap = QPixmap::fromImage(scaled);
+
+	// Поверх данных рисуем опорные точки созвездия (белые квадраты N x N).
+	if (constel_.has_pivots && !constel_.pivots.empty() && constel_.max_power > 0.f) {
+		QPainter painter(&cache_.pixmap);
+		painter.setPen(Qt::NoPen);
+		painter.setBrush(QColor(255, 255, 255));
+
+		const double half = side_size_px * 0.5;
+		const double inv_max = 1.0 / constel_.max_power;
+		const int offset = kPivotMarkerSizePx / 2;
+		for (const Ipp32fc& pivot : constel_.pivots) {
+			const int px = static_cast<int>(std::lround(half * (1.0 + pivot.re * inv_max)));
+			const int py = static_cast<int>(std::lround(half * (1.0 + pivot.im * inv_max)));
+			painter.drawRect(px - offset, py - offset, kPivotMarkerSizePx, kPivotMarkerSizePx);
+		}
+	}
+	cache_.last_pivots_revision = constel_.pivots_revision;
 }
 
 argb_t constel::ConstellRenderer::GetRgbFromDensity(double density)

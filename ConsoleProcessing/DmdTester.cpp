@@ -189,6 +189,8 @@ namespace
 		if (params.pll_speed) demodulator.SetPllSpeed(params.pll_speed.value());
 		if (params.tll_speed) demodulator.SetTimingSpeed(params.tll_speed.value());
 		if (params.eq_speed) demodulator.SetEqualiserSpeed(params.eq_speed.value());
+		if (!params.eq_alg.isEmpty())
+			demodulator.SetEqualiserAlgorithm(params.eq_alg.toLatin1().constData());
 
 		// Header with the run parameters.
 		out << "=== AquaWave console demodulation ===\n";
@@ -198,6 +200,7 @@ namespace
 		out << "Fs file:     " << file_samplerate_hz << " Hz\n";
 		out << "Fc demod:    " << params.demod_carrier_hz << " Hz\n";
 		out << "Bd demod:    " << params.demod_symbol_rate_hz << " Hz\n";
+		out << "Eq alg:      " << (params.eq_alg.isEmpty() ? QStringLiteral("MMA") : params.eq_alg) << "\n";
 		out << "Demod Fs:    " << demod_samplerate_hz << " Hz (" << kUpsample << " samples/symbol)\n";
 		out << "Samples:     " << file_descr.count_of_samples << "\n";
 		out << "-------------------------------------------------------------------------------\n";
@@ -286,17 +289,17 @@ int console::DmdTester::RunConsole(const QStringList& arguments)
 
 	// QCommandLineParser::parse() expects the application name as the first element.
 	if (!parser.parse(arguments)) {
-		out << "Error: " << parser.errorText() << "\n\n" << ConsoleHelper::FullHelp(parser) << "\n";
+		out << "Error: " << parser.errorText() << "\n\n" << ConsoleHelper::FullHelp(parser, loops) << "\n";
 		out.flush();
 		return 1;
 	}
 	if (parser.isSet(QStringLiteral("help"))) {
-		out << ConsoleHelper::FullHelp(parser) << "\n";
+		out << ConsoleHelper::FullHelp(parser, loops) << "\n";
 		out.flush();
 		return 0;
 	}
 	if (!parser.isSet(options::kDmd)) {
-		out << "Error: unknown console invocation.\n\n" << ConsoleHelper::FullHelp(parser) << "\n";
+		out << "Error: unknown console invocation.\n\n" << ConsoleHelper::FullHelp(parser, loops) << "\n";
 		out.flush();
 		return 1;
 	}
@@ -304,7 +307,7 @@ int console::DmdTester::RunConsole(const QStringList& arguments)
 	QString error;
 	const auto params = ConsoleHelper::ExtractDmd(parser, loops, error);
 	if (!params) {
-		out << "Error: " << error << "\n\n" << ConsoleHelper::FullHelp(parser) << "\n";
+		out << "Error: " << error << "\n\n" << ConsoleHelper::FullHelp(parser, loops) << "\n";
 		out.flush();
 		return 1;
 	}

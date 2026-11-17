@@ -3,6 +3,7 @@
 #include <algorithm>
 #include <cmath>
 #include <limits>
+#include <string>
 
 using namespace aq_demod;
 
@@ -30,9 +31,11 @@ bool ContinuousDemodulator::Init(const char* modulation, int upsample_passed)
 		return false;
 
 	upsample_passed_ = upsample_passed;
+	equal_.Reset();
 	equal_.SetBlindAlgorithm(EqaliserAqua::BlindAlgorithm::MMA);
-	equal_.SetDdAlgorithm(EqaliserAqua::DdAlgorithm::LMS);
+	equal_.SetDdAlgorithm(EqaliserAqua::DdAlgorithm::NLMS);
 	equal_.EnableDirectDecision(false);
+	equal_.InitFromPivots(pivots_);
 	// Re-initialize the Gardner TED with the correct oversampling factor.
 	ted_man_ = GardnerTED(upsample_passed);
 
@@ -88,6 +91,25 @@ void ContinuousDemodulator::SetEqualiserSpeed(double step)
 	equal_.SetBlindStep(step);
 	const double dd_t = limits.pos(step);
 	equal_.SetDdStep(EqaliserAqua::kDdStepMin + dd_t * (EqaliserAqua::kDdStepMax - EqaliserAqua::kDdStepMin));
+}
+
+void ContinuousDemodulator::SetEqualiserAlgorithm(const char* algorithm)
+{
+	const std::string alg = algorithm ? algorithm : "";
+
+	if (alg == "CMA") {
+		equal_.SetBlindAlgorithm(EqaliserAqua::BlindAlgorithm::CMA);
+		equal_.EnableDirectDecision(false);
+	}
+	else if (alg == "LMS") {
+		equal_.SetDdAlgorithm(EqaliserAqua::DdAlgorithm::LMS);
+		equal_.EnableDirectDecision(true);
+	}
+	else {
+		// MMA используется по умолчанию.
+		equal_.SetBlindAlgorithm(EqaliserAqua::BlindAlgorithm::MMA);
+		equal_.EnableDirectDecision(false);
+	}
 }
 
 void ContinuousDemodulator::UpdateLoopCoefficients()

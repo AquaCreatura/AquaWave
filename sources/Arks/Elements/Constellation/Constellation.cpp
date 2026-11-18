@@ -100,13 +100,15 @@ bool constel::Constellation::Reload()
 	}
 	src_info_.descr = *req_dove->description;
 	constel_drawer_->ClearData();
+	need_update_pipeline_ = true;
 	return true;
 }
 
 void constel::Constellation::UpdatePipeline(int64_t new_fc_hz, int64_t new_symbol_rate_hz)
 {
 	double max_sr = std::max(estim_symbol_rate_, new_symbol_rate_hz);
-	if ((std::abs(new_fc_hz - estim_fc_hz_) < 0.001 * max_sr) &&
+	if (!need_update_pipeline_ &&
+		(std::abs(new_fc_hz - estim_fc_hz_) < 0.001 * max_sr) &&
 		(std::abs(estim_symbol_rate_ - new_symbol_rate_hz) < 0.001 * max_sr)) {
 		return;
 	}
@@ -126,6 +128,7 @@ void constel::Constellation::UpdatePipeline(int64_t new_fc_hz, int64_t new_symbo
 		if (constel_drawer_)
 			constel_drawer_->SetPivots(aq_demod::CalculateModulationPivots("QAM32"));
 		constel_drawer_->ClearData();
+		need_update_pipeline_ = false;
 	}
 	
 }

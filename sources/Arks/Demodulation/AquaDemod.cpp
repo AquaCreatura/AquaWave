@@ -216,7 +216,7 @@ bool demodulator::AquaDemod::StartDemodulation()
 	auto req_dove = std::make_shared<file_source::FileSrcDove>(
 		file_source::FileSrcDove::kInitiate | file_source::FileSrcDove::kAskLoopInRange);
 	req_dove->target_ark = self_wptr_.lock();
-	req_dove->time_bounds = { 0., 1. };
+	req_dove->time_bounds = { 0.9, 1. };
 	req_dove->setup.emplace();
 	auto& setup = req_dove->setup;
 	setup->carrier_hz    = static_cast<int64_t>(std::llround(carrier_hz_));

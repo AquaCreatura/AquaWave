@@ -28,6 +28,7 @@ namespace constel
 		tbb::spin_mutex				pipe_mutex_;
 		int64_t						estim_symbol_rate_;
 		int64_t						estim_fc_hz_;
+		bool						need_update_pipeline_{false};
 	};
 
 

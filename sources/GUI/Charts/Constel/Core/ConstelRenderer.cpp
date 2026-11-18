@@ -8,11 +8,6 @@
 
 using namespace constel;
 
-namespace
-{
-	// Размер маркера опорной точки созвездия, в пикселях итогового изображения.
-	constexpr int kPivotMarkerSizePx = 2;
-}
 
 constel::ConstellRenderer::ConstellRenderer(constellation_data & constel_struct) : 
 	constel_(constel_struct)
@@ -48,10 +43,13 @@ void constel::ConstellRenderer::UpdatePixmap(const int side_size_px)
 
 	// Поверх данных рисуем опорные точки созвездия (белые квадраты N x N).
 	if (constel_.has_pivots && !constel_.pivots.empty() && constel_.max_power > 0.f) {
+		int kPivotMarkerSizePx = constel_.pivots.size() <= 32 ? 2 : 1;
+
 		QPainter painter(&cache_.pixmap);
 		painter.setPen(Qt::NoPen);
 		painter.setBrush(QColor(255, 255, 255));
-
+		// Размер маркера опорной точки созвездия, в пикселях итогового изображения.
+		
 		const double half = side_size_px * 0.5;
 		const double inv_max = 1.0 / constel_.max_power;
 		const int offset = kPivotMarkerSizePx / 2;

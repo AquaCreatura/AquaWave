@@ -46,7 +46,7 @@ AquaDemodWindow::~AquaDemodWindow() = default;
 void AquaDemodWindow::SetupModulations()
 {
 	// Список согласован с CalculateModulationPivots (PSK/QAM, включая cross-QAM 32/128).
-	const QStringList modulations = { "QPSK", "BPSK", "8PSK", "16QAM", "32QAM", "64QAM", "128QAM", "256QAM" };
+	const QStringList modulations = { "QPSK", "BPSK", "8PSK", "16QAM", "32QAM", "64QAM", "128QAM", "256QAM", "1024QAM"};
 	{
 		QSignalBlocker blocker(ui_.modulation_combobox);
 		for (const QString& modulation : modulations)

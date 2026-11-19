@@ -9,15 +9,24 @@ using namespace constel;
 
 namespace
 {
-	// Минимальный зазор вокруг опорных точек при масштабировании по ним.
-	constexpr float kPivotScaleShift = 1.2f;
-
 	float PivotsMaxAmplitude(const std::vector<Ipp32fc>& pivots)
 	{
 		float max_amp = 0.f;
 		for (const Ipp32fc& pivot : pivots)
 			max_amp = std::max(max_amp, std::max(std::abs(pivot.re), std::abs(pivot.im)));
 		return max_amp;
+	}
+	float GetMinEuclid(const std::vector<Ipp32fc>& pivots)
+	{
+		if (pivots.empty()) return 0.f;
+
+		float min_sq = std::numeric_limits<float>::max();
+		for (const Ipp32fc& pivot : pivots)
+		{
+			float sq = pivot.re * pivot.re + pivot.im * pivot.im;
+			min_sq = std::min(min_sq, sq);
+		}
+		return std::sqrt(min_sq);
 	}
 }
 
@@ -55,8 +64,9 @@ void constel::ConstelCore::Emplace(const int bins_amplitude)
 	// выставить напрямую, без пересчёта содержимого.
 	if (constel_.has_pivots) {
 		const float amp = PivotsMaxAmplitude(constel_.pivots);
+		
 		if (amp > 0.f) {
-			constel_.max_power = amp * kPivotScaleShift;
+			constel_.max_power = (amp + GetMinEuclid(constel_.pivots) * 0.5) * 1.1;
 			constel_.averaged_amplitude = amp;
 		}
 	}
@@ -82,7 +92,7 @@ void constel::ConstelCore::SetPivots(const std::vector<Ipp32fc>& pivots)
 
 	// Приводим текущий масштаб к пивотам (пересчёт уже накопленных данных).
 	constel_.averaged_amplitude = amp;
-	SetNewMaximum(amp * kPivotScaleShift);
+	SetNewMaximum((amp + GetMinEuclid(constel_.pivots) * 0.5) * 1.1);
 }
 
 void constel::ConstelCore::ClearPivots()

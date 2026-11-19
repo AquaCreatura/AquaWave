@@ -17,6 +17,8 @@ namespace demodulator
         };
 		aqua_opt<double>				carrier_hz;
 		aqua_opt<double>				symbol_rate_hz;
+		// Границы времени (доли файла), читаемые при старте демодуляции.
+		aqua_opt<aqua::Limits<double>>	time_bounds;
     };
 
 }

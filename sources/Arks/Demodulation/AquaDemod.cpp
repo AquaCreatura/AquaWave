@@ -18,9 +18,9 @@ namespace
 }
 
 
-demodulator::AquaDemod::AquaDemod()
+demodulator::AquaDemod::AquaDemod(bool is_light_mode)
 {
-	window_ = new AquaDemodWindow;
+	window_ = new AquaDemodWindow(is_light_mode);
 
 	window_->SetSpeedRanges(
 		demodulator_.GetPllSpeedLimits(),
@@ -57,6 +57,12 @@ demodulator::AquaDemod::AquaDemod()
 		else {
 			StopDemodulation();
 		}
+	});
+	// Сброс ФАПЧ, усиления, эквалайзера и т.п. — можно нажимать во время работы.
+	connect(window_, &AquaDemodWindow::ResetRequested, this, [this]() {
+		tbb::spin_mutex::scoped_lock scoped_locker(pipe_mutex_);
+		demodulator_.Reset();
+		if (window_) window_->ClearConstelData();
 	});
 
 	info_timer_.setInterval(200);
@@ -105,6 +111,10 @@ bool demodulator::AquaDemod::PostDove(aqua::DoveSptr const & sent_dove)
 		src_info_.ark = target_val;
 		Reload();
 	}
+	if (base_thought & aqua::DoveParrent::DoveThought::kStop)
+	{
+		StopDemodulation();
+	}
 	if (base_thought & aqua::DoveParrent::DoveThought::kReset)
 	{
 		return Reload();
@@ -114,10 +124,12 @@ bool demodulator::AquaDemod::PostDove(aqua::DoveSptr const & sent_dove)
 	if (base_thought & aqua::DoveParrent::DoveThought::kSpecialThought) {
 		const auto special_thought = sent_dove->special_thought;
 		if (auto demod_dove = std::dynamic_pointer_cast<demodulator::DemodulatorDove>(sent_dove)) {
-			if (special_thought & demodulator::DemodulatorDove::kInitialise && demod_dove->carrier_hz && demod_dove->symbol_rate_hz) {
-				// Параметры из гармонического анализатора применяются только
-				// до запуска: во время демодуляции управляет кнопка Start/Stop.
-				if (!is_active_) {
+			// Параметры из гармонического анализатора применяются только до
+			// запуска: во время демодуляции управляет кнопка Start/Stop.
+			if ((special_thought & demodulator::DemodulatorDove::kInitialise) && !is_active_) {
+				if (demod_dove->time_bounds)
+					start_time_bounds_ = *demod_dove->time_bounds;
+				if (demod_dove->carrier_hz && demod_dove->symbol_rate_hz && window_) {
 					window_->SetFreqParams(demod_dove->carrier_hz, demod_dove->symbol_rate_hz);
 					ApplyDemodSettings();
 				}
@@ -216,7 +228,7 @@ bool demodulator::AquaDemod::StartDemodulation()
 	auto req_dove = std::make_shared<file_source::FileSrcDove>(
 		file_source::FileSrcDove::kInitiate | file_source::FileSrcDove::kAskLoopInRange);
 	req_dove->target_ark = self_wptr_.lock();
-	req_dove->time_bounds = { 0.9, 1. };
+	req_dove->time_bounds = start_time_bounds_;
 	req_dove->setup.emplace();
 	auto& setup = req_dove->setup;
 	setup->carrier_hz    = static_cast<int64_t>(std::llround(carrier_hz_));
@@ -236,6 +248,7 @@ bool demodulator::AquaDemod::StartDemodulation()
 	}
 	return true;
 }
+
 
 void demodulator::AquaDemod::StopDemodulation()
 {

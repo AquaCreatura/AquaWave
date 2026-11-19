@@ -1,6 +1,6 @@
 ﻿#include "ScopeAnalyzer.h"
 
-#include "Elements/Constellation/Constellation.h"
+#include "Arks/Demodulation/AquaDemod.h"
 #include "Elements/DPX Spectrum/SpectrumDPX.h"
 #include "Elements/Static SPG/Spectrogram.h"
 #include "Scheme/ShipBuilder.h"
@@ -24,8 +24,11 @@ ScopeAnalyzer::ScopeAnalyzer()
 		charts_[analz_chart_type::kAcf]			 = std::make_shared<dpx_core::SpectrumDpx>(dpx_core::kDpxChartType::kACF);
 		charts_[analz_chart_type::kAcf].need_resampler = false;
 
-		charts_[analz_chart_type::kConstellation] = std::make_shared<constel::Constellation>();
+		// Вместо Constellation используем AquaDemod в компактном режиме:
+		// он сам управляет источником (Start/Stop) и рисует созвездие.
+		charts_[analz_chart_type::kConstellation] = std::make_shared<demodulator::AquaDemod>(true);
 		charts_[analz_chart_type::kConstellation].need_resampler = false;
+		charts_[analz_chart_type::kConstellation].self_driven = true;
 
 		charts_[analz_chart_type::kPhasorSpectrum]	= std::make_shared<dpx_core::SpectrumDpx>(dpx_core::kDpxChartType::kPhasor);
 		charts_[analz_chart_type::kEnvelopeSpectrum]	= std::make_shared<dpx_core::SpectrumDpx>(dpx_core::kDpxChartType::kEnvelope);
@@ -34,6 +37,15 @@ ScopeAnalyzer::ScopeAnalyzer()
 		for (auto chart_type : { analz_chart_type::kAcf, analz_chart_type::kPowerSpectrum , analz_chart_type::kPhasorSpectrum, analz_chart_type::kEnvelopeSpectrum, analz_chart_type::kConstellation }) {
 			auto chart_window = ShipBuilder::GetWindow(charts_[chart_type]);
 			window_->AddChartWindow(chart_window, chart_type);
+			// Вид модуляции демодулятора показываем как текущее значение.
+			if (chart_type == analz_chart_type::kConstellation) {
+				if (auto* demod_window = qobject_cast<AquaDemodWindow*>(chart_window.data())) {
+					window_->UpdateHarmonicResult(analz_chart_type::kConstellation, 0., demod_window->GetModulation());
+					connect(demod_window, &AquaDemodWindow::ModulationChanged, this, [this](const QString& modulation) {
+						window_->UpdateHarmonicResult(analz_chart_type::kConstellation, 0., modulation);
+					});
+				}
+			}
 		}
 	}
 	window_->ActivateWindow(analz_chart_type::kPowerSpectrum);
@@ -46,6 +58,13 @@ ScopeAnalyzer::ScopeAnalyzer()
 
 ScopeAnalyzer::~ScopeAnalyzer()
 {
+	// Останавливаем встроенный демодулятор, пока он ещё жив: иначе его читатель
+	// у источника остаётся работать и бросает исключение при отправке данных.
+	const auto demod = charts_.find(analz_chart_type::kConstellation);
+	if (demod != charts_.end()) {
+		if (auto aqua_demod = std::dynamic_pointer_cast<demodulator::AquaDemod>(demod->second))
+			aqua_demod->PostDove(std::make_shared<DoveParrent>(DoveParrent::kStop));
+	}
 	qDebug() << "Scope analyzer destroyed! \n";
 }
 
@@ -74,6 +93,7 @@ bool ScopeAnalyzer::SendData(aqua::DataInfo const & passed_unit)
 	if (passed_unit.data_vec.size() != cur_block_size * sizeof(Ipp32fc))
 		return false;
 	for (auto chart_iter : charts_) {
+		if (chart_iter.second.self_driven) continue;
 		if(!chart_iter.second.need_resampler)
 			chart_iter.second->SendData(passed_unit);
 	}
@@ -87,6 +107,7 @@ bool ScopeAnalyzer::SendData(aqua::DataInfo const & passed_unit)
 		for (int part_counter = 0; part_counter < count_of_parts; part_counter++) {
 			resampled.assign(resampled_buff_.data() + cur_block_size * part_counter, resampled_buff_.data() + cur_block_size * (part_counter + 1));
 			for (auto chart_iter : charts_) {
+				if (chart_iter.second.self_driven) continue;
 				if (chart_iter.second.need_resampler)
 					chart_iter.second->SendData(resampled_unit_);
 			}
@@ -152,6 +173,7 @@ bool ScopeAnalyzer::PostDove(aqua::DoveSptr const & sent_dove)
 			if (special_thought & analyzer::AnalyzeDove::kInitWithFile) {
 				selection_time_bounds_ = spectral_dove->file_bounds_ratio;
 				selection_freq_bounds_ = spectral_dove->freq_bounds_hz * 1.e6;
+				SendDemodInitialise();
 				if (is_active_) ActivateNode(true);
 			}
 		};
@@ -202,15 +224,10 @@ void scope_analyzer::ScopeAnalyzer::UpdateHarmonicInfo()
 		window_->UpdateHarmonicResult(analz_chart_type::kEnvelopeSpectrum,	estimator_.GetSymbolRateHz().value_or(0.));
 		window_->UpdateHarmonicResult(analz_chart_type::kPowerSpectrum,		estimator_.GetCarrierHz().value_or(0.));
 
-		req_dove->symbol_rate_hz = estimator_.GetSymbolRateHz();
-		req_dove->carrier_hz	 = estimator_.GetCarrierHz();
 	}
-	//
 
-	req_dove->special_thought = analyzer::AnalyzeDove::kSetHarmonicInfo;
-	if (req_dove->symbol_rate_hz && req_dove->carrier_hz) {
-		charts_[analz_chart_type::kConstellation]->PostDove(req_dove);
-	}
+	// Встроенный демодулятор получает выделение и оценённые параметры.
+	SendDemodInitialise();
 	SetDemodParam(estimator_.GetCarrierHz(), estimator_.GetSymbolRateHz());
 }
 
@@ -273,10 +290,24 @@ bool ScopeAnalyzer::Restart()
 	estimator_.SetBandwidth(selection_descr_.samplerate_hz);
 
 	if (!inner_attached_) {
-		for (auto chart_iter : charts_)
+		for (auto chart_iter : charts_) {
+			// Демодулятор сам читает источник, на ScopeAnalyser его не биндим.
+			if (chart_iter.second.self_driven) continue;
 			ShipBuilder::Bind_SrcSink(shared_from_this(), chart_iter.second);
+		}
 		inner_attached_ = true;
 	}
+	// Демодулятор (график созвездия) подключаем напрямую к файловому
+	// источнику, чтобы его кнопка Start/Stop управляла своим читателем.
+	if (!demod_attached_) {
+		const auto demod = charts_.find(analz_chart_type::kConstellation);
+		if (demod != charts_.end() && demod->second.self_driven) {
+			ShipBuilder::Bind_SrcSink(file_src, demod->second);
+			demod_attached_ = true;
+		}
+	}
+	// Демодулятор читает то же выделение, что и анализатор.
+	SendDemodInitialise();
 	
 
 	const int max_order = std::min(log2(selection_descr_.count_of_samples), 21.);
@@ -322,6 +353,19 @@ void scope_analyzer::ScopeAnalyzer::SetNewFftOrder(int need_order)
 
 
 	return;
+}
+
+void scope_analyzer::ScopeAnalyzer::SendDemodInitialise()
+{
+	const auto demod = charts_.find(analz_chart_type::kConstellation);
+	if (demod == charts_.end()) return;
+
+	// Выделение и текущие оценки передаются демодулятору одним сообщением.
+	auto demod_dove = std::make_shared<demodulator::DemodulatorDove>(demodulator::DemodulatorDove::kInitialise);
+	demod_dove->time_bounds = selection_time_bounds_;
+	demod_dove->carrier_hz = estimator_.GetCarrierHz();
+	demod_dove->symbol_rate_hz = estimator_.GetSymbolRateHz();
+	demod->second->PostDove(demod_dove);
 }
 
 void scope_analyzer::ScopeAnalyzer::SetDemodParam(aqua_opt<double> carrier_hz, aqua_opt<double> symbolrate_hz)

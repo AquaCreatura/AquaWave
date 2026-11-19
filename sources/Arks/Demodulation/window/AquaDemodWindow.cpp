@@ -1,61 +1,126 @@
 ﻿#include "AquaDemodWindow.h"
 
+#include <qformlayout.h>
+#include <qlabel.h>
 #include <qlayout.h>
 
 #include <algorithm>
 #include <cmath>
 
-AquaDemodWindow::AquaDemodWindow()
+namespace
+{
+	const char* const kButtonImageBase = ":/buttons/button_images/";
+	// Размер кнопок Start/Reset: в обычном режиме как раньше, в компактном — меньше.
+	constexpr int kFullButtonSize = 50;
+	constexpr int kCompactButtonSize = 26;
+	// Порог, ниже которого отдельное окно демодулятора переходит в компактный вид.
+	constexpr int kCompactHeight = 350;
+
+	QString ButtonImage(const char* file_name)
+	{
+		return QString(kButtonImageBase) + file_name;
+	}
+}
+
+AquaDemodWindow::AquaDemodWindow(bool is_light_mode) :
+	is_light_mode_(is_light_mode)
 {
 	ui_.setupUi(this);
-
-	constel_chart_ = new constel::ChartConstel(ui_.frame_3);
-	{
-		auto* constel_layout = new QVBoxLayout(ui_.frame_3);
-		constel_layout->setContentsMargins(0, 0, 0, 0);
-		constel_layout->addWidget(constel_chart_);
-	}
-
 	settings_delayed_ = std::make_unique<utility_aqua::DelayedCaller>(300);
 
+	SetupConstellationChart();
+	SetupButtons();
 	SetupModulations();
 	SetupEqAlgorithms();
 	SetupSliders();
 	SetupRanges();
 
-	connect(ui_.start_stop_button, &QPushButton::clicked, this, [this]() {
-		is_running_ = !is_running_;
-		UpdateRunUI();
-		emit RunToggled(is_running_);
-	});
+	connect(ui_.run_button, &QPushButton::clicked, this, &AquaDemodWindow::OnStartStopClicked);
+	connect(ui_.reset_button, &QPushButton::clicked, this, &AquaDemodWindow::OnResetClicked);
 
-	const QString img_base = ":/buttons/button_images/";
-	ui_.start_stop_button->setText("");
-	ui_.start_stop_button->setCheckable(true);
-	ui_.start_stop_button->setStyleSheet(buildButtonStyleSheet(
-		50,
-		img_base + "stop_water_button.png",
-		img_base + "stop_water_button.png",
-		img_base + "start_water_button.png",
-		img_base + "start_water_button.png",
-		img_base + "start_water_button.png"));
+	if (is_light_mode_)
+		SetupLightLayout();
+
+	// Встроенное окно всегда компактное, отдельное переключается по размеру.
+	ApplyCompactMode(is_light_mode_);
 }
 
 AquaDemodWindow::~AquaDemodWindow() = default;
 
+// --- Полная раскладка (созвездие, параметры, петли) ---
+
+void AquaDemodWindow::SetupConstellationChart()
+{
+	constel_chart_ = new constel::ChartConstel(ui_.constel_box);
+	auto* constel_layout = new QVBoxLayout(ui_.constel_box);
+	constel_layout->setContentsMargins(0, 0, 0, 0);
+	constel_layout->addWidget(constel_chart_);
+}
+
+void AquaDemodWindow::SetupButtons()
+{
+	ui_.run_button->setText("");
+	ui_.run_button->setCheckable(true);
+	ui_.reset_button->setText("");
+
+	// Размеры кнопок в обычном виде берём из формы, чтобы вернуть их
+	// при выходе из компактного режима.
+	full_button_min_ = ui_.run_button->minimumSize();
+	full_button_max_ = ui_.run_button->maximumSize();
+
+	ApplyButtonSizes(false);
+}
+
+void AquaDemodWindow::ApplyButtonSizes(bool compact)
+{
+	const int size = compact ? kCompactButtonSize : kFullButtonSize;
+	const QString start = ButtonImage("start_water_button.png");
+	const QString stop = ButtonImage("stop_water_button.png");
+	const QString refresh = ButtonImage("refresh_water_button.png");
+
+	ui_.run_button->setStyleSheet(buildButtonStyleSheet(size, stop, stop, start, start, start));
+	ui_.reset_button->setStyleSheet(buildButtonStyleSheet(size, refresh, refresh, refresh, refresh, refresh));
+
+	if (compact) {
+		ui_.run_button->setFixedSize(size, size);
+		ui_.reset_button->setFixedSize(size, size);
+	}
+	else {
+		ui_.run_button->setMinimumSize(full_button_min_);
+		ui_.run_button->setMaximumSize(full_button_max_);
+		ui_.reset_button->setMinimumSize(full_button_min_);
+		ui_.reset_button->setMaximumSize(full_button_max_);
+	}
+}
+
+void AquaDemodWindow::OnStartStopClicked()
+{
+	is_running_ = !is_running_;
+	UpdateRunUI();
+	emit RunToggled(is_running_);
+}
+
+void AquaDemodWindow::OnResetClicked()
+{
+	emit ResetRequested();
+}
+
 void AquaDemodWindow::SetupModulations()
 {
 	// Список согласован с CalculateModulationPivots (PSK/QAM, включая cross-QAM 32/128).
-	const QStringList modulations = { "QPSK", "BPSK", "8PSK", "16QAM", "32QAM", "64QAM", "128QAM", "256QAM", "1024QAM"};
+	const QStringList modulations = { "QPSK", "BPSK", "8PSK", "16QAM", "32QAM", "64QAM", "128QAM", "256QAM", "1024QAM" };
 	{
-		QSignalBlocker blocker(ui_.modulation_combobox);
+		QSignalBlocker blocker(ui_.mod_combo);
 		for (const QString& modulation : modulations)
-			ui_.modulation_combobox->addItem(modulation, modulation);
-		ui_.modulation_combobox->setCurrentText("QPSK");
+			ui_.mod_combo->addItem(modulation, modulation);
+		ui_.mod_combo->setCurrentText("QPSK");
 	}
 
-	connect(ui_.modulation_combobox, QOverload<int>::of(&QComboBox::currentIndexChanged),
-		this, [this](int) { emit DemodSettingsChanged(); });
+	connect(ui_.mod_combo, QOverload<int>::of(&QComboBox::currentIndexChanged),
+		this, [this](int) {
+			emit DemodSettingsChanged();
+			emit ModulationChanged(GetModulation());
+		});
 }
 
 void AquaDemodWindow::SetupEqAlgorithms()
@@ -64,14 +129,14 @@ void AquaDemodWindow::SetupEqAlgorithms()
 	// Дефолт совпадает с дефолтом демодулятора (по решению, LMS).
 	const QStringList algorithms = { "MMA", "CMA", "LMS" };
 	{
-		QSignalBlocker blocker(ui_.eq_algorighm_combobox);
+		QSignalBlocker blocker(ui_.eq_alg_combo);
 		for (const QString& algorithm : algorithms)
-			ui_.eq_algorighm_combobox->addItem(algorithm, algorithm);
-		ui_.eq_algorighm_combobox->setCurrentText("LMS");
+			ui_.eq_alg_combo->addItem(algorithm, algorithm);
+		ui_.eq_alg_combo->setCurrentText("LMS");
 	}
 
 	// Смена алгоритма применяется на лету, пересборка тракта не нужна.
-	connect(ui_.eq_algorighm_combobox, QOverload<int>::of(&QComboBox::currentIndexChanged),
+	connect(ui_.eq_alg_combo, QOverload<int>::of(&QComboBox::currentIndexChanged),
 		this, [this](int) { emit EqAlgorithmChanged(GetEqAlgorithm()); });
 }
 
@@ -79,53 +144,137 @@ void AquaDemodWindow::SetupSliders()
 {
 	// Группы петель (label, слайдер, спинабокс); границы и подключение
 	// ставятся в SetSpeedRanges() из границ, возвращаемых демодулятором.
-	pll_loop_ = { ui_.label_5, ui_.pll_slider, ui_.pll_spinbox };
-	tll_loop_ = { ui_.label_8, ui_.tll_slider, ui_.tll_spinbox };
-	eq_loop_ = { ui_.label_9, ui_.eq_slider, ui_.eq_spinbox };
+	pll_loop_ = { ui_.pll_label, ui_.pll_slider, ui_.pll_spin };
+	tll_loop_ = { ui_.tll_label, ui_.tll_slider, ui_.tll_spin };
+	eq_loop_  = { ui_.eq_label, ui_.eq_slider, ui_.eq_spin };
 }
 
 void AquaDemodWindow::SetupRanges()
 {
-	ui_.snr_spinbox->setMinimum(-30.0);
+	ui_.snr_est->setMinimum(-30.0);
 
 	// Ручной ввод частоты перестраивает тракт, поэтому изменения сглаживаются.
 	auto request_reload = [this](double) {
 		settings_delayed_->Call([this]() { emit DemodSettingsChanged(); });
 	};
-	connect(ui_.fc_mhz_spinbox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, request_reload);
-	connect(ui_.bd_khz_spinbox, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, request_reload);
+	connect(ui_.fc_spin, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, request_reload);
+	connect(ui_.sr_spin, QOverload<double>::of(&QDoubleSpinBox::valueChanged), this, request_reload);
 }
+
+// --- Компактная (светлая) раскладка встроенного окна: созвездие, SNR,
+// модуляция, Start/Stop — всегда видны; несущая и символьная скорость
+// приходят из анализатора. Раскладка применяется один раз и не снимается.
+void AquaDemodWindow::SetupLightLayout()
+{
+	light_frame_ = new QFrame(this);
+	auto* root = new QVBoxLayout(light_frame_);
+	root->setContentsMargins(0, 0, 0, 0);
+	root->setSpacing(4);
+
+	light_params_frame_ = new QFrame(light_frame_);
+	light_params_grid_ = new QGridLayout(light_params_frame_);
+	light_params_grid_->setContentsMargins(4, 2, 4, 2);
+	light_params_grid_->setHorizontalSpacing(6);
+	light_params_grid_->setVerticalSpacing(2);
+	light_params_grid_->addWidget(new QLabel(tr("Carrier:"), light_params_frame_), 0, 0);
+	light_params_grid_->addWidget(new QLabel(tr("Symbol rate:"), light_params_frame_), 1, 0);
+	light_params_grid_->addWidget(ui_.fc_spin, 0, 1);
+	light_params_grid_->addWidget(ui_.sr_spin, 1, 1);
+	light_params_frame_->setVisible(!is_light_mode_);
+
+	auto* body = new QHBoxLayout();
+	body->setContentsMargins(0, 0, 0, 0);
+	body->setSpacing(6);
+
+	auto* controls = new QVBoxLayout();
+	controls->setContentsMargins(0, 0, 0, 0);
+	controls->setSpacing(4);
+
+	light_values_grid_ = new QGridLayout();
+	light_values_grid_->setContentsMargins(0, 0, 0, 0);
+	light_values_grid_->setHorizontalSpacing(6);
+	light_values_grid_->setVerticalSpacing(2);
+	light_values_grid_->addWidget(new QLabel(tr("SNR:"), light_frame_), 0, 0);
+	light_values_grid_->addWidget(new QLabel(tr("Mod:"), light_frame_), 1, 0);
+	light_values_grid_->addWidget(ui_.snr_est, 0, 1);
+	light_values_grid_->addWidget(ui_.mod_combo, 1, 1);
+
+	light_buttons_ = new QHBoxLayout();
+	light_buttons_->setContentsMargins(0, 0, 0, 0);
+	light_buttons_->setSpacing(4);
+	light_buttons_->addStretch();
+	light_buttons_->insertWidget(0, ui_.reset_button);
+	light_buttons_->insertWidget(1, ui_.run_button);
+
+	controls->addLayout(light_values_grid_);
+	controls->addLayout(light_buttons_);
+	controls->addStretch();
+	body->addLayout(controls, 0);
+	body->addWidget(constel_chart_, 1);
+	light_body_ = body;
+
+	root->addWidget(light_params_frame_);
+	root->addLayout(body, 1);
+	light_frame_->setVisible(false);
+	ui_.root_grid->addWidget(light_frame_, 0, 0, 2, 2);
+}
+
+// Переключение между полной и компактной раскладками:
+// - встроенное (is_light_mode_): светлая раскладка, одна сторона, неизменяема;
+// - отдельное: компактный режим скрывает только pll_frame, размеры кнопок
+//   уменьшаются.
+void AquaDemodWindow::ApplyCompactMode(bool compact)
+{
+	if (compact_active_ == compact)
+		return;
+	compact_active_ = compact;
+
+	ApplyButtonSizes(compact);
+
+	if (is_light_mode_) {
+		// Встроенное окно: без отступов, чтобы при встраивании
+		// не было рамки в рамке.
+		ui_.root_grid->setContentsMargins(0, 0, 0, 0);
+		light_frame_->setVisible(true);
+		ui_.params_frame->setVisible(false);
+		ui_.constel_frame->setVisible(false);
+		return;
+	}
+}
+
+
+// --- Внешнее API: параметры и оценки ---
 
 void AquaDemodWindow::SetFreqParams(aqua_opt<double> carrier_hz, aqua_opt<double> symbol_rate_hz)
 {
-	QSignalBlocker fc_blocker(ui_.fc_mhz_spinbox);
-	QSignalBlocker bd_blocker(ui_.bd_khz_spinbox);
+	QSignalBlocker fc_blocker(ui_.fc_spin);
+	QSignalBlocker bd_blocker(ui_.sr_spin);
 	if (carrier_hz) {
-		ui_.fc_mhz_spinbox->setValue(*carrier_hz / 1.e6);
+		ui_.fc_spin->setValue(*carrier_hz / 1.e6);
 	}
 	if (symbol_rate_hz) {
-		ui_.bd_khz_spinbox->setValue(*symbol_rate_hz / 1.e3);
+		ui_.sr_spin->setValue(*symbol_rate_hz / 1.e3);
 	}
 }
 
 QString AquaDemodWindow::GetModulation() const
 {
-	return ui_.modulation_combobox->currentData().toString();
+	return ui_.mod_combo->currentData().toString();
 }
 
 QString AquaDemodWindow::GetEqAlgorithm() const
 {
-	return ui_.eq_algorighm_combobox->currentData().toString();
+	return ui_.eq_alg_combo->currentData().toString();
 }
 
 double AquaDemodWindow::GetCarrierHz() const
 {
-	return ui_.fc_mhz_spinbox->value() * 1.e6;
+	return ui_.fc_spin->value() * 1.e6;
 }
 
 double AquaDemodWindow::GetSymbolRateHz() const
 {
-	return ui_.bd_khz_spinbox->value() * 1.e3;
+	return ui_.sr_spin->value() * 1.e3;
 }
 
 double AquaDemodWindow::GetPllSpeed() const
@@ -233,10 +382,10 @@ QString AquaDemodWindow::FormatRangeEnd(double value)
 
 void AquaDemodWindow::UpdateRunUI()
 {
-	ui_.start_stop_button->setChecked(is_running_);
-	ui_.fc_mhz_spinbox->setEnabled(!is_running_);
-	ui_.bd_khz_spinbox->setEnabled(!is_running_);
-	ui_.modulation_combobox->setEnabled(!is_running_);
+	ui_.run_button->setChecked(is_running_);
+	ui_.fc_spin->setEnabled(!is_running_);
+	ui_.sr_spin->setEnabled(!is_running_);
+	ui_.mod_combo->setEnabled(!is_running_);
 }
 
 void AquaDemodWindow::SetRunningState(bool running)
@@ -246,6 +395,8 @@ void AquaDemodWindow::SetRunningState(bool running)
 	is_running_ = running;
 	UpdateRunUI();
 }
+
+// --- Созвездие ---
 
 void AquaDemodWindow::PushConstelData(std::vector<Ipp32fc>& constel_data)
 {
@@ -273,7 +424,7 @@ void AquaDemodWindow::ClearConstelPivots()
 
 void AquaDemodWindow::UpdateEstimates(double snr_db, double carrier_offset_hz, double symbol_rate_hz)
 {
-	ui_.snr_spinbox->setValue(snr_db);
-	ui_.fc_khz_est_spinbox->setValue(carrier_offset_hz / 1.e3);
-	ui_.bd_khz_est_spinbox->setValue(symbol_rate_hz / 1.e3);
+	ui_.snr_est->setValue(snr_db);
+	ui_.fc_est->setValue(carrier_offset_hz / 1.e3);
+	ui_.sr_est->setValue(symbol_rate_hz / 1.e3);
 }

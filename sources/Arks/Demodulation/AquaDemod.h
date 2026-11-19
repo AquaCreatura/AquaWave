@@ -16,7 +16,9 @@ namespace demodulator{
 	{
 		Q_OBJECT
 	public:
-		AquaDemod();
+		// is_light_mode передаётся в окно: компактное представление для
+		// встраивания (например, в ScopeAnalyser).
+		AquaDemod(bool is_light_mode = false);
 		~AquaDemod();
 		virtual bool SendData(aqua::DataInfo const& data_info) override;
 		virtual bool PostDove(aqua::DoveSptr const & sent_dove) override;
@@ -50,6 +52,8 @@ namespace demodulator{
 		std::string							modulation_{ "QPSK" };
 		double								carrier_hz_{ 0.0 };
 		double								symbol_rate_hz_{ 0.0 };
+		// Диапазон времени для чтения при старте (доли файла).
+		aqua::Limits<double>				start_time_bounds_{ 0.9, 1.0 };
 		int									upsample_koeff_{ 4 };
 		bool								is_active_{ false };
 		bool								is_ready_{ false };

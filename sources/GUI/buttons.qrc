@@ -9,6 +9,7 @@
         <file>button_images/ccm_demod.png</file>
         <file>button_images/start_water_button.png</file>
         <file>button_images/stop_water_button.png</file>
+        <file>button_images/refresh_water_button.png</file>
         <file>button_images/ok_water_button.png</file>
     </qresource>
 </RCC>

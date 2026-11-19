@@ -3,23 +3,29 @@
 #include "GUI/Charts/ChartInterface.h"
 #include "Utilities/parse_tools.h"
 
+#include <qevent.h>
+
 using namespace scope_analyzer;
 using namespace analyzer;
+
+namespace
+{
+	constexpr int kCompactWidth = 600;
+}
+
 ScopeAnalyzerWindow::ScopeAnalyzerWindow()
 {
     ui_.setupUi(this);
+	SetupValueRows();
+
 	ui_.symbol_rate_combobox->addItem("PSK", int(analz_chart_type::kPhasorSpectrum));
 	ui_.symbol_rate_combobox->addItem("ENV", int(analz_chart_type::kEnvelopeSpectrum));
 	connect(ui_.symbol_rate_combobox, QOverload<int>::of(&QComboBox::currentIndexChanged), [this]() {
 		ActivateWindow(analz_chart_type(ui_.symbol_rate_combobox->currentData().toInt()));
 	});
 
-	ui_.radio_group_chart_type->setId(ui_.carrier_radio_button		  , (int)analz_chart_type::kPowerSpectrum	);
-	ui_.radio_group_chart_type->setId(ui_.symbol_rate_radio_button, (int)analz_chart_type::kSymbolRateGeneral);
-	//ui_.radio_group_chart_type->setId(ui_.symbol_rate_am_radio_button , (int)analz_chart_type::kEnvelopeSpectrum	);
-	ui_.radio_group_chart_type->setId(ui_.acf_radio_button			  , (int)analz_chart_type::kAcf				);
-	ui_.radio_group_chart_type->setId(ui_.modulation_radio_button	  , (int)analz_chart_type::kConstellation	);
-
+	// Клик по радиокнопке только переключает график: копирование значения
+	// выполняет сам CopyValueLabel.
 	connect(ui_.radio_group_chart_type,
 		QOverload<int>::of(&QButtonGroup::buttonClicked),
 		this,
@@ -27,6 +33,13 @@ ScopeAnalyzerWindow::ScopeAnalyzerWindow()
 	{
 		ActivateWindow(static_cast<analyzer::analz_chart_type>(id));
 	});
+
+	chart_values_[analz_chart_type::kPowerSpectrum]		= "0.000000MHz";
+	chart_values_[analz_chart_type::kSymbolRateGeneral]	= "0.000kHz";
+	chart_values_[analz_chart_type::kAcf]				= "0.000ms";
+	chart_values_[analz_chart_type::kConstellation]		= "QPSK";
+	RefreshValueDisplays();
+
 	fft_delayed_ = std::make_unique<utility_aqua::DelayedCaller>(500);
 	//Определяем Combobox для FFT
 	{
@@ -42,6 +55,22 @@ ScopeAnalyzerWindow::ScopeAnalyzerWindow()
 	}
 	
 };
+
+void ScopeAnalyzerWindow::SetupValueRows()
+{
+	rows_ = {
+		{ analz_chart_type::kPowerSpectrum,     "Carrier",    ui_.carrier_radio_button,     ui_.carrier_value_label     },
+		{ analz_chart_type::kSymbolRateGeneral, "SymbolRate", ui_.symbol_rate_radio_button, ui_.symbol_rate_value_label },
+		{ analz_chart_type::kAcf,               "ACF",        ui_.acf_radio_button,         ui_.acf_value_label         },
+		{ analz_chart_type::kConstellation,     "Modulation", ui_.modulation_radio_button,  ui_.modulation_value_label  },
+	};
+
+	for (const ValueRow& row : rows_) {
+		ui_.radio_group_chart_type->setId(row.radio, (int)row.type);
+		row.radio->setText(row.name + ":");
+		row.radio->setToolTip(row.name);
+	}
+}
 
 void ScopeAnalyzerWindow::AddChartWindow(QWidget * widget_ptr, analz_chart_type type_of_chart)
 {
@@ -102,7 +131,6 @@ void scope_analyzer::ScopeAnalyzerWindow::SetMaxFFtOrder(int max_fft_order)
 }
 void scope_analyzer::ScopeAnalyzerWindow::UpdateHarmonicResult(analz_chart_type type_of_chart, double value, QString modulation)
 {
-	QRadioButton* radio_button = nullptr;
 	double divider = 1.0;
 	QString suffix;
 	int precision = 0;
@@ -110,26 +138,24 @@ void scope_analyzer::ScopeAnalyzerWindow::UpdateHarmonicResult(analz_chart_type 
 	switch (type_of_chart)
 	{
 	case analz_chart_type::kPowerSpectrum:
-		radio_button = ui_.carrier_radio_button; divider = 1e6; suffix = " MHz"; precision = 6; break;
+		divider = 1e6; suffix = "MHz"; precision = 6; break;
 
 	case analz_chart_type::kEnvelopeSpectrum:
-		radio_button = ui_.symbol_rate_radio_button; divider = 1e3; suffix = " kHz"; precision = 3; break;
-
 	case analz_chart_type::kPhasorSpectrum:
-		radio_button = ui_.symbol_rate_radio_button; divider = 1e3; suffix = " kHz"; precision = 3; break;
+		divider = 1e3; suffix = "kHz"; precision = 3; break;
 
 	case analz_chart_type::kAcf:
-		ui_.acf_radio_button->setText(tr("%1ms").arg(value,0, 'f',3));
+		UpdateValueForType(type_of_chart, QString("%1ms").arg(value, 0, 'f', 3));
 		return;
 	case analz_chart_type::kConstellation:
-		ui_.modulation_radio_button->setText(modulation);
+		UpdateValueForType(type_of_chart, modulation);
 		return;
 
 	default:
 		return;
 	}
 
-	radio_button->setText(QString::number(value / divider, 'f', precision) + suffix);
+	UpdateValueForType(type_of_chart, QString::number(value / divider, 'f', precision) + suffix);
 }
 
 void scope_analyzer::ScopeAnalyzerWindow::UpdateFFtCombobox(const int max_order, const int cur_fft_order)
@@ -156,3 +182,51 @@ void scope_analyzer::ScopeAnalyzerWindow::UpdateFFtCombobox(const int max_order,
 	}
 }
 
+void ScopeAnalyzerWindow::resizeEvent(QResizeEvent * event)
+{
+	QDialog::resizeEvent(event);
+	ApplyCompactMode(width() < kCompactWidth);
+}
+
+void ScopeAnalyzerWindow::ApplyCompactMode(bool compact)
+{
+	// Отображение обновляем только при смене режима.
+	if (compact_mode_ == compact) return;
+
+	compact_mode_ = compact;
+	// В компактном режиме остаются только значения: подписи радиокнопок прячем.
+	for (const ValueRow& row : rows_) {
+		if (row.radio) row.radio->setText(compact ? QString() : row.name + ":");
+	}
+}
+
+void ScopeAnalyzerWindow::RefreshValueDisplays()
+{
+	for (const ValueRow& row : rows_) {
+		if (row.value) row.value->SetValue(ValueForType(row.type));
+	}
+}
+
+void ScopeAnalyzerWindow::UpdateValueForType(analz_chart_type type_of_chart, const QString& value)
+{
+	chart_values_[DisplayKeyForType(type_of_chart)] = value;
+	RefreshValueDisplays();
+}
+
+QString ScopeAnalyzerWindow::ValueForType(analz_chart_type type_of_chart) const
+{
+	const auto found = chart_values_.find(DisplayKeyForType(type_of_chart));
+	return (found == chart_values_.end()) ? QString() : found->second;
+}
+
+analz_chart_type ScopeAnalyzerWindow::DisplayKeyForType(analz_chart_type type_of_chart)
+{
+	switch (type_of_chart)
+	{
+	case analz_chart_type::kPhasorSpectrum:
+	case analz_chart_type::kEnvelopeSpectrum:
+		return analz_chart_type::kSymbolRateGeneral;
+	default:
+		return type_of_chart;
+	}
+}

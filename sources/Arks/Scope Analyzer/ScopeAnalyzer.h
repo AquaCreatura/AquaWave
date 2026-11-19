@@ -23,6 +23,9 @@ public:
 protected:
 	void ActivateNode(const bool do_activate);
 	void UpdateHarmonicInfo();
+	// Передаёт встроенному демодулятору выделение и текущие оценки
+	// (сообщением kInitialise).
+	void SendDemodInitialise();
 	bool Reload();
 	bool Restart();
 	void SetNewFftOrder(int n_fft_order);
@@ -34,6 +37,9 @@ protected:
 			return *this;
 		}
 		bool				need_resampler = true;
+		// График сам управляет источником (демодулятор со своей кнопкой
+		// Start/Stop): ScopeAnalyser не кормит его данными и не биндит на себя.
+		bool				self_driven = false;
 	};
 	SourceArk						source_info_;
 	Limits<double>					selection_time_bounds_;
@@ -53,6 +59,7 @@ protected:
 	aqua::DataInfo					resampled_unit_;
 	std::vector<Ipp32fc>				resampled_buff_;
 	bool							inner_attached_{ false };
+	bool							demod_attached_{ false };
 };
 
 

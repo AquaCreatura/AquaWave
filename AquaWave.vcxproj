@@ -124,7 +124,6 @@
     <ClCompile Include="ConsoleProcessing\DmdTester.cpp" />
     <ClCompile Include="sources\Arks\Demodulation\AquaDemod.cpp" />
     <ClCompile Include="sources\Arks\Demodulation\window\AquaDemodWindow.cpp" />
-    <ClCompile Include="sources\Arks\Elements\Constellation\Constellation.cpp" />
     <ClCompile Include="sources\Arks\Elements\DPX Spectrum\SpectrumDPX.cpp" />
     <ClCompile Include="sources\Arks\Elements\Static SPG\requester\SpgRequester.cpp" />
     <ClCompile Include="sources\Arks\Elements\Static SPG\Spectrogram.cpp" />
@@ -174,6 +173,7 @@
     <ClCompile Include="sources\GUI\Tools\Chart tiler\Units\TileInterface.cpp" />
     <ClCompile Include="sources\GUI\Tools\Chart tiler\Units\TileLine.cpp" />
     <ClCompile Include="sources\GUI\Tools\Chart tiler\Units\TileSPG.cpp" />
+    <ClCompile Include="sources\GUI\Tools\CopyValueLabel.cpp" />
     <ClCompile Include="sources\GUI\Tools\gui_conversions.cpp" />
     <ClCompile Include="sources\GUI\Tools\gui_worker.cpp" />
     <ClCompile Include="sources\GUI\Tools\PowerManager.cpp" />
@@ -215,7 +215,6 @@
     <ClInclude Include="sources\Utilities\calc_tools.h" />
     <ClInclude Include="sources\Utilities\utility_aqua.h" />
     <QtMoc Include="sources\Arks\Elements\DPX Spectrum\SpectrumDPX.h" />
-    <ClInclude Include="sources\Arks\Elements\Constellation\Constellation.h" />
     <QtMoc Include="sources\Arks\Elements\Static SPG\requester\SpgRequester.h" />
     <ClInclude Include="sources\Arks\Elements\Static SPG\Spectrogram.h" />
     <ClInclude Include="sources\Arks\File Source\FileSource.h" />
@@ -256,6 +255,7 @@
     <ClInclude Include="sources\GUI\Tools\Chart tiler\Units\TileDPX.h" />
     <ClInclude Include="sources\GUI\Tools\Chart tiler\Units\TileInterface.h" />
     <ClInclude Include="sources\GUI\Tools\Chart tiler\Units\TileSPG.h" />
+    <ClInclude Include="sources\GUI\Tools\CopyValueLabel.h" />
     <ClInclude Include="sources\GUI\Tools\gui_conversions.h" />
     <ClInclude Include="sources\GUI\Tools\gui_worker.h" />
     <ClInclude Include="sources\GUI\Tools\PowerManager.h" />

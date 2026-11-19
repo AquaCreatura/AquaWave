@@ -98,9 +98,6 @@
     <Filter Include="GUI\Charts\Constel\core">
       <UniqueIdentifier>{89c1da7e-8b64-408a-bde0-d2b5d67bfc5c}</UniqueIdentifier>
     </Filter>
-    <Filter Include="ARKS\Elements\Constellation">
-      <UniqueIdentifier>{090844cb-e36d-46ee-8e5a-4c654974ec6c}</UniqueIdentifier>
-    </Filter>
     <Filter Include="ARKS\Elements\Static SPG\requester">
       <UniqueIdentifier>{5e66df57-3a99-42dc-b439-4d7267d31dfa}</UniqueIdentifier>
     </Filter>
@@ -236,14 +233,14 @@
     <ClCompile Include="sources\GUI\Charts\Constel\Core\ConstelRenderer.cpp">
       <Filter>GUI\Charts\Constel\core</Filter>
     </ClCompile>
-    <ClCompile Include="sources\Arks\Elements\Constellation\Constellation.cpp">
-      <Filter>ARKS\Elements\Constellation</Filter>
-    </ClCompile>
     <ClCompile Include="sources\GUI\Charts\Constel\ConstelChart.cpp">
       <Filter>GUI\Charts\Constel</Filter>
     </ClCompile>
     <ClCompile Include="sources\Arks\Elements\Static SPG\requester\SpgRequester.cpp">
       <Filter>ARKS\Elements\Static SPG\requester</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\GUI\Tools\CopyValueLabel.cpp">
+      <Filter>GUI\Tools</Filter>
     </ClCompile>
     <ClCompile Include="sources\GUI\Tools\gui_conversions.cpp">
       <Filter>GUI\Tools</Filter>
@@ -426,8 +423,8 @@
     <ClInclude Include="sources\GUI\Charts\Constel\Core\ConstelRenderer.h">
       <Filter>GUI\Charts\Constel\core</Filter>
     </ClInclude>
-    <ClInclude Include="sources\Arks\Elements\Constellation\Constellation.h">
-      <Filter>ARKS\Elements\Constellation</Filter>
+    <ClInclude Include="sources\GUI\Tools\CopyValueLabel.h">
+      <Filter>GUI\Tools</Filter>
     </ClInclude>
     <ClInclude Include="sources\GUI\Tools\gui_conversions.h">
       <Filter>GUI\Tools</Filter>

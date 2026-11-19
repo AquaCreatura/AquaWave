@@ -6,16 +6,16 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>867</width>
-    <height>366</height>
+    <width>480</width>
+    <height>368</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>AquaDemodWindow</string>
   </property>
-  <layout class="QGridLayout" name="gridLayout">
+  <layout class="QGridLayout" name="root_grid">
    <item row="0" column="0" rowspan="2">
-    <widget class="QFrame" name="frame">
+    <widget class="QFrame" name="constel_frame">
      <property name="sizePolicy">
       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
        <horstretch>0</horstretch>
@@ -34,32 +34,32 @@
      <property name="frameShadow">
       <enum>QFrame::Raised</enum>
      </property>
-     <layout class="QGridLayout" name="gridLayout_3">
+     <layout class="QGridLayout" name="constel_grid">
       <item row="4" column="0">
-       <layout class="QFormLayout" name="formLayout_2">
+       <layout class="QFormLayout" name="est_form">
         <item row="0" column="0">
-         <widget class="QLabel" name="label_7">
+         <widget class="QLabel" name="snr_label">
           <property name="text">
            <string>SNR:</string>
           </property>
          </widget>
         </item>
         <item row="1" column="0">
-         <widget class="QLabel" name="label">
+         <widget class="QLabel" name="fc_est_label">
           <property name="text">
            <string>Fc, est: </string>
           </property>
          </widget>
         </item>
         <item row="2" column="0">
-         <widget class="QLabel" name="label_6">
+         <widget class="QLabel" name="bd_est_label">
           <property name="text">
            <string>Bd, est:</string>
           </property>
          </widget>
         </item>
         <item row="0" column="1">
-         <widget class="QDoubleSpinBox" name="snr_spinbox">
+         <widget class="QDoubleSpinBox" name="snr_est">
           <property name="readOnly">
            <bool>true</bool>
           </property>
@@ -78,7 +78,7 @@
          </widget>
         </item>
         <item row="1" column="1">
-         <widget class="QDoubleSpinBox" name="fc_khz_est_spinbox">
+         <widget class="QDoubleSpinBox" name="fc_est">
           <property name="readOnly">
            <bool>true</bool>
           </property>
@@ -100,7 +100,7 @@
          </widget>
         </item>
         <item row="2" column="1">
-         <widget class="QDoubleSpinBox" name="bd_khz_est_spinbox">
+         <widget class="QDoubleSpinBox" name="sr_est">
           <property name="readOnly">
            <bool>true</bool>
           </property>
@@ -121,7 +121,7 @@
        </layout>
       </item>
       <item row="0" column="0">
-       <widget class="QFrame" name="frame_3">
+       <widget class="QFrame" name="constel_box">
         <property name="minimumSize">
          <size>
           <width>0</width>
@@ -146,21 +146,21 @@
     </widget>
    </item>
    <item row="0" column="1" rowspan="2">
-    <widget class="QFrame" name="frame_settings">
-     <layout class="QGridLayout" name="gridLayout_2">
-      <item row="0" column="0" rowspan="4" colspan="3">
-       <widget class="QFrame" name="frame_2">
+    <widget class="QFrame" name="params_frame">
+     <layout class="QGridLayout" name="params_grid">
+      <item row="0" column="0" rowspan="4" colspan="2">
+       <widget class="QFrame" name="freq_frame">
         <property name="frameShape">
          <enum>QFrame::Box</enum>
         </property>
         <property name="frameShadow">
          <enum>QFrame::Raised</enum>
         </property>
-        <layout class="QGridLayout" name="gridLayout_4">
+        <layout class="QGridLayout" name="freq_grid">
          <item row="0" column="3" rowspan="4">
-          <layout class="QGridLayout" name="gridLayout_6">
+          <layout class="QGridLayout" name="btn_grid">
            <item row="0" column="0">
-            <widget class="QPushButton" name="start_stop_button">
+            <widget class="QPushButton" name="run_button">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                <horstretch>0</horstretch>
@@ -185,7 +185,35 @@
             </widget>
            </item>
            <item row="1" column="0">
-            <spacer name="verticalSpacer_2">
+            <widget class="QPushButton" name="reset_button">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="minimumSize">
+              <size>
+               <width>32</width>
+               <height>32</height>
+              </size>
+             </property>
+             <property name="maximumSize">
+              <size>
+               <width>32</width>
+               <height>32</height>
+              </size>
+             </property>
+             <property name="toolTip">
+              <string>Reset PLL, gain, equaliser</string>
+             </property>
+             <property name="text">
+              <string>Reset</string>
+             </property>
+            </widget>
+           </item>
+           <item row="2" column="0">
+            <spacer name="btn_spacer">
              <property name="orientation">
               <enum>Qt::Vertical</enum>
              </property>
@@ -200,7 +228,7 @@
           </layout>
          </item>
          <item row="3" column="1">
-          <widget class="QComboBox" name="modulation_combobox">
+          <widget class="QComboBox" name="mod_combo">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
              <horstretch>0</horstretch>
@@ -210,14 +238,14 @@
           </widget>
          </item>
          <item row="2" column="0">
-          <widget class="QLabel" name="label_4">
+          <widget class="QLabel" name="sr_label">
            <property name="text">
             <string>Symbol rate:</string>
            </property>
           </widget>
          </item>
          <item row="0" column="1">
-          <widget class="QDoubleSpinBox" name="fc_mhz_spinbox">
+          <widget class="QDoubleSpinBox" name="fc_spin">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
              <horstretch>0</horstretch>
@@ -245,14 +273,14 @@
           </widget>
          </item>
          <item row="3" column="0">
-          <widget class="QLabel" name="label_2">
+          <widget class="QLabel" name="mod_label">
            <property name="text">
             <string>Modulation:</string>
            </property>
           </widget>
          </item>
          <item row="2" column="1">
-          <widget class="QDoubleSpinBox" name="bd_khz_spinbox">
+          <widget class="QDoubleSpinBox" name="sr_spin">
            <property name="sizePolicy">
             <sizepolicy hsizetype="Maximum" vsizetype="Fixed">
              <horstretch>0</horstretch>
@@ -274,14 +302,14 @@
           </widget>
          </item>
          <item row="0" column="0">
-          <widget class="QLabel" name="label_3">
+          <widget class="QLabel" name="fc_label">
            <property name="text">
             <string>Carrier:</string>
            </property>
           </widget>
          </item>
          <item row="0" column="4">
-          <spacer name="horizontalSpacer">
+          <spacer name="freq_spacer">
            <property name="orientation">
             <enum>Qt::Horizontal</enum>
            </property>
@@ -296,8 +324,8 @@
         </layout>
        </widget>
       </item>
-      <item row="5" column="0" colspan="3">
-       <spacer name="verticalSpacer">
+      <item row="5" column="0" colspan="2">
+       <spacer name="params_spacer">
         <property name="orientation">
          <enum>Qt::Vertical</enum>
         </property>
@@ -309,158 +337,168 @@
         </property>
        </spacer>
       </item>
-      <item row="4" column="0" colspan="3">
-       <widget class="QFrame" name="frame_pll">
-        <property name="frameShape">
-         <enum>QFrame::NoFrame</enum>
+      <item row="4" column="0">
+       <widget class="QScrollArea" name="scrollArea">
+        <property name="widgetResizable">
+         <bool>true</bool>
         </property>
-        <layout class="QGridLayout" name="gridLayout_5">
-         <item row="4" column="1">
-          <widget class="QSlider" name="eq_slider">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="0">
-          <widget class="QLabel" name="label_8">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="text">
-            <string>TLL:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="3">
-          <widget class="QDoubleSpinBox" name="pll_spinbox">
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-           <property name="buttonSymbols">
-            <enum>QAbstractSpinBox::NoButtons</enum>
-           </property>
-           <property name="decimals">
-            <number>5</number>
-           </property>
-           <property name="minimum">
-            <double>0.000100000000000</double>
-           </property>
-           <property name="maximum">
-            <double>0.005000000000000</double>
-           </property>
-           <property name="singleStep">
-            <double>0.000010000000000</double>
-           </property>
-           <property name="value">
-            <double>0.000500000000000</double>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="3">
-          <widget class="QDoubleSpinBox" name="tll_spinbox">
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-           <property name="buttonSymbols">
-            <enum>QAbstractSpinBox::NoButtons</enum>
-           </property>
-           <property name="decimals">
-            <number>4</number>
-           </property>
-           <property name="minimum">
-            <double>0.010000000000000</double>
-           </property>
-           <property name="maximum">
-            <double>0.050000000000000</double>
-           </property>
-           <property name="singleStep">
-            <double>0.000100000000000</double>
-           </property>
-           <property name="value">
-            <double>0.030000000000000</double>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="0">
-          <widget class="QLabel" name="label_9">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="text">
-            <string>Equaliser:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="1" colspan="2">
-          <widget class="QSlider" name="pll_slider">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-          </widget>
-         </item>
-         <item row="2" column="0">
-          <widget class="QLabel" name="label_5">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="text">
-            <string>PLL:</string>
-           </property>
-          </widget>
-         </item>
-         <item row="4" column="3">
-          <widget class="QDoubleSpinBox" name="eq_spinbox">
-           <property name="alignment">
-            <set>Qt::AlignCenter</set>
-           </property>
-           <property name="buttonSymbols">
-            <enum>QAbstractSpinBox::NoButtons</enum>
-           </property>
-           <property name="decimals">
-            <number>5</number>
-           </property>
-           <property name="minimum">
-            <double>0.000100000000000</double>
-           </property>
-           <property name="maximum">
-            <double>0.005000000000000</double>
-           </property>
-           <property name="singleStep">
-            <double>0.000010000000000</double>
-           </property>
-           <property name="value">
-            <double>0.002550000000000</double>
-           </property>
-          </widget>
-         </item>
-         <item row="3" column="1">
-          <widget class="QSlider" name="tll_slider">
-           <property name="orientation">
-            <enum>Qt::Horizontal</enum>
-           </property>
-          </widget>
-         </item>
-         <item row="1" column="1">
-          <widget class="QComboBox" name="eq_algorighm_combobox"/>
-         </item>
-         <item row="1" column="0">
-          <widget class="QLabel" name="label_10">
-           <property name="text">
-            <string>Algorithm:</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
+        <widget class="QWidget" name="scrollAreaWidgetContents">
+         <property name="geometry">
+          <rect>
+           <x>0</x>
+           <y>0</y>
+           <width>277</width>
+           <height>139</height>
+          </rect>
+         </property>
+         <layout class="QGridLayout" name="gridLayout">
+          <item row="0" column="0">
+           <widget class="QLabel" name="eq_alg_label">
+            <property name="text">
+             <string>Algorithm:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QComboBox" name="eq_alg_combo"/>
+          </item>
+          <item row="1" column="0">
+           <widget class="QLabel" name="pll_label">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>PLL:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QSlider" name="pll_slider">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="2">
+           <widget class="QDoubleSpinBox" name="pll_spin">
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+            <property name="buttonSymbols">
+             <enum>QAbstractSpinBox::NoButtons</enum>
+            </property>
+            <property name="decimals">
+             <number>5</number>
+            </property>
+            <property name="minimum">
+             <double>0.000100000000000</double>
+            </property>
+            <property name="maximum">
+             <double>0.005000000000000</double>
+            </property>
+            <property name="singleStep">
+             <double>0.000010000000000</double>
+            </property>
+            <property name="value">
+             <double>0.000500000000000</double>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="0">
+           <widget class="QLabel" name="tll_label">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>TLL:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="1">
+           <widget class="QSlider" name="tll_slider">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="2" column="2">
+           <widget class="QDoubleSpinBox" name="tll_spin">
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+            <property name="buttonSymbols">
+             <enum>QAbstractSpinBox::NoButtons</enum>
+            </property>
+            <property name="decimals">
+             <number>4</number>
+            </property>
+            <property name="minimum">
+             <double>0.010000000000000</double>
+            </property>
+            <property name="maximum">
+             <double>0.050000000000000</double>
+            </property>
+            <property name="singleStep">
+             <double>0.000100000000000</double>
+            </property>
+            <property name="value">
+             <double>0.030000000000000</double>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="0">
+           <widget class="QLabel" name="eq_label">
+            <property name="sizePolicy">
+             <sizepolicy hsizetype="Minimum" vsizetype="Minimum">
+              <horstretch>0</horstretch>
+              <verstretch>0</verstretch>
+             </sizepolicy>
+            </property>
+            <property name="text">
+             <string>Equaliser:</string>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="1">
+           <widget class="QSlider" name="eq_slider">
+            <property name="orientation">
+             <enum>Qt::Horizontal</enum>
+            </property>
+           </widget>
+          </item>
+          <item row="3" column="2">
+           <widget class="QDoubleSpinBox" name="eq_spin">
+            <property name="alignment">
+             <set>Qt::AlignCenter</set>
+            </property>
+            <property name="buttonSymbols">
+             <enum>QAbstractSpinBox::NoButtons</enum>
+            </property>
+            <property name="decimals">
+             <number>5</number>
+            </property>
+            <property name="minimum">
+             <double>0.000100000000000</double>
+            </property>
+            <property name="maximum">
+             <double>0.005000000000000</double>
+            </property>
+            <property name="singleStep">
+             <double>0.000010000000000</double>
+            </property>
+            <property name="value">
+             <double>0.002550000000000</double>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </widget>
        </widget>
       </item>
      </layout>

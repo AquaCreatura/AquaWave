@@ -44,14 +44,14 @@ bool aqua_resampler::PreciseResampler::Init(const int64_t base_sr_hz, int64_t & 
 	const double filter_koeff = double(bw_hz) / base_sr_hz;
 
 	// Бережно берём длину фильтра из настроек
-	int filter_len = GetFirLenPow2(1., std::max(0.95, filter_koeff));
+	int filter_len = aqua_dsp_tools::GetFirLenPow2(1., std::max(0.95, filter_koeff));
 	filter_len = std::min(std::max(16, filter_len), 1024);
 
 	// Создаём уютный вектор для коэффициентов фильтра
 	std::vector<Ipp32fc> taps(filter_len);
 	// С любовью проектируем фильтр с окошком Блэкмана
 	const double window_cutoff = 0.5 * filter_koeff;
-	if (!GenerateWindowKoeffs(window_cutoff, filter_len, ippWinBlackman, taps))
+	if (!aqua_dsp_tools::GenerateWindowKoeffs(window_cutoff, filter_len, ippWinBlackman, taps))
 		return false;
 	if (settings_.need_norm_power)
 	{

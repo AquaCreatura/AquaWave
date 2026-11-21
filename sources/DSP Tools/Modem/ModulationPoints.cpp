@@ -140,3 +140,31 @@ Ipp32fc aq_demod::GetClosestSymbol(Ipp32fc passed, std::vector<Ipp32fc>& pivots)
 	}
 	return best_symbol;
 }
+
+std::vector<std::string> aq_demod::GetTestingManipVec(int size)
+{
+	std::vector<std::string> manip;
+	if (size < 2)
+		return manip;
+
+	int bits = 0;
+	while ((1 << bits) < size)
+		++bits;
+
+	// size должно быть степенью двойки, иначе набор битов не покроет созвездие.
+	if ((1 << bits) != size)
+		return manip;
+
+	manip.reserve(size);
+	for (int value = 0; value < size; ++value)
+	{
+		std::string combo(bits, '0');
+		for (int bit = 0; bit < bits; ++bit)
+		{
+			if (value & (1 << (bits - 1 - bit)))
+				combo[bit] = '1';
+		}
+		manip.push_back(std::move(combo));
+	}
+	return manip;
+}

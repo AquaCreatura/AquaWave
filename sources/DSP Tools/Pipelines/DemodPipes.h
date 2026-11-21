@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include "BasePipes.h"
-#include "DSP Tools/Modem/ContinuousDemodulator.h"
+#include "DSP Tools/Modem/Demodulation/ContinuousDemodulator.h"
 
 namespace pipes {
 

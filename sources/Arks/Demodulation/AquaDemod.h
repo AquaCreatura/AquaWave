@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include "Arks/Interfaces/base_impl/ark_base.h"
-#include "DSP Tools/Modem/ContinuousDemodulator.h"
+#include "DSP Tools/Modem/Demodulation/ContinuousDemodulator.h"
 #include "window/AquaDemodWindow.h"
 
 #include <qpointer.h>

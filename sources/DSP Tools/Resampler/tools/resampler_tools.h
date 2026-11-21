@@ -1,6 +1,8 @@
 ﻿#ifndef RESAMPLER_TOOLS
 #define RESAMPLER_TOOLS
 #pragma once
+#include "../../basic/filter_tools.h"
+
 #include <ipps.h>
 
 #include <algorithm>
@@ -67,61 +69,9 @@ static std::pair<int, int> FindBestFraction(const double target, const int max_n
     return std::make_pair(best_num, best_denom);
 }
 
-
-// Функция GenerateWindowKoeffs генерирует коэффициенты для окна фильтра низких частот.
-// Параметры:
-//   cutoff_ratio    - частота среза фильтра (должна быть в интервале (0, 0.5))
-//   coefs_num      - количество коэффициентов (должно быть > 8 и <= 1'000'000)
-//   window_type    - тип окна, используемого для генерации коэффициентов (например, Hamming, Blackman и т.п.)
-//   coefs_complex  - вектор, куда будут записаны сгенерированные комплексные коэффициенты
-// Возвращает true, если коэффициенты сгенерированы успешно, иначе false.
-static bool GenerateWindowKoeffs(double cutoff_freq,
-	int coefs_num,
-	IppWinType window_type,
-	std::vector<Ipp32fc>& coefs_complex)
-{
-	if (cutoff_freq <= 0.0 || cutoff_freq >= 0.5 || coefs_num <= 8 || coefs_num > 1000000)
-		return false;
-
-	int buf_size = 0;
-	if (ippsFIRGenGetBufferSize(coefs_num, &buf_size) != ippStsNoErr)
-		return false;
-
-	std::vector<uint8_t> buf(buf_size);
-	std::vector<Ipp64f> real64(coefs_num);
-	std::vector<Ipp32f> real32(coefs_num);
-	coefs_complex.resize(coefs_num);
-
-	if (ippsFIRGenLowpass_64f(cutoff_freq, real64.data(), coefs_num,
-		window_type, ippTrue, buf.data()) != ippStsNoErr)
-		return false;
-
-	if (ippsConvert_64f32f(real64.data(), real32.data(), coefs_num) != ippStsNoErr)
-		return false;
-
-	if (ippsRealToCplx_32f(real32.data(), nullptr,
-		coefs_complex.data(), coefs_num) != ippStsNoErr)
-		return false;
-
-	return true;
-}
-
-
-
-// Оценка длины FIR-фильтра (степень 2) для ресемплинга
-static int GetFirLenPow2(double ratio, double passband_fraction = 0.9) {
-	// ratio = Fs_out / Fs_in, passband_fraction = полоса пропускания / полоса Найквиста (0..1)
-	if (ratio <= 0 || passband_fraction <= 0 || passband_fraction >= 1.0)
-		return 0;
-	passband_fraction = std::max(0.85, passband_fraction); //Меньшая частота среза - это странно...
-	const double A = 100.0;                      // подавление, дБ
-	double nyq_ratio = (ratio < 1.0) ? ratio * 0.5 : 0.5;
-	double delta_f = nyq_ratio * (1.0 - passband_fraction); // ширина переходной полосы
-	double N = (A - 8.0) / (14.36 * delta_f);   // порядок фильтра
-	double L = N + 1.0;                         // длина
-	return static_cast<int>(std::pow(2, std::ceil(std::log2(L))));
-}
-
+// Генераторы коэффициентов (ФНЧ с окном и формирующий RRC) вынесены в
+// "../../basic/filter_tools.h" (namespace aqua_dsp_tools) и общие для
+// ресемплеров и модема.
 
 }
 #endif // RESAMPLER_TOOLS

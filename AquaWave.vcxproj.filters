@@ -128,6 +128,12 @@
     <Filter Include="DSP Tools\Modem">
       <UniqueIdentifier>{f1cbb9f3-b2a7-4879-a8c6-90e88fa96f9b}</UniqueIdentifier>
     </Filter>
+    <Filter Include="DSP Tools\Modem\Modulator">
+      <UniqueIdentifier>{a1c2e3f4-5b6c-4d7e-8f90-1a2b3c4d5e6f}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="DSP Tools\Modem\Demodulation">
+      <UniqueIdentifier>{b2d3f4a5-6c7d-4e8f-9a01-2b3c4d5e6f70}</UniqueIdentifier>
+    </Filter>
     <Filter Include="ARKS\Demodulation">
       <UniqueIdentifier>{c21e98f1-00be-4384-b314-60e629e39f2b}</UniqueIdentifier>
     </Filter>
@@ -157,6 +163,12 @@
     </ClCompile>
     <ClCompile Include="ConsoleProcessing\DmdTester.cpp">
       <Filter>ConsoleProcessing</Filter>
+    </ClCompile>
+    <ClCompile Include="ConsoleProcessing\ModTester.cpp">
+      <Filter>ConsoleProcessing</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\DSP Tools\basic\filter_tools.cpp">
+      <Filter>DSP Tools\basic</Filter>
     </ClCompile>
     <ClCompile Include="sources\DSP Tools\basic\freq_shifter.cpp">
       <Filter>DSP Tools\basic</Filter>
@@ -299,11 +311,11 @@
     <ClCompile Include="sources\DSP Tools\Localiser\PeakDetection.cpp">
       <Filter>DSP Tools\Localiser</Filter>
     </ClCompile>
-    <ClCompile Include="sources\DSP Tools\Modem\ContinuousDemodulator.cpp">
-      <Filter>DSP Tools\Modem</Filter>
+    <ClCompile Include="sources\DSP Tools\Modem\Demodulation\ContinuousDemodulator.cpp">
+      <Filter>DSP Tools\Modem\Demodulation</Filter>
     </ClCompile>
-    <ClCompile Include="sources\DSP Tools\Modem\TimePeakerDemod.cpp">
-      <Filter>DSP Tools\Modem</Filter>
+    <ClCompile Include="sources\DSP Tools\Modem\Demodulation\TimePeakerDemod.cpp">
+      <Filter>DSP Tools\Modem\Demodulation</Filter>
     </ClCompile>
     <ClCompile Include="sources\DSP Tools\Pipelines\DemodPipes.cpp">
       <Filter>DSP Tools\Pipelines</Filter>
@@ -311,8 +323,14 @@
     <ClCompile Include="sources\DSP Tools\Modem\ModulationPoints.cpp">
       <Filter>DSP Tools\Modem</Filter>
     </ClCompile>
-    <ClCompile Include="sources\DSP Tools\Modem\EqaliserAqua.cpp">
-      <Filter>DSP Tools\Modem</Filter>
+    <ClCompile Include="sources\DSP Tools\Modem\Demodulation\EqaliserAqua.cpp">
+      <Filter>DSP Tools\Modem\Demodulation</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\DSP Tools\Modem\Modulator\CcmModulator.cpp">
+      <Filter>DSP Tools\Modem\Modulator</Filter>
+    </ClCompile>
+    <ClCompile Include="sources\DSP Tools\Modem\Modulator\GaussianNoiseMaker.cpp">
+      <Filter>DSP Tools\Modem\Modulator</Filter>
     </ClCompile>
     <ClCompile Include="sources\GUI\External\Window\FramelessHelper.cpp">
       <Filter>GUI\External\Window</Filter>
@@ -341,6 +359,9 @@
   </ItemGroup>
   <!-- ClInclude (H Files) -->
   <ItemGroup>
+    <ClInclude Include="sources\DSP Tools\basic\filter_tools.h">
+      <Filter>DSP Tools\basic</Filter>
+    </ClInclude>
     <ClInclude Include="sources\DSP Tools\basic\freq_shifter.h">
       <Filter>DSP Tools\basic</Filter>
     </ClInclude>
@@ -376,6 +397,9 @@
       <Filter>ConsoleProcessing</Filter>
     </ClInclude>
     <ClInclude Include="ConsoleProcessing\DmdTester.h">
+      <Filter>ConsoleProcessing</Filter>
+    </ClInclude>
+    <ClInclude Include="ConsoleProcessing\ModTester.h">
       <Filter>ConsoleProcessing</Filter>
     </ClInclude>
     <ClInclude Include="sources\Arks\File Source\FileSource.h">
@@ -492,11 +516,11 @@
     <ClInclude Include="sources\DSP Tools\Localiser\PeakDetection.h">
       <Filter>DSP Tools\Localiser</Filter>
     </ClInclude>
-    <ClInclude Include="sources\DSP Tools\Modem\ContinuousDemodulator.h">
-      <Filter>DSP Tools\Modem</Filter>
+    <ClInclude Include="sources\DSP Tools\Modem\Demodulation\ContinuousDemodulator.h">
+      <Filter>DSP Tools\Modem\Demodulation</Filter>
     </ClInclude>
-    <ClInclude Include="sources\DSP Tools\Modem\TimePeakerDemod.h">
-      <Filter>DSP Tools\Modem</Filter>
+    <ClInclude Include="sources\DSP Tools\Modem\Demodulation\TimePeakerDemod.h">
+      <Filter>DSP Tools\Modem\Demodulation</Filter>
     </ClInclude>
     <ClInclude Include="sources\DSP Tools\Pipelines\DemodPipes.h">
       <Filter>DSP Tools\Pipelines</Filter>
@@ -504,8 +528,14 @@
     <ClInclude Include="sources\DSP Tools\Modem\ModulationPoints.h">
       <Filter>DSP Tools\Modem</Filter>
     </ClInclude>
-    <ClInclude Include="sources\DSP Tools\Modem\EqaliserAqua.h">
-      <Filter>DSP Tools\Modem</Filter>
+    <ClInclude Include="sources\DSP Tools\Modem\Demodulation\EqaliserAqua.h">
+      <Filter>DSP Tools\Modem\Demodulation</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\DSP Tools\Modem\Modulator\CcmModulator.h">
+      <Filter>DSP Tools\Modem\Modulator</Filter>
+    </ClInclude>
+    <ClInclude Include="sources\DSP Tools\Modem\Modulator\GaussianNoiseMaker.h">
+      <Filter>DSP Tools\Modem\Modulator</Filter>
     </ClInclude>
     <ClInclude Include="sources\Scheme\ShipBuilder.h">
       <Filter>Scheme</Filter>

@@ -1,7 +1,7 @@
 ﻿#pragma once
 
+#include "../ModulationPoints.h"
 #include "EqaliserAqua.h"
-#include "ModulationPoints.h"
 #include "TimePeakerDemod.h"
 #include "aqua_defines.h"
 

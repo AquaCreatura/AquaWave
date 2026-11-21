@@ -55,11 +55,11 @@ bool MultiRateResampler::Init(const int64_t base_fs_hz, int64_t& tgt_sr_hz, cons
     // Проектирование фильтра с правильной частотой среза
     const double cutoff_after_interp = std::min(0.5 * fir_coeff_after_interp,  0.5 / std::max(up_factor_, down_factor_));
 
-	int fir_len = GetFirLenPow2(1. / down_factor_, std::max(0.95, bw_ratio));
+	int fir_len = aqua_dsp_tools::GetFirLenPow2(1. / down_factor_, std::max(0.95, bw_ratio));
 	fir_len = std::min(std::max(16, fir_len), 1024);
 	
     std::vector<Ipp32fc> taps;
-    if(!GenerateWindowKoeffs(cutoff_after_interp, fir_len, ippWinBlackman, taps))
+    if(!aqua_dsp_tools::GenerateWindowKoeffs(cutoff_after_interp, fir_len, ippWinBlackman, taps))
         return false;
     if(settings_.need_norm_power)
     {

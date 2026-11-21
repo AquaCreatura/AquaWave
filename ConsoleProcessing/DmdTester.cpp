@@ -2,8 +2,9 @@
 
 #include "DmdTester.h"
 #include "ConsoleHelper.h"
+#include "ModTester.h"
 
-#include "DSP Tools/Modem/ContinuousDemodulator.h"
+#include "DSP Tools/Modem/Demodulation/ContinuousDemodulator.h"
 #include "DSP Tools/Resampler/ResamplerMan.h"
 #include "Arks/File Source/helpers/FileReadCore.h"
 #include "special_defs/file_souce_defs.h"
@@ -305,6 +306,16 @@ int console::DmdTester::RunConsole(const QStringList& arguments)
 		out << ConsoleHelper::FullHelp(parser, loops) << "\n";
 		out.flush();
 		return 0;
+	}
+	if (parser.isSet(options::kModulate)) {
+		QString error;
+		const auto params = ConsoleHelper::ExtractModulate(parser, error);
+		if (!params) {
+			out << "Error: " << error << "\n\n" << ConsoleHelper::FullHelp(parser, loops) << "\n";
+			out.flush();
+			return 1;
+		}
+		return ModTester::RunModulation(*params, out);
 	}
 	if (!parser.isSet(options::kDmd)) {
 		out << "Error: unknown console invocation.\n\n" << ConsoleHelper::FullHelp(parser, loops) << "\n";

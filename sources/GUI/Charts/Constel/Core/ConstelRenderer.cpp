@@ -42,7 +42,7 @@ void constel::ConstellRenderer::UpdatePixmap(const int side_size_px)
 	cache_.pixmap = QPixmap::fromImage(scaled);
 
 	// Поверх данных рисуем опорные точки созвездия (белые квадраты N x N).
-	if (constel_.has_pivots && !constel_.pivots.empty() && constel_.max_power > 0.f) {
+	if (constel_.has_pivots && !constel_.pivots.empty() && constel_.max_power > 0.f && constel_.pivots.size() <= 128) {
 		int kPivotMarkerSizePx = constel_.pivots.size() <= 32 ? 2 : 1;
 
 		QPainter painter(&cache_.pixmap);

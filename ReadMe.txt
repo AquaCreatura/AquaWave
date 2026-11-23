@@ -3,3 +3,6 @@
 
 Console demodulation (details: AquaWave.exe --help):
   Примеры: "\AquaWave\ConsoleProcessing\DmdCcmTests.xml"
+
+Console modulation (random symbols -> 15 MB signals, details: AquaWave.exe --help):
+  Примеры: "\AquaWave\ConsoleProcessing\ModulateCcm.xml"

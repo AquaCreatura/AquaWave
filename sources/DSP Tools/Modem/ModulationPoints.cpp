@@ -6,11 +6,34 @@
 #include <ipp.h>
 
 #include <cmath>
+#include <cstring>
 #include <string>
 #include <vector>
 
 #pragma once
 
+
+namespace
+{
+	// Порядок созвездия (число точек) из имени модуляции, если он распознаётся:
+	// число, стоящее перед тегом (например "1024" в "1024QAM" или "8" в "8PSK").
+	// Возвращает 0, если тег отсутствует или число не парсится.
+	int ParseConstellationOrder(const std::string& name, const char* tag)
+	{
+		const auto pos = name.find(tag);
+		if (pos == std::string::npos)
+			return 0;
+
+		try
+		{
+			return std::stoi(name.substr(0, pos) + name.substr(pos + std::strlen(tag)));
+		}
+		catch (...)
+		{
+			return 0;
+		}
+	}
+}
 
 
 std::vector<Ipp32fc> AddQAMConst(int M)
@@ -68,6 +91,38 @@ std::vector<Ipp32fc> AddQAMConst(int M)
 
 	return points;
 }
+aq_demod::DmdSliderStructure aq_demod::GetDefaultSliderSetup(const char* modulation)
+{
+	// Модуляцию определяем по числу точек созвездия: чуть медленнее, зато
+	// наглядно и без отдельного разбора имени.
+	const int points = static_cast<int>(CalculateModulationPivots(modulation).size());
+
+	// Явный набор для каждой модуляции.
+	if (points == 2)     // BPSK
+		return { 2.0e-3, 0.03, 1.0e-4, "LMS" };
+	if (points == 4)     // QPSK / OQPSK / DQPSK
+		return { 2.0e-3, 0.03, 1.0e-4, "LMS" };
+	if (points == 8)     // 8PSK
+		return { 2.0e-3, 0.03, 1.0e-4, "LMS" };
+	if (points == 16)    // 16QAM / 16PSK
+		return { 2.0e-3, 0.03, 2.0e-4, "LMS" };
+	if (points == 32)    // 32QAM (cross)
+		return { 3.0e-3, 0.03, 5.0e-4, "LMS" };
+	if (points == 64)    // 64QAM
+		return { 5.0e-4, 0.03, 2.0e-4, "LMS" };
+	if (points == 128)   // 128QAM (cross)
+		return { 2.0e-4, 0.03, 1.0e-4, "LMS" };
+	if (points == 256)   // 256QAM
+		return { 2.0e-4, 0.03, 1.0e-4, "LMS" };
+	if (points == 512)   // 512QAM (cross)
+		return { 1.0e-4, 0.04, 1.0e-4, "MMA" };
+	if (points == 1024)  // 1024QAM
+		return { 1.0e-4, 0.04, 1.0e-4, "MMA" };
+
+	// Неизвестная модуляция — общий дефолт.
+	return DmdSliderStructure{};
+}
+
 std::vector<Ipp32fc> aq_demod::CalculateModulationPivots(const char * modulation)
 {
 	const std::string mod = modulation ? modulation : "";
@@ -104,15 +159,15 @@ std::vector<Ipp32fc> aq_demod::CalculateModulationPivots(const char * modulation
 	}
 	else if (mod.find("QAM") != std::string::npos)
 	{
-		const auto pos = mod.find("QAM");
-		const int M = std::stoi(mod.substr(0, pos) + mod.substr(pos + 3));
-		points = AddQAMConst(M);
+		const int M = ParseConstellationOrder(mod, "QAM");
+		if (M > 0)
+			points = AddQAMConst(M);
 	}
 	else if (mod.find("PSK") != std::string::npos)
 	{
-		const auto pos = mod.find("PSK");
-		const int M = std::stoi(mod.substr(0, pos) + mod.substr(pos + 3));
-		AddPSK(M, M_PI / M);
+		const int M = ParseConstellationOrder(mod, "PSK");
+		if (M > 0)
+			AddPSK(M, M_PI / M);
 	}
 
 	return points;

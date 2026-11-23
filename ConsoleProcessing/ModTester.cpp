@@ -151,6 +151,10 @@ int console::ModTester::RunModulation(const ModParams& params, QTextStream& out)
 		<< (noise_enabled ? QString::number(params.noise_level_db, 'f', 2)
 			: QStringLiteral("disabled"))
 		<< " dB\n";
+	out << "Out size:    "
+		<< (params.out_size_bytes > 0 ? QString::number(params.out_size_bytes) + QStringLiteral(" bytes")
+			: QStringLiteral("unlimited"))
+		<< "\n";
 	out << "-------------------------------------------------------------------------------\n";
 	out.flush();
 
@@ -174,8 +178,8 @@ int console::ModTester::RunModulation(const ModParams& params, QTextStream& out)
 	std::vector<uint8_t> chunk;
 	std::vector<Ipp32fc> iq;
 	std::vector<Ipp16s> out_shorts;
-	int64_t total_symbols = 0;
-	int64_t total_samples = 0;
+	int64_t written_bytes = 0;
+	const int64_t max_out_bytes = params.out_size_bytes;
 
 	while (true) {
 		input.read(reinterpret_cast<char*>(read_bytes.data()),
@@ -206,20 +210,37 @@ int console::ModTester::RunModulation(const ModParams& params, QTextStream& out)
 		if (iq.empty())
 			continue;
 
-		total_symbols += static_cast<int64_t>(usable / bits_per_symbol);
-		total_samples += static_cast<int64_t>(iq.size());
-
 		ConvertToInt16(iq, out_shorts);
+		const int64_t block_bytes_out = static_cast<int64_t>(out_shorts.size() * sizeof(Ipp16s));
+		if (max_out_bytes > 0 && written_bytes + block_bytes_out >= max_out_bytes) {
+			// Пишем только остаток до заданного размера. Округляем вниз до
+			// целого числа комплексных отсчётов int16 (4 байта).
+			int64_t remaining = max_out_bytes - written_bytes;
+			remaining -= remaining % 4;
+			if (remaining > 0) {
+				output.write(reinterpret_cast<const char*>(out_shorts.data()),
+					static_cast<std::streamsize>(remaining));
+				written_bytes += remaining;
+			}
+			break;
+		}
 		output.write(reinterpret_cast<const char*>(out_shorts.data()),
-			static_cast<std::streamsize>(out_shorts.size() * sizeof(Ipp16s)));
+			static_cast<std::streamsize>(block_bytes_out));
+		written_bytes += block_bytes_out;
 	}
 
 	output.flush();
 	output.close();
 
+	// Считаем записанное по факту: при ограничении --out_size хвост обрезается,
+	// поэтому числа символов/отсчётов должны соответствовать файлу, а не входу.
+	const int64_t written_samples = written_bytes / static_cast<int64_t>(sizeof(Ipp16s) * 2);
+	const int64_t upsample = std::max(1, modulator.GetUpsample());
+
 	out << "-------------------------------------------------------------------------------\n";
-	out << "Symbols:     " << total_symbols << "\n";
-	out << "Samples:     " << total_samples << "\n";
+	out << "Symbols:     " << written_samples / upsample << "\n";
+	out << "Samples:     " << written_samples << "\n";
+	out << "Written:     " << written_bytes << " bytes\n";
 	out << "Time:        " << QString::number(timer.elapsed() / 1000.0, 'f', 2) << " s\n";
 	out << "Done.\n";
 	out.flush();

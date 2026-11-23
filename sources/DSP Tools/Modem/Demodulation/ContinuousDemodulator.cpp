@@ -37,7 +37,7 @@ bool ContinuousDemodulator::Init(const char* modulation, int upsample_passed)
 	equal_.SetDdAlgorithm(EqaliserAqua::DdAlgorithm::LMS);
 	// По умолчанию эквалайзер работает по решению: для QAM это даёт заметно
 	// лучший SNR, чем слепые MMA/CMA (у которых остаётся ошибка модуля).
-	equal_.EnableDirectDecision(true);
+	equal_.EnableDirectDecision(false);
 	equal_.InitFromPivots(pivots_);
 	// Re-initialize the Gardner TED with the correct oversampling factor.
 	ted_man_ = GardnerTED(upsample_passed);
@@ -131,10 +131,10 @@ void ContinuousDemodulator::SetEqualiserAlgorithm(const char* algorithm)
 
 void ContinuousDemodulator::UpdateLoopCoefficients()
 {
-	// alpha � ��� pll_phase_, beta � ��� pll_freq_
+	// alpha — это pll_phase_, beta — это pll_freq_
 	pll_phase_ = current_alpha_;
-	// beta = 0.25 * alpha^2, ��� ������������� � ����������
-	pll_freq_ = 0.25 * current_alpha_ * current_alpha_ ;
+	// beta = 0.25 * alpha^2, для критического демпфирования
+	pll_freq_ = 0.25 * current_alpha_ * current_alpha_;
 }
 
 bool ContinuousDemodulator::SynchroniseIQ(

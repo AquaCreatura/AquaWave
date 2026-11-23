@@ -192,13 +192,26 @@ namespace
 			out.flush();
 			return 1;
 		}
+		// Дефолты скоростей петель зависят от типа модуляции: если в командной
+		// строке параметр не задан, берём оптимальный набор для этой модуляции.
+		const aq_demod::DmdSliderStructure setup =
+			aq_demod::GetDefaultSliderSetup(modulation.constData());
+		const double pll_speed = params.pll_speed.value_or(setup.pll);
+		const double tll_speed = params.tll_speed.value_or(setup.tll);
+		const double eq_speed = params.eq_speed.value_or(setup.eq_koeff);
+
+		// Алгоритм эквалайзера тоже зависит от модуляции: для плотных QAM
+		// (512/1024) решающий LMS сходится плохо, лучше слепой MMA.
+		const QString eq_alg = params.eq_alg.isEmpty()
+			? QString::fromLatin1(setup.eq_alg)
+			: params.eq_alg;
+
 		// Длину эквалайзера задаём до его скорости: шаг NLMS зависит от числа отводов.
 		if (params.eq_taps > 0) demodulator.SetEqualiserTaps(params.eq_taps);
-		if (params.pll_speed) demodulator.SetPllSpeed(params.pll_speed.value());
-		if (params.tll_speed) demodulator.SetTimingSpeed(params.tll_speed.value());
-		if (params.eq_speed) demodulator.SetEqualiserSpeed(params.eq_speed.value());
-		if (!params.eq_alg.isEmpty())
-			demodulator.SetEqualiserAlgorithm(params.eq_alg.toLatin1().constData());
+		demodulator.SetPllSpeed(pll_speed);
+		demodulator.SetTimingSpeed(tll_speed);
+		demodulator.SetEqualiserSpeed(eq_speed);
+		demodulator.SetEqualiserAlgorithm(eq_alg.toLatin1().constData());
 
 		// Header with the run parameters.
 		out << "=== AquaWave console demodulation ===\n";
@@ -208,8 +221,11 @@ namespace
 		out << "Fs file:     " << file_samplerate_hz << " Hz\n";
 		out << "Fc demod:    " << params.demod_carrier_hz << " Hz\n";
 		out << "Bd demod:    " << params.demod_symbol_rate_hz << " Hz\n";
-		out << "Eq alg:      " << (params.eq_alg.isEmpty() ? QStringLiteral("LMS") : params.eq_alg) << "\n";
+		out << "Eq alg:      " << eq_alg << "\n";
 		out << "Eq taps:     " << demodulator.GetEqualiserTaps() << "\n";
+		out << "PLL/TLL/EQ:  " << QString::number(demodulator.GetPllSpeed(), 'g', 4)
+			<< " / " << QString::number(demodulator.GetTimingSpeed(), 'g', 4)
+			<< " / " << QString::number(demodulator.GetEqualiserSpeed(), 'g', 4) << "\n";
 		out << "Demod Fs:    " << demod_samplerate_hz << " Hz (" << kUpsample << " samples/symbol)\n";
 		out << "Samples:     " << file_descr.count_of_samples << "\n";
 		out << "-------------------------------------------------------------------------------\n";

@@ -1,5 +1,7 @@
 ﻿#include "AquaDemodWindow.h"
 
+#include "DSP Tools/Modem/ModulationPoints.h"
+
 #include <qformlayout.h>
 #include <qlabel.h>
 #include <qlayout.h>
@@ -107,8 +109,8 @@ void AquaDemodWindow::OnResetClicked()
 
 void AquaDemodWindow::SetupModulations()
 {
-	// Список согласован с CalculateModulationPivots (PSK/QAM, включая cross-QAM 32/128).
-	const QStringList modulations = { "QPSK", "BPSK", "8PSK", "16QAM", "32QAM", "64QAM", "128QAM", "256QAM", "1024QAM" };
+	// Список согласован с CalculateModulationPivots (PSK/QAM, включая cross-QAM 32/128/512).
+	const QStringList modulations = { "QPSK", "BPSK", "8PSK", "16QAM", "32QAM", "64QAM", "128QAM", "256QAM", "512QAM", "1024QAM" };
 	{
 		QSignalBlocker blocker(ui_.mod_combo);
 		for (const QString& modulation : modulations)
@@ -118,9 +120,40 @@ void AquaDemodWindow::SetupModulations()
 
 	connect(ui_.mod_combo, QOverload<int>::of(&QComboBox::currentIndexChanged),
 		this, [this](int) {
+			// Смена модуляции — ставим её оптимальные скорости петель,
+			// затем просим пересобрать тракт.
+			ApplyModulationDefaults();
 			emit DemodSettingsChanged();
 			emit ModulationChanged(GetModulation());
 		});
+}
+
+void AquaDemodWindow::SetLoopValue(Loop& loop, double value)
+{
+	if (!loop.slider)
+		return;
+	// Через ползунок: сработает on_slider_changed, обновит спинабокс и
+	// эмитит соответствующий *SpeedChanged, применяя значение в демодуляторе.
+	loop.slider->setValue(SliderValue(loop.slider, value));
+}
+
+void AquaDemodWindow::SetEqAlgorithm(const char* algorithm)
+{
+	if (!algorithm)
+		return;
+	const int index = ui_.eq_alg_combo->findText(QString::fromLatin1(algorithm));
+	if (index >= 0)
+		ui_.eq_alg_combo->setCurrentIndex(index);
+}
+
+void AquaDemodWindow::ApplyModulationDefaults()
+{
+	const aq_demod::DmdSliderStructure setup =
+		aq_demod::GetDefaultSliderSetup(GetModulation().toUtf8().constData());
+	SetLoopValue(pll_loop_, setup.pll);
+	SetLoopValue(tll_loop_, setup.tll);
+	SetLoopValue(eq_loop_, setup.eq_koeff);
+	SetEqAlgorithm(setup.eq_alg);
 }
 
 void AquaDemodWindow::SetupEqAlgorithms()
@@ -303,6 +336,9 @@ void AquaDemodWindow::SetSpeedRanges(aqua::Limits<double> pll, aqua::Limits<doub
 	SetupLoop(pll_loop_, pll_default, [this](double value) { emit PllSpeedChanged(value); });
 	SetupLoop(tll_loop_, tll_default, [this](double value) { emit TllSpeedChanged(value); });
 	SetupLoop(eq_loop_, eq_default, [this](double value) { emit EqSpeedChanged(value); });
+
+	// Сразу выставляем оптимальные для текущей модуляции значения.
+	ApplyModulationDefaults();
 }
 
 int AquaDemodWindow::SliderValue(QSlider* slider, double speed) const

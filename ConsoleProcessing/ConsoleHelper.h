@@ -24,6 +24,7 @@ namespace console
 		inline constexpr auto kOutPath = "out_path";
 		inline constexpr auto kSymRate = "sym_rate";
 		inline constexpr auto kNoise = "noise";
+		inline constexpr auto kOutSize = "out_size";
 		inline constexpr auto kFileFc = "file_fc";
 		inline constexpr auto kFileSr = "file_sr";
 		inline constexpr auto kDmdFc = "dmd_fc";
@@ -94,6 +95,7 @@ namespace console
 		int64_t symbol_rate_hz{ mod_defaults::kSymbolRateHz }; // Hz, output name only
 		double  noise_level_db{ mod_defaults::kNoiseLevelDb }; // dB, -1000 = disabled
 		int     upsample{ mod_defaults::kUpsample };           // Samples per symbol
+		int64_t out_size_bytes{ 0 };                           // 0 = без ограничения
 	};
 
 	// Loop limits and defaults, used to describe pll/tll/eq in the help.
@@ -157,7 +159,7 @@ namespace console
 				{ options::kModulate, "",
 					QStringLiteral("Run console modulation (no windows are opened)."), OptionGroup::Command },
 				{ options::kType, "type",
-					QStringLiteral("Modulation type: BPSK, QPSK, 8PSK, 16QAM, 32QAM, 64QAM, 128QAM, 256QAM."), OptionGroup::Common },
+					QStringLiteral("Modulation type: BPSK, QPSK, 8PSK, 16QAM, 32QAM, 64QAM, 128QAM, 256QAM, 512QAM, 1024QAM."), OptionGroup::Common },
 				{ options::kFilePath, "path",
 					QStringLiteral("Path to the input file. For -dmd it is a signal file (.pcm, complex int16 or float32), for -modulate it is the data file to modulate (a random 15 MB file is generated if it is missing or unreadable)."), OptionGroup::Common },
 				{ options::kOutPath, "path",
@@ -168,6 +170,8 @@ namespace console
 				{ options::kNoise, "dB",
 					QStringLiteral("Noise level (-modulate), dB relative to the signal power. Default %1 dB (noise disabled).")
 						.arg(FormatNumber(mod_defaults::kNoiseLevelDb)), OptionGroup::Modulate },
+				{ options::kOutSize, "bytes",
+					QStringLiteral("Stop writing once the output .pcm reaches this size in bytes (-modulate). 0 = unlimited (default)."), OptionGroup::Modulate },
 				{ options::kFileFc, "Hz",
 					QStringLiteral("File carrier frequency, Hz. Taken from the file name if omitted."), OptionGroup::Demod },
 				{ options::kFileSr, "Hz",
@@ -177,16 +181,16 @@ namespace console
 				{ options::kDmdSr, "Hz",
 					QStringLiteral("Symbol rate for demodulation, Hz (required)."), OptionGroup::Demod },
 				{ options::kPll, "value",
-					QStringLiteral("PLL loop speed. Range %1, default %2.")
+					QStringLiteral("PLL loop speed. Range %1. Default depends on the modulation type (%2).")
 						.arg(FormatLimits(loops.pll), FormatNumber(loops.pll_default)), OptionGroup::Demod },
 				{ options::kTll, "value",
-					QStringLiteral("Timing loop speed. Range %1, default %2.")
+					QStringLiteral("Timing loop speed. Range %1. Default depends on the modulation type (%2).")
 						.arg(FormatLimits(loops.tll), FormatNumber(loops.tll_default)), OptionGroup::Demod },
 				{ options::kEq, "value",
-					QStringLiteral("Equaliser speed. Range %1, default %2.")
+					QStringLiteral("Equaliser speed. Range %1. Default depends on the modulation type (%2).")
 						.arg(FormatLimits(loops.eq), FormatNumber(loops.eq_default)), OptionGroup::Demod },
 				{ options::kEqAlg, "name",
-					QStringLiteral("Equaliser algorithm: MMA or CMA (blind), LMS (decision-directed). Default LMS."), OptionGroup::Demod },
+					QStringLiteral("Equaliser algorithm: MMA or CMA (blind), LMS (decision-directed). Default depends on the modulation type (LMS, or MMA for dense QAM)."), OptionGroup::Demod },
 				{ options::kEqTaps, "n",
 					QStringLiteral("Equaliser length in taps (odd recommended). Default %1.")
 						.arg(loops.eq_taps_default), OptionGroup::Demod },
@@ -335,6 +339,15 @@ namespace console
 					return std::nullopt;
 				}
 				params.noise_level_db = noise;
+			}
+
+			if (parser.isSet(options::kOutSize)) {
+				int64_t bytes = 0;
+				if (!ParseFrequency(parser.value(options::kOutSize), bytes) || bytes < 0) {
+					error = BadValue(options::kOutSize, parser.value(options::kOutSize));
+					return std::nullopt;
+				}
+				params.out_size_bytes = bytes;
 			}
 
 			return params;

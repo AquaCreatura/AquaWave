@@ -23,12 +23,15 @@
   </test>
 
   <!-- Reference signal from ReadMe.txt: iDirect/HUBs QPSK capture.
-       The command is exactly the one from ReadMe.txt (only the exe path is absolute). -->
+       The command is exactly the one from ReadMe.txt (only the exe path is absolute).
+       pll/tll/eq are omitted on purpose: they default to the optimal set for the
+       modulation (aq_demod::GetDefaultSliderSetup), which for QPSK is
+       PLL 0.002 / TLL 0.03 / EQ 0.0001 (slightly better than the old single default). -->
   <test name="iDirect and HUBs QPSK (ReadMe example)">
     <file>D:\signals\star_signals\iDirect and HUBs 11081.434200MHz 7000.000KHz.pcm</file>
     <modulation>QPSK</modulation>
     <command>"D:\PetWave\AquaWave\x64\Debug\AquaWave.exe" -dmd --type QPSK --file_path "D:\signals\star_signals\iDirect and HUBs 11081.434200MHz 7000.000KHz.pcm" --dmd_fc 11081405991 --dmd_sr 297454</command>
-    <expected_snr_db>17.3</expected_snr_db>
+    <expected_snr_db>17.6</expected_snr_db>
   </test>
 
 </DmdCcmTests>

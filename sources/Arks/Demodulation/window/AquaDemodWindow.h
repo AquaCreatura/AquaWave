@@ -78,6 +78,9 @@ protected:
 	void SetupButtons();
 	// Список модуляций и смена текущего значения.
 	void SetupModulations();
+	// Ставит ползунки/спинабоксы петель в оптимальные для текущей модуляции
+	// значения (aq_demod::GetDefaultSliderSetup).
+	void ApplyModulationDefaults();
 	// Список алгоритмов эквалайзера и смена текущего значения.
 	void SetupEqAlgorithms();
 	// Группы петель (label, слайдер, спинабокс) для PLL/TLL/эквалайзера.
@@ -106,6 +109,10 @@ private:
 	Loop pll_loop_, tll_loop_, eq_loop_;
 
 	void SetupLoop(Loop& loop, double default_value, const std::function<void(double)>& on_speed);
+	// Устанавливает значение одной петли (через ползунок, с эмиссией сигнала).
+	void SetLoopValue(Loop& loop, double value);
+	// Устанавливает алгоритм эквалайзера в комбобоксе ("LMS"/"MMA"/"CMA").
+	void SetEqAlgorithm(const char* algorithm);
 
 	struct SliderInfo
 	{

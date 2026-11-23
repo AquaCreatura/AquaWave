@@ -22,13 +22,17 @@ demodulator::AquaDemod::AquaDemod(bool is_light_mode)
 {
 	window_ = new AquaDemodWindow(is_light_mode);
 
+	// Начальный набор скоростей петель — оптимальный для текущей (начальной)
+	// модуляции окна; далее окно само выставляет набор при смене модуляции.
+	const aq_demod::DmdSliderStructure initial_setup =
+		aq_demod::GetDefaultSliderSetup(window_->GetModulation().toUtf8().constData());
 	window_->SetSpeedRanges(
 		demodulator_.GetPllSpeedLimits(),
 		demodulator_.GetTimingSpeedLimits(),
 		demodulator_.GetEqualiserSpeedLimits(),
-		demodulator_.GetPllSpeedDefault(),
-		demodulator_.GetTimingSpeedDefault(),
-		demodulator_.GetEqualiserSpeedDefault());
+		initial_setup.pll,
+		initial_setup.tll,
+		initial_setup.eq_koeff);
 	window_->SetRunningState(false);
 
 	connect(window_, &AquaDemodWindow::DemodSettingsChanged, this, &AquaDemod::ApplyDemodSettings);

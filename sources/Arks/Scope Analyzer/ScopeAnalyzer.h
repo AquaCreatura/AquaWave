@@ -23,13 +23,12 @@ public:
 protected:
 	void ActivateNode(const bool do_activate);
 	void UpdateHarmonicInfo();
-	// Передаёт встроенному демодулятору выделение и текущие оценки
-	// (сообщением kInitialise).
+	// Передаёт встроенному демодулятору (и CCM-демодуляторам командной связи)
+	// выделение и текущие оценки (сообщением kInitialise).
 	void SendDemodInitialise();
 	bool Reload();
 	bool Restart();
 	void SetNewFftOrder(int n_fft_order);
-	void SetDemodParam(aqua_opt<double> carrier_hz, aqua_opt<double> symbolrate_hz);
 protected:
 	struct chart_info : ArkInterface::sptr{
 		chart_info& operator=(const ArkInterface::sptr& other) {

@@ -200,8 +200,8 @@ namespace
 		const double tll_speed = params.tll_speed.value_or(setup.tll);
 		const double eq_speed = params.eq_speed.value_or(setup.eq_koeff);
 
-		// Алгоритм эквалайзера тоже зависит от модуляции: для плотных QAM
-		// (512/1024) решающий LMS сходится плохо, лучше слепой MMA.
+		// Алгоритм эквалайзера тоже зависит от модуляции: по умолчанию AUTO
+		// (слепой MMA на старте, затем решающий LMS после захвата).
 		const QString eq_alg = params.eq_alg.isEmpty()
 			? QString::fromLatin1(setup.eq_alg)
 			: params.eq_alg;
@@ -296,6 +296,10 @@ namespace
 		PrintStats(out, 100, demodulator, params.demod_symbol_rate_hz);
 		if (has_settled_snr)
 			out << "SNR (settled, average): " << QString::number(settled_snr, 'f', 2) << " dB\n";
+		if (demodulator.IsEqualiserWarmUp())
+			out << "Eq warm-up:  "
+				<< (demodulator.IsEqualiserLocked() ? "locked (LMS)" : "searching (MMA)")
+				<< "\n";
 		out.flush();
 
 		return 0;

@@ -228,7 +228,6 @@ void scope_analyzer::ScopeAnalyzer::UpdateHarmonicInfo()
 
 	// Встроенный демодулятор получает выделение и оценённые параметры.
 	SendDemodInitialise();
-	SetDemodParam(estimator_.GetCarrierHz(), estimator_.GetSymbolRateHz());
 }
 
 bool ScopeAnalyzer::Reload()
@@ -357,28 +356,25 @@ void scope_analyzer::ScopeAnalyzer::SetNewFftOrder(int need_order)
 
 void scope_analyzer::ScopeAnalyzer::SendDemodInitialise()
 {
+	// Единая точка инициализации демодуляторов: встроенный график созвездия и
+	// все CCM-демодуляторы, подключённые командной связью. Раньше то же самое
+	// делала отдельная функция SetDemodParam (дублировала это сообщение).
+	const auto send_initialise = [this](const aqua::ArkSptr& demod) {
+		if (!demod) return;
+		auto demod_dove = std::make_shared<demodulator::DemodulatorDove>(demodulator::DemodulatorDove::kInitialise);
+		demod_dove->time_bounds = selection_time_bounds_;
+		demod_dove->carrier_hz = estimator_.GetCarrierHz();
+		demod_dove->symbol_rate_hz = estimator_.GetSymbolRateHz();
+		demod->PostDove(demod_dove);
+	};
+
 	const auto demod = charts_.find(analz_chart_type::kConstellation);
-	if (demod == charts_.end()) return;
+	if (demod != charts_.end())
+		send_initialise(demod->second);
 
-	// Выделение и текущие оценки передаются демодулятору одним сообщением.
-	auto demod_dove = std::make_shared<demodulator::DemodulatorDove>(demodulator::DemodulatorDove::kInitialise);
-	demod_dove->time_bounds = selection_time_bounds_;
-	demod_dove->carrier_hz = estimator_.GetCarrierHz();
-	demod_dove->symbol_rate_hz = estimator_.GetSymbolRateHz();
-	demod->second->PostDove(demod_dove);
-}
-
-void scope_analyzer::ScopeAnalyzer::SetDemodParam(aqua_opt<double> carrier_hz, aqua_opt<double> symbolrate_hz)
-{
-	
-	auto front_arks = GetCmdArks();
-	for (auto front_iter : front_arks) {
-		if (front_iter->GetArkType() == aqua::kCcmDemodulator) {
-			auto demod_dove = std::make_shared<demodulator::DemodulatorDove>(demodulator::DemodulatorDove::kInitialise);
-			demod_dove->symbol_rate_hz = symbolrate_hz; demod_dove->carrier_hz = carrier_hz;
-			front_iter->PostDove(demod_dove);
-		}
+	for (const auto& cmd_ark : GetCmdArks()) {
+		if (cmd_ark && cmd_ark->GetArkType() == aqua::kCcmDemodulator)
+			send_initialise(cmd_ark);
 	}
-	
 }
 

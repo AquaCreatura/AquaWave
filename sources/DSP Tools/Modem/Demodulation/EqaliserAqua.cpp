@@ -2,6 +2,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <limits>
 
 namespace
 {
@@ -91,6 +92,15 @@ void EqaliserAqua::UpdateDd(const Ipp32fc& pivot)
 	}
 }
 
+void EqaliserAqua::UpdateLockMetric(const Ipp32fc& pivot)
+{
+	// Ошибка решения: расстояние от выхода эквалайзера до ближайшей точки
+	// созвездия. Сглаживаем по отсчётам, чтобы гистерезис не «дёргался».
+	const Ipp32fc error = { pivot.re - last_output_.re, pivot.im - last_output_.im };
+	const double error_power = Power(error);
+	lock_metric_ += lock_alpha_ * (error_power - lock_metric_);
+}
+
 // ---------- Реализация класса ----------
 
 EqaliserAqua::EqaliserAqua(int tap_count)
@@ -122,6 +132,10 @@ void EqaliserAqua::Reset()
 	// Центральный отвод = 1 (фильтр пропускает сигнал без искажений)
 	taps_[taps_.size() / 2] = { 1.0f, 0.0f };
 	last_output_ = { 0.0f, 0.0f };
+
+	// Warm-up всегда начинается заново со слепого алгоритма.
+	warmup_dd_ = false;
+	lock_metric_ = 1.0;
 }
 
 bool EqaliserAqua::IsValid() const
@@ -158,6 +172,24 @@ void EqaliserAqua::Process(Ipp32fc& sample)
 
 void EqaliserAqua::Update(const Ipp32fc& pivot)
 {
+	if (auto_warmup_)
+	{
+		// Режим AUTO: следим за захватом и переключаемся слепой <-> решающий
+		// с гистерезисом (lock_on_ < lock_off_), т.е. «вперёд-назад».
+		UpdateLockMetric(pivot);
+
+		if (!warmup_dd_ && lock_metric_ < lock_on_)
+			warmup_dd_ = true;
+		else if (warmup_dd_ && lock_metric_ > lock_off_)
+			warmup_dd_ = false;
+
+		if (warmup_dd_)
+			UpdateDd(pivot);
+		else
+			UpdateBlind();
+		return;
+	}
+
 	if (blind_direct_decision_)
 		UpdateDd(pivot);
 	else
@@ -218,6 +250,32 @@ void EqaliserAqua::InitFromPivots(const std::vector<Ipp32fc>& pivots)
 		mma_real_modulus_ = double(mean_real_4) / mean_real_sq;
 	if (mean_imag_sq > 1e-12f)
 		mma_imag_modulus_ = double(mean_imag_4) / mean_imag_sq;
+
+	// Минимальное расстояние между точками созвездия: по нему масштабируем
+	// пороги захвата. Плотные созвездия имеют малое расстояние, поэтому порог
+	// становится строже и warm-up не переходит на LMS раньше времени.
+	double min_dist_sq = std::numeric_limits<double>::max();
+	for (size_t i = 0; i < pivots.size(); ++i)
+	{
+		for (size_t j = i + 1; j < pivots.size(); ++j)
+		{
+			const Ipp32fc delta = { pivots[i].re - pivots[j].re, pivots[i].im - pivots[j].im };
+			min_dist_sq = std::min(min_dist_sq, Power(delta));
+		}
+	}
+
+	if (min_dist_sq < std::numeric_limits<double>::max())
+	{
+		// Порог захвата масштабируется минимальным расстоянием созвездия, а
+		// допустимая ошибка решения (в долях d_min^2) тем меньше, чем плотнее
+		// созвездие: на плотных QAM решающий алгоритм склонен к размножению
+		// ошибок, поэтому его включают только при хорошо раскрытом глазе.
+		const double bits = std::log2(static_cast<double>(pivots.size()));
+		const double lock_ratio = (bits <= 8.0) ? 0.30 : 0.0625;
+		// Гистерезис: возврат на слепой алгоритм при ошибке вчетверо выше.
+		lock_on_ = min_dist_sq * lock_ratio;
+		lock_off_ = lock_on_ * 4.0;
+	}
 }
 
 // ---- Настройка параметров ----
@@ -225,6 +283,14 @@ void EqaliserAqua::InitFromPivots(const std::vector<Ipp32fc>& pivots)
 void EqaliserAqua::EnableDirectDecision(bool enabled)
 {
 	blind_direct_decision_ = enabled;
+}
+
+void EqaliserAqua::SetAutoWarmUp(bool enabled)
+{
+	auto_warmup_ = enabled;
+	// Включение AUTO всегда перезапускает warm-up со слепого алгоритма.
+	warmup_dd_ = false;
+	lock_metric_ = 1.0;
 }
 
 void EqaliserAqua::SetBlindAlgorithm(BlindAlgorithm algorithm)

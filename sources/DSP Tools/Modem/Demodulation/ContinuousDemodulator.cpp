@@ -35,8 +35,8 @@ bool ContinuousDemodulator::Init(const char* modulation, int upsample_passed)
 	equal_.Reset();
 	equal_.SetBlindAlgorithm(EqaliserAqua::BlindAlgorithm::MMA);
 	equal_.SetDdAlgorithm(EqaliserAqua::DdAlgorithm::LMS);
-	// По умолчанию эквалайзер работает по решению: для QAM это даёт заметно
-	// лучший SNR, чем слепые MMA/CMA (у которых остаётся ошибка модуля).
+	// Пока алгоритм не выбран явно (SetEqualiserAlgorithm), эквалайзер стартует
+	// слепо (MMA). Дефолт тракта — AUTO: MMA на старте, LMS после захвата.
 	equal_.EnableDirectDecision(false);
 	equal_.InitFromPivots(pivots_);
 	// Re-initialize the Gardner TED with the correct oversampling factor.
@@ -115,17 +115,27 @@ void ContinuousDemodulator::SetEqualiserAlgorithm(const char* algorithm)
 	const std::string alg = algorithm ? algorithm : "";
 
 	if (alg == "CMA") {
+		equal_.SetAutoWarmUp(false);
 		equal_.SetBlindAlgorithm(EqaliserAqua::BlindAlgorithm::CMA);
 		equal_.EnableDirectDecision(false);
 	}
 	else if (alg == "MMA") {
+		equal_.SetAutoWarmUp(false);
 		equal_.SetBlindAlgorithm(EqaliserAqua::BlindAlgorithm::MMA);
 		equal_.EnableDirectDecision(false);
 	}
-	else {
-		// По умолчанию (в т.ч. пустая строка) и для "LMS" — по решению.
+	else if (alg == "LMS") {
+		equal_.SetAutoWarmUp(false);
 		equal_.SetDdAlgorithm(EqaliserAqua::DdAlgorithm::LMS);
 		equal_.EnableDirectDecision(true);
+	}
+	else {
+		// По умолчанию (в т.ч. пустая строка) и для "AUTO" — warm-up:
+		// слепой MMA на старте, затем решающий LMS после захвата.
+		equal_.SetBlindAlgorithm(EqaliserAqua::BlindAlgorithm::MMA);
+		equal_.SetDdAlgorithm(EqaliserAqua::DdAlgorithm::LMS);
+		equal_.EnableDirectDecision(true);
+		equal_.SetAutoWarmUp(true);
 	}
 }
 

@@ -360,7 +360,28 @@
            </widget>
           </item>
           <item row="0" column="1">
-           <widget class="QComboBox" name="eq_alg_combo"/>
+           <widget class="QComboBox" name="eq_alg_combo">
+            <item>
+             <property name="text">
+              <string>AUTO</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>MMA</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>CMA</string>
+             </property>
+            </item>
+            <item>
+             <property name="text">
+              <string>LMS</string>
+             </property>
+            </item>
+           </widget>
           </item>
           <item row="1" column="0">
            <widget class="QLabel" name="pll_label">

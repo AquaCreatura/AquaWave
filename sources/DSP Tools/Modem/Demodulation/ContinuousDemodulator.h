@@ -37,9 +37,14 @@ namespace aq_demod
 		// Длина эквалайзера (число отводов). Применяется в Init().
 		void SetEqualiserTaps(int tap_count);
 		int  GetEqualiserTaps() const { return eq_taps_; }
-		// Алгоритм эквалайзера: "MMA"/"CMA" (слепые) или "LMS" (по решению).
-		// Любое другое значение (в т.ч. nullptr) выбирает LMS по умолчанию.
+		// Алгоритм эквалайзера: "MMA"/"CMA" (слепые), "LMS" (по решению) или
+		// "AUTO" (warm-up: сначала MMA, после захвата — LMS, с гистерезисом).
+		// Любое другое значение (в т.ч. nullptr) выбирает AUTO по умолчанию.
 		void SetEqualiserAlgorithm(const char* algorithm);
+
+		// Диагностика режима AUTO: активен ли warm-up и захвачено ли созвездие.
+		bool IsEqualiserWarmUp() const { return equal_.IsWarmUpActive(); }
+		bool IsEqualiserLocked() const { return equal_.IsLocked(); }
 
 		double GetPllSpeed() const { return current_pll_speed_; }
 		double GetTimingSpeed() const { return current_timing_speed_; }

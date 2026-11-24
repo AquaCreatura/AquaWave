@@ -49,9 +49,19 @@ public:
 	void SetBlindStep(double step); // 1e-4 ... 5e-3
 	void SetDdStep(double step);    // 0.001 ... 0.01 (для NLMS используется отдельный коэффициент)
 
+	// Warm-up (режим AUTO): сначала работает слепой алгоритм (MMA), а после
+	// захвата созвездия эквалайзер переходит на решающий (LMS). Переключение
+	// идёт по сглаженной ошибке решения и имеет гистерезис, поэтому возможен
+	// и обратный переход (LMS -> MMA), если созвездие снова «поехало».
+	void SetAutoWarmUp(bool enabled);
+	bool IsWarmUpActive() const { return auto_warmup_; }
+	// Текущее состояние warm-up: true — работаем по решению (LMS), false — слепо (MMA).
+	bool IsLocked() const { return warmup_dd_; }
+
 private:
 	void UpdateBlind();
 	void UpdateDd(const Ipp32fc& pivot);  
+	void UpdateLockMetric(const Ipp32fc& pivot);
 
 	void UpdateCma();
 	void UpdateMma();
@@ -78,4 +88,17 @@ private:
 	double mma_imag_modulus_ = 1.0;
 
 	bool blind_direct_decision_ = true;
+
+	// Warm-up (AUTO): слепой старт + переход на решающий алгоритм по захвату.
+	bool   auto_warmup_ = false;
+	bool   warmup_dd_ = false;
+	// Сглаженная (EMA) ошибка решения; в начале намеренно завышена, чтобы
+	// стартовать именно со слепого алгоритма.
+	double lock_metric_ = 1.0;
+	double lock_alpha_ = 1.0 / 1024.0;
+	// Пороги гистерезиса, вычисляются из минимального расстояния созвездия:
+	//   lock_on_  — ошибка ниже этого уровня => переходим на LMS;
+	//   lock_off_ — ошибка выше этого уровня => возвращаемся на MMA.
+	double lock_on_ = 0.0;
+	double lock_off_ = 0.0;
 };

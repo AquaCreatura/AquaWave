@@ -37,9 +37,11 @@ namespace console
 	}
 
 	// Алгоритмы эквалайзера, доступные из командной строки (--eq_alg).
+	// AUTO - warm-up (слепой MMA -> решающий LMS после захвата),
 	// MMA/CMA - слепые (без решения), LMS - по решению.
 	namespace eq_algorithms
 	{
+		inline constexpr auto kAuto = "AUTO";
 		inline constexpr auto kMma = "MMA";
 		inline constexpr auto kCma = "CMA";
 		inline constexpr auto kLms = "LMS";
@@ -56,9 +58,10 @@ namespace console
 	// Parameters of the console demodulation mode:
 	//   -dmd --type <Type> --file_path <File> --dmd_fc <Hz> --dmd_sr <Hz>
 	//        [--file_fc <Hz>] [--file_sr <Hz>] [--pll <v>] [--tll <v>] [--eq <v>]
-	//        [--eq_alg <MMA|CMA|LMS>]
+	//        [--eq_alg <AUTO|MMA|CMA|LMS>]
 	// file_fc/file_sr are optional (taken from the file name if omitted);
-	// pll/tll/eq are optional loop speeds; eq_alg is the equaliser algorithm.
+	// pll/tll/eq are optional loop speeds; eq_alg is the equaliser algorithm
+	// (default AUTO: blind MMA warm-up, then decision-directed LMS).
 	struct DmdParams
 	{
 		QString modulation;                              // Demodulation type, e.g. "QPSK"
@@ -74,7 +77,7 @@ namespace console
 		utility_aqua::aqua_opt<double> tll_speed;
 		utility_aqua::aqua_opt<double> eq_speed;
 
-		QString eq_alg;                                  // Optional equaliser algorithm (MMA/CMA/LMS)
+		QString eq_alg;                                  // Optional equaliser algorithm (AUTO/MMA/CMA/LMS)
 		int eq_taps{ 0 };                                // Optional equaliser length (0 = default)
 	};
 
@@ -190,7 +193,7 @@ namespace console
 					QStringLiteral("Equaliser speed. Range %1. Default depends on the modulation type (%2).")
 						.arg(FormatLimits(loops.eq), FormatNumber(loops.eq_default)), OptionGroup::Demod },
 				{ options::kEqAlg, "name",
-					QStringLiteral("Equaliser algorithm: MMA or CMA (blind), LMS (decision-directed). Default depends on the modulation type (LMS, or MMA for dense QAM)."), OptionGroup::Demod },
+					QStringLiteral("Equaliser algorithm: AUTO (warm-up MMA -> LMS, default), MMA or CMA (blind), LMS (decision-directed)."), OptionGroup::Demod },
 				{ options::kEqTaps, "n",
 					QStringLiteral("Equaliser length in taps (odd recommended). Default %1.")
 						.arg(loops.eq_taps_default), OptionGroup::Demod },
@@ -297,10 +300,11 @@ namespace console
 
 			params.eq_alg = parser.value(options::kEqAlg).toUpper();
 			if (!params.eq_alg.isEmpty() &&
+				params.eq_alg != QLatin1String(eq_algorithms::kAuto) &&
 				params.eq_alg != QLatin1String(eq_algorithms::kMma) &&
 				params.eq_alg != QLatin1String(eq_algorithms::kCma) &&
 				params.eq_alg != QLatin1String(eq_algorithms::kLms)) {
-				error = QStringLiteral("Unknown --%1 value: \"%2\" (expected MMA, CMA or LMS).")
+				error = QStringLiteral("Unknown --%1 value: \"%2\" (expected AUTO, MMA, CMA or LMS).")
 					.arg(QString::fromLatin1(options::kEqAlg), parser.value(options::kEqAlg));
 				return std::nullopt;
 			}
@@ -400,7 +404,8 @@ namespace console
 				"  Frequency values accept the suffixes Hz/kHz/MHz/GHz.\n"
 				"  If --file_fc/--file_sr are omitted they are taken from the file name,\n"
 				"  e.g. \"... 11081.434200MHz 7000.000KHz.pcm\".\n"
-				"  --eq_alg selects the equaliser: MMA/CMA (blind) or LMS (decision-directed).\n"
+				"  --eq_alg selects the equaliser: AUTO (warm-up MMA -> LMS, default),\n"
+				"  MMA/CMA (blind) or LMS (decision-directed).\n"
 				"  -modulate writes a baseband int16 complex (ipp16sc) .pcm file; its name\n"
 				"  carries the carrier and sample rate (symbol rate times the oversampling\n"
 				"  factor, 4 samples/symbol), e.g. \"data_QPSK 0.000000MHz 4000.000KHz.pcm\".\n"

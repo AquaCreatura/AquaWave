@@ -158,14 +158,18 @@ void AquaDemodWindow::ApplyModulationDefaults()
 
 void AquaDemodWindow::SetupEqAlgorithms()
 {
-	// Список согласован с ContinuousDemodulator::SetEqualiserAlgorithm.
-	// Дефолт совпадает с дефолтом демодулятора (по решению, LMS).
-	const QStringList algorithms = { "MMA", "CMA", "LMS" };
+	// Список алгоритмов задан в .ui (AUTO/MMA/CMA/LMS); AUTO — дефолт.
+	// Дублируем его в коде только если .ui пуст, и всегда заполняем userData,
+	// чтобы GetEqAlgorithm()/SetEqAlgorithm() работали по имени.
+	const QStringList algorithms = { "AUTO", "MMA", "CMA", "LMS" };
 	{
 		QSignalBlocker blocker(ui_.eq_alg_combo);
-		for (const QString& algorithm : algorithms)
-			ui_.eq_alg_combo->addItem(algorithm, algorithm);
-		ui_.eq_alg_combo->setCurrentText("LMS");
+		if (ui_.eq_alg_combo->count() == 0)
+			for (const QString& algorithm : algorithms)
+				ui_.eq_alg_combo->addItem(algorithm);
+		for (int i = 0; i < ui_.eq_alg_combo->count(); ++i)
+			ui_.eq_alg_combo->setItemData(i, ui_.eq_alg_combo->itemText(i));
+		ui_.eq_alg_combo->setCurrentText("AUTO");
 	}
 
 	// Смена алгоритма применяется на лету, пересборка тракта не нужна.

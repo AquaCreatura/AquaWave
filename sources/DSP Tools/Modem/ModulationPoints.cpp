@@ -97,27 +97,29 @@ aq_demod::DmdSliderStructure aq_demod::GetDefaultSliderSetup(const char* modulat
 	// наглядно и без отдельного разбора имени.
 	const int points = static_cast<int>(CalculateModulationPivots(modulation).size());
 
-	// Явный набор для каждой модуляции.
+	// Явный набор для каждой модуляции. Алгоритм эквалайзера по умолчанию —
+	// AUTO (warm-up MMA -> LMS): слепой старт не даёт решающему алгоритму
+	// разойтись до раскрытия созвездия, а после захвата LMS точнее.
 	if (points == 2)     // BPSK
-		return { 2.0e-3, 0.03, 1.0e-4, "LMS" };
+		return { 2.0e-3, 0.03, 1.0e-4, "AUTO" };
 	if (points == 4)     // QPSK / OQPSK / DQPSK
-		return { 2.0e-3, 0.03, 1.0e-4, "LMS" };
+		return { 2.0e-3, 0.03, 1.0e-4, "AUTO" };
 	if (points == 8)     // 8PSK
-		return { 2.0e-3, 0.03, 1.0e-4, "LMS" };
+		return { 2.0e-3, 0.03, 1.0e-4, "AUTO" };
 	if (points == 16)    // 16QAM / 16PSK
-		return { 2.0e-3, 0.03, 2.0e-4, "LMS" };
+		return { 2.0e-3, 0.03, 2.0e-4, "AUTO" };
 	if (points == 32)    // 32QAM (cross)
-		return { 3.0e-3, 0.03, 5.0e-4, "LMS" };
+		return { 3.0e-3, 0.03, 5.0e-4, "AUTO" };
 	if (points == 64)    // 64QAM
-		return { 5.0e-4, 0.03, 2.0e-4, "LMS" };
+		return { 5.0e-4, 0.03, 2.0e-4, "AUTO" };
 	if (points == 128)   // 128QAM (cross)
-		return { 2.0e-4, 0.03, 1.0e-4, "LMS" };
+		return { 2.0e-4, 0.03, 1.0e-4, "AUTO" };
 	if (points == 256)   // 256QAM
-		return { 2.0e-4, 0.03, 1.0e-4, "LMS" };
+		return { 2.0e-4, 0.03, 1.0e-4, "AUTO" };
 	if (points == 512)   // 512QAM (cross)
-		return { 1.0e-4, 0.04, 1.0e-4, "MMA" };
+		return { 1.0e-4, 0.04, 1.0e-4, "AUTO" };
 	if (points == 1024)  // 1024QAM
-		return { 1.0e-4, 0.04, 1.0e-4, "MMA" };
+		return { 1.0e-4, 0.04, 1.0e-4, "AUTO" };
 
 	// Неизвестная модуляция — общий дефолт.
 	return DmdSliderStructure{};

@@ -63,7 +63,7 @@ signals:
 	void PllSpeedChanged(double speed);
 	void TllSpeedChanged(double speed);
 	void EqSpeedChanged(double speed);
-	// Сменился алгоритм эквалайзера (MMA/CMA/LMS), применяется на лету.
+	// Сменился алгоритм эквалайзера (AUTO/MMA/CMA/LMS), применяется на лету.
 	void EqAlgorithmChanged(const QString& algorithm);
 	void RunToggled(bool running);
 	// Запрос на сброс ФАПЧ, усиления, эквалайзера и т.п.
@@ -111,7 +111,7 @@ private:
 	void SetupLoop(Loop& loop, double default_value, const std::function<void(double)>& on_speed);
 	// Устанавливает значение одной петли (через ползунок, с эмиссией сигнала).
 	void SetLoopValue(Loop& loop, double value);
-	// Устанавливает алгоритм эквалайзера в комбобоксе ("LMS"/"MMA"/"CMA").
+	// Устанавливает алгоритм эквалайзера в комбобоксе ("AUTO"/"LMS"/"MMA"/"CMA").
 	void SetEqAlgorithm(const char* algorithm);
 
 	struct SliderInfo

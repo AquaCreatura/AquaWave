@@ -4,8 +4,10 @@
 
   How to use:
     1. Copy a <command> line into cmd/PowerShell and run it.
-    2. The command writes a 15 MB (15728640 bytes) baseband int16 complex .pcm file
-       with random symbols for the given modulation into D:\signals\modulation\mod_test.
+    2. The command writes a baseband int16 complex .pcm file with random symbols for
+       the given modulation into D:\signals\modulation\mod_test. Sparse modulations
+       use 15 MB (15728640 bytes); dense QAM (1024/2048/4096) uses 60 MB (62914560
+       bytes) so the warm-up has enough symbols to converge reproducibly.
        If the input data file is missing, ModTester generates a random one itself
        (so the command is self-contained).
 
@@ -96,11 +98,28 @@
     <expected_snr_db>41.34</expected_snr_db>
   </test>
 
-  <test name="1024QAM random 15MB">
+  <!-- Dense QAM (1024/2048/4096) is generated at 60 MB (4x the sparse ones) so the
+       warm-up has enough symbols to converge and the result is reproducible
+       (the demodulated SNR varies by roughly +-0.3 dB between regenerations). -->
+  <test name="1024QAM random 60MB">
     <modulation>1024QAM</modulation>
     <file>D:\signals\modulation\mod_test\random_1024QAM 0.000000MHz 4000.000KHz.pcm</file>
-    <command>"D:\PetWave\AquaWave\x64\Debug\AquaWave.exe" -modulate --type 1024QAM --out_path "D:\signals\modulation\mod_test\random_1024QAM 0.000000MHz 4000.000KHz.pcm" --sym_rate 1000000 --out_size 15728640</command>
-    <expected_snr_db>40.44</expected_snr_db>
+    <command>"D:\PetWave\AquaWave\x64\Debug\AquaWave.exe" -modulate --type 1024QAM --out_path "D:\signals\modulation\mod_test\random_1024QAM 0.000000MHz 4000.000KHz.pcm" --sym_rate 1000000 --out_size 62914560</command>
+    <expected_snr_db>41.0</expected_snr_db>
+  </test>
+
+  <test name="2048QAM random 60MB">
+    <modulation>2048QAM</modulation>
+    <file>D:\signals\modulation\mod_test\random_2048QAM 0.000000MHz 4000.000KHz.pcm</file>
+    <command>"D:\PetWave\AquaWave\x64\Debug\AquaWave.exe" -modulate --type 2048QAM --out_path "D:\signals\modulation\mod_test\random_2048QAM 0.000000MHz 4000.000KHz.pcm" --sym_rate 1000000 --out_size 62914560</command>
+    <expected_snr_db>42.1</expected_snr_db>
+  </test>
+
+  <test name="4096QAM random 60MB">
+    <modulation>4096QAM</modulation>
+    <file>D:\signals\modulation\mod_test\random_4096QAM 0.000000MHz 4000.000KHz.pcm</file>
+    <command>"D:\PetWave\AquaWave\x64\Debug\AquaWave.exe" -modulate --type 4096QAM --out_path "D:\signals\modulation\mod_test\random_4096QAM 0.000000MHz 4000.000KHz.pcm" --sym_rate 1000000 --out_size 62914560</command>
+    <expected_snr_db>41.3</expected_snr_db>
   </test>
 
 </ModulateCcm>

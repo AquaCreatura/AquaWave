@@ -120,6 +120,10 @@ aq_demod::DmdSliderStructure aq_demod::GetDefaultSliderSetup(const char* modulat
 		return { 1.0e-4, 0.04, 1.0e-4, "AUTO" };
 	if (points == 1024)  // 1024QAM
 		return { 1.0e-4, 0.04, 1.0e-4, "AUTO" };
+	if (points == 2048)  // 2048QAM (cross)
+		return { 5.0e-4, 0.03, 1.0e-4, "AUTO" };
+	if (points == 4096)  // 4096QAM
+		return { 5.0e-4, 0.03, 1.0e-4, "AUTO" };
 
 	// Неизвестная модуляция — общий дефолт.
 	return DmdSliderStructure{};

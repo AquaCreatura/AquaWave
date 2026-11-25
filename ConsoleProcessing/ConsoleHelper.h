@@ -162,7 +162,7 @@ namespace console
 				{ options::kModulate, "",
 					QStringLiteral("Run console modulation (no windows are opened)."), OptionGroup::Command },
 				{ options::kType, "type",
-					QStringLiteral("Modulation type: BPSK, QPSK, 8PSK, 16QAM, 32QAM, 64QAM, 128QAM, 256QAM, 512QAM, 1024QAM."), OptionGroup::Common },
+					QStringLiteral("Modulation type: BPSK, QPSK, 8PSK, 16QAM, 32QAM, 64QAM, 128QAM, 256QAM, 512QAM, 1024QAM, 2048QAM, 4096QAM."), OptionGroup::Common },
 				{ options::kFilePath, "path",
 					QStringLiteral("Path to the input file. For -dmd it is a signal file (.pcm, complex int16 or float32), for -modulate it is the data file to modulate (a random 15 MB file is generated if it is missing or unreadable)."), OptionGroup::Common },
 				{ options::kOutPath, "path",
@@ -405,7 +405,10 @@ namespace console
 				"  If --file_fc/--file_sr are omitted they are taken from the file name,\n"
 				"  e.g. \"... 11081.434200MHz 7000.000KHz.pcm\".\n"
 				"  --eq_alg selects the equaliser: AUTO (warm-up MMA -> LMS, default),\n"
-				"  MMA/CMA (blind) or LMS (decision-directed).\n"
+				"  MMA/CMA (blind) or LMS (decision-directed). In the decision-directed\n"
+				"  mode a reliability gate keeps unreliable decisions out: such symbols use\n"
+				"  a blind MMA update instead, which prevents error propagation and lets the\n"
+				"  warm-up hold ~40 dB on dense QAM (1024/2048/4096QAM).\n"
 				"  -modulate writes a baseband int16 complex (ipp16sc) .pcm file; its name\n"
 				"  carries the carrier and sample rate (symbol rate times the oversampling\n"
 				"  factor, 4 samples/symbol), e.g. \"data_QPSK 0.000000MHz 4000.000KHz.pcm\".\n"

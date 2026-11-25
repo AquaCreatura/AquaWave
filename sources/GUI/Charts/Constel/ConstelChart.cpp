@@ -20,7 +20,7 @@ ChartConstel::ChartConstel(QWidget * parrent):
 	{
 		double fps = 20;
 		redraw_timer_.start(1000 / fps);
-		core_.InitDecay(fps, 2);
+		core_.InitDecay(fps, 5);
 	}
 }
 

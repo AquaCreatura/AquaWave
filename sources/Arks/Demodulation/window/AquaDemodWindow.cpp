@@ -110,7 +110,7 @@ void AquaDemodWindow::OnResetClicked()
 void AquaDemodWindow::SetupModulations()
 {
 	// Список согласован с CalculateModulationPivots (PSK/QAM, включая cross-QAM 32/128/512).
-	const QStringList modulations = { "QPSK", "BPSK", "8PSK", "16QAM", "32QAM", "64QAM", "128QAM", "256QAM", "512QAM", "1024QAM" };
+	const QStringList modulations = { "QPSK", "BPSK", "8PSK", "16QAM", "32QAM", "64QAM", "128QAM", "256QAM", "512QAM", "1024QAM", "2048QAM", "4096QAM" };
 	{
 		QSignalBlocker blocker(ui_.mod_combo);
 		for (const QString& modulation : modulations)
@@ -270,11 +270,12 @@ void AquaDemodWindow::ApplyCompactMode(bool compact)
 
 	if (is_light_mode_) {
 		// Встроенное окно: без отступов, чтобы при встраивании
-		// не было рамки в рамке.
+		// не было рамки в рамке. Полную раскладку (сплиттер с фреймами)
+		// скрываем целиком — иначе пустой разделитель просвечивал бы
+		// из-под light_frame_.
 		ui_.root_grid->setContentsMargins(0, 0, 0, 0);
 		light_frame_->setVisible(true);
-		ui_.params_frame->setVisible(false);
-		ui_.constel_frame->setVisible(false);
+		ui_.splitter->setVisible(false);
 		return;
 	}
 }

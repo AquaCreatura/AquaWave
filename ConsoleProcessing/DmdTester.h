@@ -1,20 +1,21 @@
 #pragma once
 
-#include <QStringList>
+#include "ConsoleHelper.h"
+
+#include <QTextStream>
 
 namespace console
 {
-	// Entry point of the console modes (-dmd demodulation, -modulate modulation).
-	// No windows are created: the file is read in chunks and processed with
-	// periodic statistics output.
+	// Console demodulation of a signal file (the -dmd mode). Reads the file in
+	// blocks, shifts the selected carrier to zero and resamples to 4 samples per
+	// symbol, demodulates, and prints periodic statistics.
 	class DmdTester
 	{
 	public:
-		// Entry point of the console mode. Parses the command line, prints the help
-		// when requested and dispatches to the demodulation (-dmd) or modulation
-		// (-modulate) runner. Returns the process exit code.
-		// arguments is the full list from QCoreApplication::arguments() (its first
-		// element is the application name, as expected by QCommandLineParser).
-		static int RunConsole(const QStringList& arguments);
+		// Runs the demodulation and returns the process exit code.
+		static int RunDemodulation(const DmdParams& params, QTextStream& out);
+
+		// Loop limits and defaults read from a probe demodulator (used by the help).
+		static LoopRanges GetLoopRanges();
 	};
 }

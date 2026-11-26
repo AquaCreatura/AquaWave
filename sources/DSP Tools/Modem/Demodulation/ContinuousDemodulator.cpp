@@ -5,298 +5,289 @@
 #include <limits>
 #include <string>
 
-using namespace aq_demod;
-
-namespace
+namespace aq_demod
 {
-	// Constants for the PLL bandwidth range.
-	// Based on GNU Radio's recommended values.
-	const double MIN_PLL_BW = 2.0 * M_PI / 1000.0;
-	const double MAX_PLL_BW = 2.0 * M_PI / 200.0;
-}
 
-ContinuousDemodulator::ContinuousDemodulator()
-{
-}
+	ContinuousDemodulator::ContinuousDemodulator()
+	{
+	}
 
-ContinuousDemodulator::~ContinuousDemodulator()
-{
-}
+	ContinuousDemodulator::~ContinuousDemodulator()
+	{
+	}
 
-bool ContinuousDemodulator::Init(const char* modulation, int upsample_passed)
-{
-	pivots_ = CalculateModulationPivots(modulation);
+	bool ContinuousDemodulator::Init(const char* modulation, int upsample_passed)
+	{
+		pivots_ = CalculateModulationPivots(modulation);
+		if (pivots_.size() < 2)
+			return false;
 
-	if (pivots_.size() < 2)
-		return false;
+		upsample_passed_ = upsample_passed;
 
-	upsample_passed_ = upsample_passed;
-	equal_.SetTapCount(eq_taps_);
-	equal_.Reset();
-	equal_.SetBlindAlgorithm(EqaliserAqua::BlindAlgorithm::MMA);
-	equal_.SetDdAlgorithm(EqaliserAqua::DdAlgorithm::LMS);
-	// Пока алгоритм не выбран явно (SetEqualiserAlgorithm), эквалайзер стартует
-	// слепо (MMA). Дефолт тракта — AUTO: MMA на старте, LMS после захвата.
-	equal_.EnableDirectDecision(false);
-	equal_.InitFromPivots(pivots_);
-	// Re-initialize the Gardner TED with the correct oversampling factor.
-	ted_man_ = GardnerTED(upsample_passed);
+		equal_.SetTapCount(eq_taps_);
+		equal_.Reset();
+		equal_.SetBlindAlgorithm(EqaliserAqua::BlindAlgorithm::MMA);
+		equal_.SetDdAlgorithm(EqaliserAqua::DdAlgorithm::LMS);
+		// Until an algorithm is set explicitly (SetEqualiserAlgorithm) the equaliser
+		// starts blind (MMA). The default is AUTO: MMA first, LMS after lock.
+		equal_.EnableDirectDecision(false);
+		equal_.InitFromPivots(pivots_);
 
-	target_power_ = 0.0;
-	for (const Ipp32fc& pivot : pivots_)
-		target_power_ += pivot.re * pivot.re + pivot.im * pivot.im;
+		// Re-initialize the Gardner TED with the correct oversampling factor.
+		ted_man_ = GardnerTED(upsample_passed);
+
+		// Average constellation power is the AGC target.
+		target_power_ = 0.0;
+		for (const Ipp32fc& pivot : pivots_)
+			target_power_ += pivot.re * pivot.re + pivot.im * pivot.im;
 		target_power_ /= pivots_.size();
 
 		signal_power_ = 0.0;
 
-		// Применяем дефолты всех петель, иначе эквалайзер остаётся со своим
-		// внутренним шагом (0.01), который выходит за документированные границы
-		// и сильно портит SNR.
+		// Apply the default loop speeds, otherwise the equaliser keeps its internal
+		// step (0.01), which is outside the documented bounds and badly hurts SNR.
 		SetPllSpeed(kPllSpeedDefault);
 		SetTimingSpeed(GetTimingSpeedDefault());
 		SetEqualiserSpeed(kEqualiserSpeedDefault);
 		Reset();
 
 		return true;
-}
-
-void ContinuousDemodulator::SetEqualiserTaps(int tap_count)
-{
-	eq_taps_ = std::max(1, tap_count);
-	equal_.SetTapCount(eq_taps_);
-	// Шаг NLMS зависит от числа отводов, поэтому пересчитываем его.
-	SetEqualiserSpeed(current_eq_speed_);
-}
-
-void ContinuousDemodulator::Reset()
-{
-	phase_ = 0.0;
-	freq_offset_ = 0.0;
-
-	agc_power_ = target_power_;
-
-	signal_power_ = 0.0;
-	error_power_ = 0.0;
-	snr_db_ = 0.0;
-	dc_estimate_ = { 0.0f, 0.0f };
-	equal_.Reset();
-	ted_man_.Reset();
-}
-
-void ContinuousDemodulator::SetPllSpeed(double alpha)
-{
-	const aqua::Limits<double>& limits = kPllSpeedLimits;
-	alpha = std::clamp(alpha, limits.low, limits.high);
-	current_alpha_ = alpha;
-	current_pll_speed_ = alpha;
-	UpdateLoopCoefficients();
-}
-
-void ContinuousDemodulator::SetTimingSpeed(double gain_mu)
-{
-	const aqua::Limits<double>& limits = kTimingSpeedLimits;
-	gain_mu = std::clamp(gain_mu, limits.low, limits.high);
-	current_timing_speed_ = gain_mu;
-	ted_man_.SetLoopGains(gain_mu, 0.25 * gain_mu * gain_mu);
-}
-
-void ContinuousDemodulator::SetEqualiserSpeed(double step)
-{
-	const aqua::Limits<double>& limits = kEqualiserSpeedLimits;
-	step = std::clamp(step, limits.low, limits.high);
-	current_eq_speed_ = step;
-	equal_.SetBlindStep(step);
-	const double dd_t = limits.pos(step);
-	equal_.SetDdStep(EqaliserAqua::kDdStepMin + dd_t * (EqaliserAqua::kDdStepMax - EqaliserAqua::kDdStepMin));
-}
-
-void ContinuousDemodulator::SetEqualiserAlgorithm(const char* algorithm)
-{
-	const std::string alg = algorithm ? algorithm : "";
-
-	if (alg == "CMA") {
-		equal_.SetAutoWarmUp(false);
-		equal_.SetBlindAlgorithm(EqaliserAqua::BlindAlgorithm::CMA);
-		equal_.EnableDirectDecision(false);
 	}
-	else if (alg == "MMA") {
-		equal_.SetAutoWarmUp(false);
-		equal_.SetBlindAlgorithm(EqaliserAqua::BlindAlgorithm::MMA);
-		equal_.EnableDirectDecision(false);
+
+	void ContinuousDemodulator::SetEqualiserTaps(int tap_count)
+	{
+		eq_taps_ = std::max(1, tap_count);
+		equal_.SetTapCount(eq_taps_);
+		// The NLMS step depends on the tap count, so recompute it.
+		SetEqualiserSpeed(current_eq_speed_);
 	}
-	else if (alg == "LMS") {
-		equal_.SetAutoWarmUp(false);
-		equal_.SetDdAlgorithm(EqaliserAqua::DdAlgorithm::LMS);
-		equal_.EnableDirectDecision(true);
-	}
-	else {
-		// По умолчанию (в т.ч. пустая строка) и для "AUTO" — warm-up:
-		// слепой MMA на старте, затем решающий LMS после захвата.
-		equal_.SetBlindAlgorithm(EqaliserAqua::BlindAlgorithm::MMA);
-		equal_.SetDdAlgorithm(EqaliserAqua::DdAlgorithm::LMS);
-		equal_.EnableDirectDecision(true);
-		equal_.SetAutoWarmUp(true);
-	}
-}
 
-void ContinuousDemodulator::UpdateLoopCoefficients()
-{
-	// alpha — это pll_phase_, beta — это pll_freq_
-	pll_phase_ = current_alpha_;
-	// beta = 0.25 * alpha^2, для критического демпфирования
-	pll_freq_ = 0.25 * current_alpha_ * current_alpha_;
-}
-
-bool ContinuousDemodulator::SynchroniseIQ(
-	const std::vector<Ipp32fc>& passed_iq,
-	std::vector<Ipp32fc>& synced_iq)
-{
-	synced_iq.clear();
-
-	// --- Symbol Timing Recovery (Gardner TED) ---
-	ted_man_.Process(passed_iq, synced_iq);
-
-	if (synced_iq.empty())
-		return true;
-	// --- DC removal (постоянная составляющая) ---
-	RemoveDc(synced_iq);
-
-	// --- Automatic Gain Control ---
-
-	ApplyAGC(synced_iq);
-	if (std::max(prev_agc_power_ / agc_power_, agc_power_ / prev_agc_power_) > 1.2) {
-		equal_.Reset();
+	void ContinuousDemodulator::Reset()
+	{
 		phase_ = 0.0;
 		freq_offset_ = 0.0;
-		return true;
-	}
 
-	// --- Carrier Recovery (Costas Loop) ---
-	error_power_ = 0.0;
-	signal_power_ = 0.0;
-	for (Ipp32fc& sample : synced_iq) {
-		
-		// 1. NCO derotates the current symbol using the loop state.
-		Ipp32fc corrected = CorrectPhase(sample);
-		equal_.Process(corrected);
-		// 2. Decision-directed phase detector.
-		double phase_error = 0.0;
-		const Ipp32fc decision = GetDecision(corrected, phase_error);
-		equal_.Update(decision);
-		// 3. Update the second-order loop 
-		UpdatePll(phase_error);		
-		// 4. Store the corrected sample.
-		sample = corrected;
-		// 5. Update SNR
-		UpdateSNR(corrected, decision);
+		agc_power_ = target_power_;
 
-	}
-	if (!equal_.IsValid()) {
+		signal_power_ = 0.0;
+		error_power_ = 0.0;
+		snr_db_ = 0.0;
+		dc_estimate_ = { 0.0f, 0.0f };
 		equal_.Reset();
-		phase_ = 0.0;
-		freq_offset_ = 0.0;
-		synced_iq.clear();
+		ted_man_.Reset();
 	}
 
-	// Calculate SNR if we have valid data.
-	if (!synced_iq.empty() && error_power_ > 0.0) {
-		snr_db_ = 10.0 * std::log10(signal_power_ / error_power_);
+	void ContinuousDemodulator::SetPllSpeed(double alpha)
+	{
+		const aqua::Limits<double>& limits = kPllSpeedLimits;
+		alpha = std::clamp(alpha, limits.low, limits.high);
+		current_alpha_ = alpha;
+		current_pll_speed_ = alpha;
+		UpdateLoopCoefficients();
 	}
 
-	return true;
-}
-
-void ContinuousDemodulator::RemoveDc(std::vector<Ipp32fc>& signal)
-{
-	const Ipp32f alpha = 1.0f / static_cast<Ipp32f>(kDcSmoothSymbols);
-	for (Ipp32fc& sample : signal) {
-		dc_estimate_.re += alpha * (sample.re - dc_estimate_.re);
-		dc_estimate_.im += alpha * (sample.im - dc_estimate_.im);
-		sample.re -= dc_estimate_.re;
-		sample.im -= dc_estimate_.im;
+	void ContinuousDemodulator::SetTimingSpeed(double gain_mu)
+	{
+		const aqua::Limits<double>& limits = kTimingSpeedLimits;
+		gain_mu = std::clamp(gain_mu, limits.low, limits.high);
+		current_timing_speed_ = gain_mu;
+		ted_man_.SetLoopGains(gain_mu, 0.25 * gain_mu * gain_mu);
 	}
-}
 
-void ContinuousDemodulator::ApplyAGC(std::vector<Ipp32fc>& signal)
-{
-	prev_agc_power_ = agc_power_;
-	for (Ipp32fc& sample : signal) {
-
-		const double power = sample.re * sample.re + sample.im * sample.im;
-
-		agc_power_ = (1.0 - agc_alpha_) * agc_power_ + agc_alpha_ * power;
-
-		// Avoid division by zero.
-		if (agc_power_ < 1e-12)
-			agc_power_ = 1e-12;
-
-		double gain = std::sqrt(target_power_ / agc_power_);
-		sample.re *= static_cast<Ipp32f>(gain);
-		sample.im *= static_cast<Ipp32f>(gain);
+	void ContinuousDemodulator::SetEqualiserSpeed(double step)
+	{
+		const aqua::Limits<double>& limits = kEqualiserSpeedLimits;
+		step = std::clamp(step, limits.low, limits.high);
+		current_eq_speed_ = step;
+		equal_.SetBlindStep(step);
+		const double dd_t = limits.pos(step);
+		equal_.SetDdStep(EqaliserAqua::kDdStepMin + dd_t * (EqaliserAqua::kDdStepMax - EqaliserAqua::kDdStepMin));
 	}
-}
 
-Ipp32fc ContinuousDemodulator::CorrectPhase(const Ipp32fc& sample) const
-{
-	const float c = std::cos(static_cast<float>(phase_));
-	const float s = std::sin(static_cast<float>(phase_));
+	void ContinuousDemodulator::SetEqualiserAlgorithm(const char* algorithm)
+	{
+		const std::string alg = algorithm ? algorithm : "";
 
-	return {
-		sample.re * c - sample.im * s,
-		sample.re * s + sample.im * c
-	};
-}
-
-Ipp32fc ContinuousDemodulator::GetDecision(
-	const Ipp32fc& sample,
-	double& phase_error) const
-{
-	double min_distance = std::numeric_limits<double>::max();
-	Ipp32fc decision = pivots_[0];
-	// Find the nearest constellation point.
-	for (const Ipp32fc& pivot : pivots_) {
-
-		const double re = sample.re - pivot.re;
-		const double im = sample.im - pivot.im;
-		const double distance = re * re + im * im;
-
-		if (distance < min_distance) {
-			min_distance = distance;
-			decision = pivot;
+		if (alg == "CMA")
+		{
+			equal_.SetAutoWarmUp(false);
+			equal_.SetBlindAlgorithm(EqaliserAqua::BlindAlgorithm::CMA);
+			equal_.EnableDirectDecision(false);
+		}
+		else if (alg == "MMA")
+		{
+			equal_.SetAutoWarmUp(false);
+			equal_.SetBlindAlgorithm(EqaliserAqua::BlindAlgorithm::MMA);
+			equal_.EnableDirectDecision(false);
+		}
+		else if (alg == "LMS")
+		{
+			equal_.SetAutoWarmUp(false);
+			equal_.SetDdAlgorithm(EqaliserAqua::DdAlgorithm::LMS);
+			equal_.EnableDirectDecision(true);
+		}
+		else
+		{
+			// Default (including an empty string) and "AUTO" - warm-up: blind MMA
+			// first, then decision-directed LMS after lock.
+			equal_.SetBlindAlgorithm(EqaliserAqua::BlindAlgorithm::MMA);
+			equal_.SetDdAlgorithm(EqaliserAqua::DdAlgorithm::LMS);
+			equal_.EnableDirectDecision(true);
+			equal_.SetAutoWarmUp(true);
 		}
 	}
 
-	// ��������� ������ � ������� atan2
-	const double real = sample.re * decision.re + sample.im * decision.im;
-	const double imag = sample.im * decision.re - sample.re * decision.im;
-	phase_error =  -std::atan2(imag, real);
-	//phase_error = std::tanh(phase_error);
-	
-	return decision;
-}
+	void ContinuousDemodulator::UpdateLoopCoefficients()
+	{
+		// pll_phase_ is alpha, pll_freq_ is beta = 0.25 * alpha^2 (critical damping).
+		pll_phase_ = current_alpha_;
+		pll_freq_ = 0.25 * current_alpha_ * current_alpha_;
+	}
 
-void aq_demod::ContinuousDemodulator::UpdatePll(const double & phase_error)
-{
-	freq_offset_ += pll_freq_ * phase_error;
+	bool ContinuousDemodulator::SynchroniseIQ(
+		const std::vector<Ipp32fc>& passed_iq,
+		std::vector<Ipp32fc>& synced_iq)
+	{
+		synced_iq.clear();
 
-	if (freq_offset_ > max_freq_offset_)
-		freq_offset_ = max_freq_offset_;
-	if (freq_offset_ < -max_freq_offset_)
-		freq_offset_ = -max_freq_offset_;
+		// --- Symbol timing recovery (Gardner TED) ---
+		ted_man_.Process(passed_iq, synced_iq);
+		if (synced_iq.empty())
+			return true;
 
-	phase_ += freq_offset_ + pll_phase_ * phase_error;
+		// --- DC removal ---
+		RemoveDc(synced_iq);
 
-	// Keep phase wrapped between -PI and PI.
-	phase_ = std::remainder(phase_, 2.0 * M_PI);
-}
+		// --- Automatic gain control ---
+		ApplyAGC(synced_iq);
+		if (std::max(prev_agc_power_ / agc_power_, agc_power_ / prev_agc_power_) > 1.2)
+		{
+			equal_.Reset();
+			phase_ = 0.0;
+			freq_offset_ = 0.0;
+			return true;
+		}
 
-void aq_demod::ContinuousDemodulator::UpdateSNR(const Ipp32fc corrected, const Ipp32fc decision)
-{
+		// --- Carrier recovery (Costas loop) ---
+		error_power_ = 0.0;
+		signal_power_ = 0.0;
+		for (Ipp32fc& sample : synced_iq)
+		{
+			// 1. Derotate the current symbol with the loop state.
+			Ipp32fc corrected = CorrectPhase(sample);
+			equal_.Process(corrected);
+			// 2. Decision-directed phase detector.
+			double phase_error = 0.0;
+			const Ipp32fc decision = GetDecision(corrected, phase_error);
+			equal_.Update(decision);
+			// 3. Update the second-order loop.
+			UpdatePll(phase_error);
+			// 4. Store the corrected sample.
+			sample = corrected;
+			// 5. Update the SNR statistics.
+			UpdateSNR(corrected, decision);
+		}
 
-	// 5. Update statistics for SNR calculation.
-	//���������� ������ / ���
-	const double error_re = corrected.re - decision.re;
-	const double error_im = corrected.im - decision.im;
-	error_power_ += error_re * error_re + error_im * error_im;
-	signal_power_ += decision.re * decision.re + decision.im * decision.im;
+		if (!equal_.IsValid())
+		{
+			equal_.Reset();
+			phase_ = 0.0;
+			freq_offset_ = 0.0;
+			synced_iq.clear();
+		}
+
+		if (!synced_iq.empty() && error_power_ > 0.0)
+			snr_db_ = 10.0 * std::log10(signal_power_ / error_power_);
+
+		return true;
+	}
+
+	void ContinuousDemodulator::RemoveDc(std::vector<Ipp32fc>& signal)
+	{
+		const Ipp32f alpha = 1.0f / static_cast<Ipp32f>(kDcSmoothSymbols);
+		for (Ipp32fc& sample : signal)
+		{
+			dc_estimate_.re += alpha * (sample.re - dc_estimate_.re);
+			dc_estimate_.im += alpha * (sample.im - dc_estimate_.im);
+			sample.re -= dc_estimate_.re;
+			sample.im -= dc_estimate_.im;
+		}
+	}
+
+	void ContinuousDemodulator::ApplyAGC(std::vector<Ipp32fc>& signal)
+	{
+		prev_agc_power_ = agc_power_;
+		for (Ipp32fc& sample : signal)
+		{
+			const double power = sample.re * sample.re + sample.im * sample.im;
+			agc_power_ = (1.0 - agc_alpha_) * agc_power_ + agc_alpha_ * power;
+
+			// Avoid division by zero.
+			if (agc_power_ < 1e-12)
+				agc_power_ = 1e-12;
+
+			const double gain = std::sqrt(target_power_ / agc_power_);
+			sample.re *= static_cast<Ipp32f>(gain);
+			sample.im *= static_cast<Ipp32f>(gain);
+		}
+	}
+
+	Ipp32fc ContinuousDemodulator::CorrectPhase(const Ipp32fc& sample) const
+	{
+		const float c = std::cos(static_cast<float>(phase_));
+		const float s = std::sin(static_cast<float>(phase_));
+
+		return {
+			sample.re * c - sample.im * s,
+			sample.re * s + sample.im * c
+		};
+	}
+
+	Ipp32fc ContinuousDemodulator::GetDecision(
+		const Ipp32fc& sample,
+		double& phase_error) const
+	{
+		// Nearest constellation point (slicer).
+		double min_distance = std::numeric_limits<double>::max();
+		Ipp32fc decision = pivots_[0];
+		for (const Ipp32fc& pivot : pivots_)
+		{
+			const double delta_re = sample.re - pivot.re;
+			const double delta_im = sample.im - pivot.im;
+			const double distance = delta_re * delta_re + delta_im * delta_im;
+
+			if (distance < min_distance)
+			{
+				min_distance = distance;
+				decision = pivot;
+			}
+		}
+
+		// Phase error is the angle between the sample and the decision.
+		const double real = sample.re * decision.re + sample.im * decision.im;
+		const double imag = sample.im * decision.re - sample.re * decision.im;
+		phase_error = -std::atan2(imag, real);
+
+		return decision;
+	}
+
+	void ContinuousDemodulator::UpdatePll(double phase_error)
+	{
+		freq_offset_ += pll_freq_ * phase_error;
+		freq_offset_ = std::clamp(freq_offset_, -max_freq_offset_, max_freq_offset_);
+
+		phase_ += freq_offset_ + pll_phase_ * phase_error;
+
+		// Keep the phase wrapped between -PI and PI.
+		phase_ = std::remainder(phase_, 2.0 * M_PI);
+	}
+
+	void ContinuousDemodulator::UpdateSNR(const Ipp32fc& corrected, const Ipp32fc& decision)
+	{
+		const double error_re = corrected.re - decision.re;
+		const double error_im = corrected.im - decision.im;
+		error_power_ += error_re * error_re + error_im * error_im;
+		signal_power_ += decision.re * decision.re + decision.im * decision.im;
+	}
+
 }

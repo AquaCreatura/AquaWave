@@ -25,7 +25,7 @@
   <test name="QAM32 rrc x4 30dB (100MHz file, offs 0.001)">
     <file>D:\signals\modulation\qam32_rrc_x4_30dB_offs_0_001 100000.000KHz.pcm</file>
     <modulation>QAM32</modulation>
-    <command>"D:\PetWave\AquaWave\x64\Debug\AquaWave.exe" -dmd --type QAM32 --file_path "D:\signals\modulation\qam32_rrc_x4_30dB_offs_0_001 100000.000KHz.pcm" --file_fc 0 --file_sr 100000000 --dmd_fc 100302 --dmd_sr 24996456</command>
+    <command>"D:\PetWave\AquaWave\x64\Debug\AquaWave.exe" -dmd --type QAM32 --in "D:\signals\modulation\qam32_rrc_x4_30dB_offs_0_001 100000.000KHz.pcm" --file_fc 0 --file_fs 100000000 --dmd_fc 100302 --dmd_sr 24996456</command>
     <expected_snr_db>29.6</expected_snr_db>
   </test>
 
@@ -37,7 +37,7 @@
   <test name="iDirect and HUBs QPSK (ReadMe example)">
     <file>D:\signals\star_signals\iDirect and HUBs 11081.434200MHz 7000.000KHz.pcm</file>
     <modulation>QPSK</modulation>
-    <command>"D:\PetWave\AquaWave\x64\Debug\AquaWave.exe" -dmd --type QPSK --file_path "D:\signals\star_signals\iDirect and HUBs 11081.434200MHz 7000.000KHz.pcm" --dmd_fc 11081405991 --dmd_sr 297454</command>
+    <command>"D:\PetWave\AquaWave\x64\Debug\AquaWave.exe" -dmd --type QPSK --in "D:\signals\star_signals\iDirect and HUBs 11081.434200MHz 7000.000KHz.pcm" --dmd_fc 11081405991 --dmd_sr 297454</command>
     <expected_snr_db>17.6</expected_snr_db>
   </test>
 
@@ -48,7 +48,7 @@
   <test name="512QAM warm-up (generated, approximate)">
     <file>D:\signals\modulation\mod_test\random_512QAM 0.000000MHz 4000.000KHz.pcm</file>
     <modulation>512QAM</modulation>
-    <command>"D:\PetWave\AquaWave\x64\Debug\AquaWave.exe" -dmd --type 512QAM --file_path "D:\signals\modulation\mod_test\random_512QAM 0.000000MHz 4000.000KHz.pcm" --file_fc 0 --file_sr 4000000 --dmd_fc 0 --dmd_sr 1000000</command>
+    <command>"D:\PetWave\AquaWave\x64\Debug\AquaWave.exe" -dmd --type 512QAM --in "D:\signals\modulation\mod_test\random_512QAM 0.000000MHz 4000.000KHz.pcm" --file_fc 0 --file_fs 4000000 --dmd_fc 0 --dmd_sr 1000000</command>
     <expected_snr_db>41.4</expected_snr_db>
   </test>
 
@@ -62,21 +62,21 @@
   <test name="1024QAM warm-up (generated 60MB, approximate)">
     <file>D:\signals\modulation\mod_test\random_1024QAM 0.000000MHz 4000.000KHz.pcm</file>
     <modulation>1024QAM</modulation>
-    <command>"D:\PetWave\AquaWave\x64\Debug\AquaWave.exe" -dmd --type 1024QAM --file_path "D:\signals\modulation\mod_test\random_1024QAM 0.000000MHz 4000.000KHz.pcm" --file_fc 0 --file_sr 4000000 --dmd_fc 0 --dmd_sr 1000000</command>
+    <command>"D:\PetWave\AquaWave\x64\Debug\AquaWave.exe" -dmd --type 1024QAM --in "D:\signals\modulation\mod_test\random_1024QAM 0.000000MHz 4000.000KHz.pcm" --file_fc 0 --file_fs 4000000 --dmd_fc 0 --dmd_sr 1000000</command>
     <expected_snr_db>41.0</expected_snr_db>
   </test>
 
   <test name="2048QAM warm-up (generated 60MB, approximate)">
     <file>D:\signals\modulation\mod_test\random_2048QAM 0.000000MHz 4000.000KHz.pcm</file>
     <modulation>2048QAM</modulation>
-    <command>"D:\PetWave\AquaWave\x64\Debug\AquaWave.exe" -dmd --type 2048QAM --file_path "D:\signals\modulation\mod_test\random_2048QAM 0.000000MHz 4000.000KHz.pcm" --file_fc 0 --file_sr 4000000 --dmd_fc 0 --dmd_sr 1000000</command>
+    <command>"D:\PetWave\AquaWave\x64\Debug\AquaWave.exe" -dmd --type 2048QAM --in "D:\signals\modulation\mod_test\random_2048QAM 0.000000MHz 4000.000KHz.pcm" --file_fc 0 --file_fs 4000000 --dmd_fc 0 --dmd_sr 1000000</command>
     <expected_snr_db>42.1</expected_snr_db>
   </test>
 
   <test name="4096QAM warm-up (generated 60MB, approximate)">
     <file>D:\signals\modulation\mod_test\random_4096QAM 0.000000MHz 4000.000KHz.pcm</file>
     <modulation>4096QAM</modulation>
-    <command>"D:\PetWave\AquaWave\x64\Debug\AquaWave.exe" -dmd --type 4096QAM --file_path "D:\signals\modulation\mod_test\random_4096QAM 0.000000MHz 4000.000KHz.pcm" --file_fc 0 --file_sr 4000000 --dmd_fc 0 --dmd_sr 1000000</command>
+    <command>"D:\PetWave\AquaWave\x64\Debug\AquaWave.exe" -dmd --type 4096QAM --in "D:\signals\modulation\mod_test\random_4096QAM 0.000000MHz 4000.000KHz.pcm" --file_fc 0 --file_fs 4000000 --dmd_fc 0 --dmd_sr 1000000</command>
     <expected_snr_db>41.3</expected_snr_db>
   </test>
 

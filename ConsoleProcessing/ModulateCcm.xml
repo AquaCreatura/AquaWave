@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
-  AquaWave: console generation of test signals with random symbols (ModTester, -modulate mode).
+  AquaWave: console generation of test signals with random symbols (ModTester, -mod mode).
 
   How to use:
     1. Copy a <command> line into cmd/PowerShell and run it.
@@ -14,7 +14,7 @@
   Build: x64 Debug -> D:\PetWave\AquaWave\x64\Debug\AquaWave.exe
   Each signal: 4 samples/symbol, carrier 0 (baseband), sample rate = symbol rate * 4.
   The file name carries carrier and sample rate ("<comment> 0.000000MHz 4000.000KHz.pcm"),
-  so -dmd can parse them when file_fc/file_sr are omitted.
+  so -dmd can parse them when file_fc/file_fs are omitted.
 
   Note: the console accepts single-dash long options (-type is accepted like the
   double-dash form), so option names are written with a single dash here to keep
@@ -26,7 +26,7 @@
   to the decision-directed LMS once the constellation is locked, with hysteresis).
   This matters for dense QAM: a cold-start LMS diverges on 512/1024QAM, while AUTO
   reaches ~41 dB instead of the ~33 dB a fixed blind MMA gives:
-    "D:\PetWave\AquaWave\x64\Debug\AquaWave.exe" -dmd -type QPSK -file_path "D:\signals\modulation\mod_test\random_QPSK 0.000000MHz 4000.000KHz.pcm" -file_fc 0 -file_sr 4000000 -dmd_fc 0 -dmd_sr 1000000
+    "D:\PetWave\AquaWave\x64\Debug\AquaWave.exe" -dmd -type QPSK -in "D:\signals\modulation\mod_test\random_QPSK 0.000000MHz 4000.000KHz.pcm" -file_fc 0 -file_fs 4000000 -dmd_fc 0 -dmd_sr 1000000
 
   Add noise to a signal with -noise <dB> (e.g. -noise -30 for SNR = 30 dB).
   The signals below are noise-free; expected_snr_db is the clean-signal demodulation SNR
@@ -38,63 +38,63 @@
   <test name="BPSK random 15MB">
     <modulation>BPSK</modulation>
     <file>D:\signals\modulation\mod_test\random_BPSK 0.000000MHz 4000.000KHz.pcm</file>
-    <command>"D:\PetWave\AquaWave\x64\Debug\AquaWave.exe" -modulate --type BPSK --out_path "D:\signals\modulation\mod_test\random_BPSK 0.000000MHz 4000.000KHz.pcm" --sym_rate 1000000 --out_size 15728640</command>
+    <command>"D:\PetWave\AquaWave\x64\Debug\AquaWave.exe" -mod --type BPSK --out "D:\signals\modulation\mod_test\random_BPSK 0.000000MHz 4000.000KHz.pcm" --sym_rate 1000000 --out_size 15728640</command>
     <expected_snr_db>43.25</expected_snr_db>
   </test>
 
   <test name="QPSK random 15MB">
     <modulation>QPSK</modulation>
     <file>D:\signals\modulation\mod_test\random_QPSK 0.000000MHz 4000.000KHz.pcm</file>
-    <command>"D:\PetWave\AquaWave\x64\Debug\AquaWave.exe" -modulate --type QPSK --out_path "D:\signals\modulation\mod_test\random_QPSK 0.000000MHz 4000.000KHz.pcm" --sym_rate 1000000 --out_size 15728640</command>
+    <command>"D:\PetWave\AquaWave\x64\Debug\AquaWave.exe" -mod --type QPSK --out "D:\signals\modulation\mod_test\random_QPSK 0.000000MHz 4000.000KHz.pcm" --sym_rate 1000000 --out_size 15728640</command>
     <expected_snr_db>45.65</expected_snr_db>
   </test>
 
   <test name="8PSK random 15MB">
     <modulation>8PSK</modulation>
     <file>D:\signals\modulation\mod_test\random_8PSK 0.000000MHz 4000.000KHz.pcm</file>
-    <command>"D:\PetWave\AquaWave\x64\Debug\AquaWave.exe" -modulate --type 8PSK --out_path "D:\signals\modulation\mod_test\random_8PSK 0.000000MHz 4000.000KHz.pcm" --sym_rate 1000000 --out_size 15728640</command>
+    <command>"D:\PetWave\AquaWave\x64\Debug\AquaWave.exe" -mod --type 8PSK --out "D:\signals\modulation\mod_test\random_8PSK 0.000000MHz 4000.000KHz.pcm" --sym_rate 1000000 --out_size 15728640</command>
     <expected_snr_db>44.66</expected_snr_db>
   </test>
 
   <test name="16QAM random 15MB">
     <modulation>16QAM</modulation>
     <file>D:\signals\modulation\mod_test\random_16QAM 0.000000MHz 4000.000KHz.pcm</file>
-    <command>"D:\PetWave\AquaWave\x64\Debug\AquaWave.exe" -modulate --type 16QAM --out_path "D:\signals\modulation\mod_test\random_16QAM 0.000000MHz 4000.000KHz.pcm" --sym_rate 1000000 --out_size 15728640</command>
+    <command>"D:\PetWave\AquaWave\x64\Debug\AquaWave.exe" -mod --type 16QAM --out "D:\signals\modulation\mod_test\random_16QAM 0.000000MHz 4000.000KHz.pcm" --sym_rate 1000000 --out_size 15728640</command>
     <expected_snr_db>42.18</expected_snr_db>
   </test>
 
   <test name="32QAM random 15MB">
     <modulation>32QAM</modulation>
     <file>D:\signals\modulation\mod_test\random_32QAM 0.000000MHz 4000.000KHz.pcm</file>
-    <command>"D:\PetWave\AquaWave\x64\Debug\AquaWave.exe" -modulate --type 32QAM --out_path "D:\signals\modulation\mod_test\random_32QAM 0.000000MHz 4000.000KHz.pcm" --sym_rate 1000000 --out_size 15728640</command>
+    <command>"D:\PetWave\AquaWave\x64\Debug\AquaWave.exe" -mod --type 32QAM --out "D:\signals\modulation\mod_test\random_32QAM 0.000000MHz 4000.000KHz.pcm" --sym_rate 1000000 --out_size 15728640</command>
     <expected_snr_db>42.26</expected_snr_db>
   </test>
 
   <test name="64QAM random 15MB">
     <modulation>64QAM</modulation>
     <file>D:\signals\modulation\mod_test\random_64QAM 0.000000MHz 4000.000KHz.pcm</file>
-    <command>"D:\PetWave\AquaWave\x64\Debug\AquaWave.exe" -modulate --type 64QAM --out_path "D:\signals\modulation\mod_test\random_64QAM 0.000000MHz 4000.000KHz.pcm" --sym_rate 1000000 --out_size 15728640</command>
+    <command>"D:\PetWave\AquaWave\x64\Debug\AquaWave.exe" -mod --type 64QAM --out "D:\signals\modulation\mod_test\random_64QAM 0.000000MHz 4000.000KHz.pcm" --sym_rate 1000000 --out_size 15728640</command>
     <expected_snr_db>41.42</expected_snr_db>
   </test>
 
   <test name="128QAM random 15MB">
     <modulation>128QAM</modulation>
     <file>D:\signals\modulation\mod_test\random_128QAM 0.000000MHz 4000.000KHz.pcm</file>
-    <command>"D:\PetWave\AquaWave\x64\Debug\AquaWave.exe" -modulate --type 128QAM --out_path "D:\signals\modulation\mod_test\random_128QAM 0.000000MHz 4000.000KHz.pcm" --sym_rate 1000000 --out_size 15728640</command>
+    <command>"D:\PetWave\AquaWave\x64\Debug\AquaWave.exe" -mod --type 128QAM --out "D:\signals\modulation\mod_test\random_128QAM 0.000000MHz 4000.000KHz.pcm" --sym_rate 1000000 --out_size 15728640</command>
     <expected_snr_db>42.05</expected_snr_db>
   </test>
 
   <test name="256QAM random 15MB">
     <modulation>256QAM</modulation>
     <file>D:\signals\modulation\mod_test\random_256QAM 0.000000MHz 4000.000KHz.pcm</file>
-    <command>"D:\PetWave\AquaWave\x64\Debug\AquaWave.exe" -modulate --type 256QAM --out_path "D:\signals\modulation\mod_test\random_256QAM 0.000000MHz 4000.000KHz.pcm" --sym_rate 1000000 --out_size 15728640</command>
+    <command>"D:\PetWave\AquaWave\x64\Debug\AquaWave.exe" -mod --type 256QAM --out "D:\signals\modulation\mod_test\random_256QAM 0.000000MHz 4000.000KHz.pcm" --sym_rate 1000000 --out_size 15728640</command>
     <expected_snr_db>41.93</expected_snr_db>
   </test>
 
   <test name="512QAM random 15MB">
     <modulation>512QAM</modulation>
     <file>D:\signals\modulation\mod_test\random_512QAM 0.000000MHz 4000.000KHz.pcm</file>
-    <command>"D:\PetWave\AquaWave\x64\Debug\AquaWave.exe" -modulate --type 512QAM --out_path "D:\signals\modulation\mod_test\random_512QAM 0.000000MHz 4000.000KHz.pcm" --sym_rate 1000000 --out_size 15728640</command>
+    <command>"D:\PetWave\AquaWave\x64\Debug\AquaWave.exe" -mod --type 512QAM --out "D:\signals\modulation\mod_test\random_512QAM 0.000000MHz 4000.000KHz.pcm" --sym_rate 1000000 --out_size 15728640</command>
     <expected_snr_db>41.34</expected_snr_db>
   </test>
 
@@ -104,21 +104,21 @@
   <test name="1024QAM random 60MB">
     <modulation>1024QAM</modulation>
     <file>D:\signals\modulation\mod_test\random_1024QAM 0.000000MHz 4000.000KHz.pcm</file>
-    <command>"D:\PetWave\AquaWave\x64\Debug\AquaWave.exe" -modulate --type 1024QAM --out_path "D:\signals\modulation\mod_test\random_1024QAM 0.000000MHz 4000.000KHz.pcm" --sym_rate 1000000 --out_size 62914560</command>
+    <command>"D:\PetWave\AquaWave\x64\Debug\AquaWave.exe" -mod --type 1024QAM --out "D:\signals\modulation\mod_test\random_1024QAM 0.000000MHz 4000.000KHz.pcm" --sym_rate 1000000 --out_size 62914560</command>
     <expected_snr_db>41.0</expected_snr_db>
   </test>
 
   <test name="2048QAM random 60MB">
     <modulation>2048QAM</modulation>
     <file>D:\signals\modulation\mod_test\random_2048QAM 0.000000MHz 4000.000KHz.pcm</file>
-    <command>"D:\PetWave\AquaWave\x64\Debug\AquaWave.exe" -modulate --type 2048QAM --out_path "D:\signals\modulation\mod_test\random_2048QAM 0.000000MHz 4000.000KHz.pcm" --sym_rate 1000000 --out_size 62914560</command>
+    <command>"D:\PetWave\AquaWave\x64\Debug\AquaWave.exe" -mod --type 2048QAM --out "D:\signals\modulation\mod_test\random_2048QAM 0.000000MHz 4000.000KHz.pcm" --sym_rate 1000000 --out_size 62914560</command>
     <expected_snr_db>42.1</expected_snr_db>
   </test>
 
   <test name="4096QAM random 60MB">
     <modulation>4096QAM</modulation>
     <file>D:\signals\modulation\mod_test\random_4096QAM 0.000000MHz 4000.000KHz.pcm</file>
-    <command>"D:\PetWave\AquaWave\x64\Debug\AquaWave.exe" -modulate --type 4096QAM --out_path "D:\signals\modulation\mod_test\random_4096QAM 0.000000MHz 4000.000KHz.pcm" --sym_rate 1000000 --out_size 62914560</command>
+    <command>"D:\PetWave\AquaWave\x64\Debug\AquaWave.exe" -mod --type 4096QAM --out "D:\signals\modulation\mod_test\random_4096QAM 0.000000MHz 4000.000KHz.pcm" --sym_rate 1000000 --out_size 62914560</command>
     <expected_snr_db>41.3</expected_snr_db>
   </test>
 

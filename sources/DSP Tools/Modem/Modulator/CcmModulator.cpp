@@ -6,7 +6,7 @@
 
 namespace
 {
-	// Формирующий фильтр RRC: коэффициент сглаживания и протяжённость (в символах).
+	// Shaping RRC filter: roll-off factor and span (in symbols).
 	constexpr double kRrcRolloff = 0.35;
 	constexpr int    kRrcSpanSymbols = 8;
 }
@@ -107,7 +107,7 @@ namespace aq_mod
 		if (!BuildRrcFilter())
 			return false;
 
-		// Дополнительный ФНЧ строится только если включён.
+		// The extra lowpass is built only when enabled.
 		after_.Free();
 		if (after_filter_enabled_ && !BuildAfterFilter())
 			return false;
@@ -124,18 +124,17 @@ namespace aq_mod
 		while ((1 << bits_per_symbol_) < point_count)
 			++bits_per_symbol_;
 
-		// Only power-of-two constellations can be mapped to whole bit groups.
+		// Only power-of-two constellations map to whole bit groups.
 		if ((1 << bits_per_symbol_) != point_count)
 			return;
 
-		const std::vector<std::string> combinations =
-			aq_demod::GetTestingManipVec(point_count);
+		const std::vector<std::string> combinations = aq_demod::GetTestingManipVec(point_count);
 		if (static_cast<int>(combinations.size()) != point_count)
 			return;
 
-		// Lookup table: each bit combination gets its own IQ point. The order of
-		// the combinations matches the order of the constellation points, so the
-		// bit string is decoded into an index and the matching point is stored.
+		// Each bit combination gets its own point. Combination order matches the
+		// constellation order, so a bit string is decoded into an index that selects
+		// the matching point.
 		lookup_.assign(point_count, Ipp32fc{ 0.0f, 0.0f });
 		for (int i = 0; i < point_count; ++i)
 		{
@@ -148,10 +147,8 @@ namespace aq_mod
 
 	bool CcmModulator::BuildRrcFilter()
 	{
-		// Формирующий фильтр - корневой приподнятый косинус (RRC). Длина фильтра
-		// берётся нечётной, чтобы центральный отвод приходился ровно на отсчёт
-		// (span символов в обе стороны). Нормировку на единичное усиление по DC
-		// выполняет генератор коэффициентов.
+		// Odd length puts the central tap exactly on a sample (span symbols either
+		// side). The coefficient generator normalises the DC gain to one.
 		const int filter_len = kRrcSpanSymbols * upsample_ + 1;
 
 		std::vector<Ipp32fc> taps;
@@ -163,8 +160,8 @@ namespace aq_mod
 
 	bool CcmModulator::BuildAfterFilter()
 	{
-		// Обычный ФНЧ (оконный sinc) с частотой среза на символьной скорости:
-		// его нули приходятся на символьные отсчёты.
+		// Plain windowed-sinc lowpass with the cutoff at the symbol rate, so its
+		// nulls fall on the symbol instants.
 		const double cutoff = std::min(1.0 / static_cast<double>(upsample_), 0.45);
 		int filter_len = aqua_dsp_tools::GetFirLenPow2(1.0, std::max(0.95, cutoff));
 		filter_len = std::min(std::max(16, filter_len), 1024);
@@ -180,8 +177,8 @@ namespace aq_mod
 	{
 		after_filter_enabled_ = enabled;
 
-		// До Init() фильтр построится (или нет) по флагу; после Init() меняем
-		// состояние сразу.
+		// Before Init() the filter is built (or not) from the flag; afterwards the
+		// state changes immediately.
 		if (lookup_.empty())
 			return;
 
@@ -242,8 +239,8 @@ namespace aq_mod
 			source_len = dst_len;
 		}
 
-		// Формирующий RRC, затем (при включении) дополнительный ФНЧ. Пустой
-		// after_ просто копирует данные, поэтому отдельная ветка не нужна.
+		// Shaping RRC, then the optional lowpass. An empty after_ just copies, so no
+		// separate branch is needed.
 		shaped_.resize(source_len);
 		if (!rrc_.Process(source, shaped_.data(), source_len))
 			return false;

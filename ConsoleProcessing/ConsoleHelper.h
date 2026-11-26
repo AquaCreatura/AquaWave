@@ -3,42 +3,42 @@
 #include "aqua_defines.h"
 #include "Utilities/utility_aqua.h"
 
-#include <QCommandLineParser>
-#include <QFileInfo>
 #include <QString>
 #include <QStringList>
 
-#include <cmath>
-#include <cstdint>
 #include <optional>
+
+class QCommandLineParser;
 
 namespace console
 {
 	// Command line option names, kept in one place.
+	// Convention: <scope>_<quantity>, where quantity is fc (carrier, Hz),
+	// fs (sample rate, Hz) or sr (symbol rate, Hz).
 	namespace options
 	{
-		inline constexpr auto kDmd = "dmd";
-		inline constexpr auto kModulate = "modulate";
-		inline constexpr auto kType = "type";
-		inline constexpr auto kFilePath = "file_path";
-		inline constexpr auto kOutPath = "out_path";
-		inline constexpr auto kSymRate = "sym_rate";
-		inline constexpr auto kNoise = "noise";
-		inline constexpr auto kOutSize = "out_size";
-		inline constexpr auto kFileFc = "file_fc";
-		inline constexpr auto kFileSr = "file_sr";
-		inline constexpr auto kDmdFc = "dmd_fc";
-		inline constexpr auto kDmdSr = "dmd_sr";
-		inline constexpr auto kPll = "pll";
-		inline constexpr auto kTll = "tll";
-		inline constexpr auto kEq = "eq";
-		inline constexpr auto kEqAlg = "eq_alg";
-		inline constexpr auto kEqTaps = "eq_taps";
+		inline constexpr auto kDmd = "dmd";          // command: demodulate
+		inline constexpr auto kMod = "mod";          // command: modulate
+		inline constexpr auto kType = "type";        // modulation type
+		inline constexpr auto kIn = "in";            // input file
+		inline constexpr auto kOut = "out";          // output file
+		inline constexpr auto kSymRate = "sym_rate"; // symbol rate (modulate)
+		inline constexpr auto kNoise = "noise";      // noise level, dB
+		inline constexpr auto kOutSize = "out_size"; // output size limit, bytes
+		inline constexpr auto kFileFc = "file_fc";   // file carrier, Hz
+		inline constexpr auto kFileFs = "file_fs";   // file sample rate, Hz
+		inline constexpr auto kDmdFc = "dmd_fc";     // demodulation carrier, Hz
+		inline constexpr auto kDmdSr = "dmd_sr";     // demodulation symbol rate, Hz
+		inline constexpr auto kPll = "pll";          // carrier loop speed
+		inline constexpr auto kTll = "tll";          // timing loop speed
+		inline constexpr auto kEq = "eq";            // equaliser speed
+		inline constexpr auto kEqAlg = "eq_alg";     // equaliser algorithm
+		inline constexpr auto kEqTaps = "eq_taps";   // equaliser length, taps
 	}
 
-	// Алгоритмы эквалайзера, доступные из командной строки (--eq_alg).
-	// AUTO - warm-up (слепой MMA -> решающий LMS после захвата),
-	// MMA/CMA - слепые (без решения), LMS - по решению.
+	// Equaliser algorithms available on the command line (--eq_alg).
+	// AUTO - warm-up (blind MMA, then decision-directed LMS after lock);
+	// MMA/CMA - blind (no decisions); LMS - decision-directed.
 	namespace eq_algorithms
 	{
 		inline constexpr auto kAuto = "AUTO";
@@ -47,7 +47,7 @@ namespace console
 		inline constexpr auto kLms = "LMS";
 	}
 
-	// Modulation defaults for -modulate.
+	// Modulation defaults for -mod.
 	namespace mod_defaults
 	{
 		inline constexpr int64_t kSymbolRateHz = 1'000'000; // 1000 kHz
@@ -56,49 +56,49 @@ namespace console
 	}
 
 	// Parameters of the console demodulation mode:
-	//   -dmd --type <Type> --file_path <File> --dmd_fc <Hz> --dmd_sr <Hz>
-	//        [--file_fc <Hz>] [--file_sr <Hz>] [--pll <v>] [--tll <v>] [--eq <v>]
-	//        [--eq_alg <AUTO|MMA|CMA|LMS>]
-	// file_fc/file_sr are optional (taken from the file name if omitted);
-	// pll/tll/eq are optional loop speeds; eq_alg is the equaliser algorithm
-	// (default AUTO: blind MMA warm-up, then decision-directed LMS).
+	//   -dmd --type <Type> --in <File> --dmd_fc <Hz> --dmd_sr <Hz>
+	//        [--file_fc <Hz>] [--file_fs <Hz>] [--pll <v>] [--tll <v>] [--eq <v>]
+	//        [--eq_alg <AUTO|MMA|CMA|LMS>] [--eq_taps <n>]
+	// --file_fc/--file_fs are optional (taken from the file name if omitted);
+	// --pll/--tll/--eq are optional loop speeds; --eq_alg/--eq_taps select the
+	// equaliser.
 	struct DmdParams
 	{
-		QString modulation;                              // Demodulation type, e.g. "QPSK"
-		QString file_path;                               // Path to the signal file (.pcm)
+		QString modulation;                              // demodulation type, e.g. "QPSK"
+		QString input_path;                              // path to the signal file (.pcm)
 
-		utility_aqua::aqua_opt<int64_t> file_carrier_hz;      // Optional, Hz
-		utility_aqua::aqua_opt<int64_t> file_samplerate_hz;   // Optional, Hz
+		utility_aqua::aqua_opt<int64_t> file_carrier_hz;      // optional, Hz
+		utility_aqua::aqua_opt<int64_t> file_samplerate_hz;   // optional, Hz
 
-		int64_t demod_carrier_hz{ 0 };                   // Required, Hz
-		int64_t demod_symbol_rate_hz{ 0 };               // Required, Hz
+		int64_t demod_carrier_hz{ 0 };                   // required, Hz
+		int64_t demod_symbol_rate_hz{ 0 };               // required, Hz
 
-		utility_aqua::aqua_opt<double> pll_speed;        // Optional loop speeds
+		utility_aqua::aqua_opt<double> pll_speed;        // optional loop speeds
 		utility_aqua::aqua_opt<double> tll_speed;
 		utility_aqua::aqua_opt<double> eq_speed;
 
-		QString eq_alg;                                  // Optional equaliser algorithm (AUTO/MMA/CMA/LMS)
-		int eq_taps{ 0 };                                // Optional equaliser length (0 = default)
+		QString eq_alg;                                  // optional (AUTO/MMA/CMA/LMS)
+		int eq_taps{ 0 };                                // optional length (0 = default)
 	};
 
 	// Parameters of the console modulation mode:
-	//   -modulate --type <Type> [--file_path <File>] [--out_path <File>]
-	//             [--sym_rate <Hz>] [--noise <dB>]
+	//   -mod --type <Type> [--in <File>] [--out <File>]
+	//        [--sym_rate <Hz>] [--noise <dB>] [--out_size <bytes>]
 	// The input file is optional: if it is missing or unreadable, a random 15 MB
-	// file is generated. The symbol rate only affects the output file name (which
-	// follows the project naming standard with carrier and sample rate).
-	// The noise level is optional and defaults to -1000 dB (noise disabled).
+	// file is generated. The symbol rate affects only the output file name (which
+	// follows the project naming standard with carrier and sample rate). The noise
+	// level defaults to -1000 dB (disabled).
 	struct ModParams
 	{
-		QString modulation;                              // Modulation type, e.g. "QPSK"
-		QString file_path;                               // Path to the input data file
+		QString modulation;                              // modulation type, e.g. "QPSK"
+		QString input_path;                              // path to the input data file
 
-		QString out_path;                                // Output .pcm (generated if empty)
+		QString output_path;                             // output .pcm (generated if empty)
 
 		int64_t symbol_rate_hz{ mod_defaults::kSymbolRateHz }; // Hz, output name only
 		double  noise_level_db{ mod_defaults::kNoiseLevelDb }; // dB, -1000 = disabled
-		int     upsample{ mod_defaults::kUpsample };           // Samples per symbol
-		int64_t out_size_bytes{ 0 };                           // 0 = без ограничения
+		int     upsample{ mod_defaults::kUpsample };           // samples per symbol
+		int64_t out_size_bytes{ 0 };                           // 0 = unlimited
 	};
 
 	// Loop limits and defaults, used to describe pll/tll/eq in the help.
@@ -113,407 +113,30 @@ namespace console
 		int eq_taps_default{ 21 };
 	};
 
-	// Command line parsing and the console help text.
+	// Console front-end: command line parsing, help text and dispatch to the
+	// demodulation/modulation runners.
 	class ConsoleHelper
 	{
 	public:
-		// True if the arguments request a console mode (-dmd/-modulate or help).
-		// Used to avoid starting the graphical interface.
-		static bool IsConsoleInvocation(const QStringList& args)
-		{
-			for (const QString& arg : args) {
-				const QString a = arg.trimmed();
-				if (a.compare("--dmd", Qt::CaseInsensitive) == 0 ||
-					a.compare("-dmd", Qt::CaseInsensitive) == 0 ||
-					a.compare("--modulate", Qt::CaseInsensitive) == 0 ||
-					a.compare("-modulate", Qt::CaseInsensitive) == 0 ||
-					a.compare("--help", Qt::CaseInsensitive) == 0 ||
-					a.compare("-h", Qt::CaseInsensitive) == 0 ||
-					a.compare("-?", Qt::CaseInsensitive) == 0)
-					return true;
-			}
-			return false;
-		}
+		// True if the arguments request a console mode (-dmd/-mod or help). Used to
+		// avoid starting the graphical interface.
+		static bool IsConsoleInvocation(const QStringList& arguments);
 
-		// One command line option with its help text: a single source of truth
-		// for both the parser and the structured help output.
-		enum class OptionGroup
-		{
-			Command,
-			Common,
-			Demod,
-			Modulate
-		};
-
-		struct OptionInfo
-		{
-			const char* name;
-			const char* value_name; // пусто для флагов
-			QString description;
-			OptionGroup group;
-		};
-
-		// All options of the application. Commands are listed separately in the help.
-		static QList<OptionInfo> BuildOptions(const LoopRanges& loops)
-		{
-			return QList<OptionInfo>{
-				{ options::kDmd, "",
-					QStringLiteral("Run console demodulation (no windows are opened)."), OptionGroup::Command },
-				{ options::kModulate, "",
-					QStringLiteral("Run console modulation (no windows are opened)."), OptionGroup::Command },
-				{ options::kType, "type",
-					QStringLiteral("Modulation type: BPSK, QPSK, 8PSK, 16QAM, 32QAM, 64QAM, 128QAM, 256QAM, 512QAM, 1024QAM, 2048QAM, 4096QAM."), OptionGroup::Common },
-				{ options::kFilePath, "path",
-					QStringLiteral("Path to the input file. For -dmd it is a signal file (.pcm, complex int16 or float32), for -modulate it is the data file to modulate (a random 15 MB file is generated if it is missing or unreadable)."), OptionGroup::Common },
-				{ options::kOutPath, "path",
-					QStringLiteral("Output .pcm file (-modulate). Generated from the input file name if omitted."), OptionGroup::Modulate },
-				{ options::kSymRate, "Hz",
-					QStringLiteral("Symbol rate (-modulate), Hz. Default %1 Hz. Affects only the output file name.")
-						.arg(mod_defaults::kSymbolRateHz), OptionGroup::Modulate },
-				{ options::kNoise, "dB",
-					QStringLiteral("Noise level (-modulate), dB relative to the signal power. Default %1 dB (noise disabled).")
-						.arg(FormatNumber(mod_defaults::kNoiseLevelDb)), OptionGroup::Modulate },
-				{ options::kOutSize, "bytes",
-					QStringLiteral("Stop writing once the output .pcm reaches this size in bytes (-modulate). 0 = unlimited (default)."), OptionGroup::Modulate },
-				{ options::kFileFc, "Hz",
-					QStringLiteral("File carrier frequency, Hz. Taken from the file name if omitted."), OptionGroup::Demod },
-				{ options::kFileSr, "Hz",
-					QStringLiteral("File sample rate, Hz. Taken from the file name if omitted."), OptionGroup::Demod },
-				{ options::kDmdFc, "Hz",
-					QStringLiteral("Carrier frequency for demodulation, Hz (required)."), OptionGroup::Demod },
-				{ options::kDmdSr, "Hz",
-					QStringLiteral("Symbol rate for demodulation, Hz (required)."), OptionGroup::Demod },
-				{ options::kPll, "value",
-					QStringLiteral("PLL loop speed. Range %1. Default depends on the modulation type (%2).")
-						.arg(FormatLimits(loops.pll), FormatNumber(loops.pll_default)), OptionGroup::Demod },
-				{ options::kTll, "value",
-					QStringLiteral("Timing loop speed. Range %1. Default depends on the modulation type (%2).")
-						.arg(FormatLimits(loops.tll), FormatNumber(loops.tll_default)), OptionGroup::Demod },
-				{ options::kEq, "value",
-					QStringLiteral("Equaliser speed. Range %1. Default depends on the modulation type (%2).")
-						.arg(FormatLimits(loops.eq), FormatNumber(loops.eq_default)), OptionGroup::Demod },
-				{ options::kEqAlg, "name",
-					QStringLiteral("Equaliser algorithm: AUTO (warm-up MMA -> LMS, default), MMA or CMA (blind), LMS (decision-directed)."), OptionGroup::Demod },
-				{ options::kEqTaps, "n",
-					QStringLiteral("Equaliser length in taps (odd recommended). Default %1.")
-						.arg(loops.eq_taps_default), OptionGroup::Demod },
-			};
-		}
-
-		// Fills the parser with all options of the application.
-		static void ConfigureParser(QCommandLineParser& parser, const LoopRanges& loops)
-		{
-			parser.setApplicationDescription(QStringLiteral(
-				"AquaWave - signal spectral analysis, modulation and demodulation.\n"
-				"Run without options to start the graphical interface."));
-			parser.addHelpOption();
-			// Single dash words are whole option names: "-dmd" == "--dmd".
-			parser.setSingleDashWordOptionMode(QCommandLineParser::ParseAsLongOptions);
-
-			for (const OptionInfo& info : BuildOptions(loops)) {
-				const QStringList names{ QString::fromLatin1(info.name) };
-				const QString value_name = info.value_name ? QString::fromLatin1(info.value_name) : QString();
-				parser.addOption(value_name.isEmpty()
-					? QCommandLineOption(names, info.description)
-					: QCommandLineOption(names, info.description, value_name));
-			}
-
-			parser.addPositionalArgument(QStringLiteral("file"),
-				QStringLiteral("Signal file to open in the graphical interface."),
-				QStringLiteral("[file]"));
-		}
-
-		// Extracts and validates the demodulation parameters from a parsed parser.
-		static std::optional<DmdParams> ExtractDmd(const QCommandLineParser& parser,
-			const LoopRanges& loops, QString& error)
-		{
-			DmdParams params;
-			params.modulation = parser.value(options::kType).toUpper();
-			params.file_path = parser.value(options::kFilePath);
-
-			if (params.modulation.isEmpty()) {
-				error = QStringLiteral("The --type option is required.");
-				return std::nullopt;
-			}
-			if (params.file_path.isEmpty()) {
-				error = QStringLiteral("The --file_path option is required.");
-				return std::nullopt;
-			}
-			if (!QFileInfo::exists(params.file_path)) {
-				error = QStringLiteral("File not found: \"%1\".").arg(params.file_path);
-				return std::nullopt;
-			}
-
-			int64_t hz = 0;
-			if (parser.isSet(options::kFileFc)) {
-				if (!ParseFrequency(parser.value(options::kFileFc), hz)) {
-					error = BadValue(options::kFileFc, parser.value(options::kFileFc));
-					return std::nullopt;
-				}
-				params.file_carrier_hz = hz;
-			}
-			if (parser.isSet(options::kFileSr)) {
-				if (!ParseFrequency(parser.value(options::kFileSr), hz) || hz <= 0) {
-					error = BadValue(options::kFileSr, parser.value(options::kFileSr));
-					return std::nullopt;
-				}
-				params.file_samplerate_hz = hz;
-			}
-			if (parser.isSet(options::kDmdFc)) {
-				// A zero carrier is valid: baseband signals are demodulated at 0 Hz.
-				if (!ParseFrequency(parser.value(options::kDmdFc), hz) || hz < 0) {
-					error = BadValue(options::kDmdFc, parser.value(options::kDmdFc));
-					return std::nullopt;
-				}
-				params.demod_carrier_hz = hz;
-			}
-			else {
-				error = QStringLiteral("The --dmd_fc option (demodulation carrier, Hz) is required.");
-				return std::nullopt;
-			}
-			if (parser.isSet(options::kDmdSr)) {
-				if (!ParseFrequency(parser.value(options::kDmdSr), hz) || hz <= 0) {
-					error = BadValue(options::kDmdSr, parser.value(options::kDmdSr));
-					return std::nullopt;
-				}
-				params.demod_symbol_rate_hz = hz;
-			}
-			else {
-				error = QStringLiteral("The --dmd_sr option (demodulation symbol rate, Hz) is required.");
-				return std::nullopt;
-			}
-
-			double value = 0.0;
-			if (!ExtractLoop(parser, options::kPll, loops.pll, params.pll_speed, error)) return std::nullopt;
-			if (!ExtractLoop(parser, options::kTll, loops.tll, params.tll_speed, error)) return std::nullopt;
-			if (!ExtractLoop(parser, options::kEq, loops.eq, params.eq_speed, error)) return std::nullopt;
-
-			if (parser.isSet(options::kEqTaps)) {
-				bool ok = false;
-				const int taps = parser.value(options::kEqTaps).trimmed().toInt(&ok);
-				if (!ok || taps < 1 || taps > 101) {
-					error = BadValue(options::kEqTaps, parser.value(options::kEqTaps));
-					return std::nullopt;
-				}
-				params.eq_taps = taps;
-			}
-
-			params.eq_alg = parser.value(options::kEqAlg).toUpper();
-			if (!params.eq_alg.isEmpty() &&
-				params.eq_alg != QLatin1String(eq_algorithms::kAuto) &&
-				params.eq_alg != QLatin1String(eq_algorithms::kMma) &&
-				params.eq_alg != QLatin1String(eq_algorithms::kCma) &&
-				params.eq_alg != QLatin1String(eq_algorithms::kLms)) {
-				error = QStringLiteral("Unknown --%1 value: \"%2\" (expected AUTO, MMA, CMA or LMS).")
-					.arg(QString::fromLatin1(options::kEqAlg), parser.value(options::kEqAlg));
-				return std::nullopt;
-			}
-
-			return params;
-		}
-
-		// Extracts and validates the modulation parameters from a parsed parser.
-		static std::optional<ModParams> ExtractModulate(const QCommandLineParser& parser, QString& error)
-		{
-			ModParams params;
-			params.modulation = parser.value(options::kType).toUpper();
-			params.file_path = parser.value(options::kFilePath);
-			params.out_path = parser.value(options::kOutPath);
-
-			if (params.modulation.isEmpty()) {
-				error = QStringLiteral("The --type option is required.");
-				return std::nullopt;
-			}
-			// --file_path необязателен: если файл отсутствует или некорректен,
-			// ModTester создаст случайный файл данных.
-
-			int64_t hz = 0;
-			if (parser.isSet(options::kSymRate)) {
-				if (!ParseFrequency(parser.value(options::kSymRate), hz) || hz <= 0) {
-					error = BadValue(options::kSymRate, parser.value(options::kSymRate));
-					return std::nullopt;
-				}
-				params.symbol_rate_hz = hz;
-			}
-
-			double noise = 0.0;
-			if (parser.isSet(options::kNoise)) {
-				if (!ParseDouble(parser.value(options::kNoise), noise)) {
-					error = BadValue(options::kNoise, parser.value(options::kNoise));
-					return std::nullopt;
-				}
-				params.noise_level_db = noise;
-			}
-
-			if (parser.isSet(options::kOutSize)) {
-				int64_t bytes = 0;
-				if (!ParseFrequency(parser.value(options::kOutSize), bytes) || bytes < 0) {
-					error = BadValue(options::kOutSize, parser.value(options::kOutSize));
-					return std::nullopt;
-				}
-				params.out_size_bytes = bytes;
-			}
-
-			return params;
-		}
-
-		// Full help: grouped by command/option sections instead of a flat list,
-		// so new console commands can be added without the help looking -dmd-centric.
-		static QString FullHelp(QCommandLineParser& parser, const LoopRanges& loops)
-		{
-			const QList<OptionInfo> options_list = BuildOptions(loops);
-
-			QString help;
-			help += parser.applicationDescription() + QStringLiteral("\n\n");
-
-			help += QStringLiteral(
-				"Usage:\n"
-				"  AquaWave.exe [file]                Start the graphical interface.\n"
-				"  AquaWave.exe <command> [options]   Run a console command.\n"
-				"\n"
-				"Commands:\n");
-			for (const OptionInfo& info : options_list)
-				if (info.group == OptionGroup::Command)
-					help += OptionLine(info);
-
-			help += QStringLiteral("\nCommon options:\n");
-			for (const OptionInfo& info : options_list)
-				if (info.group == OptionGroup::Common)
-					help += OptionLine(info);
-			help += QStringLiteral("  -h, --help                          Show this help.\n");
-
-			help += QStringLiteral("\nDemodulation options (-dmd):\n");
-			for (const OptionInfo& info : options_list)
-				if (info.group == OptionGroup::Demod)
-					help += OptionLine(info);
-
-			help += QStringLiteral("\nModulation options (-modulate):\n");
-			for (const OptionInfo& info : options_list)
-				if (info.group == OptionGroup::Modulate)
-					help += OptionLine(info);
-
-			help += QLatin1Char('\n') + Notes();
-			return help;
-		}
-
-		static QString Notes()
-		{
-			return QStringLiteral(
-				"Notes:\n"
-				"  Quote the file path if it contains spaces.\n"
-				"  Frequency values accept the suffixes Hz/kHz/MHz/GHz.\n"
-				"  If --file_fc/--file_sr are omitted they are taken from the file name,\n"
-				"  e.g. \"... 11081.434200MHz 7000.000KHz.pcm\".\n"
-				"  --eq_alg selects the equaliser: AUTO (warm-up MMA -> LMS, default),\n"
-				"  MMA/CMA (blind) or LMS (decision-directed). In the decision-directed\n"
-				"  mode a reliability gate keeps unreliable decisions out: such symbols use\n"
-				"  a blind MMA update instead, which prevents error propagation and lets the\n"
-				"  warm-up hold ~40 dB on dense QAM (1024/2048/4096QAM).\n"
-				"  -modulate writes a baseband int16 complex (ipp16sc) .pcm file; its name\n"
-				"  carries the carrier and sample rate (symbol rate times the oversampling\n"
-				"  factor, 4 samples/symbol), e.g. \"data_QPSK 0.000000MHz 4000.000KHz.pcm\".\n"
-				"  If the input file is missing or unreadable, a random 15 MB file is used.\n"
-				"\n"
-				"Examples:\n"
-				"  AquaWave.exe -dmd --type QPSK --file_path \"iDirect 11081.434200MHz 7000.000KHz.pcm\" ^\n"
-				"      --dmd_fc 11081405991 --dmd_sr 297454 --eq_alg MMA\n"
-				"  AquaWave.exe -modulate --type QAM32 --file_path data.bin --out_path qam32.pcm --noise -30\n"
-				"\n"
-				"During demodulation the progress is printed: percent processed, current SNR (dB),\n"
-				"current frequency offset (Hz) and current symbol rate estimate (Hz).\n");
-		}
+		// Console entry point: opens the output, parses the command line, prints the
+		// help when requested and dispatches to the demodulation (-dmd) or modulation
+		// (-mod) runner. `arguments` is the full list from QCoreApplication::arguments()
+		// (its first element is the application name, as expected by
+		// QCommandLineParser). Returns the process exit code.
+		static int RunConsole(const QStringList& arguments);
 
 	private:
-		// One help entry: "  --name <value>   description".
-		static QString OptionLine(const OptionInfo& info)
-		{
-			const QString name = QString::fromLatin1(info.name);
-			QString left = (info.group == OptionGroup::Command)
-				? QStringLiteral("  -%1").arg(name)
-				: QStringLiteral("  --%1").arg(name);
-			if (info.value_name && *info.value_name)
-				left += QStringLiteral(" <%1>").arg(QString::fromLatin1(info.value_name));
-			return left.leftJustified(36, QLatin1Char(' ')) + info.description + QLatin1Char('\n');
-		}
+		static void ConfigureParser(QCommandLineParser& parser, const LoopRanges& loops);
+		static QString FullHelp(QCommandLineParser& parser, const LoopRanges& loops);
 
-		static bool ExtractLoop(const QCommandLineParser& parser, const char* name,
-			const aqua::Limits<double>& limits, utility_aqua::aqua_opt<double>& out_speed, QString& error)
-		{
-			if (!parser.isSet(name))
-				return true;
-
-			double value = 0.0;
-			if (!ParseDouble(parser.value(name), value)) {
-				error = BadValue(name, parser.value(name));
-				return false;
-			}
-			if (!limits.has_inside(value)) {
-				error = QStringLiteral("The value of --%1 must be in the range %2.")
-					.arg(QString::fromLatin1(name), FormatLimits(limits));
-				return false;
-			}
-			out_speed = value;
-			return true;
-		}
-
-		static QString BadValue(const char* name, const QString& value)
-		{
-			return QStringLiteral("Cannot parse the value of --%1: \"%2\".")
-				.arg(QString::fromLatin1(name), value);
-		}
-
-		// Frequency parsing: a value without a suffix is treated as Hz.
-		static bool ParseFrequency(const QString& text, int64_t& out_hz)
-		{
-			QString value = text.trimmed();
-			if (value.isEmpty())
-				return false;
-
-			double scale = 1.0;
-			const struct { const char* suffix; double scale; } units[] = {
-				{ "GHz", 1.e9 }, { "MHz", 1.e6 }, { "kHz", 1.e3 }, { "Hz", 1.0 }
-			};
-			for (const auto& unit : units) {
-				const QString suffix = QString::fromLatin1(unit.suffix);
-				if (value.endsWith(suffix, Qt::CaseInsensitive)) {
-					scale = unit.scale;
-					value.chop(suffix.size());
-					break;
-				}
-			}
-
-			value = value.trimmed();
-			value.replace(QLatin1Char(','), QLatin1Char('.'));
-
-			bool ok = false;
-			const double parsed = value.toDouble(&ok);
-			if (!ok || !std::isfinite(parsed))
-				return false;
-
-			out_hz = static_cast<int64_t>(std::llround(parsed * scale));
-			return true;
-		}
-
-		static bool ParseDouble(const QString& text, double& out_value)
-		{
-			QString value = text.trimmed();
-			value.replace(QLatin1Char(','), QLatin1Char('.'));
-			bool ok = false;
-			const double parsed = value.toDouble(&ok);
-			if (!ok || !std::isfinite(parsed))
-				return false;
-			out_value = parsed;
-			return true;
-		}
-
-		static QString FormatNumber(double value)
-		{
-			return QString::number(value, 'g', 4);
-		}
-
-		static QString FormatLimits(const aqua::Limits<double>& limits)
-		{
-			return QString("[%1 .. %2]").arg(FormatNumber(limits.low), FormatNumber(limits.high));
-		}
+		// Extract and validate the parameters of a parsed command line.
+		static std::optional<DmdParams> ExtractDmd(const QCommandLineParser& parser,
+			const LoopRanges& loops, QString& error);
+		static std::optional<ModParams> ExtractModulate(const QCommandLineParser& parser,
+			QString& error);
 	};
 }

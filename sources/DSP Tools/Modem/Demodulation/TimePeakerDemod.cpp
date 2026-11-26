@@ -20,7 +20,7 @@ namespace aq_demod
 		have_prev_symb_(false)
 	{
 		if (upsample_koeff_ != 2 && upsample_koeff_ != 4)
-			throw std::invalid_argument("TimePeakerDemod supports only 2 or 4 samples/symbol");
+			throw std::invalid_argument("GardnerTED supports only 2 or 4 samples/symbol");
 
 		history_.reserve(6);
 	}
@@ -63,7 +63,7 @@ namespace aq_demod
 		const int index = static_cast<int>(std::floor(pos));
 		const double mu = pos - index;
 
-		// Кубическая интерполяция уменьшает ошибку от дробной позиции.
+		// Cubic (Catmull-Rom style) interpolation reduces the fractional-position error.
 		const double c0 = -mu * (mu - 1.0) * (mu - 2.0) / 6.0;
 		const double c1 = (mu + 1.0) * (mu - 1.0) * (mu - 2.0) / 2.0;
 		const double c2 = -(mu + 1.0) * mu * (mu - 2.0) / 2.0;
@@ -82,20 +82,20 @@ namespace aq_demod
 
 	double GardnerTED::GetError(const Ipp32fc& prev, const Ipp32fc& mid, const Ipp32fc& cur)
 	{
-		// Gardner использует середину символа и разность соседних символов.
-		const double dr = static_cast<double>(prev.re) - cur.re;
-		const double di = static_cast<double>(prev.im) - cur.im;
+		// Gardner error: the mid-symbol sample dotted with the difference of the
+		// neighbouring symbols.
+		const double delta_re = static_cast<double>(prev.re) - cur.re;
+		const double delta_im = static_cast<double>(prev.im) - cur.im;
+		const double error = static_cast<double>(mid.re) * delta_re + static_cast<double>(mid.im) * delta_im;
 
-		const double error = static_cast<double>(mid.re) * dr + static_cast<double>(mid.im) * di;
-
+		// Normalise by a slow power estimate to keep the loop gain level-independent.
 		const double cur_power = static_cast<double>(cur.re) * cur.re + static_cast<double>(cur.im) * cur.im;
-
-		constexpr double power_alpha = 0.01;
+		constexpr double kPowerAlpha = 0.01;
 
 		if (power_ <= 0.0)
 			power_ = cur_power;
 		else
-			power_ += power_alpha * (cur_power - power_);
+			power_ += kPowerAlpha * (cur_power - power_);
 
 		if (power_ > 1.e-12)
 			return error / power_;
@@ -105,18 +105,15 @@ namespace aq_demod
 
 	void GardnerTED::UpdateLoop(double error)
 	{
-		// mu корректирует timing phase, omega отслеживает clock drift.
+		// mu adjusts the timing phase, omega tracks the clock drift.
 		w_ += gain_omega_ * error;
 		w_ = std::max(omega_min_, std::min(w_, omega_max_));
 		pos_ += w_ + gain_mu_ * error;
-		if (pos_ < -100)
-			pos_ = pos_;
 	}
 
 	void GardnerTED::UpdateHistory(const std::vector<Ipp32fc>& signal)
 	{
 		const std::size_t count = std::min<std::size_t>(6, signal.size());
-
 		history_.assign(signal.end() - count, signal.end());
 	}
 
@@ -126,12 +123,14 @@ namespace aq_demod
 			return true;
 
 		out_samples.reserve(out_samples.size() + passed.size() / upsample_koeff_ + 1);
-		while (pos_ + 2.0 < static_cast<double>(passed.size())) {
+		while (pos_ + 2.0 < static_cast<double>(passed.size()))
+		{
 			const double mid_pos = pos_ - 0.5 * w_;
 			const Ipp32fc cur = Interpolate(passed, pos_);
 			const Ipp32fc mid = Interpolate(passed, mid_pos);
 
-			if (have_prev_symb_) {
+			if (have_prev_symb_)
+			{
 				const double error = GetError(prev_symb_, mid, cur);
 				UpdateLoop(error);
 			}

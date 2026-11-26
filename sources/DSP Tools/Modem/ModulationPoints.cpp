@@ -1,26 +1,24 @@
-﻿#ifndef M_PI
-#define M_PI 3.14159265358979323846
-#endif
-#include "ModulationPoints.h"
+﻿#include "ModulationPoints.h"
 
 #include <ipp.h>
 
+#include <algorithm>
 #include <cmath>
 #include <cstring>
 #include <string>
 #include <vector>
 
-#pragma once
-
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 
 namespace
 {
-	// Порядок созвездия (число точек) из имени модуляции, если он распознаётся:
-	// число, стоящее перед тегом (например "1024" в "1024QAM" или "8" в "8PSK").
-	// Возвращает 0, если тег отсутствует или число не парсится.
+	// Constellation order parsed from a modulation name: the number before the tag
+	// ("1024" in "1024QAM", "8" in "8PSK"). Returns 0 if absent or unparsable.
 	int ParseConstellationOrder(const std::string& name, const char* tag)
 	{
-		const auto pos = name.find(tag);
+		const size_t pos = name.find(tag);
 		if (pos == std::string::npos)
 			return 0;
 
@@ -33,173 +31,160 @@ namespace
 			return 0;
 		}
 	}
-}
 
-
-std::vector<Ipp32fc> AddQAMConst(int M)
-{
-	int k = static_cast<int>(std::log2(M));
-
-	// Отсекаем невалидные M и 8-QAM (k=3), так как для него нет cross-геометрии
-	if (k < 2 || (1 << k) != M || k == 3)
-		return {};
-
-	std::vector<Ipp32fc> points;
-	points.reserve(M);
-
-	int side, threshold;
-	if (k % 2 == 0)
+	// Square or cross QAM constellation with unit average power. Returns an empty
+	// vector for an invalid order (not a power of two, or 8-QAM which has no cross
+	// geometry).
+	std::vector<Ipp32fc> MakeQamConstellation(int M)
 	{
-		// Квадратные QAM (4, 16, 64, 256...)
-		side = 1 << (k / 2);
-		threshold = side; // Порог равен стороне. Условие abs(x) > side всегда ложно -> углы не режем
-	}
-	else
-	{
-		// Cross QAM (32, 128, 512...)
-		side = 3 * (1 << ((k - 3) / 2));       // Общая сторона сетки (6, 12, 24...)
-		threshold = 1 << ((k - 1) / 2);        // Порог для отрезания углов (4, 8, 16...)
-	}
+		const int k = static_cast<int>(std::log2(M));
+		if (k < 2 || (1 << k) != M || k == 3)
+			return {};
 
-	int max_coord = side - 1;
+		std::vector<Ipp32fc> points;
+		points.reserve(M);
 
-	// Единый цикл для всех типов. Никаких лишних условий внутри.
-	for (int y = -max_coord; y <= max_coord; y += 2)
-	{
-		for (int x = -max_coord; x <= max_coord; x += 2)
+		int side = 0;
+		int threshold = 0;
+		if (k % 2 == 0)
 		{
-			// Для квадратов это условие никогда не выполнится. 
-			// Для Cross QAM оно отсечет ровно 4 уголка.
-			if (std::abs(x) > threshold && std::abs(y) > threshold)
-				continue;
-
-			points.push_back({ static_cast<Ipp32f>(x), static_cast<Ipp32f>(y) });
+			// Square QAM (4, 16, 64, 256, ...): no corners are cut.
+			side = 1 << (k / 2);
+			threshold = side;
 		}
+		else
+		{
+			// Cross QAM (32, 128, 512, ...): cut the four corners.
+			side = 3 * (1 << ((k - 3) / 2));
+			threshold = 1 << ((k - 1) / 2);
+		}
+
+		const int max_coord = side - 1;
+		for (int y = -max_coord; y <= max_coord; y += 2)
+		{
+			for (int x = -max_coord; x <= max_coord; x += 2)
+			{
+				if (std::abs(x) > threshold && std::abs(y) > threshold)
+					continue;
+				points.push_back({ static_cast<Ipp32f>(x), static_cast<Ipp32f>(y) });
+			}
+		}
+
+		double power = 0.0;
+		for (const Ipp32fc& point : points)
+			power += static_cast<double>(point.re) * point.re + static_cast<double>(point.im) * point.im;
+
+		const Ipp32f norm = static_cast<Ipp32f>(std::sqrt(power / M));
+		for (Ipp32fc& point : points)
+		{
+			point.re /= norm;
+			point.im /= norm;
+		}
+
+		return points;
 	}
 
-	// Нормировка на единичную среднюю мощность
-	double power = 0.0;
-	for (const auto& p : points)
-		power += static_cast<double>(p.re) * p.re + static_cast<double>(p.im) * p.im;
-
-	Ipp32f norm = static_cast<Ipp32f>(std::sqrt(power / M));
-	for (auto& p : points)
+	// PSK constellation with unit power, the first point rotated by `phase`.
+	std::vector<Ipp32fc> MakePskConstellation(int M, double phase)
 	{
-		p.re /= norm;
-		p.im /= norm;
-	}
+		std::vector<Ipp32fc> points;
+		points.reserve(M);
 
-	return points;
+		const double step = 2.0 * M_PI / M;
+		for (int i = 0; i < M; ++i)
+		{
+			const double angle = phase + i * step;
+			points.push_back({ static_cast<Ipp32f>(std::cos(angle)), static_cast<Ipp32f>(std::sin(angle)) });
+		}
+		return points;
+	}
 }
+
 aq_demod::DmdSliderStructure aq_demod::GetDefaultSliderSetup(const char* modulation)
 {
-	// Модуляцию определяем по числу точек созвездия: чуть медленнее, зато
-	// наглядно и без отдельного разбора имени.
+	// Presets keyed by constellation size, chosen so each modulation locks and holds.
+	struct Preset
+	{
+		int points;
+		double pll;
+		double tll;
+		double eq;
+	};
+
+	const Preset presets[] = {
+		{    2, 2.0e-3, 0.03, 1.0e-4 }, // BPSK
+		{    4, 2.0e-3, 0.03, 1.0e-4 }, // QPSK / OQPSK / DQPSK
+		{    8, 2.0e-3, 0.03, 1.0e-4 }, // 8PSK
+		{   16, 2.0e-3, 0.03, 2.0e-4 }, // 16QAM / 16PSK
+		{   32, 3.0e-3, 0.03, 5.0e-4 }, // 32QAM (cross)
+		{   64, 5.0e-4, 0.03, 2.0e-4 }, // 64QAM
+		{  128, 2.0e-4, 0.03, 1.0e-4 }, // 128QAM (cross)
+		{  256, 2.0e-4, 0.03, 1.0e-4 }, // 256QAM
+		{  512, 1.0e-4, 0.04, 1.0e-4 }, // 512QAM (cross)
+		{ 1024, 1.0e-4, 0.04, 1.0e-4 }, // 1024QAM
+		{ 2048, 5.0e-4, 0.03, 1.0e-4 }, // 2048QAM (cross)
+		{ 4096, 5.0e-4, 0.03, 1.0e-4 }, // 4096QAM
+	};
+
 	const int points = static_cast<int>(CalculateModulationPivots(modulation).size());
+	for (const Preset& preset : presets)
+	{
+		if (preset.points == points)
+			return { preset.pll, preset.tll, preset.eq, "AUTO" };
+	}
 
-	// Явный набор для каждой модуляции. Алгоритм эквалайзера по умолчанию —
-	// AUTO (warm-up MMA -> LMS): слепой старт не даёт решающему алгоритму
-	// разойтись до раскрытия созвездия, а после захвата LMS точнее.
-	if (points == 2)     // BPSK
-		return { 2.0e-3, 0.03, 1.0e-4, "AUTO" };
-	if (points == 4)     // QPSK / OQPSK / DQPSK
-		return { 2.0e-3, 0.03, 1.0e-4, "AUTO" };
-	if (points == 8)     // 8PSK
-		return { 2.0e-3, 0.03, 1.0e-4, "AUTO" };
-	if (points == 16)    // 16QAM / 16PSK
-		return { 2.0e-3, 0.03, 2.0e-4, "AUTO" };
-	if (points == 32)    // 32QAM (cross)
-		return { 3.0e-3, 0.03, 5.0e-4, "AUTO" };
-	if (points == 64)    // 64QAM
-		return { 5.0e-4, 0.03, 2.0e-4, "AUTO" };
-	if (points == 128)   // 128QAM (cross)
-		return { 2.0e-4, 0.03, 1.0e-4, "AUTO" };
-	if (points == 256)   // 256QAM
-		return { 2.0e-4, 0.03, 1.0e-4, "AUTO" };
-	if (points == 512)   // 512QAM (cross)
-		return { 1.0e-4, 0.04, 1.0e-4, "AUTO" };
-	if (points == 1024)  // 1024QAM
-		return { 1.0e-4, 0.04, 1.0e-4, "AUTO" };
-	if (points == 2048)  // 2048QAM (cross)
-		return { 5.0e-4, 0.03, 1.0e-4, "AUTO" };
-	if (points == 4096)  // 4096QAM
-		return { 5.0e-4, 0.03, 1.0e-4, "AUTO" };
-
-	// Неизвестная модуляция — общий дефолт.
 	return DmdSliderStructure{};
 }
 
-std::vector<Ipp32fc> aq_demod::CalculateModulationPivots(const char * modulation)
+std::vector<Ipp32fc> aq_demod::CalculateModulationPivots(const char* modulation)
 {
 	const std::string mod = modulation ? modulation : "";
-	std::vector<Ipp32fc> points;
-
-	auto AddPSK = [&points](int M, double phase = 0.0)
-	{
-		const double step = 2.0 * M_PI / M;
-
-		points.reserve(M);
-
-		for (int i = 0; i < M; ++i)
-		{
-			const double a = phase + i * step;
-			points.push_back({
-				static_cast<Ipp32f>(std::cos(a)),
-				static_cast<Ipp32f>(std::sin(a))
-			});
-		}
-	};
-
-
 
 	if (mod == "BPSK")
-	{
-		points = {
-			{ -1.0f, 0.0f },
-			{ 1.0f, 0.0f }
-		};
-	}
-	else if (mod == "QPSK" || mod == "OQPSK" || mod == "DQPSK")
-	{
-		AddPSK(4, M_PI / 4.0);
-	}
-	else if (mod.find("QAM") != std::string::npos)
+		return { { -1.0f, 0.0f }, { 1.0f, 0.0f } };
+
+	if (mod == "QPSK" || mod == "OQPSK" || mod == "DQPSK")
+		return MakePskConstellation(4, M_PI / 4.0);
+
+	if (mod.find("QAM") != std::string::npos)
 	{
 		const int M = ParseConstellationOrder(mod, "QAM");
-		if (M > 0)
-			points = AddQAMConst(M);
+		return M > 0 ? MakeQamConstellation(M) : std::vector<Ipp32fc>{};
 	}
-	else if (mod.find("PSK") != std::string::npos)
+
+	if (mod.find("PSK") != std::string::npos)
 	{
 		const int M = ParseConstellationOrder(mod, "PSK");
-		if (M > 0)
-			AddPSK(M, M_PI / M);
+		return M > 0 ? MakePskConstellation(M, M_PI / M) : std::vector<Ipp32fc>{};
 	}
 
-	return points;
+	return {};
 }
 
-double aq_demod::GetEuclidDist(Ipp32fc piv_iter, Ipp32fc passed)
+double aq_demod::GetEuclidDist(Ipp32fc first, Ipp32fc second)
 {
-	double y_delta = (piv_iter.im - passed.im);
-	double x_delta = (piv_iter.re - passed.re);
-	double cur_euclid = y_delta * y_delta + x_delta * x_delta;
-	return cur_euclid;
+	const double delta_re = static_cast<double>(first.re) - second.re;
+	const double delta_im = static_cast<double>(first.im) - second.im;
+	return delta_re * delta_re + delta_im * delta_im;
 }
 
 Ipp32fc aq_demod::GetClosestSymbol(Ipp32fc passed, std::vector<Ipp32fc>& pivots)
 {
-	if (pivots.empty()) return Ipp32fc();
-	Ipp32fc best_symbol = pivots[0];
-	double least_euclid = 1.e30;
-	for (auto piv_iter : pivots) {
-		auto cur_euclid = GetEuclidDist(passed, piv_iter);
-		if (cur_euclid < least_euclid) {
-			best_symbol = piv_iter;
-			least_euclid = cur_euclid;
+	if (pivots.empty())
+		return Ipp32fc();
+
+	Ipp32fc closest = pivots[0];
+	double least_distance = GetEuclidDist(passed, pivots[0]);
+	for (const Ipp32fc& pivot : pivots)
+	{
+		const double distance = GetEuclidDist(passed, pivot);
+		if (distance < least_distance)
+		{
+			closest = pivot;
+			least_distance = distance;
 		}
 	}
-	return best_symbol;
+	return closest;
 }
 
 std::vector<std::string> aq_demod::GetTestingManipVec(int size)
@@ -212,7 +197,7 @@ std::vector<std::string> aq_demod::GetTestingManipVec(int size)
 	while ((1 << bits) < size)
 		++bits;
 
-	// size должно быть степенью двойки, иначе набор битов не покроет созвездие.
+	// The size must be a power of two, otherwise the bit set cannot cover it.
 	if ((1 << bits) != size)
 		return manip;
 

@@ -10,15 +10,15 @@
 
 namespace aq_mod
 {
-	// CcmModulator - constellation modulator.
+	// Constellation modulator: maps a bit stream to IQ samples.
 	//
-	// Init() builds a lookup table "bit combination -> IQ point" from the
+	// Init() builds a "bit combination -> IQ point" lookup table from the
 	// constellation returned by aq_demod::CalculateModulationPivots(). Process()
-	// maps a bit stream to constellation points, upsamples it by zero insertion
-	// (ippsSampleUp_32fc) and applies a root-raised-cosine pulse shaping filter
-	// (ippsFIRSR_32fc). An optional lowpass can be applied after the RRC
-	// (EnableAfterFilter, on by default). The FIR state is kept between calls, so
-	// a stream can be processed block by block.
+	// maps bits to constellation points, upsamples by zero insertion
+	// (ippsSampleUp_32fc) and shapes them with a root-raised-cosine filter
+	// (ippsFIRSR_32fc). An optional lowpass can follow the RRC (EnableAfterFilter,
+	// on by default). The FIR state is kept between calls, so a stream can be
+	// processed block by block.
 	class CcmModulator
 	{
 	public:
@@ -26,12 +26,12 @@ namespace aq_mod
 		~CcmModulator();
 
 		// modulation - constellation name ("BPSK", "QPSK", "QAM32", ...).
-		// upsample   - samples per symbol (default 4).
+		// upsample   - samples per symbol.
 		bool Init(const char* modulation, int upsample = 4);
 		void Reset();
 
-		// Включает/выключает дополнительный ФНЧ после формирующего RRC-фильтра.
-		// По умолчанию включён. Можно вызывать до или после Init().
+		// Enables/disables the extra lowpass after the shaping RRC (on by default).
+		// May be called before or after Init().
 		void EnableAfterFilter(bool enabled);
 		bool IsAfterFilterEnabled() const { return after_filter_enabled_; }
 
@@ -48,8 +48,8 @@ namespace aq_mod
 		int  GetSymbolCount() const { return static_cast<int>(lookup_.size()); }
 
 	private:
-		// Один потоковый FIR-фильтр: коэффициенты, состояние линии задержки и
-		// рабочий буфер IPP. Пустой фильтр работает как копирование.
+		// One streaming FIR filter: coefficients, delay line state and an IPP
+		// work buffer. An empty filter (no taps) acts as a pass-through copy.
 		struct FirStage
 		{
 			bool Init(const std::vector<Ipp32fc>& taps);
@@ -72,8 +72,8 @@ namespace aq_mod
 		int bits_per_symbol_ = 0;
 		int upsample_ = 4;
 
-		FirStage rrc_;                   // Формирующий RRC-фильтр.
-		FirStage after_;                 // Дополнительный ФНЧ после RRC.
+		FirStage rrc_;                   // Shaping root-raised-cosine filter.
+		FirStage after_;                 // Optional lowpass after the RRC.
 		bool after_filter_enabled_ = true;
 
 		// Scratch buffers reused between calls.

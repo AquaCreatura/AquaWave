@@ -121,6 +121,7 @@
   <ItemGroup>
     <ClCompile Include="AquaWave.cpp" />
     <ClCompile Include="main.cpp" />
+    <ClCompile Include="ConsoleProcessing\ConsoleHelper.cpp" />
     <ClCompile Include="ConsoleProcessing\DmdTester.cpp" />
     <ClCompile Include="ConsoleProcessing\ModTester.cpp" />
     <ClCompile Include="sources\Arks\Demodulation\AquaDemod.cpp" />

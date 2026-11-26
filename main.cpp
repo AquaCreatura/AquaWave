@@ -3,7 +3,6 @@
 #include <QCoreApplication>
 
 #include "ConsoleProcessing/ConsoleHelper.h"
-#include "ConsoleProcessing/DmdTester.h"
 
 #include <qdir.h>
 #include <Windows.h>
@@ -15,10 +14,11 @@ int main(int argc, char *argv[])
 	for (int i = 0; i < argc; ++i)
 		arguments << QString::fromLocal8Bit(argv[i]);
 
-	// Console modes (-dmd / --help): the main project is not started, no windows.
+	// Console modes (-dmd / -mod / --help): the main project is not started,
+	// no windows.
 	if (console::ConsoleHelper::IsConsoleInvocation(arguments)) {
 		QCoreApplication core_app(argc, argv);
-		return console::DmdTester::RunConsole(arguments);
+		return console::ConsoleHelper::RunConsole(arguments);
 	}
 
     QApplication a(argc, argv);

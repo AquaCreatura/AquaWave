@@ -161,6 +161,9 @@
     <ClCompile Include="main.cpp">
       <Filter>Application</Filter>
     </ClCompile>
+    <ClCompile Include="ConsoleProcessing\ConsoleHelper.cpp">
+      <Filter>ConsoleProcessing</Filter>
+    </ClCompile>
     <ClCompile Include="ConsoleProcessing\DmdTester.cpp">
       <Filter>ConsoleProcessing</Filter>
     </ClCompile>

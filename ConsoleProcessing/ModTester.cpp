@@ -22,15 +22,15 @@ namespace
 	// Input read block size (in bytes).
 	constexpr size_t kReadBlockBytes = 1u << 16;
 
-	// Размер случайного файла данных, создаваемого при некорректном входе.
+	// Size of the random data file created when the input is invalid.
 	constexpr int64_t kRandomFileBytes = 15 * 1024 * 1024; // 15 MB
 
-	// Аргумент scaleFactor для ippsConvert_32f16s_Sfs - это правый сдвиг
-	// (результат = src * 2^-scaleFactor), поэтому для домножения на 2^15
-	// (полный 16-битный диапазон) он отрицательный.
+	// The scaleFactor of ippsConvert_32f16s_Sfs is a right shift (result =
+	// src * 2^-scaleFactor), so scaling to 2^15 (full 16-bit range) uses a negative
+	// value.
 	constexpr int kInt16ScaleFactor = -15;
 
-	// True, если файл существует и открывается на чтение.
+	// True if the file exists and can be opened for reading.
 	bool IsReadableFile(const QString& path)
 	{
 		if (path.isEmpty() || !QFileInfo::exists(path))
@@ -39,8 +39,8 @@ namespace
 		return static_cast<bool>(probe);
 	}
 
-	// Создаёт в каталоге dir файл случайных данных на kRandomFileBytes байт.
-	// Возвращает путь к файлу (пустая строка при ошибке).
+	// Creates a kRandomFileBytes random data file in `dir`. Returns the path (empty
+	// on error).
 	QString MakeRandomInputFile(const QString& dir)
 	{
 		const QString path = QDir(dir).absoluteFilePath(QStringLiteral("random_15MB.bin"));
@@ -52,25 +52,27 @@ namespace
 		QRandomGenerator& rng = *QRandomGenerator::global();
 		std::vector<quint32> buffer(1u << 14); // 64 KB
 		int64_t remaining = kRandomFileBytes;
-		while (remaining > 0) {
+		while (remaining > 0)
+		{
 			rng.fillRange(buffer.data(), static_cast<int>(buffer.size()));
 			const int64_t block_bytes = static_cast<int64_t>(buffer.size() * sizeof(quint32));
 			const int64_t to_write = std::min(remaining, block_bytes);
-			out.write(reinterpret_cast<const char*>(buffer.data()),
-				static_cast<std::streamsize>(to_write));
+			out.write(reinterpret_cast<const char*>(buffer.data()), static_cast<std::streamsize>(to_write));
 			remaining -= to_write;
 		}
 		return path;
 	}
 
-	// Имя выходного .pcm по стандарту проекта: "<base>_<Mod> <Fc>MHz <Fs>KHz.pcm".
+	// Output .pcm name following the project standard:
+	// "<base>_<Mod> <Fc>MHz <Fs>KHz.pcm".
 	QString DefaultOutputName(const console::ModParams& params, const QString& input_path)
 	{
 		const QFileInfo input_info(input_path);
 		const int64_t sample_rate_hz = params.symbol_rate_hz * params.upsample;
 
-		// Комментарий формируем как QByteArray, чтобы не возвращать std::string
-		// через границу Qt (сборка Qt msvc2017 и приложения v143 несовместимы по STL).
+		// The comment is built as a QByteArray to avoid passing std::string across the
+		// Qt boundary (the Qt msvc2017 build and the v143 application are STL
+		// incompatible).
 		const QByteArray comment =
 			input_info.completeBaseName().toLocal8Bit() + '_' + params.modulation.toLocal8Bit();
 		const std::string name = aqua_parse_tools::generate_filename(
@@ -79,8 +81,8 @@ namespace
 		return input_info.absoluteDir().absoluteFilePath(QString::fromLocal8Bit(name.c_str()));
 	}
 
-	// Масштабирует IQ к полному 16-битному диапазону и конвертирует в int16
-	// (тот же приём, что в file_writer::SelectionWriter::SendData).
+	// Scales IQ to the full 16-bit range and converts to int16 (the same approach as
+	// file_writer::SelectionWriter::SendData).
 	void ConvertToInt16(std::vector<Ipp32fc>& iq, std::vector<Ipp16s>& out_shorts)
 	{
 		out_shorts.resize(iq.size() * 2);
@@ -91,18 +93,21 @@ namespace
 
 int console::ModTester::RunModulation(const ModParams& params, QTextStream& out)
 {
-	// Входной файл: при отсутствии или некорректности создаём случайный.
-	QString input_path = params.file_path;
-	if (!IsReadableFile(input_path)) {
+	// Input file: if it is missing or invalid, create a random one.
+	QString input_path = params.input_path;
+	if (!IsReadableFile(input_path))
+	{
 		QString dir = QDir::currentPath();
-		if (!input_path.isEmpty()) {
+		if (!input_path.isEmpty())
+		{
 			const QString input_dir = QFileInfo(input_path).absolutePath();
 			if (QDir(input_dir).exists())
 				dir = input_dir;
 		}
 
 		const QString random_path = MakeRandomInputFile(dir);
-		if (random_path.isEmpty()) {
+		if (random_path.isEmpty())
+		{
 			out << "Error: cannot read the input file and cannot create a random one.\n";
 			out.flush();
 			return 1;
@@ -114,8 +119,17 @@ int console::ModTester::RunModulation(const ModParams& params, QTextStream& out)
 
 	aq_mod::CcmModulator modulator;
 	const QByteArray modulation = params.modulation.toLatin1();
-	if (!modulator.Init(modulation.constData(), params.upsample)) {
+	if (!modulator.Init(modulation.constData(), params.upsample))
+	{
 		out << "Error: unknown modulation type \"" << params.modulation << "\".\n";
+		out.flush();
+		return 1;
+	}
+
+	const int bits_per_symbol = modulator.GetBitsPerSymbol();
+	if (bits_per_symbol <= 0)
+	{
+		out << "Error: invalid modulation \"" << params.modulation << "\".\n";
 		out.flush();
 		return 1;
 	}
@@ -123,17 +137,10 @@ int console::ModTester::RunModulation(const ModParams& params, QTextStream& out)
 	aq_mod::GaussianNoiseMaker noise;
 	noise.SetNoiseLevel(params.noise_level_db);
 	const bool noise_enabled = params.noise_level_db > aq_mod::GaussianNoiseMaker::kDisabledLevelDb;
-	noise.setEnable(noise_enabled);
-
-	const int bits_per_symbol = modulator.GetBitsPerSymbol();
-	if (bits_per_symbol <= 0) {
-		out << "Error: invalid modulation \"" << params.modulation << "\".\n";
-		out.flush();
-		return 1;
-	}
+	noise.SetEnabled(noise_enabled);
 
 	const QString out_path =
-		params.out_path.isEmpty() ? DefaultOutputName(params, input_path) : params.out_path;
+		params.output_path.isEmpty() ? DefaultOutputName(params, input_path) : params.output_path;
 
 	QElapsedTimer timer;
 	timer.start();
@@ -159,14 +166,16 @@ int console::ModTester::RunModulation(const ModParams& params, QTextStream& out)
 	out.flush();
 
 	std::ifstream input(input_path.toLocal8Bit().constData(), std::ios::binary);
-	if (!input) {
+	if (!input)
+	{
 		out << "Error: cannot open \"" << input_path << "\".\n";
 		out.flush();
 		return 1;
 	}
 
 	std::ofstream output(out_path.toLocal8Bit().constData(), std::ios::binary | std::ios::trunc);
-	if (!output) {
+	if (!output)
+	{
 		out << "Error: cannot create \"" << out_path << "\".\n";
 		out.flush();
 		return 1;
@@ -181,9 +190,9 @@ int console::ModTester::RunModulation(const ModParams& params, QTextStream& out)
 	int64_t written_bytes = 0;
 	const int64_t max_out_bytes = params.out_size_bytes;
 
-	while (true) {
-		input.read(reinterpret_cast<char*>(read_bytes.data()),
-			static_cast<std::streamsize>(kReadBlockBytes));
+	while (true)
+	{
+		input.read(reinterpret_cast<char*>(read_bytes.data()), static_cast<std::streamsize>(kReadBlockBytes));
 		const std::streamsize bytes_read = input.gcount();
 		if (bytes_read <= 0)
 			break;
@@ -192,7 +201,7 @@ int console::ModTester::RunModulation(const ModParams& params, QTextStream& out)
 		const std::vector<uint8_t> block_bits = aq_mod::CcmModulator::BytesToBits(block_bytes);
 		pending_bits.insert(pending_bits.end(), block_bits.begin(), block_bits.end());
 
-		// Неполные биты переносятся в следующий блок.
+		// Incomplete bits are carried over to the next block.
 		const size_t usable = (pending_bits.size() / bits_per_symbol) * bits_per_symbol;
 		if (usable == 0)
 			continue;
@@ -200,7 +209,8 @@ int console::ModTester::RunModulation(const ModParams& params, QTextStream& out)
 		chunk.assign(pending_bits.begin(), pending_bits.begin() + usable);
 		pending_bits.erase(pending_bits.begin(), pending_bits.begin() + usable);
 
-		if (!modulator.Process(chunk, iq)) {
+		if (!modulator.Process(chunk, iq))
+		{
 			out << "Error: modulation failed.\n";
 			out.flush();
 			return 1;
@@ -212,12 +222,14 @@ int console::ModTester::RunModulation(const ModParams& params, QTextStream& out)
 
 		ConvertToInt16(iq, out_shorts);
 		const int64_t block_bytes_out = static_cast<int64_t>(out_shorts.size() * sizeof(Ipp16s));
-		if (max_out_bytes > 0 && written_bytes + block_bytes_out >= max_out_bytes) {
-			// Пишем только остаток до заданного размера. Округляем вниз до
-			// целого числа комплексных отсчётов int16 (4 байта).
+		if (max_out_bytes > 0 && written_bytes + block_bytes_out >= max_out_bytes)
+		{
+			// Write only the remainder up to the requested size, rounded down to a whole
+			// number of int16 complex samples (4 bytes).
 			int64_t remaining = max_out_bytes - written_bytes;
 			remaining -= remaining % 4;
-			if (remaining > 0) {
+			if (remaining > 0)
+			{
 				output.write(reinterpret_cast<const char*>(out_shorts.data()),
 					static_cast<std::streamsize>(remaining));
 				written_bytes += remaining;
@@ -232,8 +244,8 @@ int console::ModTester::RunModulation(const ModParams& params, QTextStream& out)
 	output.flush();
 	output.close();
 
-	// Считаем записанное по факту: при ограничении --out_size хвост обрезается,
-	// поэтому числа символов/отсчётов должны соответствовать файлу, а не входу.
+	// Count what was actually written: with --out_size the tail is truncated, so the
+	// symbol/sample counts must match the file rather than the input.
 	const int64_t written_samples = written_bytes / static_cast<int64_t>(sizeof(Ipp16s) * 2);
 	const int64_t upsample = std::max(1, modulator.GetUpsample());
 

@@ -6,12 +6,15 @@
 
 namespace aq_demod
 {
-
+	// Gardner timing error detector with cubic interpolation. Recovers symbol timing
+	// from an oversampled (2 or 4 samples/symbol) stream and decimates to one sample
+	// per symbol. State is kept between Process() calls, so a stream can be processed
+	// block by block.
 	class GardnerTED
 	{
 	public:
-		// Диапазон пропорционального усиления timing-петли (gain_mu).
-		// Интегральное усиление (gain_omega) выводится из него как mu^2 / 4.
+		// Proportional gain (gain_mu) range of the timing loop. The integral gain
+		// (gain_omega) is derived from it as mu^2 / 4.
 		static constexpr double kGainMuMin = 0.01;
 		static constexpr double kGainMuMax = 0.05;
 
@@ -22,6 +25,7 @@ namespace aq_demod
 		void Reset();
 		void SetLoopGains(double gain_mu, double gain_omega);
 		double GetTimeError() const;
+
 	private:
 		Ipp32fc Interpolate(const std::vector<Ipp32fc>& signal, double pos) const;
 		Ipp32fc GetSample(const std::vector<Ipp32fc>& signal, int index) const;
@@ -32,28 +36,28 @@ namespace aq_demod
 	private:
 		int upsample_koeff_;
 
-		// Оценка периода символа в отсчётах.
+		// Symbol period estimate in samples.
 		double w_;
 
-		// Положение текущего symbol instant относительно блока.
+		// Position of the current symbol instant within the block.
 		double pos_;
 
 		// PI timing loop.
 		double gain_mu_;
 		double gain_omega_;
 
-		// Не даём оценке SPS слишком далеко уйти.
+		// Bounds on the symbol period estimate.
 		double omega_min_;
 		double omega_max_;
 
-		// Медленная оценка средней мощности сигнала.
+		// Slow estimate of the average signal power.
 		double power_;
 
-		// Предыдущий symbol-timed sample.
+		// Previous symbol-timed sample.
 		Ipp32fc prev_symb_;
 		bool have_prev_symb_;
 
-		// Последние 6 входных отсчёта нужны при переходе между блоками.
+		// Last few input samples, needed across block boundaries.
 		std::vector<Ipp32fc> history_;
 	};
 

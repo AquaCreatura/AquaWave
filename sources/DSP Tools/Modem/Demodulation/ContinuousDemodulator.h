@@ -10,15 +10,17 @@
 #include <cmath>
 #include <vector>
 
-#ifndef  MPI
-	#define M_PI 3.14159265358979323846
-#endif // ! MPI
-
-
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif
 
 namespace aq_demod
 {
-
+	// Continuous (streaming) CCM demodulator. SynchroniseIQ() runs the whole chain
+	// on a block of oversampled IQ samples:
+	//   Gardner timing recovery -> DC removal -> AGC -> Costas carrier loop with a
+	//   decision-directed equaliser -> SNR estimate.
+	// The loop and equaliser state is kept between calls.
 	class ContinuousDemodulator
 	{
 	public:
@@ -34,15 +36,18 @@ namespace aq_demod
 		void SetPllSpeed(double alpha);
 		void SetTimingSpeed(double gain_mu);
 		void SetEqualiserSpeed(double step);
-		// Длина эквалайзера (число отводов). Применяется в Init().
+
+		// Equaliser length (tap count). Applied in Init().
 		void SetEqualiserTaps(int tap_count);
 		int  GetEqualiserTaps() const { return eq_taps_; }
-		// Алгоритм эквалайзера: "MMA"/"CMA" (слепые), "LMS" (по решению) или
-		// "AUTO" (warm-up: сначала MMA, после захвата — LMS, с гистерезисом).
-		// Любое другое значение (в т.ч. nullptr) выбирает AUTO по умолчанию.
+
+		// Equaliser algorithm: "MMA"/"CMA" (blind), "LMS" (decision-directed) or
+		// "AUTO" (warm-up: blind MMA, then decision-directed LMS with hysteresis).
+		// Any other value (including nullptr) selects AUTO.
 		void SetEqualiserAlgorithm(const char* algorithm);
 
-		// Диагностика режима AUTO: активен ли warm-up и захвачено ли созвездие.
+		// AUTO diagnostics: whether warm-up is active and whether the constellation is
+		// locked.
 		bool IsEqualiserWarmUp() const { return equal_.IsWarmUpActive(); }
 		bool IsEqualiserLocked() const { return equal_.IsLocked(); }
 
@@ -61,26 +66,25 @@ namespace aq_demod
 
 		double GetFreqOffset() const { return freq_offset_; }
 		double GetLastSNR() const { return snr_db_; }
-		// Отношение текущей оценки периода символа к номинальной (1.0 — точно в номинале).
+		// Current symbol period estimate over the nominal (1.0 means exactly nominal).
 		double GetSymbolRateRatio() const { return ted_man_.GetTimeError(); }
 
 	private:
 		void UpdateLoopCoefficients();
 		void ApplyAGC(std::vector<Ipp32fc>& signal);
-		// Медленная (экспоненциально сглаженная) оценка постоянной составляющей.
-		// Вычитание среднего по блоку на коротких блоках даёт блочный артефакт
-		// и заметно портит SNR, поэтому оценка сглаживается по отсчётам.
+		// Slow (exponentially smoothed) DC estimate. Subtracting a per-block mean on
+		// short blocks produces a block artifact and noticeably hurts SNR, so the
+		// estimate is smoothed sample by sample.
 		void RemoveDc(std::vector<Ipp32fc>& signal);
 
 		Ipp32fc CorrectPhase(const Ipp32fc& sample) const;
 		Ipp32fc GetDecision(const Ipp32fc& sample, double& phase_error) const;
-		void    UpdatePll(const double & error);
-		void    UpdateSNR(const Ipp32fc sample, const Ipp32fc decission);
+		void    UpdatePll(double phase_error);
+		void    UpdateSNR(const Ipp32fc& corrected, const Ipp32fc& decision);
+
 	private:
-
-		GardnerTED ted_man_;
+		GardnerTED   ted_man_;
 		EqaliserAqua equal_;
-
 
 		std::vector<Ipp32fc> pivots_;
 
@@ -88,49 +92,48 @@ namespace aq_demod
 		double prev_agc_power_ = 1.;
 		double target_power_ = 1.0;
 
-		// AGC normalizes the constellation amplitude for the slicer.
-		double agc_power_  = 1.0;
-		double agc_alpha_  = 0.001;
+		// AGC normalises the constellation amplitude for the slicer.
+		double agc_power_ = 1.0;
+		double agc_alpha_ = 0.001;
 
-		// GNU Radio uses ~2*pi/100 as the default Costas-loop bandwidth.
-		// The range is typically between 2*pi/200 and 2*pi/100.
-		double current_alpha_ = 0.005; // Значение по умолчанию для alpha
+		// Costas-loop speed (GNU Radio uses ~2*pi/100 as default; the range is
+		// typically 2*pi/200 .. 2*pi/100).
+		double current_alpha_ = 0.005;
 		double damping_ = 1.0 / std::sqrt(2.0);
 
-		// Готовые значения скоростей для окна (в единицах реального параметра).
+		// Loop speeds in real parameter units.
 		double current_pll_speed_ = 5e-4;
 		double current_timing_speed_ = 0.03;
 		double current_eq_speed_ = 2.55e-3;
 
-		// Длина эквалайзера по умолчанию.
+		// Default equaliser length.
 		int eq_taps_ = kEqualiserTapsDefault;
 
-		// Gains for the second-order loop (alpha and beta in GNU Radio).
-		double pll_phase_ = 0.0; // Proportional gain (alpha)
-		double pll_freq_ = 0.0;  // Integral gain (beta)
+		// Second-order loop gains (alpha and beta in GNU Radio).
+		double pll_phase_ = 0.0; // proportional gain (alpha)
+		double pll_freq_ = 0.0;  // integral gain (beta)
 
-								 // Carrier phase and frequency, rad and rad/symbol.
+		// Carrier phase and frequency, rad and rad/symbol.
 		double phase_ = 0.0;
 		double freq_offset_ = 0.0;
 
-		// Границы петель в единицах реальных параметров; legacy-дефолт PLL.
+		// Loop bounds in real parameter units; legacy PLL default.
 		static constexpr aqua::Limits<double> kPllSpeedLimits{ 1e-4, 5e-3 };
 		static constexpr aqua::Limits<double> kTimingSpeedLimits{ GardnerTED::kGainMuMin, GardnerTED::kGainMuMax };
 		static constexpr aqua::Limits<double> kEqualiserSpeedLimits{ EqaliserAqua::kBlindStepMin, EqaliserAqua::kBlindStepMax };
 		static constexpr double kPllSpeedDefault{ 5e-4 };
-		// Малая скорость эквалайзера: слепые алгоритмы (MMA/CMA) для некруглых
-		// созвездий (QAM) имеют остаточную ошибку усиления, поэтому большой шаг
-		// ухудшает SNR. Маленький шаг держит фильтр около согласованного состояния.
+		// Small equaliser speed: blind algorithms (MMA/CMA) have a residual gain error
+		// on non-circular (QAM) constellations, so a large step hurts SNR. A small step
+		// keeps the filter near the matched state.
 		static constexpr double kEqualiserSpeedDefault{ 1e-4 };
-		// 21 отводов достаточно, чтобы подавить ISI от RRC-формирования
-		// (7 отводов не хватало: SNR упирался в ~28.5 dB вместо ~29.7 dB).
+		// 21 taps are enough to suppress ISI from the RRC shaping (7 taps left SNR at
+		// ~28.5 dB instead of ~29.7 dB).
 		static constexpr int kEqualiserTapsDefault{ 21 };
 
 		// Normalized frequency range of the fine loop.
-		// Standard values from GNU Radio examples.
 		static constexpr double max_freq_offset_ = 0.05;
 
-		// Оценка DC на уровне символов; окно в символах (~243 Гц при 25 МГц).
+		// Symbol-level DC estimate; window in symbols (~243 Hz at 25 MHz).
 		Ipp32fc dc_estimate_{ 0.0f, 0.0f };
 		static constexpr int kDcSmoothSymbols{ 1 << 14 };
 

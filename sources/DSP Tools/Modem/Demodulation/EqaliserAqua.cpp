@@ -8,7 +8,7 @@ namespace
 {
 	inline double Power(const Ipp32fc& x)
 	{
-		return double(x.re) * x.re + double(x.im) * x.im;
+		return static_cast<double>(x.re) * x.re + static_cast<double>(x.im) * x.im;
 	}
 }
 
@@ -23,6 +23,7 @@ void EqaliserAqua::UpdateTaps(const Ipp32fc& error, double mu)
 	ippsMulC_32fc(history_.data(), coeff, update_.data(), size);
 	ippsAdd_32fc_I(update_.data(), taps_.data(), size);
 }
+
 void EqaliserAqua::UpdateCma()
 {
 	const double error = cma_modulus_ - Power(last_output_);
@@ -80,16 +81,17 @@ void EqaliserAqua::UpdateDd(const Ipp32fc& pivot)
 	if (Power(last_output_) < 1e-12)
 		return;
 
-	// Гейт по надёжности решения — только в режиме AUTO (warm-up). Если решение
-	// ненадёжно (ошибка порядка d_min^2, как у ошибочного решения), обновление по
-	// нему размножает ошибки и уводит фильтр в плохой локальный минимум (особенно
-	// на плотных QAM). В этом случае вместо решающего алгоритма применяем слепой
-	// MMA: он опирается на статистику созвездия, а не на конкретное (возможно,
-	// неверное) решение. Так warm-up уточняет созвездие, но не «сваливается» на
-	// плотных QAM. Явный --eq_alg LMS остаётся чистым решающим алгоритмом.
-	if (auto_warmup_ && dd_gate_ > 0.0) {
+	// Reliability gate, used only in AUTO. An unreliable decision (error of the
+	// order of d_min^2, i.e. a wrong decision) would propagate errors and push the
+	// filter into a bad local minimum, especially on dense QAM. For such symbols a
+	// blind MMA update is used instead: it relies on constellation statistics rather
+	// than the possibly wrong decision, so warm-up refines the constellation without
+	// collapsing. An explicit --eq_alg LMS stays purely decision-directed.
+	if (auto_warmup_ && dd_gate_ > 0.0)
+	{
 		const Ipp32fc gate_error = { pivot.re - last_output_.re, pivot.im - last_output_.im };
-		if (Power(gate_error) > dd_gate_) {
+		if (Power(gate_error) > dd_gate_)
+		{
 			UpdateBlind();
 			return;
 		}
@@ -109,14 +111,12 @@ void EqaliserAqua::UpdateDd(const Ipp32fc& pivot)
 
 void EqaliserAqua::UpdateLockMetric(const Ipp32fc& pivot)
 {
-	// Ошибка решения: расстояние от выхода эквалайзера до ближайшей точки
-	// созвездия. Сглаживаем по отсчётам, чтобы гистерезис не «дёргался».
+	// Decision error: distance from the equaliser output to the nearest constellation
+	// point, smoothed so the hysteresis does not chatter.
 	const Ipp32fc error = { pivot.re - last_output_.re, pivot.im - last_output_.im };
 	const double error_power = Power(error);
 	lock_metric_ += lock_alpha_ * (error_power - lock_metric_);
 }
-
-// ---------- Реализация класса ----------
 
 EqaliserAqua::EqaliserAqua(int tap_count)
 	: taps_(std::max(1, tap_count)),
@@ -144,11 +144,11 @@ void EqaliserAqua::Reset()
 	std::fill(history_.begin(), history_.end(), Ipp32fc{ 0.0f, 0.0f });
 	std::fill(update_.begin(), update_.end(), Ipp32fc{ 0.0f, 0.0f });
 
-	// Центральный отвод = 1 (фильтр пропускает сигнал без искажений)
+	// Central tap = 1: the filter passes the signal unchanged.
 	taps_[taps_.size() / 2] = { 1.0f, 0.0f };
 	last_output_ = { 0.0f, 0.0f };
 
-	// Warm-up всегда начинается заново со слепого алгоритма.
+	// Warm-up always restarts blind.
 	warmup_dd_ = false;
 	lock_metric_ = 1.0;
 }
@@ -166,12 +166,12 @@ bool EqaliserAqua::IsValid() const
 
 void EqaliserAqua::Process(Ipp32fc& sample)
 {
-	// Сдвиг истории (новый отсчёт на первое место)
+	// Shift the history, the new sample goes first.
 	for (size_t i = history_.size() - 1; i > 0; --i)
 		history_[i] = history_[i - 1];
 	history_[0] = sample;
 
-	// Вычисление выходного сигнала (фильтрация)
+	// Filtering (complex tap multiply-accumulate).
 	Ipp32fc output = { 0.0f, 0.0f };
 	for (size_t i = 0; i < taps_.size(); ++i)
 	{
@@ -183,14 +183,12 @@ void EqaliserAqua::Process(Ipp32fc& sample)
 	sample = output;
 }
 
-// ---- Обновление ----
-
 void EqaliserAqua::Update(const Ipp32fc& pivot)
 {
 	if (auto_warmup_)
 	{
-		// Режим AUTO: следим за захватом и переключаемся слепой <-> решающий
-		// с гистерезисом (lock_on_ < lock_off_), т.е. «вперёд-назад».
+		// AUTO: track lock and switch blind <-> decision-directed with hysteresis
+		// (lock_on_ < lock_off_), i.e. both ways.
 		UpdateLockMetric(pivot);
 
 		if (!warmup_dd_ && lock_metric_ < lock_on_)
@@ -205,16 +203,11 @@ void EqaliserAqua::Update(const Ipp32fc& pivot)
 		return;
 	}
 
-	if (blind_direct_decision_)
+	if (direct_decision_enabled_)
 		UpdateDd(pivot);
 	else
 		UpdateBlind();
-		
 }
-
-
-
-// ---- Инициализация параметров по созвездию ----
 
 void EqaliserAqua::InitFromPivots(const std::vector<Ipp32fc>& pivots)
 {
@@ -232,7 +225,7 @@ void EqaliserAqua::InitFromPivots(const std::vector<Ipp32fc>& pivots)
 	std::vector<Ipp32f> real_4(size);
 	std::vector<Ipp32f> imag_4(size);
 
-	// Мощность и её квадрат для CMA
+	// Power and its square, for CMA.
 	ippsPowerSpectr_32fc(pivots.data(), power.data(), size);
 	ippsMul_32f(power.data(), power.data(), power_sq.data(), size);
 
@@ -244,7 +237,7 @@ void EqaliserAqua::InitFromPivots(const std::vector<Ipp32fc>& pivots)
 	if (mean_power > 1e-12f)
 		cma_modulus_ = double(mean_power_sq) / mean_power;
 
-	// Действительная и мнимая части для MMA
+	// Real and imaginary parts, for MMA.
 	ippsReal_32fc(pivots.data(), real.data(), size);
 	ippsImag_32fc(pivots.data(), imag.data(), size);
 
@@ -266,9 +259,9 @@ void EqaliserAqua::InitFromPivots(const std::vector<Ipp32fc>& pivots)
 	if (mean_imag_sq > 1e-12f)
 		mma_imag_modulus_ = double(mean_imag_4) / mean_imag_sq;
 
-	// Минимальное расстояние между точками созвездия: по нему масштабируем
-	// пороги захвата. Плотные созвездия имеют малое расстояние, поэтому порог
-	// становится строже и warm-up не переходит на LMS раньше времени.
+	// Minimum constellation distance: the lock thresholds are scaled by it, so dense
+	// constellations get stricter thresholds and warm-up does not switch to LMS too
+	// early.
 	double min_dist_sq = std::numeric_limits<double>::max();
 	for (size_t i = 0; i < pivots.size(); ++i)
 	{
@@ -281,37 +274,34 @@ void EqaliserAqua::InitFromPivots(const std::vector<Ipp32fc>& pivots)
 
 	if (min_dist_sq < std::numeric_limits<double>::max())
 	{
-		// Порог захвата в долях d_min^2. Остаточная ошибка слепого MMA почти не
-		// зависит от плотности созвездия (~34 dB по решению), поэтому в долях
-		// d_min^2 она тем больше, чем плотнее QAM. Для разреженных созвездий
-		// порог держим строгим (0.30), а для плотных (>= 10 бит,
-		// 1024/2048/4096QAM) поднимаем до 0.20: слепой старт уже раскрывает
-		// глаз, и LMS дошлифовывает созвездие, иначе warm-up никогда не
-		// переключился бы на решающий режим.
+		// Lock threshold as a fraction of d_min^2. The residual blind-MMA error is
+		// nearly independent of constellation density (~34 dB by decision), so as a
+		// fraction of d_min^2 it grows with denser QAM. Sparse constellations get a
+		// strict threshold (0.30), dense ones (>= 10 bits, 1024/2048/4096QAM) a looser
+		// 0.20: the blind start already opens the eye and LMS then polishes it,
+		// otherwise warm-up would never switch to decision-directed mode.
 		const double bits = std::log2(static_cast<double>(pivots.size()));
 		const double lock_ratio = (bits <= 8.0) ? 0.30 : 0.20;
-		// Гистерезис: возврат на слепой алгоритм при ошибке вчетверо выше.
+		// Hysteresis: fall back to blind at four times the error.
 		lock_on_ = min_dist_sq * lock_ratio;
 		lock_off_ = lock_on_ * 4.0;
 
-		// Гейт надёжности решающего алгоритма: четверть d_min^2. Ошибочные
-		// решения (ошибка ~d_min^2) в решающем режиме заменяются на слепое
-		// обновление MMA (см. UpdateDd).
+		// Decision reliability gate: a quarter of d_min^2. Wrong decisions (error
+		// ~d_min^2) are replaced by a blind MMA update in decision-directed mode
+		// (see UpdateDd).
 		dd_gate_ = min_dist_sq * 0.25;
 	}
 }
 
-// ---- Настройка параметров ----
-
 void EqaliserAqua::EnableDirectDecision(bool enabled)
 {
-	blind_direct_decision_ = enabled;
+	direct_decision_enabled_ = enabled;
 }
 
 void EqaliserAqua::SetAutoWarmUp(bool enabled)
 {
 	auto_warmup_ = enabled;
-	// Включение AUTO всегда перезапускает warm-up со слепого алгоритма.
+	// Enabling AUTO always restarts warm-up blind.
 	warmup_dd_ = false;
 	lock_metric_ = 1.0;
 }
@@ -334,6 +324,6 @@ void EqaliserAqua::SetBlindStep(double step)
 void EqaliserAqua::SetDdStep(double step)
 {
 	dd_step_ = std::clamp(step, kDdStepMin, kDdStepMax);
-	// Для NLMS используем отдельный коэффициент (можно изменить по необходимости)
+	// NLMS uses its own coefficient derived from the tap count.
 	dd_nlms_step_ = std::clamp(step * taps_.size(), 0.1, 1.0);
 }

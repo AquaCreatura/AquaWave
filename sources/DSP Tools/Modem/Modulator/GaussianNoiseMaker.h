@@ -6,11 +6,11 @@
 
 namespace aq_mod
 {
-	// GaussianNoiseMaker adds complex white Gaussian noise to IQ samples.
+	// Adds complex white Gaussian noise to IQ samples.
 	//
-	// The noise level is set relative to the signal power: a level of -30 dB
-	// means the noise power is 30 dB below the signal power (SNR = 30 dB).
-	// A level at or below kDisabledLevelDb (-1000 dB) is treated as "no noise".
+	// The level is relative to the signal power: -30 dB means the noise power is
+	// 30 dB below the signal power (SNR = 30 dB). A level at or below
+	// kDisabledLevelDb (-1000 dB) means "no noise".
 	class GaussianNoiseMaker
 	{
 	public:
@@ -23,13 +23,13 @@ namespace aq_mod
 		void SetNoiseLevel(double db) { noise_level_db_ = db; }
 		double GetNoiseLevel() const { return noise_level_db_; }
 
-		void setEnable(bool enabled) { enabled_ = enabled; }
+		void SetEnabled(bool enabled) { enabled_ = enabled; }
 		bool IsEnabled() const { return enabled_; }
 
-		// Re-initializes the generator state (does not change the noise level).
+		// Re-initializes the generator state (the noise level is unchanged).
 		void Reset();
 
-		// Adds noise to the passed IQ samples in place.
+		// Adds noise to the given IQ samples in place.
 		void Process(std::vector<Ipp32fc>& data);
 
 	private:
